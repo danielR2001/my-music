@@ -11,7 +11,7 @@ class Playlist {
   set addNewSong(Song song) => _songs.add(song);
 
   Playlist(String name) {
-    this.name = name;
+    _name = name;
     _songs = new List<Song>();
   }
 }

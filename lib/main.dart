@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ui/welcome_page.dart';
-import 'set_to_portrait.dart';
+import 'portrait_mode_mixin.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 
 void main() => runApp(MyApp());
