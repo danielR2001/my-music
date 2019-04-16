@@ -12,7 +12,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int currentTab = 0;
   DiscoverPage discoverPage;
-  MusicPlayerPage musicPage;
   AccountPage accountPage;
   List<Widget> pages;
   Widget currentPage;
@@ -25,11 +24,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     discoverPage = DiscoverPage();
-    musicPage = MusicPlayerPage();
     accountPage = AccountPage();
     pages = [
       discoverPage,
-      musicPage,
       accountPage,
     ];
     currentPage = discoverPage;
@@ -84,13 +81,6 @@ class _HomePageState extends State<HomePage> {
                 ),
                 BottomNavigationBarItem(
                   icon: new Icon(
-                    Icons.music_note,
-                    size: 30.0,
-                  ),
-                  title: new Text("Playing"),
-                ),
-                BottomNavigationBarItem(
-                  icon: new Icon(
                     Icons.account_circle,
                     size: 30.0,
                   ),
@@ -100,28 +90,57 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        persistentFooterButtons: [
-          Container(
+        bottomSheet: GestureDetector(
+          child: Container(
+            height: 40,
+            color: Colors.grey[850],
             child: Row(
               children: <Widget>[
-                new Text(
-                  "Alone" + " - " + "Alan Walker",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
+                Expanded(
+                  child: Container(),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          new Text(
+                            "Alone",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                          new Text(
+                            "Alan Walker",
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                new IconButton(
-                  icon: Icon(
-                    Icons.play_arrow,
-                    color: Colors.white,
+                Expanded(
+                  child: new IconButton(
+                    icon: Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {},
                   ),
-                  onPressed: () {},
                 )
               ],
             ),
           ),
-        ],
+          onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MusicPlayerPage()),
+              ),
+        ),
       ),
     );
   }

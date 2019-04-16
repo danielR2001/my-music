@@ -10,7 +10,11 @@ class MusicPlayerPage extends StatefulWidget {
   MusicPageState createState() => MusicPageState();
 }
 
-enum PlayerState { stopped, playing, paused }
+enum PlayerState {
+  stopped,
+  playing,
+  paused,
+}
 
 class MusicPageState extends State<MusicPlayerPage> {
   static AudioPlayer advancedPlayer;
@@ -52,32 +56,21 @@ class MusicPageState extends State<MusicPlayerPage> {
             Padding(
               padding: const EdgeInsets.only(
                 top: 40,
+                left: 20,
               ),
-              child: Card(
-                shape: Border(
-                    bottom: BorderSide(
-                  color: Colors.grey,
-                )),
-                elevation: 0,
-                color: Colors.transparent,
-                child: ListTile(
-                  title: new Text(
-                    "Alone",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 25,
+              child: Row(
+                children: <Widget>[
+                  new IconButton(
+                    iconSize: 40,
+                    icon: Icon(
+                      Icons.keyboard_arrow_down,
                       color: Colors.white,
                     ),
+                    onPressed: () => Navigator.pop(
+                          context,
+                        ),
                   ),
-                  subtitle: new Text(
-                    "Alan Walker",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
+                ],
               ),
             ),
             new Expanded(
@@ -107,6 +100,24 @@ class MusicPageState extends State<MusicPlayerPage> {
                 ),
               ),
             ),
+            Column(children: <Widget>[
+              new Text(
+                "Alone",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 25,
+                  color: Colors.white,
+                ),
+              ),
+              new Text(
+                "Alan Walker",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                ),
+              ),
+            ]),
             new Slider(
                 value: songPosition.inSeconds.toDouble(),
                 min: 0.0,

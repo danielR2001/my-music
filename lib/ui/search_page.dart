@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/modules/artist.dart';
+import 'package:myapp/modules/song.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -6,6 +8,8 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  Artist artist = new Artist("Marshmello");
+  Song song = new Song("Friends", "Marshmello");
   TextEditingController textEditingController = new TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -63,37 +67,55 @@ class _SearchPageState extends State<SearchPage> {
                 ),
               ),
             ),
-            // Container(
-            //   decoration: BoxDecoration(
-            //     color: Colors.grey[850],
-            //   ),
-            //   child: new TextField(
-            //     obscureText: false,
-            //     style: new TextStyle(
-            //       color: Colors.white,
-            //     ),
-            //     cursorColor: Colors.pink,
-            //     decoration: new InputDecoration(
-            //       filled: true,
-            //       fillColor: Color(0xE400000),
-            //       focusedBorder: OutlineInputBorder(
-            //         borderRadius: BorderRadius.circular(30.0),
-            //         borderSide: BorderSide(
-            //           color: Colors.transparent,
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
-
-            // new IconButton(
-            //   icon: Icon(
-            //     Icons.arrow_back_ios,
-            //     color: Colors.white,
-            //   ),
-            // )
+            songSearchResult(song),
+            artistSearchResult(artist)
           ],
         ),
+      ),
+    );
+  }
+
+  ListTile songSearchResult(Song song) {
+    return ListTile(
+      leading: Icon(
+        Icons.music_note,
+        color: Colors.white,
+      ),
+      title: new Text(
+        song.songName,
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
+      subtitle: new Text(
+        song.artist,
+        style: TextStyle(
+          color: Colors.grey,
+          fontSize: 12,
+        ),
+      ),
+      trailing: Icon(
+        Icons.more_vert,
+        color: Colors.white,
+      ),
+    );
+  }
+
+  ListTile artistSearchResult(Artist artist) {
+    return ListTile(
+      leading: Icon(
+        Icons.account_circle,
+        color: Colors.white,
+      ),
+      title: new Text(
+        artist.name,
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
+      trailing: Icon(
+        Icons.more_vert,
+        color: Colors.white,
       ),
     );
   }
