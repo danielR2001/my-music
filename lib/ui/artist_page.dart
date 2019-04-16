@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'song.dart';
+import 'package:myapp/modules/song.dart';
 
 class PlayListPage extends StatelessWidget {
   String albumOrArtistOrPlaylist;
@@ -109,7 +109,7 @@ class PlayListPage extends StatelessWidget {
           songs.length,
           (int index) => new ListTile(
                 title: new Text(
-                  songs[index].getSongName(),
+                  songs[index].songName,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -117,7 +117,7 @@ class PlayListPage extends StatelessWidget {
                   ),
                 ),
                 subtitle: new Text(
-                  songs[index].getArtist(),
+                  songs[index].artist,
                   style: TextStyle(
                     color: Colors.grey,
                     fontSize: 12,
@@ -130,9 +130,7 @@ class PlayListPage extends StatelessWidget {
                   ),
                   onPressed: () {
                     print(
-                      songs[index].getSongName() +
-                          "," +
-                          songs[index].getArtist(),
+                      songs[index].songName + "," + songs[index].artist,
                     );
                   },
                 ),

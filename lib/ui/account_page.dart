@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'playlist.dart';
+import 'package:myapp/modules/playlist.dart';
 import 'playlist_page.dart';
 
 class AccountPage extends StatelessWidget {
@@ -194,7 +194,7 @@ class AccountPage extends StatelessWidget {
           ),
         ),
         title: Text(
-          playlist.getName(),
+          playlist.name,
           style: TextStyle(
             fontSize: 20,
             color: Colors.white,
@@ -209,7 +209,7 @@ class AccountPage extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => PlayListPage(
-                      albumOrArtistOrPlaylist: playlist.getName(),
+                      albumOrArtistOrPlaylist: playlist.name,
                       imagePath: "",
                     ),
               ));

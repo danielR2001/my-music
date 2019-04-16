@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'welcome_page.dart';
+import 'ui/welcome_page.dart';
 import 'set_to_portrait.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 
@@ -20,4 +20,3 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
     );
   }
 }
-//hii
