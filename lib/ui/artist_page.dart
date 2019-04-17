@@ -14,16 +14,7 @@ class PlayListPage extends StatelessWidget {
     if (imagePath == "") {
       imagePath = "assets/images/default_playlist_pic.png";
     }
-    songs[0] = new Song("Alone", "Alan Walker");
-    songs[1] = new Song("Hello", "Adelle");
-    songs[2] = new Song("Gasoloni", "Halsey");
-    songs[3] = new Song("Him & I", "Halsey");
-    songs[4] = new Song("Jubel", "Klingande");
-    songs[5] = new Song("Hate Me", "Blue October");
-    songs[6] = new Song("Save The World", "Swedish House Mafia");
-    songs[7] = new Song("Years", "Alesso");
-    songs[8] = new Song("Paradise", "Coldplay");
-    songs[9] = new Song("Old Town Road", "Lil Nas X, Billy Ray Cyrus");
+    songs[0] = new Song("Alone", "Alan Walker", "songs/alan_walker_alone.mp3");
 
     return Scaffold(
       body: new Container(

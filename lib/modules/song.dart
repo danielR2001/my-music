@@ -6,11 +6,11 @@ class Song {
   Song(
     String songName,
     String artist,
-    //String songUrl,
+    String songUrl,
   ) {
     _songName = songName;
     _artist = artist;
-    //_songUrl = songUrl;
+    _songUrl = songUrl;
   }
 
   String get songName => _songName;

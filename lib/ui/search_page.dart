@@ -8,8 +8,8 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  Artist artist = new Artist("Marshmello");
-  Song song = new Song("Friends", "Marshmello");
+  Artist artist = new Artist("Alan Wlaker");
+  Song song = new Song("Alone", "Alan Wlaker", "songs/alan_walker_alone.mp3");
   TextEditingController textEditingController = new TextEditingController();
   @override
   Widget build(BuildContext context) {

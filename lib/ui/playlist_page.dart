@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:myapp/modules/song.dart';
+import 'package:myapp/main.dart';
+import 'music_player_page.dart';
+import 'dart:math';
 
 class PlayListPage extends StatelessWidget {
   String albumOrArtistOrPlaylist;
   String imagePath;
-  List<Song> songs = new List(10);
+  List<Song> songs = new List(1);
+
   PlayListPage({Key key, this.albumOrArtistOrPlaylist, this.imagePath})
       : super(key: key);
 
@@ -14,16 +18,11 @@ class PlayListPage extends StatelessWidget {
     if (imagePath == "") {
       imagePath = "assets/images/default_playlist_pic.png";
     }
-    songs[0] = new Song("Alone", "Alan Walker");
-    songs[1] = new Song("Hello", "Adelle");
-    songs[2] = new Song("Gasoline", "Halsey");
-    songs[3] = new Song("Him & I", "Halsey");
-    songs[4] = new Song("Jubel", "Klingande");
-    songs[5] = new Song("Hate Me", "Blue October");
-    songs[6] = new Song("Save The World", "Swedish House Mafia");
-    songs[7] = new Song("Years", "Alesso");
-    songs[8] = new Song("Paradise", "Coldplay");
-    songs[9] = new Song("Old Town Road", "Lil Nas X, Billy Ray Cyrus");
+    songs[0] = new Song(
+      "Alone",
+      "Alan Walker",
+      "songs/alan_walker_alone.mp3",
+    );
 
     return Scaffold(
       body: new Container(
@@ -104,7 +103,18 @@ class PlayListPage extends StatelessWidget {
                               ),
                             ),
                             elevation: 6.0,
-                            onPressed: () {},
+                            onPressed: () {
+                              var rnd = new Random();
+                              MyApp.songStatus.currentSong =
+                                  songs[rnd.nextInt(songs.length)];
+                              MyApp.songStatus.playSong();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MusicPlayerPage(),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -113,25 +123,27 @@ class PlayListPage extends StatelessWidget {
                 ],
               ),
             ),
-            makeSliverList(songs)
+            makeSliverList(songs, context)
           ],
         ),
       ),
     );
   }
 
-  SliverList makeSliverList(List<Song> songs) {
+  SliverList makeSliverList(List<Song> songs, BuildContext context) {
     return new SliverList(
       delegate: new SliverChildListDelegate(
         new List.generate(
           songs.length,
           (int index) => new ListTile(
                 onTap: () {
-                  print(
-                    songs[index].songName +
-                        ", " +
-                        songs[index].artist +
-                        " Is Playing",
+                  MyApp.songStatus.currentSong = songs[index];
+                  MyApp.songStatus.playSong();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MusicPlayerPage(),
+                    ),
                   );
                 },
                 title: new Text(

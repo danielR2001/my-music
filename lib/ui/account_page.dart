@@ -127,7 +127,7 @@ class AccountPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => PlayListPage(
-                            albumOrArtistOrPlaylist: "Favorites",
+                            albumOrArtistOrPlaylist: "Favourites",
                             imagePath: "",
                           ),
                     ));
@@ -154,7 +154,8 @@ class AccountPage extends StatelessWidget {
               onTap: () {},
             ),
             createSpace(25),
-            createPlaylistTile(playlist, context),
+            createPlaylistTile(playlist, context), //make builder
+            createSpace(50),
           ],
         ),
       ),

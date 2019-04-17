@@ -3,6 +3,7 @@ import 'discover_page.dart';
 import 'account_page.dart';
 import 'music_player_page.dart';
 import 'playlist_page.dart';
+import 'package:myapp/main.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -15,6 +16,7 @@ class _HomePageState extends State<HomePage> {
   AccountPage accountPage;
   List<Widget> pages;
   Widget currentPage;
+  Icon playOrPause;
 
   @override
   void dispose() {
@@ -23,6 +25,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    changeIconState();
     discoverPage = DiscoverPage();
     accountPage = AccountPage();
     pages = [
@@ -41,6 +44,7 @@ class _HomePageState extends State<HomePage> {
       child: new Scaffold(
         backgroundColor: Colors.grey[850],
         body: currentPage,
+        bottomSheet: musicPlayerControl(),
         bottomNavigationBar: new Theme(
           data: Theme.of(context).copyWith(
             canvasColor: Colors.grey[850],
@@ -90,57 +94,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        bottomSheet: GestureDetector(
-          child: Container(
-            height: 40,
-            color: Colors.grey[850],
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Container(),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          new Text(
-                            "Alone",
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                          new Text(
-                            "Alan Walker",
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: new IconButton(
-                    icon: Icon(
-                      Icons.play_arrow,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {},
-                  ),
-                )
-              ],
-            ),
-          ),
-          onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MusicPlayerPage()),
-              ),
-        ),
       ),
     );
   }
@@ -159,5 +112,101 @@ class _HomePageState extends State<HomePage> {
             ),
       ),
     );
+  }
+
+  void changePlayingMusicState() {
+    if (MyApp.songStatus.isPlaying) {
+      setState(() {
+        MyApp.songStatus.pauseSong();
+        changeIconState();
+      });
+    } else {
+      setState(() {
+        MyApp.songStatus.resumeSong();
+        changeIconState();
+      });
+    }
+  }
+
+  void changeIconState() {
+    if (MyApp.songStatus.isPlaying) {
+      setState(
+        () {
+          playOrPause = Icon(
+            Icons.pause,
+            color: Colors.white,
+          );
+        },
+      );
+    } else {
+      setState(
+        () {
+          playOrPause = Icon(
+            Icons.play_arrow,
+            color: Colors.white,
+          );
+        },
+      );
+    }
+  }
+
+  GestureDetector musicPlayerControl() {
+    if (MyApp.songStatus.currentSong != null) {
+      return GestureDetector(
+          child: new Container(
+            height: 40,
+            color: Colors.grey[850],
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Container(),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          new Text(
+                            MyApp.songStatus.currentSong.songName,
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                          new Text(
+                            MyApp.songStatus.currentSong.artist,
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: new IconButton(
+                    icon: playOrPause,
+                    onPressed: () {
+                      changePlayingMusicState();
+                    },
+                  ),
+                )
+              ],
+            ),
+          ),
+          onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MusicPlayerPage()),
+              ));
+    } else {
+      return GestureDetector(
+        child: new Container(
+          height: 0,
+        ),
+      );
+    }
   }
 }
