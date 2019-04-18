@@ -37,4 +37,8 @@ class SongStatus {
     advancedPlayer.stop();
     currentSong = null;
   }
+
+  void seekTime(Duration duration) {
+    advancedPlayer.seek(duration);
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/main.dart';
 import 'home_page.dart';
+import 'dart:math';
 
 class MusicPlayerPage extends StatefulWidget {
   @override
@@ -9,7 +10,7 @@ class MusicPlayerPage extends StatefulWidget {
 
 class MusicPageState extends State<MusicPlayerPage> {
   Icon playOrPause;
-  String songDuration;
+  //String songDuration;
 
   @override
   void initState() {
@@ -132,7 +133,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                     children: <Widget>[
                       Expanded(
                         child: new Text(
-                          MyApp.songStatus.songPosition.inSeconds.toString(),
+                          MyApp.songStatus.songPosition
+                              .toString()
+                              .substring(2, 7),
                           textAlign: TextAlign.left,
                           style: TextStyle(
                             color: Colors.grey[400],
@@ -141,7 +144,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                       ),
                       Expanded(
                         child: new Text(
-                          MyApp.songStatus.songDuration.inSeconds.toString(),
+                          MyApp.songStatus.songDuration
+                              .toString()
+                              .substring(2, 7),
                           textAlign: TextAlign.right,
                           style: TextStyle(
                             color: Colors.grey[400],
@@ -172,7 +177,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                         new IconButton(
                           splashColor: Colors.grey,
                           alignment: Alignment.center,
-                          iconSize: 60,
+                          iconSize: 80,
                           icon: playOrPause,
                           onPressed: () {
                             changePlayingMusicState();
@@ -290,7 +295,7 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   void seekToSecond(int second) {
     Duration newDuration = Duration(seconds: second);
-    MyApp.songStatus.advancedPlayer.seek(newDuration);
+    MyApp.songStatus.seekTime(newDuration);
   }
 
   Future<bool> backButtonHandle() {

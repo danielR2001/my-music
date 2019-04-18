@@ -154,7 +154,7 @@ class _HomePageState extends State<HomePage> {
     if (MyApp.songStatus.currentSong != null) {
       return GestureDetector(
           child: new Container(
-            height: 40,
+            height: 55,
             color: Colors.grey[850],
             child: Row(
               children: <Widget>[
@@ -189,6 +189,7 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                   child: new IconButton(
                     icon: playOrPause,
+                    iconSize: 30,
                     onPressed: () {
                       changePlayingMusicState();
                     },

@@ -136,7 +136,7 @@ class DiscoverPage extends StatelessWidget {
             ),
             createGenres(10, context),
             new SizedBox(
-              height: 50.0,
+              height: 70.0,
             ),
           ],
         ),

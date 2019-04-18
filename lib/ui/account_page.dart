@@ -98,7 +98,7 @@ class AccountPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => PlayListPage(
-                            albumOrArtistOrPlaylist: "Favorites",
+                            albumOrArtistOrPlaylist: "Downloaded",
                             imagePath: "",
                           ),
                     ));

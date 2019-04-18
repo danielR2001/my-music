@@ -8,7 +8,7 @@ import 'dart:math';
 class PlayListPage extends StatelessWidget {
   String albumOrArtistOrPlaylist;
   String imagePath;
-  List<Song> songs = new List(1);
+  List<Song> songs = new List(3);
 
   PlayListPage({Key key, this.albumOrArtistOrPlaylist, this.imagePath})
       : super(key: key);
@@ -22,6 +22,17 @@ class PlayListPage extends StatelessWidget {
       "Alone",
       "Alan Walker",
       "songs/alan_walker_alone.mp3",
+    );
+    songs[1] = new Song(
+      "Body",
+      "Loud Luxury (feat Brando)",
+      "songs/loud_luxury feat.brando_body.mp3",
+    );
+
+    songs[2] = new Song(
+      "Old Town Road",
+      "Lil Nas X (Billy Ray Cyrus)",
+      "songs/lil_nas_x_old_town_road_feat_billy_ray_cyrus.mp3",
     );
 
     return Scaffold(
@@ -107,13 +118,7 @@ class PlayListPage extends StatelessWidget {
                               var rnd = new Random();
                               MyApp.songStatus.currentSong =
                                   songs[rnd.nextInt(songs.length)];
-                              MyApp.songStatus.playSong();
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MusicPlayerPage(),
-                                ),
-                              );
+                              playSongAndGoToMusicPlayer(context);
                             },
                           ),
                         ),
@@ -139,12 +144,7 @@ class PlayListPage extends StatelessWidget {
                 onTap: () {
                   MyApp.songStatus.currentSong = songs[index];
                   MyApp.songStatus.playSong();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MusicPlayerPage(),
-                    ),
-                  );
+                  playSongAndGoToMusicPlayer(context);
                 },
                 title: new Text(
                   songs[index].songName,
@@ -177,6 +177,17 @@ class PlayListPage extends StatelessWidget {
                 ),
               ),
         ),
+      ),
+    );
+  }
+
+  void playSongAndGoToMusicPlayer(BuildContext context) {
+    MyApp.musicControlNotification.show(MyApp.songStatus.currentSong.songName,
+        MyApp.songStatus.currentSong.artist);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MusicPlayerPage(),
       ),
     );
   }
