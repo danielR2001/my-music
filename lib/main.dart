@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
   Widget build(BuildContext context) {
     this.context = context;
     FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
-    songStatus = new SongStatus(); //init song status
+    songStatus = new SongStatus(); // init song status
     musicControlNotification = new MusicControlNotification();
     musicControlNotification.initListeners();
     super.build(context);
