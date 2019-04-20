@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/main.dart';
 import 'home_page.dart';
-import 'dart:math';
 
 class MusicPlayerPage extends StatefulWidget {
   @override
@@ -10,7 +9,6 @@ class MusicPlayerPage extends StatefulWidget {
 
 class MusicPageState extends State<MusicPlayerPage> {
   Icon playOrPause;
-  //String songDuration;
 
   @override
   void initState() {
@@ -82,8 +80,8 @@ class MusicPageState extends State<MusicPlayerPage> {
                             ),
                           ],
                           image: new DecorationImage(
-                            image: new AssetImage(
-                              "assets/images/music_player_pic.png",
+                            image: new NetworkImage(
+                              MyApp.songStatus.currentSong.imageUrl,
                             ),
                             fit: BoxFit.cover,
                           ),
@@ -135,7 +133,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                         child: new Text(
                           MyApp.songStatus.songPosition
                               .toString()
-                              .substring(2, 7),
+                              .substring(checkSongLength(), 7),
                           textAlign: TextAlign.left,
                           style: TextStyle(
                             color: Colors.grey[400],
@@ -146,7 +144,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                         child: new Text(
                           MyApp.songStatus.songDuration
                               .toString()
-                              .substring(2, 7),
+                              .substring(checkSongLength(), 7),
                           textAlign: TextAlign.right,
                           style: TextStyle(
                             color: Colors.grey[400],
@@ -303,5 +301,13 @@ class MusicPageState extends State<MusicPlayerPage> {
       context,
       MaterialPageRoute(builder: (context) => HomePage()),
     );
+  }
+
+  int checkSongLength() {
+    if (MyApp.songStatus.songDuration.inMinutes < 59) {
+      return 2;
+    } else {
+      return 0;
+    }
   }
 }

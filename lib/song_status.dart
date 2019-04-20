@@ -1,6 +1,7 @@
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:myapp/modules/song.dart';
+import 'package:myapp/models/song.dart';
+import 'main.dart';
 
 class SongStatus {
   bool isPlaying;
@@ -19,8 +20,9 @@ class SongStatus {
   }
   void playSong() {
     isPlaying = true;
-    print(currentSong.songUrl);
-    audioCache.play(currentSong.songUrl);
+    advancedPlayer.play(currentSong.songUrl);
+    // MyApp.musicControlNotification
+    //     .show(currentSong.songName, currentSong.artist);
   }
 
   void resumeSong() {

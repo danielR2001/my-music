@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'package:myapp/modules/song.dart';
+import 'package:myapp/models/song.dart';
 
 class PlayListPage extends StatelessWidget {
   String albumOrArtistOrPlaylist;
-  String imagePath;
-  List<Song> songs = new List(10);
+  String imagePath; //temp
+  List<Song> songs = new List(10); //temp
+
   PlayListPage({Key key, this.albumOrArtistOrPlaylist, this.imagePath})
       : super(key: key);
 
@@ -14,8 +15,6 @@ class PlayListPage extends StatelessWidget {
     if (imagePath == "") {
       imagePath = "assets/images/default_playlist_pic.png";
     }
-    songs[0] = new Song("Alone", "Alan Walker", "songs/alan_walker_alone.mp3");
-
     return Scaffold(
       body: new Container(
         decoration: new BoxDecoration(

@@ -22,9 +22,10 @@ dependencies:
 
   flutter_launcher_icons: "^0.7.0"
   flutter_statusbarcolor: ^0.2.0
-  audioplayers: ^0.7.8
-  #flutter_local_notifications: ^0.6.1
   media_notification: ^0.0.5
+  http: ^0.12.0+2
+  html: ^0.14.0+1
+  audioplayers: ^0.10.1
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
@@ -63,15 +64,10 @@ flutter:
    - assets/images/chill.png
    - assets/images/blues.png
    - assets/images/profile_pic.png
-   - assets/images/alan_walker.png
    - assets/images/sign_in_pic.png
    - assets/images/google_logo.png
    - assets/images/facebook_logo.png
-   - assets/images/music_player_pic.png
    - assets/images/default_playlist_pic.png
-   - assets/songs/alan_walker_alone.mp3
-   - assets/songs/loud_luxury feat.brando_body.mp3
-   - assets/songs/lil_nas_x_old_town_road_feat_billy_ray_cyrus.mp3
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

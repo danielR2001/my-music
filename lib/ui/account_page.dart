@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/modules/playlist.dart';
+import 'package:myapp/models/playlist.dart';
 import 'playlist_page.dart';
 
 class AccountPage extends StatelessWidget {

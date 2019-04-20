@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'package:myapp/modules/song.dart';
+import 'package:myapp/models/song.dart';
 import 'package:myapp/main.dart';
 import 'music_player_page.dart';
 import 'dart:math';
@@ -8,7 +8,7 @@ import 'dart:math';
 class PlayListPage extends StatelessWidget {
   String albumOrArtistOrPlaylist;
   String imagePath;
-  List<Song> songs = new List(3);
+  List<Song> songs = new List(0);
 
   PlayListPage({Key key, this.albumOrArtistOrPlaylist, this.imagePath})
       : super(key: key);
@@ -18,22 +18,6 @@ class PlayListPage extends StatelessWidget {
     if (imagePath == "") {
       imagePath = "assets/images/default_playlist_pic.png";
     }
-    songs[0] = new Song(
-      "Alone",
-      "Alan Walker",
-      "songs/alan_walker_alone.mp3",
-    );
-    songs[1] = new Song(
-      "Body",
-      "Loud Luxury (feat Brando)",
-      "songs/loud_luxury feat.brando_body.mp3",
-    );
-
-    songs[2] = new Song(
-      "Old Town Road",
-      "Lil Nas X (Billy Ray Cyrus)",
-      "songs/lil_nas_x_old_town_road_feat_billy_ray_cyrus.mp3",
-    );
 
     return Scaffold(
       body: new Container(
@@ -182,8 +166,6 @@ class PlayListPage extends StatelessWidget {
   }
 
   void playSongAndGoToMusicPlayer(BuildContext context) {
-    MyApp.musicControlNotification.show(MyApp.songStatus.currentSong.songName,
-        MyApp.songStatus.currentSong.artist);
     Navigator.push(
       context,
       MaterialPageRoute(

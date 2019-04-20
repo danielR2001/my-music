@@ -5,6 +5,7 @@ import 'portrait_mode_mixin.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:myapp/song_status.dart';
 import 'music_control_notification.dart';
+import 'fetch_data_from_internet.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,11 +15,7 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
   static MusicControlNotification musicControlNotification;
   @override
   Widget build(BuildContext context) {
-    this.context = context;
-    FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
-    songStatus = new SongStatus(); //init song status
-    musicControlNotification = new MusicControlNotification();
-    musicControlNotification.initListeners();
+    init();
     super.build(context);
     return MaterialApp(
       title: 'My Music',
@@ -28,5 +25,12 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
       ),
       home: WelcomePage(),
     );
+  }
+
+  void init() {
+    FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
+    songStatus = new SongStatus(); //init song status
+    //musicControlNotification = new MusicControlNotification();
+    //musicControlNotification.initListeners();
   }
 }
