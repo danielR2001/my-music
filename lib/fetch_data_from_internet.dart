@@ -74,7 +74,6 @@ class FetchData {
     List<Song> tempList = new List();
     Song temp;
     String tempTitle;
-    Map<String, dynamic> map;
     list.forEach((item) {
       searchStr = searchStr.toLowerCase();
       tempTitle = item['title'];
@@ -99,7 +98,6 @@ class FetchData {
       input *= -1;
       encoded += "-";
     }
-    ;
     while (input > 0) {
       var val = input % length;
       input = (input / length).toInt();

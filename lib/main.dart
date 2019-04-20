@@ -5,7 +5,6 @@ import 'portrait_mode_mixin.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:myapp/song_status.dart';
 import 'music_control_notification.dart';
-import 'fetch_data_from_internet.dart';
 
 void main() => runApp(MyApp());
 

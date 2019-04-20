@@ -1,7 +1,6 @@
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:myapp/models/song.dart';
-import 'main.dart';
 
 class SongStatus {
   bool isPlaying;
