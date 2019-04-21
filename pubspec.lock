@@ -87,6 +87,20 @@ packages:
       url: "https://github.com/MarkOSullivan94/dart_config.git"
     source: git
     version: "0.5.0"
+  firebase_auth:
+    dependency: "direct main"
+    description:
+      name: firebase_auth
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.4+5"
+  firebase_core:
+    dependency: transitive
+    description:
+      name: firebase_core
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.4"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -146,13 +160,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.12.3+1"
-  media_notification:
-    dependency: "direct main"
-    description:
-      name: media_notification
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.5"
   meta:
     dependency: transitive
     description:

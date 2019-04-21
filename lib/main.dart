@@ -5,14 +5,12 @@ import 'portrait_mode_mixin.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:myapp/song_status.dart';
 import 'music_control_notification.dart';
-import 'firebase/authentication.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget with PortraitModeMixin {
-  BuildContext context;
   static SongStatus songStatus;
-  static MusicControlNotification musicControlNotification;
+  //static MusicControlNotification musicControlNotification;
   @override
   Widget build(BuildContext context) {
     init();
@@ -28,8 +26,6 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
   }
 
   void init() {
-    // FirebaseAuthentication.SignInWithEmail(
-    //     'daniel.rachlin@gmail.com', "?RD774niel)");
     FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
     songStatus = new SongStatus(); //init song status
     //musicControlNotification = new MusicControlNotification();

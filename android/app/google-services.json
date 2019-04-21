@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "672164406225",
+    "firebase_url": "https://musicapp-1f49e.firebaseio.com",
+    "project_id": "musicapp-1f49e",
+    "storage_bucket": "musicapp-1f49e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:672164406225:android:978d1e5a820dd8e0",
+        "android_client_info": {
+          "package_name": "com.daniel.mymusic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "672164406225-ul2e63ar54h7i8jjg2gqt0fktnqndt9a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxeKz05v53HuI2KHeMS3ttdfgFC5tCBgI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "672164406225-ul2e63ar54h7i8jjg2gqt0fktnqndt9a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

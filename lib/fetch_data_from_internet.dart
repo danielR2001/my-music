@@ -101,7 +101,7 @@ class FetchData {
     }
     while (input > 0) {
       var val = input % length;
-      input = (input / length).toInt();
+      input = input ~/ length;
       encoded += map[val];
     }
     return encoded;

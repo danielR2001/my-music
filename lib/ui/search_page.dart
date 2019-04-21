@@ -46,7 +46,6 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                   Flexible(
                     child: Container(
-                      decoration: BoxDecoration(),
                       child: new TextField(
                         controller: textEditingController,
                         autofocus: true,
@@ -62,8 +61,6 @@ class _SearchPageState extends State<SearchPage> {
                             color: Colors.white,
                             fontSize: 18,
                           ),
-                          filled: true,
-                          fillColor: Color(0xE400000),
                         ),
                         onChanged: (txt) => {
                               FetchData.fetchPost(txt).then((results) {
