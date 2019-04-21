@@ -85,6 +85,7 @@ class FetchData {
             mainUrl + encode(item['owner_id']) + ":" + encode(item['id']),
             getImageUrl(item['album']));
         tempList.add(temp);
+        print(item['title'] + " " + item['artist']);
       }
     });
     return tempList;
@@ -107,13 +108,22 @@ class FetchData {
   }
 
   static String getImageUrl(Map<String, dynamic> value) {
-    var temp;
-    temp = value;
-    temp = temp.values;
-    temp = temp.toList();
-    temp?.removeRange(0, 4);
-    temp = temp[0].values.toList();
-    temp = temp[5];
-    return temp;
+    if (value != null) {
+      if (value.length > 4) {
+        var temp;
+        temp = value;
+        temp = temp.values;
+        temp = temp.toList();
+        temp?.removeRange(0, 4);
+        temp = temp[0].values.toList();
+        temp = temp[5];
+        print("image url:" + temp);
+        return temp;
+      } else {
+        return "";
+      }
+    } else {
+      return "";
+    }
   }
 }

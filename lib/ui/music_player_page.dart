@@ -14,7 +14,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   void initState() {
     super.initState();
     initSong();
-    changeIconState();
+    changePlayingIconState();
   }
 
   @override
@@ -27,11 +27,11 @@ class MusicPageState extends State<MusicPlayerPage> {
             gradient: new LinearGradient(
               colors: [
                 Color(0xE4000000),
-                Colors.blue[900],
+                Colors.pink,
               ],
-              begin: FractionalOffset.bottomRight,
-              stops: [0.7, 1.0],
-              end: FractionalOffset.topLeft,
+              begin: FractionalOffset.bottomCenter,
+              stops: [0.5, 1.0],
+              end: FractionalOffset.topCenter,
             ),
           ),
           child: Column(
@@ -41,16 +41,18 @@ class MusicPageState extends State<MusicPlayerPage> {
                 child: Row(
                   children: <Widget>[
                     new IconButton(
-                      iconSize: 40,
-                      icon: Icon(
-                        Icons.keyboard_arrow_down,
-                        color: Colors.white,
-                      ),
-                      onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => HomePage()),
-                          ),
-                    ),
+                        iconSize: 40,
+                        icon: Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.white,
+                        ),
+                        onPressed: () => {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HomePage()),
+                              )
+                            }),
                     Expanded(
                       child: new Container(),
                     ),
@@ -60,7 +62,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                           Icons.more_vert,
                           color: Colors.white,
                         ),
-                        onPressed: () {}),
+                        onPressed: () {
+                          showMoreOptions();
+                        }),
                   ],
                 ),
               ),
@@ -80,9 +84,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                             ),
                           ],
                           image: new DecorationImage(
-                            image: new NetworkImage(
-                              MyApp.songStatus.currentSong.imageUrl,
-                            ),
+                            image: songImage(),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -241,21 +243,187 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
   }
 
+  void showMoreOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (builder) {
+        return new Container(
+          alignment: Alignment.topCenter,
+          color: Color(0xFF000000),
+          child: new ListView(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                child: new Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    new Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        new Text(
+                          MyApp.songStatus.currentSong.songName,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                        new Text(
+                          MyApp.songStatus.currentSong.artist,
+                          style: TextStyle(color: Colors.grey, fontSize: 15),
+                          textAlign: TextAlign.center,
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: new ListTile(
+                  leading: new Icon(
+                    Icons.favorite_border,
+                    color: Colors.grey,
+                    size: 30,
+                  ),
+                  title: new Text(
+                    "Like",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: new ListTile(
+                  leading: new Icon(
+                    Icons.shuffle,
+                    color: Colors.grey,
+                    size: 30,
+                  ),
+                  title: new Text(
+                    "Shuffle",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                  child: new SizedBox(
+                    height: 1,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: new ListTile(
+                  leading: new Icon(
+                    Icons.file_download,
+                    color: Colors.grey,
+                    size: 30,
+                  ),
+                  title: new Text(
+                    "Download",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: new ListTile(
+                  leading: new Icon(
+                    Icons.playlist_add,
+                    color: Colors.grey,
+                    size: 30,
+                  ),
+                  title: new Text(
+                    "Add To Playlist",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onTap: () {},
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: new ListTile(
+                  leading: new Icon(
+                    Icons.account_circle,
+                    color: Colors.grey,
+                    size: 30,
+                  ),
+                  title: new Text(
+                    "View Artist",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: new ListTile(
+                  leading: new Icon(
+                    Icons.share,
+                    color: Colors.grey,
+                    size: 30,
+                  ),
+                  title: new Text(
+                    "Share",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void changePlayingMusicState() {
     if (MyApp.songStatus.isPlaying) {
       setState(() {
         MyApp.songStatus.pauseSong();
-        changeIconState();
+        changePlayingIconState();
       });
     } else {
       setState(() {
         MyApp.songStatus.resumeSong();
-        changeIconState();
+        changePlayingIconState();
       });
     }
   }
 
-  void changeIconState() {
+  void changePlayingIconState() {
     if (MyApp.songStatus.isPlaying) {
       setState(
         () {
@@ -308,6 +476,18 @@ class MusicPageState extends State<MusicPlayerPage> {
       return 2;
     } else {
       return 0;
+    }
+  }
+
+  NetworkImage songImage() {
+    if (MyApp.songStatus.currentSong.imageUrl.length > 0) {
+      return new NetworkImage(
+        MyApp.songStatus.currentSong.imageUrl,
+      );
+    } else {
+      return new NetworkImage(
+        'http://musicneedsyou.com/wp-content/uploads/2016/11/audio-engineer-300x200.jpg',
+      );
     }
   }
 }

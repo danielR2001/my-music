@@ -12,7 +12,7 @@ class AccountPage extends StatelessWidget {
           gradient: new LinearGradient(
             colors: [
               Color(0xE4000000),
-              Colors.pink[900],
+              Colors.pink,
             ],
             begin: FractionalOffset.bottomRight,
             stops: [0.7, 1.0],
@@ -189,7 +189,7 @@ class AccountPage extends StatelessWidget {
             image: new DecorationImage(
               fit: BoxFit.fill,
               image: ExactAssetImage(
-                "assets/images/music_player_pic.png",
+                "assets/images/default_playlist_pic.png",
               ),
             ),
           ),

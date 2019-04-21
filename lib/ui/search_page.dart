@@ -65,25 +65,34 @@ class _SearchPageState extends State<SearchPage> {
                           filled: true,
                           fillColor: Color(0xE400000),
                         ),
-                        onSubmitted: (txt) => {
-                              searchResults = null,
-                              searchLength = 0,
+                        onChanged: (txt) => {
                               FetchData.fetchPost(txt).then((results) {
                                 setState(() {
                                   searchResults = results;
-                                  if (searchResults.length > 15) {
-                                    searchLength = 15;
-                                  } else {
-                                    searchLength = searchResults.length;
-                                  }
-                                  //searchLength = searchResults.length;
+                                  searchLength = searchResults.length;
                                 });
-                                // searchResults
-                                //     .forEach((item) => print(item.toString()));
+                              }),
+                            },
+                        onSubmitted: (txt) => {
+                              FetchData.fetchPost(txt).then((results) {
+                                setState(() {
+                                  searchResults = results;
+                                  searchLength = searchResults.length;
+                                });
                               }),
                             },
                       ),
                     ),
+                  ),
+                  new IconButton(
+                    iconSize: 20,
+                    icon: Icon(
+                      Icons.cancel,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                   ),
                 ],
               ),
@@ -102,9 +111,13 @@ class _SearchPageState extends State<SearchPage> {
 
   static ListTile songSearchResult(Song song, BuildContext context) {
     return ListTile(
-      leading: Icon(
-        Icons.music_note,
-        color: Colors.white,
+      leading: new Container(
+        width: 30,
+        height: 30,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+          image: songImage(song),
+        )),
       ),
       title: new Text(
         song.songName,
@@ -154,5 +167,17 @@ class _SearchPageState extends State<SearchPage> {
         color: Colors.white,
       ),
     );
+  }
+
+  static NetworkImage songImage(Song song) {
+    if (song.imageUrl.length > 0) {
+      return new NetworkImage(
+        song.imageUrl,
+      );
+    } else {
+      return new NetworkImage(
+        'https://previews.123rf.com/images/fokaspokas/fokaspokas1803/fokaspokas180300237/96761327-music-note-icon-white-icon-with-shadow-on-transparent-background.jpg',
+      );
+    }
   }
 }

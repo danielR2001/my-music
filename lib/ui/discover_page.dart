@@ -40,7 +40,7 @@ class DiscoverPage extends StatelessWidget {
           gradient: new LinearGradient(
             colors: [
               Color(0xE4000000),
-              Colors.green[900],
+              Colors.pink,
             ],
             begin: FractionalOffset.bottomRight,
             stops: [0.7, 1.0],
