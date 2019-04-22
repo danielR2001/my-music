@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/ui/app_icon.dart';
 import 'sign_in_page.dart';
 import 'home_page.dart';
+import 'log_in_page.dart';
 
 class WelcomePage extends StatelessWidget {
   @override
@@ -35,7 +36,7 @@ class WelcomePage extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.only(
-                top: 200,
+                top: 100,
               ),
               child: new Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -81,7 +82,37 @@ class WelcomePage extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => LoginPage(),
+                              builder: (context) => LogInPage(),
+                            ));
+                      },
+                      child: new Container(
+                        alignment: Alignment.center,
+                        height: 60.0,
+                        decoration: new BoxDecoration(
+                          color: Colors.pink,
+                          borderRadius: new BorderRadius.circular(40.0),
+                        ),
+                        child: new Text(
+                          "Log In",
+                          style: new TextStyle(
+                            fontSize: 20.0,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40.0,
+                      vertical: 15.0,
+                    ),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SignInPage(),
                             ));
                       },
                       child: new Container(

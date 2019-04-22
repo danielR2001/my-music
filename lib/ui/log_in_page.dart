@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/ui/app_icon.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'home_page.dart';
 
-class SignInPage extends StatefulWidget {
+class LogInPage extends StatefulWidget {
   @override
   _State createState() => _State();
 }
 
-class _State extends State<SignInPage> {
+class _State extends State<LogInPage> {
   String _email;
   String _password;
   final formKey = new GlobalKey<FormState>();
   static final key = new GlobalKey<ScaffoldState>();
+
   @override
   void dispose() {
     key.currentState.dispose();
@@ -60,7 +60,7 @@ class _State extends State<SignInPage> {
                 bottom: 20,
               ),
               child: new Text(
-                "Hello! Let`s sign up",
+                "Welcome Back!",
                 style: TextStyle(
                   fontSize: 25.0,
                   color: Colors.white,
@@ -80,7 +80,7 @@ class _State extends State<SignInPage> {
                 ),
                 child: new ListTile(
                   leading: new Text(
-                    "Sign In With FaceBook",
+                    "Log In With FaceBook",
                     style: new TextStyle(
                       fontSize: 20.0,
                       color: Colors.white,
@@ -114,7 +114,7 @@ class _State extends State<SignInPage> {
                 ),
                 child: new ListTile(
                   leading: new Text(
-                    "Sign In With Google",
+                    "Log In With Google",
                     style: new TextStyle(
                       fontSize: 20.0,
                       color: Colors.grey[700],
@@ -245,7 +245,7 @@ class _State extends State<SignInPage> {
                             borderRadius: new BorderRadius.circular(40.0),
                           ),
                           child: new Text(
-                            "Sign In",
+                            "Log In",
                             style: new TextStyle(
                               fontSize: 20.0,
                               color: Colors.white,
@@ -269,20 +269,17 @@ class _State extends State<SignInPage> {
     if (form.validate()) {
       form.save();
       if (_password.length >= 6 && checkForValidEmail(_email)) {
-        FirebaseAuthentication.signInWithEmail(_email, _password)
-            .then((e) {})
-            .whenComplete(() {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomePage(),
-              ));
-        });
+        FirebaseAuthentication.logInWithEmail(_email, _password);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(),
+            ));
       } else {
         key.currentState.showSnackBar(new SnackBar(
-          duration: new Duration(seconds: 5),
+          duration: new Duration(seconds: 3),
           content: new Text(
-              "Email is not valid! Or password is shorter than 6 symbols"),
+              "Mail is not valid! Or password is shorter than 6 symbols"),
         ));
       }
     }

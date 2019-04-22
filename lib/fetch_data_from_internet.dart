@@ -85,7 +85,6 @@ class FetchData {
             mainUrl + encode(item['owner_id']) + ":" + encode(item['id']),
             getImageUrl(item['album']));
         tempList.add(temp);
-        print(item['title'] + " " + item['artist']);
       }
     });
     return tempList;
@@ -117,7 +116,6 @@ class FetchData {
         temp?.removeRange(0, 4);
         temp = temp[0].values.toList();
         temp = temp[5];
-        print("image url:" + temp);
         return temp;
       } else {
         return "";

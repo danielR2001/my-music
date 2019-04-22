@@ -1,22 +1,52 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:myapp/models/user.dart';
 
 class FirebaseAuthentication {
-  final GoogleAuthProvider _googleSignIn = GoogleAuthProvider();
-  static final FirebaseAuth _auth = FirebaseAuth.instance;
-  static FirebaseUser user;
-
-  static Future<void> SignInWithEmail(String email, String password) async {
+  static Future<FirebaseUser> signInWithEmail(
+      String email, String password) async {
     try {
-      user = await _auth
-          .createUserWithEmailAndPassword(
+      FirebaseUser user =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
-      )
-          .whenComplete(() {
-        print("Register Completed");
-      });
+      );
+      print("firebase User ID: " + user.uid);
+      return user;
     } catch (e) {
-      print("Register Failed!!! " + e);
+      print(e);
+      return null;
     }
+  }
+
+  static Future<FirebaseUser> logInWithEmail(
+      String email, String password) async {
+    try {
+      FirebaseUser user =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      print("firebase User ID: " + user.uid);
+      return user;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  static Future<FirebaseUser> currentUser() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    if (user != null) {
+      print("firebase User ID: " + user.uid);
+    }
+    return user;
+  }
+
+  static Future<void> signOut() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
+  void createUser() {
+    //User
   }
 }

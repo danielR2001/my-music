@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/playlist.dart';
 import 'playlist_page.dart';
+import 'package:myapp/firebase/authentication.dart';
+import 'welcome_page.dart';
 
 class AccountPage extends StatelessWidget {
   final Playlist playlist = new Playlist("My First Playlist");
@@ -25,18 +27,31 @@ class AccountPage extends StatelessWidget {
               trailing: new Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  new Icon(
-                    Icons.notifications,
-                    size: 30,
-                    color: Colors.grey,
+                  new IconButton(
+                    icon: Icon(
+                      Icons.notifications,
+                      size: 30,
+                      color: Colors.grey,
+                    ),
                   ),
                   new SizedBox(
-                    width: 25,
+                    width: 20,
                   ),
-                  new Icon(
-                    Icons.settings,
-                    size: 30,
-                    color: Colors.grey,
+                  new IconButton(
+                    icon: Icon(
+                      Icons.settings,
+                      size: 30,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () {
+                      FirebaseAuthentication.signOut().then((user) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => WelcomePage(),
+                            ));
+                      });
+                    },
                   )
                 ],
               ),

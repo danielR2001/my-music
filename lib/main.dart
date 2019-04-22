@@ -4,7 +4,7 @@ import 'ui/welcome_page.dart';
 import 'portrait_mode_mixin.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:myapp/song_status.dart';
-import 'music_control_notification.dart';
+import 'package:myapp/ui/root_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
       theme: ThemeData(
         fontFamily: 'Roboto',
       ),
-      home: WelcomePage(),
+      home: RootPage(),
     );
   }
 

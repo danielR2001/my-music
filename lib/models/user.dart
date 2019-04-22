@@ -3,6 +3,7 @@ import 'playlist.dart';
 class User {
   String _name;
   String _imageUrl;
+  String firebaseUId;
   List<Playlist> _myPlaylists;
 
   Artist(

@@ -4,6 +4,7 @@ import 'account_page.dart';
 import 'music_player_page.dart';
 import 'playlist_page.dart';
 import 'package:myapp/main.dart';
+import 'package:marquee/marquee.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -170,17 +171,8 @@ class _HomePageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          new Text(
-                            MyApp.songStatus.currentSong.songName,
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                          new Text(
-                            MyApp.songStatus.currentSong.artist,
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 14,
-                            ),
-                          ),
+                          text(MyApp.songStatus.currentSong.songName),
+                          text(MyApp.songStatus.currentSong.artist),
                         ],
                       ),
                     ],
@@ -209,5 +201,34 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     }
+  }
+
+  Text text(String txt) {
+    //if (txt.length < 20) {
+    return new Text(
+      txt,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 16,
+        color: Colors.white,
+      ),
+    );
+    // } else {
+    // return new Marquee(
+    //   text: txt,
+    //   style: TextStyle(
+    //     fontSize: 16,
+    //     color: Colors.white,
+    //   ),
+    //   // blankSpace: 20,
+    //   // velocity: 100,
+    //   // pauseAfterRound: Duration(seconds: 1),
+    //   // startPadding: 10,
+    //   // accelerationDuration: Duration(seconds: 1),
+    //   // accelerationCurve: Curves.linear,
+    //   // decelerationDuration: Duration(microseconds: 500),
+    //   // decelerationCurve: Curves.easeOut,
+    // );
+    // }
   }
 }
