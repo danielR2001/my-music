@@ -15,6 +15,7 @@ class PlayListPage extends StatelessWidget {
     if (imagePath == "") {
       imagePath = "assets/images/default_playlist_pic.png";
     }
+
     return Scaffold(
       body: new Container(
         decoration: new BoxDecoration(

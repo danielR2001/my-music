@@ -95,7 +95,7 @@ class MusicPageState extends State<MusicPlayerPage> {
               ),
               Column(children: <Widget>[
                 new Text(
-                  MyApp.songStatus.currentSong.songName,
+                  songStatus.currentSong.songName,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 25,
@@ -103,7 +103,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                   ),
                 ),
                 new Text(
-                  MyApp.songStatus.currentSong.artist,
+                  songStatus.currentSong.artist,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
@@ -112,9 +112,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                 ),
               ]),
               new Slider(
-                  value: MyApp.songStatus.songPosition.inSeconds.toDouble(),
+                  value: songStatus.songPosition.inSeconds.toDouble(),
                   min: 0.0,
-                  max: MyApp.songStatus.songDuration.inSeconds.toDouble(),
+                  max: songStatus.songDuration.inSeconds.toDouble(),
                   inactiveColor: Colors.grey[700],
                   activeColor: Colors.white,
                   onChanged: (double value) {
@@ -133,7 +133,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                     children: <Widget>[
                       Expanded(
                         child: new Text(
-                          MyApp.songStatus.songPosition
+                          songStatus.songPosition
                               .toString()
                               .substring(checkSongLength(), 7),
                           textAlign: TextAlign.left,
@@ -144,7 +144,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                       ),
                       Expanded(
                         child: new Text(
-                          MyApp.songStatus.songDuration
+                          songStatus.songDuration
                               .toString()
                               .substring(checkSongLength(), 7),
                           textAlign: TextAlign.right,
@@ -261,7 +261,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         new Text(
-                          MyApp.songStatus.currentSong.songName,
+                          songStatus.currentSong.songName,
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -269,7 +269,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                           textAlign: TextAlign.center,
                         ),
                         new Text(
-                          MyApp.songStatus.currentSong.artist,
+                          songStatus.currentSong.artist,
                           style: TextStyle(color: Colors.grey, fontSize: 15),
                           textAlign: TextAlign.center,
                         )
@@ -410,21 +410,21 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   void changePlayingMusicState() {
-    if (MyApp.songStatus.isPlaying) {
+    if (songStatus.isPlaying) {
       setState(() {
-        MyApp.songStatus.pauseSong();
+        songStatus.pauseSong();
         changePlayingIconState();
       });
     } else {
       setState(() {
-        MyApp.songStatus.resumeSong();
+        songStatus.resumeSong();
         changePlayingIconState();
       });
     }
   }
 
   void changePlayingIconState() {
-    if (MyApp.songStatus.isPlaying) {
+    if (songStatus.isPlaying) {
       setState(
         () {
           playOrPause = Icon(
@@ -446,22 +446,22 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   void initSong() {
-    MyApp.songStatus.advancedPlayer.durationHandler = (d) => setState(
+    songStatus.advancedPlayer.durationHandler = (d) => setState(
           () {
-            MyApp.songStatus.songDuration = d;
+            songStatus.songDuration = d;
           },
         );
 
-    MyApp.songStatus.advancedPlayer.positionHandler = (p) => setState(
+    songStatus.advancedPlayer.positionHandler = (p) => setState(
           () {
-            MyApp.songStatus.songPosition = p;
+            songStatus.songPosition = p;
           },
         );
   }
 
   void seekToSecond(int second) {
     Duration newDuration = Duration(seconds: second);
-    MyApp.songStatus.seekTime(newDuration);
+    songStatus.seekTime(newDuration);
   }
 
   Future<bool> backButtonHandle() {
@@ -472,7 +472,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   int checkSongLength() {
-    if (MyApp.songStatus.songDuration.inMinutes < 59) {
+    if (songStatus.songDuration.inMinutes < 59) {
       return 2;
     } else {
       return 0;
@@ -480,9 +480,9 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   NetworkImage songImage() {
-    if (MyApp.songStatus.currentSong.imageUrl.length > 0) {
+    if (songStatus.currentSong.imageUrl.length > 0) {
       return new NetworkImage(
-        MyApp.songStatus.currentSong.imageUrl,
+        songStatus.currentSong.imageUrl,
       );
     } else {
       return new NetworkImage(

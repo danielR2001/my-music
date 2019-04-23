@@ -15,8 +15,6 @@ class _State extends State<LogInPage> {
 
   @override
   void dispose() {
-    key.currentState.dispose();
-    formKey.currentState.dispose();
     super.dispose();
   }
 
@@ -270,6 +268,7 @@ class _State extends State<LogInPage> {
       form.save();
       FirebaseAuthentication.logInWithEmail(_email, _password).then((user) {
         if (user != null) {
+          print(user.photoUrl);
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(

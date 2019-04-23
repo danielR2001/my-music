@@ -3,7 +3,6 @@ import 'Song.dart';
 class Playlist {
   String _name;
   List<Song> _songs;
-
   String get name => _name;
   List<Song> get songs => _songs;
 

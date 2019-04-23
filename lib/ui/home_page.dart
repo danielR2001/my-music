@@ -102,21 +102,21 @@ class _HomePageState extends State<HomePage> {
   }
 
   void changePlayingMusicState() {
-    if (MyApp.songStatus.isPlaying) {
+    if (songStatus.isPlaying) {
       setState(() {
-        MyApp.songStatus.pauseSong();
+        songStatus.pauseSong();
         changeIconState();
       });
     } else {
       setState(() {
-        MyApp.songStatus.resumeSong();
+        songStatus.resumeSong();
         changeIconState();
       });
     }
   }
 
   void changeIconState() {
-    if (MyApp.songStatus.isPlaying) {
+    if (songStatus.isPlaying) {
       setState(
         () {
           playOrPause = Icon(
@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   GestureDetector musicPlayerControl() {
-    if (MyApp.songStatus.currentSong != null) {
+    if (songStatus.currentSong != null) {
       return GestureDetector(
           child: new Container(
             height: 55,
@@ -157,8 +157,8 @@ class _HomePageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          text(MyApp.songStatus.currentSong.songName),
-                          text(MyApp.songStatus.currentSong.artist),
+                          text(songStatus.currentSong.songName),
+                          text(songStatus.currentSong.artist),
                         ],
                       ),
                     ],

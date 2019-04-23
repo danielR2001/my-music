@@ -1,37 +1,30 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:myapp/models/user.dart';
 
 class FirebaseAuthentication {
   static Future<FirebaseUser> signInWithEmail(
       String email, String password) async {
+    FirebaseUser user =
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
     try {
-      FirebaseUser user =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      print("firebase User ID: " + user.uid);
+      await user.sendEmailVerification();
       return user;
     } catch (e) {
-      print(e);
-      return null;
+      print("An error occured while trying to send email verification");
+      print(e.message);
+      return user;
     }
   }
 
   static Future<FirebaseUser> logInWithEmail(
       String email, String password) async {
-    try {
-      FirebaseUser user =
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      print("firebase User ID: " + user.uid);
-      return user;
-    } catch (e) {
-      print(e);
-      return null;
-    }
+    FirebaseUser user = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    return user;
   }
 
   static Future<FirebaseUser> currentUser() async {
@@ -46,7 +39,11 @@ class FirebaseAuthentication {
     await FirebaseAuth.instance.signOut();
   }
 
-  void createUser() {
-    //User
+  static Future<bool> userReload() async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    await user.reload();
+    user = await FirebaseAuth.instance.currentUser();
+    bool flag = user.isEmailVerified;
+    return flag;
   }
 }

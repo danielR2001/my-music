@@ -135,8 +135,8 @@ class _SearchPageState extends State<SearchPage> {
       ),
       onTap: () {
         print("Current Song: " + song.songName + "-" + song.artist);
-        MyApp.songStatus.currentSong = song;
-        MyApp.songStatus.playSong();
+        songStatus.currentSong = song;
+        songStatus.playSong();
         Navigator.push(
           context,
           MaterialPageRoute(

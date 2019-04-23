@@ -100,7 +100,7 @@ class PlayListPage extends StatelessWidget {
                             elevation: 6.0,
                             onPressed: () {
                               var rnd = new Random();
-                              MyApp.songStatus.currentSong =
+                              songStatus.currentSong =
                                   songs[rnd.nextInt(songs.length)];
                               playSongAndGoToMusicPlayer(context);
                             },
@@ -126,8 +126,8 @@ class PlayListPage extends StatelessWidget {
           songs.length,
           (int index) => new ListTile(
                 onTap: () {
-                  MyApp.songStatus.currentSong = songs[index];
-                  MyApp.songStatus.playSong();
+                  songStatus.currentSong = songs[index];
+                  songStatus.playSong();
                   playSongAndGoToMusicPlayer(context);
                 },
                 title: new Text(

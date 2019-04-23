@@ -3,22 +3,24 @@ import 'playlist.dart';
 class User {
   String _name;
   String _imageUrl;
-  String firebaseUId;
+  String _firebaseUId;
   List<Playlist> _myPlaylists;
 
-  Artist(
-    String name,
-    //String imageUrl,
-  ) {
+  User(
+      String name,
+      //String imageUrl,
+      String firebaseUId) {
     _name = name;
     //_imageUrl = imageUrl;
+    _firebaseUId = firebaseUId;
+    _myPlaylists = new List();
   }
 
-  String get name => _name;
-  String get imageUrl => _imageUrl;
-  List<Playlist> get myPlaylists => _myPlaylists;
+  String get getName => _name;
+  String get getImageUrl => _imageUrl;
+  List<Playlist> get getMyPlaylists => _myPlaylists;
 
-  set name(String value) => _name = value;
-  set imageUrl(String value) => _imageUrl = value;
+  set setName(String value) => _name = value;
+  set setImageUrl(String value) => _imageUrl = value;
   set addNewPlaylist(Playlist playList) => _myPlaylists.add(playList);
 }
