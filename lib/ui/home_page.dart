@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'discover_page.dart';
 import 'account_page.dart';
 import 'music_player_page.dart';
-import 'playlist_page.dart';
 import 'package:myapp/main.dart';
-import 'package:marquee/marquee.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -101,18 +99,6 @@ class _HomePageState extends State<HomePage> {
 
   Future<bool> disableBackButton() {
     return Future.value(false);
-  }
-
-  void goToAlbum(String genre, String imagePath) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PlayListPage(
-              albumOrArtistOrPlaylist: genre,
-              imagePath: imagePath,
-            ),
-      ),
-    );
   }
 
   void changePlayingMusicState() {

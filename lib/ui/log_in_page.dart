@@ -268,20 +268,22 @@ class _State extends State<LogInPage> {
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      if (_password.length >= 6 && checkForValidEmail(_email)) {
-        FirebaseAuthentication.logInWithEmail(_email, _password);
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HomePage(),
-            ));
-      } else {
-        key.currentState.showSnackBar(new SnackBar(
-          duration: new Duration(seconds: 3),
-          content: new Text(
-              "Mail is not valid! Or password is shorter than 6 symbols"),
-        ));
-      }
+      FirebaseAuthentication.logInWithEmail(_email, _password).then((user) {
+        if (user != null) {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomePage(),
+              ));
+        } else {
+          key.currentState.showSnackBar(
+            new SnackBar(
+              duration: new Duration(seconds: 5),
+              content: new Text("Email or password is incorrect!"),
+            ),
+          );
+        }
+      });
     }
   }
 

@@ -45,7 +45,7 @@ class AccountPage extends StatelessWidget {
                     ),
                     onPressed: () {
                       FirebaseAuthentication.signOut().then((user) {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (context) => WelcomePage(),

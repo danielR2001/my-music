@@ -269,21 +269,32 @@ class _State extends State<SignInPage> {
     if (form.validate()) {
       form.save();
       if (_password.length >= 6 && checkForValidEmail(_email)) {
-        FirebaseAuthentication.signInWithEmail(_email, _password)
-            .then((e) {})
-            .whenComplete(() {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomePage(),
-              ));
-        });
+        FirebaseAuthentication.signInWithEmail(_email, _password).then(
+          (user) {
+            if (user != null) {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(),
+                  ));
+            } else {
+              key.currentState.showSnackBar(
+                new SnackBar(
+                  duration: new Duration(seconds: 5),
+                  content: new Text("This email is already in use!"),
+                ),
+              );
+            }
+          },
+        );
       } else {
-        key.currentState.showSnackBar(new SnackBar(
-          duration: new Duration(seconds: 5),
-          content: new Text(
-              "Email is not valid! Or password is shorter than 6 symbols"),
-        ));
+        key.currentState.showSnackBar(
+          new SnackBar(
+            duration: new Duration(seconds: 5),
+            content: new Text(
+                "Email is not valid! Or password is shorter than 6 symbols"),
+          ),
+        );
       }
     }
   }
