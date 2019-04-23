@@ -33,6 +33,7 @@ class AccountPage extends StatelessWidget {
                       size: 30,
                       color: Colors.grey,
                     ),
+                    onPressed: () {},
                   ),
                   new SizedBox(
                     width: 20,

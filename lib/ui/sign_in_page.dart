@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/app_icon.dart';
 import 'package:myapp/firebase/authentication.dart';
@@ -13,6 +15,7 @@ class SignInPage extends StatefulWidget {
 class _State extends State<SignInPage> {
   String _email;
   String _password;
+  String _userName;
   final formKey = new GlobalKey<FormState>();
   static final key = new GlobalKey<ScaffoldState>();
   bool signIn = true;
@@ -230,7 +233,6 @@ class _State extends State<SignInPage> {
                         hintColor: Colors.white,
                       ),
                       child: new TextFormField(
-                        obscureText: true,
                         style: new TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -242,15 +244,15 @@ class _State extends State<SignInPage> {
                               color: Colors.white,
                             ),
                           ),
-                          labelText: "User Name",
+                          labelText: "User name",
                           labelStyle: TextStyle(
                             color: Colors.pink,
                             fontSize: 18,
                           ),
                         ),
                         validator: (value) =>
-                            value.isEmpty ? 'User Name can\'t be empty' : null,
-                        onSaved: (value) => _password = value,
+                            value.isEmpty ? 'User name can\'t be empty' : null,
+                        onSaved: (value) => _userName = value,
                       ),
                     ),
                     signInButtonOrVerify()
@@ -272,8 +274,6 @@ class _State extends State<SignInPage> {
         FirebaseAuthentication.signInWithEmail(_email, _password).then(
           (user) {
             if (user != null) {
-              //currentUser =new User(user., firebaseUId)
-
               setState(() {
                 signIn = false;
               });
@@ -351,7 +351,7 @@ class _State extends State<SignInPage> {
               borderRadius: new BorderRadius.circular(40.0),
             ),
             child: new Text(
-              "Verify",
+              "Verified",
               style: new TextStyle(
                 fontSize: 20.0,
                 color: Colors.white,
@@ -364,9 +364,13 @@ class _State extends State<SignInPage> {
   }
 
   void tryToSignIn() {
-    FirebaseAuthentication.userReload().then((isVerfied) {
-      if (isVerfied) {
-        // currentUser = new User(name, firebaseUId)
+    FirebaseAuthentication.userReload().then((isEmailVerified) {
+      if (isEmailVerified) {
+        FirebaseAuthentication.currentUser().then((user) {
+          currentUser = new User(_userName, user.uid);
+          FirebaseDatabaseManager.saveUser();
+          print(currentUser.toString());
+        });
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
