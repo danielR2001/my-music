@@ -154,8 +154,22 @@ class _HomePageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          text(songStatus.currentSong.getSongName),
-                          text(songStatus.currentSong.getArtist),
+                          new Text(
+                            songStatus.currentSong.getSongName,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                          new Text(
+                            songStatus.currentSong.getArtist,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -186,32 +200,32 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Text text(String txt) {
-    //if (txt.length < 20) {
-    return new Text(
-      txt,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: 16,
-        color: Colors.white,
-      ),
-    );
-    // } else {
-    // return new Marquee(
-    //   text: txt,
-    //   style: TextStyle(
-    //     fontSize: 16,
-    //     color: Colors.white,
-    //   ),
-    //   // blankSpace: 20,
-    //   // velocity: 100,
-    //   // pauseAfterRound: Duration(seconds: 1),
-    //   // startPadding: 10,
-    //   // accelerationDuration: Duration(seconds: 1),
-    //   // accelerationCurve: Curves.linear,
-    //   // decelerationDuration: Duration(microseconds: 500),
-    //   // decelerationCurve: Curves.easeOut,
-    // );
-    // }
-  }
+  // Text text(String txt) {
+  //   //if (txt.length < 20) {
+  //   return new Text(
+  //     txt,
+  //     textAlign: TextAlign.center,
+  //     style: TextStyle(
+  //       fontSize: 16,
+  //       color: Colors.white,
+  //     ),
+  //   );
+  //   } else {
+  //   return new Marquee(
+  //     text: txt,
+  //     style: TextStyle(
+  //       fontSize: 16,
+  //       color: Colors.white,
+  //     ),
+  //     // blankSpace: 20,
+  //     // velocity: 100,
+  //     // pauseAfterRound: Duration(seconds: 1),
+  //     // startPadding: 10,
+  //     // accelerationDuration: Duration(seconds: 1),
+  //     // accelerationCurve: Curves.linear,
+  //     // decelerationDuration: Duration(microseconds: 500),
+  //     // decelerationCurve: Curves.easeOut,
+  //   );
+  //   }
+  // }
 }

@@ -96,7 +96,6 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                                     ),
                                     onTap: () {
                                       createNewPlatlist();
-                                      Navigator.pop(context);
                                     },
                                   ),
                                 ],
@@ -181,14 +180,23 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
   }
 
   void createNewPlatlist() {
+    bool nameExists = false;
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      Playlist playlist = new Playlist(_playlistName);
-      playlist.addNewSong(songStatus.currentSong);
-      currentUser.addNewPlaylist(playlist);
-      FirebaseDatabaseManager.addNewPlaylist(playlist);
-
+      currentUser.getMyPlaylists.forEach((playlist) {
+        //TODO show snack bar
+        if (playlist.getName == _playlistName) {
+          nameExists = true;
+        }
+      });
+      if (!nameExists) {
+        Playlist playlist = new Playlist(_playlistName);
+        playlist.addNewSong(songStatus.currentSong);
+        currentUser.addNewPlaylist(playlist);
+        FirebaseDatabaseManager.addNewPlaylist(playlist);
+        Navigator.pop(context);
+      }
       // scafKey.currentState.showSnackBar(
       //   new SnackBar(
       //     duration: new Duration(seconds: 5),

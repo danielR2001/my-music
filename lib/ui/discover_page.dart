@@ -158,8 +158,6 @@ class DiscoverPage extends StatelessWidget {
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(30.0),
             image: DecorationImage(
-              colorFilter: new ColorFilter.mode(
-                  Colors.white.withOpacity(0.6), BlendMode.dstATop),
               image: ExactAssetImage(imagePath),
               fit: BoxFit.cover,
             ),
