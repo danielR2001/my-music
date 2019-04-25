@@ -1,42 +1,60 @@
 class Song {
   String _songName;
-  //Artist _artist
   String _artist;
   String _songUrl;
   String _imageUrl;
+  String _songDownloadUrl;
 
-  Song(String songName, String artist, String urlEnding, String imageUrl) {
+  Song(String songName, String artist, String songUrl, String imageUrl,
+      String songDownloadUrl) {
     _songName = songName;
     _artist = artist;
-    _songUrl = urlEnding;
+    _songUrl = songUrl;
     _imageUrl = imageUrl;
+    _songDownloadUrl = songDownloadUrl;
   }
 
-  String get imageUrl => _imageUrl;
+  String get getSongDownloadUrl => _songDownloadUrl;
 
-  String get songUrl => _songUrl;
+  String get getImageUrl => _imageUrl;
 
-  String get songName => _songName;
+  String get getSongUrl => _songUrl;
 
-  String get artist => _artist;
+  String get getSongName => _songName;
 
-  set songName(String value) => _songName = value;
+  String get getArtist => _artist;
 
-  set artist(String value) => _artist = value;
+  set serSongDownloadUrl(String value) => _songDownloadUrl = value;
 
-  set songUrl(String value) => _songUrl = value;
+  set setSongName(String value) => _songName = value;
 
-  set imageUrl(String value) => _imageUrl = value;
+  set setArtist(String value) => _artist = value;
+
+  set setSongUrl(String value) => _songUrl = value;
+
+  set setISmageUrl(String value) => _imageUrl = value;
+
+  toJson() {
+    return {
+      'songName': _songName,
+      'artist': _artist,
+      'songUrl': _songUrl,
+      'imageUrl': _imageUrl,
+      'songDownloadUrl': _songDownloadUrl
+    };
+  }
 
   @override
   String toString() {
-    return "songUrl: " +
-        _songUrl +
+    return " title: " +
+        _songName +
         " artist: " +
         _artist +
-        " title: " +
-        _songName +
         " imageUrl: " +
-        _imageUrl;
+        _imageUrl +
+        " songUrl: " +
+        _songUrl +
+        " songDownloadUrl: " +
+        _songDownloadUrl;
   }
 }

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/firebase/database_manager.dart';
-import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/models/user.dart';
-import 'package:myapp/ui/app_icon.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'home_page.dart';
 import 'package:myapp/main.dart';
@@ -17,7 +15,7 @@ class _State extends State<SignInPage> {
   String _password;
   String _userName;
   final formKey = new GlobalKey<FormState>();
-  static final key = new GlobalKey<ScaffoldState>();
+  final key = new GlobalKey<ScaffoldState>();
   bool signIn = true;
 
   @override
@@ -364,27 +362,31 @@ class _State extends State<SignInPage> {
   }
 
   void tryToSignIn() {
-    FirebaseAuthentication.userReload().then((isEmailVerified) {
-      if (isEmailVerified) {
-        FirebaseAuthentication.currentUser().then((user) {
-          currentUser = new User(_userName, user.uid);
-          FirebaseDatabaseManager.saveUser();
-          print(currentUser.toString());
-        });
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomePage(),
-          ),
-        );
-      } else {
-        key.currentState.showSnackBar(
-          new SnackBar(
-            duration: new Duration(seconds: 5),
-            content: new Text("Email isn't verified!"),
-          ),
-        );
-      }
-    });
+    FirebaseAuthentication.userReload().then(
+      (isEmailVerified) {
+        if (isEmailVerified) {
+          FirebaseAuthentication.currentUser().then(
+            (user) {
+              currentUser = new User(_userName, user.uid);
+              FirebaseDatabaseManager.saveUser();
+              print(currentUser.toString());
+            },
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(),
+            ),
+          );
+        } else {
+          key.currentState.showSnackBar(
+            new SnackBar(
+              duration: new Duration(seconds: 5),
+              content: new Text("Email isn't verified!"),
+            ),
+          );
+        }
+      },
+    );
   }
 }

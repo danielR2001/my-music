@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
@@ -88,7 +87,9 @@ class _SearchPageState extends State<SearchPage> {
                       color: Colors.white,
                     ),
                     onPressed: () {
-                      Navigator.pop(context);
+                      setState(() {
+                        textEditingController.clear();
+                      });
                     },
                   ),
                 ],
@@ -106,7 +107,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  static ListTile songSearchResult(Song song, BuildContext context) {
+  ListTile songSearchResult(Song song, BuildContext context) {
     return ListTile(
       leading: new Container(
         width: 30,
@@ -117,13 +118,13 @@ class _SearchPageState extends State<SearchPage> {
         )),
       ),
       title: new Text(
-        song.songName,
+        song.getSongName,
         style: TextStyle(
           color: Colors.white,
         ),
       ),
       subtitle: new Text(
-        song.artist,
+        song.getArtist,
         style: TextStyle(
           color: Colors.grey,
           fontSize: 12,
@@ -134,9 +135,8 @@ class _SearchPageState extends State<SearchPage> {
         color: Colors.white,
       ),
       onTap: () {
-        print("Current Song: " + song.songName + "-" + song.artist);
-        songStatus.currentSong = song;
-        songStatus.playSong();
+        print("Current Song: " + song.getSongName + "-" + song.getArtist);
+        songStatus.playSong(song);
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -147,29 +147,10 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  ListTile artistSearchResult(Artist artist) {
-    return ListTile(
-      leading: Icon(
-        Icons.account_circle,
-        color: Colors.white,
-      ),
-      title: new Text(
-        artist.name,
-        style: TextStyle(
-          color: Colors.white,
-        ),
-      ),
-      trailing: Icon(
-        Icons.more_vert,
-        color: Colors.white,
-      ),
-    );
-  }
-
-  static NetworkImage songImage(Song song) {
-    if (song.imageUrl.length > 0) {
+  NetworkImage songImage(Song song) {
+    if (song.getImageUrl.length > 0) {
       return new NetworkImage(
-        song.imageUrl,
+        song.getImageUrl,
       );
     } else {
       return new NetworkImage(

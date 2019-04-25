@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/firebase/authentication.dart';
-import 'package:myapp/main.dart';
-import 'package:myapp/models/user.dart';
 import 'home_page.dart';
 
 class LogInPage extends StatefulWidget {

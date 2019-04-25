@@ -20,10 +20,15 @@ class FirebaseAuthentication {
 
   static Future<FirebaseUser> logInWithEmail(
       String email, String password) async {
-    FirebaseUser user = await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
+    FirebaseUser user;
+    try {
+      user = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } catch (e) {
+      print(e);
+    }
     return user;
   }
 

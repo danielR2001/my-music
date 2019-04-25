@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/firebase/authentication.dart';
+import 'package:myapp/firebase/database_manager.dart';
 import 'welcome_page.dart';
 import 'home_page.dart';
 
@@ -19,6 +20,11 @@ class _RootPageState extends State<RootPage> {
   void initState() {
     super.initState();
     FirebaseAuthentication.currentUser().then((userId) {
+      FirebaseDatabaseManager.syncUser(userId.uid);
+      //currentUser = new User(_userName, user.uid);
+      //FirebaseDatabaseManager.saveUser();
+      //print(currentUser.toString());
+
       setState(() {
         authStatus =
             userId == null ? AuthStatus.notSignedIn : AuthStatus.signedIn;
@@ -34,5 +40,6 @@ class _RootPageState extends State<RootPage> {
       case AuthStatus.signedIn:
         return new HomePage();
     }
+    return null;
   }
 }

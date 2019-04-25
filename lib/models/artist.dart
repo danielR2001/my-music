@@ -10,9 +10,9 @@ class Artist {
     //_imageUrl = imageUrl;
   }
 
-  String get name => _name;
-  String get imageUrl => _imageUrl;
+  String get getName => _name;
+  String get getImageUrl => _imageUrl;
 
-  set name(String value) => _name = value;
-  set imageUrl(String value) => _imageUrl = value;
+  set setName(String value) => _name = value;
+  set setImageUrl(String value) => _imageUrl = value;
 }

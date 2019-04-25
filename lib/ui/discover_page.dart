@@ -3,7 +3,7 @@ import 'playlist_page.dart';
 import 'search_page.dart';
 
 class DiscoverPage extends StatelessWidget {
-  List<String> genres = [
+  final List<String> genres = [
     "R&B/Soul",
     "Rock",
     "Chill",
@@ -17,7 +17,7 @@ class DiscoverPage extends StatelessWidget {
     "Country",
     "Dance/EDM"
   ];
-  List<String> genresUrls = [
+  final List<String> genresUrls = [
     "assets/images/r&b.png",
     "assets/images/rock.png",
     "assets/images/chill.png",
@@ -150,59 +150,60 @@ class DiscoverPage extends StatelessWidget {
     BuildContext context,
   ) {
     return GestureDetector(
-      child: new Container(
-        alignment: Alignment.center,
-        width: 180.0,
-        height: 150.0,
-        decoration: BoxDecoration(
-          shape: BoxShape.rectangle,
-          borderRadius: BorderRadius.circular(30.0),
-          image: DecorationImage(
-            colorFilter: new ColorFilter.mode(
-                Colors.white.withOpacity(0.6), BlendMode.dstATop),
-            image: ExactAssetImage(imagePath),
-            fit: BoxFit.cover,
-          ),
-          border: Border.all(
-            color: Colors.grey[400],
-          ),
-        ),
-        child: new Text(
-          genre,
-          style: TextStyle(
-            color: Colors.white,
-            shadows: [
-              Shadow(
-                  // bottomLeft
-                  offset: Offset(-1.0, -1.0),
-                  color: Colors.black),
-              Shadow(
-                  // bottomRight
-                  offset: Offset(1.0, -1.0),
-                  color: Colors.black),
-              Shadow(
-                  // topRight
-                  offset: Offset(1.0, 1.0),
-                  color: Colors.black),
-              Shadow(
-                  // topLeft
-                  offset: Offset(-1.0, 1.0),
-                  color: Colors.black),
-            ],
-            fontSize: 32.0,
-          ),
-        ),
-      ),
-      onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PlayListPage(
-                    albumOrArtistOrPlaylist: genre,
-                    imagePath: imagePath,
-                  ),
+        child: new Container(
+          alignment: Alignment.center,
+          width: 180.0,
+          height: 150.0,
+          decoration: BoxDecoration(
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(30.0),
+            image: DecorationImage(
+              colorFilter: new ColorFilter.mode(
+                  Colors.white.withOpacity(0.6), BlendMode.dstATop),
+              image: ExactAssetImage(imagePath),
+              fit: BoxFit.cover,
+            ),
+            border: Border.all(
+              color: Colors.grey[400],
             ),
           ),
-    );
+          child: new Text(
+            genre,
+            style: TextStyle(
+              color: Colors.white,
+              shadows: [
+                Shadow(
+                    // bottomLeft
+                    offset: Offset(-1.0, -1.0),
+                    color: Colors.black),
+                Shadow(
+                    // bottomRight
+                    offset: Offset(1.0, -1.0),
+                    color: Colors.black),
+                Shadow(
+                    // topRight
+                    offset: Offset(1.0, 1.0),
+                    color: Colors.black),
+                Shadow(
+                    // topLeft
+                    offset: Offset(-1.0, 1.0),
+                    color: Colors.black),
+              ],
+              fontSize: 32.0,
+            ),
+          ),
+        ),
+        onTap: () => {}
+        //  Navigator.push(
+        //       context,
+        //       MaterialPageRoute(
+        //         builder: (context) => PlayListPage(
+        //               playlist: genre,
+        //               imagePath: imagePath,
+        //             ),
+        //       ),
+        //     ),
+        );
   }
 
   Row createGenres(int index, BuildContext context) {

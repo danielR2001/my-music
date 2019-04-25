@@ -18,11 +18,6 @@ class _HomePageState extends State<HomePage> {
   Icon playOrPause;
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   void initState() {
     changeIconState();
     discoverPage = DiscoverPage();
@@ -102,16 +97,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   void changePlayingMusicState() {
-    if (songStatus.isPlaying) {
-      setState(() {
-        songStatus.pauseSong();
-        changeIconState();
-      });
-    } else {
-      setState(() {
-        songStatus.resumeSong();
-        changeIconState();
-      });
+    if (songStatus != null) {
+      if (songStatus.isPlaying) {
+        setState(() {
+          songStatus.pauseSong();
+          changeIconState();
+        });
+      } else {
+        setState(() {
+          songStatus.resumeSong();
+          changeIconState();
+        });
+      }
     }
   }
 
@@ -157,8 +154,8 @@ class _HomePageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          text(songStatus.currentSong.songName),
-                          text(songStatus.currentSong.artist),
+                          text(songStatus.currentSong.getSongName),
+                          text(songStatus.currentSong.getArtist),
                         ],
                       ),
                     ],

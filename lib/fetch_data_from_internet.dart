@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:myapp/models/song.dart';
 
 class FetchData {
-  static final String mainUrl = "https://playx.fun/stream/";
+  static final String playUrl = "https://playx.fun/stream/";
+  static final String downloadUrl = "https://playx.fun/";
   static var map = [
     'A',
     'B',
@@ -82,8 +83,16 @@ class FetchData {
         temp = new Song(
             item['title'],
             item['artist'],
-            mainUrl + encode(item['owner_id']) + ":" + encode(item['id']),
-            getImageUrl(item['album']));
+            playUrl +
+                encode(item['owner_id']) +
+                ":" +
+                encode(
+                  item['id'],
+                ),
+            getImageUrl(
+              item['album'],
+            ),
+            downloadUrl + encode(item['owner_id']) + ":" + encode(item['id']));
         tempList.add(temp);
       }
     });

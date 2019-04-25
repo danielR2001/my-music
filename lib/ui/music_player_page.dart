@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/main.dart';
+import 'package:myapp/ui/playlists_pick_page.dart';
 import 'home_page.dart';
 
 class MusicPlayerPage extends StatefulWidget {
@@ -85,7 +86,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                           ],
                           image: new DecorationImage(
                             image: songImage(),
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       )
@@ -95,7 +96,7 @@ class MusicPageState extends State<MusicPlayerPage> {
               ),
               Column(children: <Widget>[
                 new Text(
-                  songStatus.currentSong.songName,
+                  songStatus.currentSong.getSongName,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 25,
@@ -103,7 +104,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                   ),
                 ),
                 new Text(
-                  songStatus.currentSong.artist,
+                  songStatus.currentSong.getArtist,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 14,
@@ -261,7 +262,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         new Text(
-                          songStatus.currentSong.songName,
+                          songStatus.currentSong.getSongName,
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -269,7 +270,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                           textAlign: TextAlign.center,
                         ),
                         new Text(
-                          songStatus.currentSong.artist,
+                          songStatus.currentSong.getArtist,
                           style: TextStyle(color: Colors.grey, fontSize: 15),
                           textAlign: TextAlign.center,
                         )
@@ -363,7 +364,14 @@ class MusicPageState extends State<MusicPlayerPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PlaylistPickPage(),
+                      ),
+                    );
+                  },
                 ),
               ),
               Padding(
@@ -467,7 +475,9 @@ class MusicPageState extends State<MusicPlayerPage> {
   Future<bool> backButtonHandle() {
     return Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => HomePage()),
+      MaterialPageRoute(
+        builder: (context) => HomePage(),
+      ),
     );
   }
 
@@ -480,9 +490,9 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   NetworkImage songImage() {
-    if (songStatus.currentSong.imageUrl.length > 0) {
+    if (songStatus.currentSong.getImageUrl.length > 0) {
       return new NetworkImage(
-        songStatus.currentSong.imageUrl,
+        songStatus.currentSong.getImageUrl,
       );
     } else {
       return new NetworkImage(

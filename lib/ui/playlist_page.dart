@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/models/playlist.dart';
 import 'dart:ui';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/main.dart';
@@ -6,31 +7,25 @@ import 'music_player_page.dart';
 import 'dart:math';
 
 class PlayListPage extends StatelessWidget {
-  String albumOrArtistOrPlaylist;
-  String imagePath;
-  List<Song> songs = new List(0);
-
-  PlayListPage({Key key, this.albumOrArtistOrPlaylist, this.imagePath})
-      : super(key: key);
+  final Playlist playlist;
+  final String imagePath;
+  PlayListPage({Key key, this.playlist, this.imagePath}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (imagePath == "") {
-      imagePath = "assets/images/default_playlist_pic.png";
-    }
-
     return Scaffold(
       body: new Container(
         decoration: new BoxDecoration(
-          gradient: new LinearGradient(
-            colors: [
-              Colors.pink[900],
-              Colors.grey[850],
-            ],
-            begin: FractionalOffset.bottomRight,
-            stops: [0.0, 1.0],
-            end: FractionalOffset.topLeft,
-          ),
+          color: Color(0xE4000000),
+          // gradient: new LinearGradient(
+          //   colors: [
+          //     Color(0xE4000000),
+          //     Colors.pink,
+          //   ],
+          //   begin: FractionalOffset.bottomCenter,
+          //   stops: [0.5, 1.0],
+          //   end: FractionalOffset.topCenter,
+          // ),
         ),
         child: new CustomScrollView(
           slivers: <Widget>[
@@ -42,9 +37,10 @@ class PlayListPage extends StatelessWidget {
               flexibleSpace: FlexibleSpaceBar(
                 centerTitle: true,
                 title: Text(
-                  albumOrArtistOrPlaylist,
+                  playlist.getName,
                   style: TextStyle(
                     fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
                     shadows: [
                       Shadow(
                           // bottomLeft
@@ -65,7 +61,7 @@ class PlayListPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                background: new Image.asset(
+                background: new Image.network(
                   imagePath,
                   fit: BoxFit.cover,
                 ),
@@ -89,7 +85,7 @@ class PlayListPage extends StatelessWidget {
                             shape: new RoundedRectangleBorder(
                               borderRadius: new BorderRadius.circular(30.0),
                             ),
-                            color: Colors.deepOrangeAccent[700],
+                            color: Colors.pink,
                             child: Text(
                               "Shuffle",
                               style: TextStyle(
@@ -100,8 +96,8 @@ class PlayListPage extends StatelessWidget {
                             elevation: 6.0,
                             onPressed: () {
                               var rnd = new Random();
-                              songStatus.currentSong =
-                                  songs[rnd.nextInt(songs.length)];
+                              songStatus.currentSong = playlist.getSongs[
+                                  rnd.nextInt(playlist.getSongs.length)];
                               playSongAndGoToMusicPlayer(context);
                             },
                           ),
@@ -112,26 +108,25 @@ class PlayListPage extends StatelessWidget {
                 ],
               ),
             ),
-            makeSliverList(songs, context)
+            makeSliverList(playlist, context)
           ],
         ),
       ),
     );
   }
 
-  SliverList makeSliverList(List<Song> songs, BuildContext context) {
+  SliverList makeSliverList(Playlist playlist, BuildContext context) {
     return new SliverList(
       delegate: new SliverChildListDelegate(
         new List.generate(
-          songs.length,
+          playlist.getSongs.length,
           (int index) => new ListTile(
                 onTap: () {
-                  songStatus.currentSong = songs[index];
-                  songStatus.playSong();
+                  songStatus.playSong(playlist.getSongs[index]);
                   playSongAndGoToMusicPlayer(context);
                 },
                 title: new Text(
-                  songs[index].songName,
+                  playlist.getSongs[index].getSongName,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -139,7 +134,7 @@ class PlayListPage extends StatelessWidget {
                   ),
                 ),
                 subtitle: new Text(
-                  songs[index].artist,
+                  playlist.getSongs[index].getArtist,
                   style: TextStyle(
                     color: Colors.grey,
                     fontSize: 12,
@@ -150,14 +145,7 @@ class PlayListPage extends StatelessWidget {
                     Icons.more_vert,
                     color: Colors.white,
                   ),
-                  onPressed: () {
-                    print(
-                      songs[index].songName +
-                          "," +
-                          songs[index].artist +
-                          " Menu Opened",
-                    );
-                  },
+                  onPressed: () {},
                 ),
               ),
         ),

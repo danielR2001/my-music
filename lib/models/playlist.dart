@@ -1,13 +1,14 @@
-import 'Song.dart';
+import 'song.dart';
 
 class Playlist {
   String _name;
   List<Song> _songs;
-  String get name => _name;
-  List<Song> get songs => _songs;
 
-  set name(String value) => _name = value;
-  set addNewSong(Song song) => _songs.add(song);
+  String get getName => _name;
+  List<Song> get getSongs => _songs;
+
+  set setName(String value) => _name = value;
+  addNewSong(Song song) => _songs.add(song);
 
   Playlist(String name) {
     _name = name;

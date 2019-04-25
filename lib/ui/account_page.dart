@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'playlist_page.dart';
 import 'package:myapp/firebase/authentication.dart';
@@ -21,7 +22,7 @@ class AccountPage extends StatelessWidget {
             end: FractionalOffset.topLeft,
           ),
         ),
-        child: new ListView(
+        child: new Column(
           children: <Widget>[
             new ListTile(
               trailing: new Row(
@@ -110,14 +111,14 @@ class AccountPage extends StatelessWidget {
                 color: Colors.white,
               ),
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PlayListPage(
-                            albumOrArtistOrPlaylist: "Downloaded",
-                            imagePath: "",
-                          ),
-                    ));
+                // Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //       builder: (context) => PlayListPage(
+                //             playlistName: "Downloaded",
+                //             imagePath: "",
+                //           ),
+                //     ));
               },
             ),
             createSpace(25),
@@ -139,14 +140,14 @@ class AccountPage extends StatelessWidget {
                 color: Colors.white,
               ),
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PlayListPage(
-                            albumOrArtistOrPlaylist: "Favourites",
-                            imagePath: "",
-                          ),
-                    ));
+                // Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //       builder: (context) => PlayListPage(
+                //             playlist: "Favourites",
+                //             imagePath: "",
+                //           ),
+                //     ));
               },
             ),
             createSpace(25),
@@ -170,8 +171,15 @@ class AccountPage extends StatelessWidget {
               onTap: () {},
             ),
             createSpace(25),
-            createPlaylistTile(playlist, context), //make builder
-            createSpace(50),
+            Expanded(
+              child: new ListView.builder(
+                itemCount: currentUser.getMyPlaylists.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return userPlaylists(
+                      currentUser.getMyPlaylists[index], context);
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -184,7 +192,7 @@ class AccountPage extends StatelessWidget {
     );
   }
 
-  Padding createPlaylistTile(Playlist playlist, BuildContext context) {
+  Padding userPlaylists(Playlist playlist, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
         left: 40,
@@ -204,14 +212,14 @@ class AccountPage extends StatelessWidget {
             ],
             image: new DecorationImage(
               fit: BoxFit.fill,
-              image: ExactAssetImage(
-                "assets/images/default_playlist_pic.png",
+              image: NetworkImage(
+                playlist.getSongs[0].getImageUrl,
               ),
             ),
           ),
         ),
         title: Text(
-          playlist.name,
+          playlist.getName,
           style: TextStyle(
             fontSize: 20,
             color: Colors.white,
@@ -226,8 +234,8 @@ class AccountPage extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => PlayListPage(
-                      albumOrArtistOrPlaylist: playlist.name,
-                      imagePath: "",
+                      playlist: playlist,
+                      imagePath: playlist.getSongs[0].getImageUrl,
                     ),
               ));
         },

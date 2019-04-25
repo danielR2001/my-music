@@ -5,10 +5,12 @@ import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:myapp/song_status.dart';
 import 'package:myapp/ui/root_page.dart';
 import 'package:myapp/models/user.dart';
+import 'package:myapp/models/playlist.dart';
 
 void main() => runApp(MyApp());
 SongStatus songStatus;
 User currentUser;
+Playlist playList;
 
 class MyApp extends StatelessWidget with PortraitModeMixin {
   //static MusicControlNotification musicControlNotification;

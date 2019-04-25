@@ -1,3 +1,5 @@
+import 'package:myapp/models/song.dart';
+
 import 'playlist.dart';
 
 class User {
@@ -13,7 +15,7 @@ class User {
     _name = name;
     //_imageUrl = imageUrl;
     _firebaseUId = firebaseUId;
-    _myPlaylists = new List();
+    _myPlaylists = new List<Playlist>();
   }
 
   String get getName => _name;
@@ -23,8 +25,27 @@ class User {
 
   set setName(String value) => _name = value;
   set setImageUrl(String value) => _imageUrl = value;
-  set addNewPlaylist(Playlist playList) => _myPlaylists.add(playList);
+  addNewPlaylist(Playlist playlist) => _myPlaylists.add(playlist);
+  addNewSongToPlaylist(Playlist playlist, Song song) {
+    _myPlaylists.forEach((userPlaylist) {
+      if (playlist.getName == userPlaylist.getName) {
+        userPlaylist.addNewSong(song);
+        return;
+      }
+    });
+  }
+
   set setFirebaseUId(String value) => _firebaseUId = value;
+  set setMyPlaylists(List<Playlist> value) => _myPlaylists = value;
+
+  toJson() {
+    return {
+      'userName': _name,
+      'imageUrl': _imageUrl,
+      'firebaseUId': _firebaseUId,
+    };
+  }
+
   @override
   String toString() {
     return _name + "," + _firebaseUId;
