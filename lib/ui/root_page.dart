@@ -19,15 +19,15 @@ class _RootPageState extends State<RootPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAuthentication.currentUser().then((userId) {
-      FirebaseDatabaseManager.syncUser(userId.uid);
+    FirebaseAuthentication.currentUser().then((user) {
+      FirebaseDatabaseManager.syncUser(user.uid);
       //currentUser = new User(_userName, user.uid);
       //FirebaseDatabaseManager.saveUser();
       //print(currentUser.toString());
 
       setState(() {
         authStatus =
-            userId == null ? AuthStatus.notSignedIn : AuthStatus.signedIn;
+            user == null ? AuthStatus.notSignedIn : AuthStatus.signedIn;
       });
     });
   }

@@ -22,165 +22,168 @@ class AccountPage extends StatelessWidget {
             end: FractionalOffset.topLeft,
           ),
         ),
-        child: new Column(
-          children: <Widget>[
-            new ListTile(
-              trailing: new Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  new IconButton(
-                    icon: Icon(
-                      Icons.notifications,
-                      size: 30,
-                      color: Colors.grey,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 25),
+          child: new Column(
+            children: <Widget>[
+              new ListTile(
+                trailing: new Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    new IconButton(
+                      icon: Icon(
+                        Icons.notifications,
+                        size: 30,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {},
                     ),
-                    onPressed: () {},
-                  ),
-                  new SizedBox(
-                    width: 20,
-                  ),
-                  new IconButton(
-                    icon: Icon(
-                      Icons.settings,
-                      size: 30,
-                      color: Colors.grey,
+                    new SizedBox(
+                      width: 12,
                     ),
-                    onPressed: () {
-                      FirebaseAuthentication.signOut().then((user) {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => WelcomePage(),
-                            ));
-                      });
-                    },
-                  )
-                ],
+                    new IconButton(
+                      icon: Icon(
+                        Icons.settings,
+                        size: 30,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        FirebaseAuthentication.signOut().then((user) {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => WelcomePage(),
+                              ));
+                        });
+                      },
+                    )
+                  ],
+                ),
               ),
-            ),
-            createSpace(15),
-            new ListTile(
-              leading: new Container(
-                width: 30.0,
-                height: 30.0,
-                decoration: new BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: new DecorationImage(
-                    fit: BoxFit.fill,
-                    image: ExactAssetImage(
-                      "assets/images/profile_pic.png",
+              createSpace(15),
+              new ListTile(
+                leading: new Container(
+                  width: 30.0,
+                  height: 30.0,
+                  decoration: new BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: new DecorationImage(
+                      fit: BoxFit.fill,
+                      image: ExactAssetImage(
+                        "assets/images/profile_pic.png",
+                      ),
                     ),
                   ),
                 ),
-              ),
-              title: Text(
-                "Daniel Rachlin",
-                style: TextStyle(
-                  fontSize: 20,
+                title: Text(
+                  "Daniel Rachlin",
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                ),
+                subtitle: Text(
+                  "View Your Profile",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.keyboard_arrow_right,
                   color: Colors.white,
                 ),
               ),
-              subtitle: Text(
-                "View Your Profile",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[700],
+              createSpace(50),
+              new ListTile(
+                leading: Icon(
+                  Icons.file_download,
+                  color: Colors.white,
+                  size: 30,
                 ),
-              ),
-              trailing: Icon(
-                Icons.keyboard_arrow_right,
-                color: Colors.white,
-              ),
-            ),
-            createSpace(50),
-            new ListTile(
-              leading: Icon(
-                Icons.file_download,
-                color: Colors.white,
-                size: 30,
-              ),
-              title: Text(
-                "Downloaded",
-                style: TextStyle(
-                  fontSize: 20,
+                title: Text(
+                  "Downloaded",
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.keyboard_arrow_right,
                   color: Colors.white,
                 ),
-              ),
-              trailing: Icon(
-                Icons.keyboard_arrow_right,
-                color: Colors.white,
-              ),
-              onTap: () {
-                // Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //       builder: (context) => PlayListPage(
-                //             playlistName: "Downloaded",
-                //             imagePath: "",
-                //           ),
-                //     ));
-              },
-            ),
-            createSpace(25),
-            new ListTile(
-              leading: Icon(
-                Icons.favorite_border,
-                color: Colors.white,
-                size: 30,
-              ),
-              title: Text(
-                "Favourites",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
-              ),
-              trailing: Icon(
-                Icons.keyboard_arrow_right,
-                color: Colors.white,
-              ),
-              onTap: () {
-                // Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //       builder: (context) => PlayListPage(
-                //             playlist: "Favourites",
-                //             imagePath: "",
-                //           ),
-                //     ));
-              },
-            ),
-            createSpace(25),
-            new ListTile(
-              leading: Icon(
-                Icons.library_music,
-                color: Colors.white,
-                size: 30,
-              ),
-              title: Text(
-                "Playlists",
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
-              ),
-              trailing: Icon(
-                Icons.add_circle_outline,
-                color: Colors.white,
-              ),
-              onTap: () {},
-            ),
-            createSpace(25),
-            Expanded(
-              child: new ListView.builder(
-                itemCount: currentUser.getMyPlaylists.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return userPlaylists(
-                      currentUser.getMyPlaylists[index], context);
+                onTap: () {
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //       builder: (context) => PlayListPage(
+                  //             playlistName: "Downloaded",
+                  //             imagePath: "",
+                  //           ),
+                  //     ));
                 },
               ),
-            ),
-          ],
+              createSpace(25),
+              new ListTile(
+                leading: Icon(
+                  Icons.favorite_border,
+                  color: Colors.white,
+                  size: 30,
+                ),
+                title: Text(
+                  "Favourites",
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.keyboard_arrow_right,
+                  color: Colors.white,
+                ),
+                onTap: () {
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //       builder: (context) => PlayListPage(
+                  //             playlist: "Favourites",
+                  //             imagePath: "",
+                  //           ),
+                  //     ));
+                },
+              ),
+              createSpace(25),
+              new ListTile(
+                leading: Icon(
+                  Icons.library_music,
+                  color: Colors.white,
+                  size: 30,
+                ),
+                title: Text(
+                  "Playlists",
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.add_circle_outline,
+                  color: Colors.white,
+                ),
+                onTap: () {},
+              ),
+              Expanded(
+                child: new ListView.builder(
+                  itemCount: currentUser.getMyPlaylists.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return userPlaylists(
+                        currentUser.getMyPlaylists[index], context);
+                  },
+                ),
+              ),
+              createSpace(50),
+            ],
+          ),
         ),
       ),
     );
@@ -196,6 +199,7 @@ class AccountPage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(
         left: 40,
+        bottom: 25,
       ),
       child: new ListTile(
         leading: new Container(

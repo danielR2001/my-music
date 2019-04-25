@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/firebase/authentication.dart';
+import 'package:myapp/firebase/database_manager.dart';
 import 'home_page.dart';
 
 class LogInPage extends StatefulWidget {
@@ -268,7 +269,7 @@ class _State extends State<LogInPage> {
       form.save();
       FirebaseAuthentication.logInWithEmail(_email, _password).then((user) {
         if (user != null) {
-          //currentUser = new User(_userName, user.uid);
+          FirebaseDatabaseManager.syncUser(user.uid);
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(

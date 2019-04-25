@@ -43,37 +43,6 @@ class WelcomePage extends StatelessWidget {
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 40.0, vertical: 15.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HomePage(),
-                            ));
-                      },
-                      child: new Container(
-                        alignment: Alignment.center,
-                        height: 60.0,
-                        decoration: new BoxDecoration(
-                          color: Colors.transparent,
-                          borderRadius: new BorderRadius.circular(40.0),
-                          border: new Border.all(
-                            color: Colors.white,
-                          ),
-                        ),
-                        child: new Text(
-                          "Continue As Guest",
-                          style: new TextStyle(
-                            fontSize: 20.0,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
                       horizontal: 40.0,
                       vertical: 15.0,
                     ),

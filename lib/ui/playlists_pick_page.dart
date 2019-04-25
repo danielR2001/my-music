@@ -29,100 +29,97 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           child: new Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 40),
-                  child: GestureDetector(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return SimpleDialog(
-                            title: new Text(
-                              "New playlist",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
+                GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SimpleDialog(
+                          title: new Text(
+                            "New playlist",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                            ),
+                          ),
+                          backgroundColor: Colors.grey[850],
+                          children: <Widget>[
+                            new Form(
+                              key: formKey,
+                              child: Column(
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 10),
+                                    child: Theme(
+                                      data: new ThemeData(
+                                        hintColor: Colors.white,
+                                      ),
+                                      child: new TextFormField(
+                                        decoration: InputDecoration(
+                                          labelText: "Playlist name",
+                                          labelStyle: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                        validator: (value) => value.isEmpty
+                                            ? 'Playlist name can\'t be empty'
+                                            : null,
+                                        onSaved: (value) =>
+                                            _playlistName = value,
+                                      ),
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 50,
+                                        vertical: 20,
+                                      ),
+                                      child: new Container(
+                                        alignment: Alignment.center,
+                                        height: 50.0,
+                                        decoration: new BoxDecoration(
+                                          color: Colors.pink,
+                                          borderRadius:
+                                              new BorderRadius.circular(40.0),
+                                        ),
+                                        child: new Text(
+                                          "Create",
+                                          style: new TextStyle(
+                                            fontSize: 20.0,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    onTap: () {
+                                      createNewPlatlist();
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ],
                               ),
                             ),
-                            backgroundColor: Colors.grey[850],
-                            children: <Widget>[
-                              new Form(
-                                key: formKey,
-                                child: Column(
-                                  children: <Widget>[
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 20, vertical: 10),
-                                      child: Theme(
-                                        data: new ThemeData(
-                                          hintColor: Colors.white,
-                                        ),
-                                        child: new TextFormField(
-                                          decoration: InputDecoration(
-                                            labelText: "Playlist name",
-                                            labelStyle: TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 18,
-                                            ),
-                                          ),
-                                          validator: (value) => value.isEmpty
-                                              ? 'Playlist name can\'t be empty'
-                                              : null,
-                                          onSaved: (value) =>
-                                              _playlistName = value,
-                                        ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 50,
-                                          vertical: 20,
-                                        ),
-                                        child: new Container(
-                                          alignment: Alignment.center,
-                                          height: 50.0,
-                                          decoration: new BoxDecoration(
-                                            color: Colors.pink,
-                                            borderRadius:
-                                                new BorderRadius.circular(40.0),
-                                          ),
-                                          child: new Text(
-                                            "Create",
-                                            style: new TextStyle(
-                                              fontSize: 20.0,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      onTap: () {
-                                        createNewPlatlist();
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: new Container(
-                      alignment: Alignment.center,
-                      height: 55,
-                      width: 140,
-                      decoration: new BoxDecoration(
-                        color: Colors.pink,
-                        borderRadius: new BorderRadius.circular(40.0),
-                      ),
-                      child: new Text(
-                        "New Playlist",
-                        style: new TextStyle(
-                          fontSize: 20.0,
-                          color: Colors.white,
-                        ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: new Container(
+                    alignment: Alignment.center,
+                    height: 55,
+                    width: 140,
+                    decoration: new BoxDecoration(
+                      color: Colors.pink,
+                      borderRadius: new BorderRadius.circular(40.0),
+                    ),
+                    child: new Text(
+                      "New Playlist",
+                      style: new TextStyle(
+                        fontSize: 20.0,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -139,33 +136,36 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         ));
   }
 
-  ListTile userPlaylists(Playlist playlist) {
-    return new ListTile(
-        leading: new Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: songImage(playlist.getSongs[0]),
-              fit: BoxFit.contain,
+  Padding userPlaylists(Playlist playlist) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 50),
+      child: new ListTile(
+          leading: new Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: songImage(playlist.getSongs[0]),
+                fit: BoxFit.contain,
+              ),
             ),
           ),
-        ),
-        title: new Text(
-          playlist.getName,
-          style: TextStyle(color: Colors.white, fontSize: 18),
-        ),
-        onTap: () {
-          FirebaseDatabaseManager.addSongToPlaylist(
-              playlist, songStatus.currentSong);
-          currentUser.addNewSongToPlaylist(playlist, songStatus.currentSong);
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MusicPlayerPage(),
-            ),
-          );
-        });
+          title: new Text(
+            playlist.getName,
+            style: TextStyle(color: Colors.white, fontSize: 18),
+          ),
+          onTap: () {
+            FirebaseDatabaseManager.addSongToPlaylist(
+                playlist, songStatus.currentSong);
+            currentUser.addNewSongToPlaylist(playlist, songStatus.currentSong);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MusicPlayerPage(),
+              ),
+            );
+          }),
+    );
   }
 
   NetworkImage songImage(Song song) {
