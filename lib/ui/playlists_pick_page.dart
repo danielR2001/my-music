@@ -155,8 +155,8 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           ),
           onTap: () {
             FirebaseDatabaseManager.addSongToPlaylist(
-                playlist, songStatus.currentSong);
-            currentUser.addNewSongToPlaylist(playlist, songStatus.currentSong);
+                playlist, playingNow.currentSong);
+            currentUser.addNewSongToPlaylist(playlist, playingNow.currentSong);
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -192,7 +192,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
       });
       if (!nameExists) {
         Playlist playlist = new Playlist(_playlistName);
-        playlist.addNewSong(songStatus.currentSong);
+        playlist.addNewSong(playingNow.currentSong);
         currentUser.addNewPlaylist(playlist);
         FirebaseDatabaseManager.addNewPlaylist(playlist);
         Navigator.pop(context);

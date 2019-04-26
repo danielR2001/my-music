@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/fetch_data_from_internet.dart';
+import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
 import 'music_player_page.dart';
 
@@ -136,7 +136,7 @@ class _SearchPageState extends State<SearchPage> {
       ),
       onTap: () {
         print("Current Song: " + song.getSongName + "-" + song.getArtist);
-        songStatus.playSong(song);
+        playingNow.playSong(song);
         Navigator.push(
           context,
           MaterialPageRoute(

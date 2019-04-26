@@ -3,7 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 
-class SongStatus {
+class PlayingNow {
   bool isPlaying;
   AudioPlayer advancedPlayer;
   AudioCache audioCache;
@@ -19,6 +19,7 @@ class SongStatus {
     songDuration = new Duration();
     songPosition = new Duration();
   }
+
   void playSong(Song song) {
     closeSong();
     isPlaying = true;

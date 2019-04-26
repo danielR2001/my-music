@@ -29,7 +29,7 @@ class _HomePageState extends State<HomePage> {
       accountPage,
     ];
     currentPage = discoverPage;
-    if (songStatus.currentSong == null) {
+    if (playingNow.currentSong == null) {
       setState(() {
         _height = 63;
       });
@@ -112,15 +112,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   void changePlayingMusicState() {
-    if (songStatus != null) {
-      if (songStatus.isPlaying) {
+    if (playingNow != null) {
+      if (playingNow.isPlaying) {
         setState(() {
-          songStatus.pauseSong();
+          playingNow.pauseSong();
           changeIconState();
         });
       } else {
         setState(() {
-          songStatus.resumeSong();
+          playingNow.resumeSong();
           changeIconState();
         });
       }
@@ -128,7 +128,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void changeIconState() {
-    if (songStatus.isPlaying) {
+    if (playingNow.isPlaying) {
       setState(
         () {
           playOrPause = Icon(
@@ -150,7 +150,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   GestureDetector musicPlayerControl() {
-    if (songStatus.currentSong != null) {
+    if (playingNow.currentSong != null) {
       setState(() {
         _height = 118;
       });
@@ -178,12 +178,12 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           text(
-                            songStatus.currentSong.getSongName,
+                            playingNow.currentSong.getSongName,
                             18,
                             Colors.white,
                           ),
                           text(
-                            songStatus.currentSong.getArtist,
+                            playingNow.currentSong.getArtist,
                             16,
                             Colors.grey,
                           )
