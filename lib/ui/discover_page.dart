@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'playlist_page.dart';
 import 'search_page.dart';
 
 class DiscoverPage extends StatelessWidget {
@@ -136,7 +135,7 @@ class DiscoverPage extends StatelessWidget {
             ),
             createGenres(10, context),
             new SizedBox(
-              height: 70.0,
+              height: 10.0,
             ),
           ],
         ),

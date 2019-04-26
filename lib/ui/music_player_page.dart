@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marquee/marquee.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/ui/playlists_pick_page.dart';
 import 'home_page.dart';
@@ -42,18 +43,19 @@ class MusicPageState extends State<MusicPlayerPage> {
                 child: Row(
                   children: <Widget>[
                     new IconButton(
-                        iconSize: 40,
-                        icon: Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.white,
-                        ),
-                        onPressed: () => {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => HomePage()),
-                              )
-                            }),
+                      iconSize: 40,
+                      icon: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Colors.white,
+                      ),
+                      onPressed: () => {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => HomePage()),
+                            )
+                          },
+                    ),
                     Expanded(
                       child: new Container(),
                     ),
@@ -94,24 +96,12 @@ class MusicPageState extends State<MusicPlayerPage> {
                   ),
                 ),
               ),
-              Column(children: <Widget>[
-                new Text(
-                  songStatus.currentSong.getSongName,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 25,
-                    color: Colors.white,
-                  ),
-                ),
-                new Text(
-                  songStatus.currentSong.getArtist,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
-              ]),
+              Column(
+                children: <Widget>[
+                  text(songStatus.currentSong.getSongName, 25, Colors.white),
+                  text(songStatus.currentSong.getArtist, 14, Colors.grey)
+                ],
+              ),
               new Slider(
                   value: songStatus.songPosition.inSeconds.toDouble(),
                   min: 0.0,
@@ -261,19 +251,16 @@ class MusicPageState extends State<MusicPlayerPage> {
                     new Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        new Text(
+                        text(
                           songStatus.currentSong.getSongName,
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
-                          textAlign: TextAlign.center,
+                          20,
+                          Colors.white,
                         ),
-                        new Text(
+                        text(
                           songStatus.currentSong.getArtist,
-                          style: TextStyle(color: Colors.grey, fontSize: 15),
-                          textAlign: TextAlign.center,
-                        )
+                          15,
+                          Colors.grey,
+                        ),
                       ],
                     )
                   ],
@@ -497,6 +484,34 @@ class MusicPageState extends State<MusicPlayerPage> {
     } else {
       return new NetworkImage(
         'http://musicneedsyou.com/wp-content/uploads/2016/11/audio-engineer-300x200.jpg',
+      );
+    }
+  }
+
+  Widget text(String txt, double size, Color color) {
+    if (txt.length < 20) {
+      return new Text(
+        txt,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: size,
+          color: color,
+        ),
+      );
+    } else {
+      return new Container(
+        width: 320,
+        height: 29,
+        child: new Marquee(
+          text: txt,
+          scrollAxis: Axis.horizontal,
+          style: TextStyle(
+            fontSize: size,
+            color: color,
+          ),
+          blankSpace: 30.0,
+          velocity: 30.0,
+        ),
       );
     }
   }

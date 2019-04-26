@@ -3,6 +3,7 @@ import 'discover_page.dart';
 import 'account_page.dart';
 import 'music_player_page.dart';
 import 'package:myapp/main.dart';
+import 'package:marquee/marquee.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -16,6 +17,7 @@ class _HomePageState extends State<HomePage> {
   List<Widget> pages;
   Widget currentPage;
   Icon playOrPause;
+  double _height;
 
   @override
   void initState() {
@@ -27,7 +29,15 @@ class _HomePageState extends State<HomePage> {
       accountPage,
     ];
     currentPage = discoverPage;
-
+    if (songStatus.currentSong == null) {
+      setState(() {
+        _height = 63;
+      });
+    } else {
+      setState(() {
+        _height = 118;
+      });
+    }
     super.initState();
   }
 
@@ -38,7 +48,6 @@ class _HomePageState extends State<HomePage> {
       child: new Scaffold(
         backgroundColor: Colors.grey[850],
         body: currentPage,
-        bottomSheet: musicPlayerControl(),
         bottomNavigationBar: new Theme(
           data: Theme.of(context).copyWith(
             canvasColor: Colors.grey[850],
@@ -49,6 +58,7 @@ class _HomePageState extends State<HomePage> {
                 ),
           ),
           child: Container(
+            height: _height,
             decoration: BoxDecoration(
               border: Border(
                 top: BorderSide(
@@ -56,33 +66,38 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            child: BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
-              fixedColor: Colors.white,
-              currentIndex: currentTab,
-              iconSize: 26.0,
-              onTap: (int index) {
-                setState(
-                  () {
-                    currentTab = index;
-                    currentPage = pages[index];
+            child: Column(
+              children: <Widget>[
+                musicPlayerControl(),
+                BottomNavigationBar(
+                  type: BottomNavigationBarType.fixed,
+                  fixedColor: Colors.white,
+                  currentIndex: currentTab,
+                  iconSize: 26.0,
+                  onTap: (int index) {
+                    setState(
+                      () {
+                        currentTab = index;
+                        currentPage = pages[index];
+                      },
+                    );
                   },
-                );
-              },
-              items: [
-                BottomNavigationBarItem(
-                  icon: new Icon(
-                    Icons.explore,
-                    size: 30.0,
-                  ),
-                  title: new Text("Discover"),
-                ),
-                BottomNavigationBarItem(
-                  icon: new Icon(
-                    Icons.account_circle,
-                    size: 30.0,
-                  ),
-                  title: new Text("Account"),
+                  items: [
+                    BottomNavigationBarItem(
+                      icon: new Icon(
+                        Icons.explore,
+                        size: 30.0,
+                      ),
+                      title: new Text("Discover"),
+                    ),
+                    BottomNavigationBarItem(
+                      icon: new Icon(
+                        Icons.account_circle,
+                        size: 30.0,
+                      ),
+                      title: new Text("Account"),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -136,10 +151,18 @@ class _HomePageState extends State<HomePage> {
 
   GestureDetector musicPlayerControl() {
     if (songStatus.currentSong != null) {
+      setState(() {
+        _height = 120;
+      });
       return GestureDetector(
           child: new Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[850],
+              border: Border(
+                bottom: BorderSide(color: Colors.black),
+              ),
+            ),
             height: 55,
-            color: Colors.grey[850],
             child: Row(
               children: <Widget>[
                 Expanded(
@@ -154,22 +177,16 @@ class _HomePageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          new Text(
+                          text(
                             songStatus.currentSong.getSongName,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                            ),
+                            18,
+                            Colors.white,
                           ),
-                          new Text(
+                          text(
                             songStatus.currentSong.getArtist,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
-                            ),
-                          ),
+                            16,
+                            Colors.grey,
+                          )
                         ],
                       ),
                     ],
@@ -192,6 +209,9 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(builder: (context) => MusicPlayerPage()),
               ));
     } else {
+      setState(() {
+        _height = 65;
+      });
       return GestureDetector(
         child: new Container(
           height: 0,
@@ -200,32 +220,31 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Text text(String txt) {
-  //   //if (txt.length < 20) {
-  //   return new Text(
-  //     txt,
-  //     textAlign: TextAlign.center,
-  //     style: TextStyle(
-  //       fontSize: 16,
-  //       color: Colors.white,
-  //     ),
-  //   );
-  //   } else {
-  //   return new Marquee(
-  //     text: txt,
-  //     style: TextStyle(
-  //       fontSize: 16,
-  //       color: Colors.white,
-  //     ),
-  //     // blankSpace: 20,
-  //     // velocity: 100,
-  //     // pauseAfterRound: Duration(seconds: 1),
-  //     // startPadding: 10,
-  //     // accelerationDuration: Duration(seconds: 1),
-  //     // accelerationCurve: Curves.linear,
-  //     // decelerationDuration: Duration(microseconds: 500),
-  //     // decelerationCurve: Curves.easeOut,
-  //   );
-  //   }
-  // }
+  Widget text(String txt, double size, Color color) {
+    if (txt.length < 20) {
+      return new Text(
+        txt,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: size,
+          color: color,
+        ),
+      );
+    } else {
+      return new Container(
+        width: 230,
+        height: 20,
+        child: new Marquee(
+          text: txt,
+          scrollAxis: Axis.horizontal,
+          style: TextStyle(
+            fontSize: size,
+            color: color,
+          ),
+          blankSpace: 30.0,
+          velocity: 30.0,
+        ),
+      );
+    }
+  }
 }

@@ -49,6 +49,7 @@ class AccountPage extends StatelessWidget {
                       ),
                       onPressed: () {
                         FirebaseAuthentication.signOut().then((user) {
+                          songStatus.closeSong();
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
@@ -181,7 +182,6 @@ class AccountPage extends StatelessWidget {
                   },
                 ),
               ),
-              createSpace(50),
             ],
           ),
         ),

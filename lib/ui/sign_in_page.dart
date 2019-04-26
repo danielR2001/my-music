@@ -367,9 +367,11 @@ class _State extends State<SignInPage> {
         if (isEmailVerified) {
           FirebaseAuthentication.currentUser().then(
             (user) {
-              currentUser = new User(_userName, user.uid);
-              FirebaseDatabaseManager.saveUser();
-              print(currentUser.toString());
+              FirebaseDatabaseManager.syncUser(user.uid).then((a) {
+                currentUser = new User(_userName, user.uid);
+                FirebaseDatabaseManager.saveUser();
+                print(currentUser.toString());
+              });
             },
           );
           Navigator.pushReplacement(
