@@ -61,7 +61,7 @@ class FetchData {
         .post('https://my-free-mp3s.com/api/search.php?callback',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: {"q": searchStr})
-        .whenComplete(() => print('completed'))
+        .whenComplete(() => print('search completed'))
         .then((http.Response response) {
           List<dynamic> list = jsonDecode(
               response.body.substring(1, response.body.length - 2))['response'];

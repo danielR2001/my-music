@@ -20,7 +20,9 @@ class _RootPageState extends State<RootPage> {
   void initState() {
     super.initState();
     FirebaseAuthentication.currentUser().then((user) {
-      FirebaseDatabaseManager.syncUser(user.uid);
+      if (user != null) {
+        FirebaseDatabaseManager.syncUser(user.uid);
+      }
       //currentUser = new User(_userName, user.uid);
       //FirebaseDatabaseManager.saveUser();
       //print(currentUser.toString());

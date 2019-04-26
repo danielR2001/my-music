@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'discover_page.dart';
 import 'account_page.dart';
@@ -16,12 +18,12 @@ class _HomePageState extends State<HomePage> {
   AccountPage accountPage;
   List<Widget> pages;
   Widget currentPage;
-  Icon playOrPause;
+  Icon musicPlayerIcon;
   double _height;
+  StreamSubscription<AudioPlayerState> stream;
 
   @override
   void initState() {
-    changeIconState();
     discoverPage = DiscoverPage();
     accountPage = AccountPage();
     pages = [
@@ -38,7 +40,14 @@ class _HomePageState extends State<HomePage> {
         _height = 118;
       });
     }
+    initSong();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    stream.cancel();
+    super.dispose();
   }
 
   @override
@@ -111,27 +120,20 @@ class _HomePageState extends State<HomePage> {
     return Future.value(false);
   }
 
-  void changePlayingMusicState() {
-    if (playingNow != null) {
-      if (playingNow.isPlaying) {
-        setState(() {
-          playingNow.pauseSong();
-          changeIconState();
-        });
-      } else {
-        setState(() {
-          playingNow.resumeSong();
-          changeIconState();
-        });
-      }
-    }
+  void initSong() {
+    checkSongStatus(playingNow.advancedPlayer.state);
+    stream = playingNow.advancedPlayer.onPlayerStateChanged.listen(
+      (AudioPlayerState state) {
+        checkSongStatus(state);
+      },
+    );
   }
 
-  void changeIconState() {
-    if (playingNow.isPlaying) {
+  void changeIconState(bool isPlaying) {
+    if (isPlaying) {
       setState(
         () {
-          playOrPause = Icon(
+          musicPlayerIcon = Icon(
             Icons.pause,
             color: Colors.white,
           );
@@ -140,12 +142,22 @@ class _HomePageState extends State<HomePage> {
     } else {
       setState(
         () {
-          playOrPause = Icon(
+          musicPlayerIcon = Icon(
             Icons.play_arrow,
             color: Colors.white,
           );
         },
       );
+    }
+  }
+
+  void checkSongStatus(AudioPlayerState state) {
+    if (state == AudioPlayerState.PLAYING) {
+      changeIconState(true);
+    } else if (state == AudioPlayerState.PAUSED) {
+      changeIconState(false);
+    } else if (state == null) {
+      changeIconState(false);
     }
   }
 
@@ -194,10 +206,13 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Expanded(
                   child: new IconButton(
-                    icon: playOrPause,
+                    icon: musicPlayerIcon,
                     iconSize: 30,
                     onPressed: () {
-                      changePlayingMusicState();
+                      playingNow.advancedPlayer.state ==
+                              AudioPlayerState.PLAYING
+                          ? playingNow.pauseSong()
+                          : playingNow.resumeSong();
                     },
                   ),
                 )

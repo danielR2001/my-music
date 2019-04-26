@@ -135,7 +135,7 @@ class _SearchPageState extends State<SearchPage> {
         color: Colors.white,
       ),
       onTap: () {
-        print("Current Song: " + song.getSongName + "-" + song.getArtist);
+        currentPlayList = null;
         playingNow.playSong(song);
         Navigator.push(
           context,

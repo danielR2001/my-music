@@ -98,7 +98,7 @@ class AccountPage extends StatelessWidget {
               createSpace(50),
               new ListTile(
                 leading: Icon(
-                  Icons.file_download,
+                  Icons.save_alt,
                   color: Colors.white,
                   size: 30,
                 ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/playlist.dart';
 import 'dart:ui';
-import 'package:myapp/models/song.dart';
 import 'package:myapp/main.dart';
 import 'music_player_page.dart';
 import 'dart:math';
@@ -17,15 +16,6 @@ class PlayListPage extends StatelessWidget {
       body: new Container(
         decoration: new BoxDecoration(
           color: Color(0xE4000000),
-          // gradient: new LinearGradient(
-          //   colors: [
-          //     Color(0xE4000000),
-          //     Colors.pink,
-          //   ],
-          //   begin: FractionalOffset.bottomCenter,
-          //   stops: [0.5, 1.0],
-          //   end: FractionalOffset.topCenter,
-          // ),
         ),
         child: new CustomScrollView(
           slivers: <Widget>[
@@ -98,7 +88,12 @@ class PlayListPage extends StatelessWidget {
                               var rnd = new Random();
                               playingNow.currentSong = playlist.getSongs[
                                   rnd.nextInt(playlist.getSongs.length)];
-                              playSongAndGoToMusicPlayer(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MusicPlayerPage(),
+                                ),
+                              );
                             },
                           ),
                         ),
@@ -122,8 +117,14 @@ class PlayListPage extends StatelessWidget {
           playlist.getSongs.length,
           (int index) => new ListTile(
                 onTap: () {
+                  playingNow.currentPlaylist = playlist;
                   playingNow.playSong(playlist.getSongs[index]);
-                  playSongAndGoToMusicPlayer(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MusicPlayerPage(),
+                    ),
+                  );
                 },
                 title: new Text(
                   playlist.getSongs[index].getSongName,
@@ -149,15 +150,6 @@ class PlayListPage extends StatelessWidget {
                 ),
               ),
         ),
-      ),
-    );
-  }
-
-  void playSongAndGoToMusicPlayer(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MusicPlayerPage(),
       ),
     );
   }
