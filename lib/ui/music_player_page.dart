@@ -501,7 +501,7 @@ class MusicPageState extends State<MusicPlayerPage> {
     } else {
       return new Container(
         width: 320,
-        height: 29,
+        height: 32,
         child: new Marquee(
           text: txt,
           scrollAxis: Axis.horizontal,

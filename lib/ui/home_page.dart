@@ -152,7 +152,7 @@ class _HomePageState extends State<HomePage> {
   GestureDetector musicPlayerControl() {
     if (songStatus.currentSong != null) {
       setState(() {
-        _height = 120;
+        _height = 118;
       });
       return GestureDetector(
           child: new Container(
@@ -233,7 +233,7 @@ class _HomePageState extends State<HomePage> {
     } else {
       return new Container(
         width: 230,
-        height: 20,
+        height: 23,
         child: new Marquee(
           text: txt,
           scrollAxis: Axis.horizontal,
