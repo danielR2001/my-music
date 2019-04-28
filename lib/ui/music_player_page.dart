@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
+import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
-import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/playlists_pick_page.dart';
 
 class MusicPlayerPage extends StatefulWidget {
@@ -105,8 +105,8 @@ class MusicPageState extends State<MusicPlayerPage> {
             ),
             Column(
               children: <Widget>[
-                text(playingNow.currentSong.getSongName, 25, Colors.white),
-                text(playingNow.currentSong.getArtist, 14, Colors.grey)
+                text(playingNow.currentSong.getSongName, 25, Colors.white, 20),
+                text(playingNow.currentSong.getArtist, 14, Colors.grey, 30)
               ],
             ),
             new Slider(
@@ -221,7 +221,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                       child: IconButton(
                         splashColor: Colors.grey,
                         icon: new Icon(
-                          Icons.favorite_border,
+                          Icons.repeat,
                           size: 25,
                           color: Colors.white,
                         ),
@@ -270,37 +270,13 @@ class MusicPageState extends State<MusicPlayerPage> {
                     new Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        text(
-                          playingNow.currentSong.getSongName,
-                          20,
-                          Colors.white,
-                        ),
-                        text(
-                          playingNow.currentSong.getArtist,
-                          15,
-                          Colors.grey,
-                        ),
+                        text(playingNow.currentSong.getSongName, 20,
+                            Colors.white, 20),
+                        text(playingNow.currentSong.getArtist, 15, Colors.grey,
+                            30),
                       ],
                     )
                   ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: new ListTile(
-                  leading: new Icon(
-                    Icons.favorite_border,
-                    color: Colors.grey,
-                    size: 30,
-                  ),
-                  title: new Text(
-                    "Like",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                 ),
               ),
               Padding(
@@ -424,7 +400,7 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
   }
 
-  void changeIconState(bool isPlaying) {
+  void changePlayingIconState(bool isPlaying) {
     if (isPlaying) {
       setState(
         () {
@@ -448,11 +424,11 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   void checkSongStatus(AudioPlayerState state) {
     if (state == AudioPlayerState.PLAYING) {
-      changeIconState(true);
+      changePlayingIconState(true);
     } else if (state == AudioPlayerState.PAUSED) {
-      changeIconState(false);
+      changePlayingIconState(false);
     } else {
-      changeIconState(false);
+      changePlayingIconState(false);
     }
   }
 
@@ -498,8 +474,8 @@ class MusicPageState extends State<MusicPlayerPage> {
     }
   }
 
-  Widget text(String txt, double size, Color color) {
-    if (txt.length < 20) {
+  Widget text(String txt, double size, Color color, int txtMaxLength) {
+    if (txt.length < txtMaxLength) {
       return new Text(
         txt,
         textAlign: TextAlign.center,

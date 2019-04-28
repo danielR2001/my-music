@@ -46,98 +46,103 @@ class DiscoverPage extends StatelessWidget {
             end: FractionalOffset.topLeft,
           ),
         ),
-        child: new ListView(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 20,
-                bottom: 10,
-              ),
-              child: new Text(
-                "Search",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 40,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                right: 15.0,
-                left: 15.0,
-                bottom: 30.0,
-              ),
-              child: Container(
-                width: 150,
-                height: 45,
-                child: new RaisedButton(
-                  shape: new RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(30.0),
+        child: SafeArea(
+          child: Theme(
+            data: Theme.of(context).copyWith(accentColor: Colors.grey),
+            child: new ListView(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: 20,
+                    bottom: 10,
                   ),
-                  splashColor: Colors.transparent,
-                  color: Colors.white,
-                  child: Text(
-                    "Artists, songs or albums",
+                  child: new Text(
+                    "Search",
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
+                      color: Colors.white,
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  elevation: 6.0,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SearchPage(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    right: 15.0,
+                    left: 15.0,
+                    bottom: 30.0,
+                  ),
+                  child: Container(
+                    width: 150,
+                    height: 45,
+                    child: new RaisedButton(
+                      shape: new RoundedRectangleBorder(
+                        borderRadius: new BorderRadius.circular(30.0),
                       ),
-                    );
-                  },
+                      splashColor: Colors.transparent,
+                      color: Colors.white,
+                      child: Text(
+                        "Artists, songs or albums",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                        ),
+                      ),
+                      elevation: 6.0,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 20,
-                bottom: 20,
-                left: 10,
-              ),
-              child: new Text(
-                "Top Genres:",
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: 20,
+                    bottom: 20,
+                    left: 10,
+                  ),
+                  child: new Text(
+                    "Top Genres:",
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
+                createGenres(0, context),
+                new SizedBox(
+                  height: 10.0,
+                ),
+                createGenres(2, context),
+                new SizedBox(
+                  height: 10.0,
+                ),
+                createGenres(4, context),
+                new SizedBox(
+                  height: 10.0,
+                ),
+                createGenres(6, context),
+                new SizedBox(
+                  height: 10.0,
+                ),
+                createGenres(8, context),
+                new SizedBox(
+                  height: 10.0,
+                ),
+                createGenres(10, context),
+                new SizedBox(
+                  height: 10.0,
+                ),
+              ],
             ),
-            createGenres(0, context),
-            new SizedBox(
-              height: 10.0,
-            ),
-            createGenres(2, context),
-            new SizedBox(
-              height: 10.0,
-            ),
-            createGenres(4, context),
-            new SizedBox(
-              height: 10.0,
-            ),
-            createGenres(6, context),
-            new SizedBox(
-              height: 10.0,
-            ),
-            createGenres(8, context),
-            new SizedBox(
-              height: 10.0,
-            ),
-            createGenres(10, context),
-            new SizedBox(
-              height: 10.0,
-            ),
-          ],
+          ),
         ),
       ),
     );

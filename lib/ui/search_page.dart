@@ -98,11 +98,15 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ],
       ),
-      body: new ListView.builder(
-        itemCount: searchLength,
-        itemBuilder: (BuildContext context, int index) {
-          return songSearchResult(searchResults[index], context);
-        },
+      body: Theme(
+        data: Theme.of(context).copyWith(accentColor: Colors.grey),
+        child: new ListView.builder(
+          itemCount: searchLength,
+          itemExtent: 60,
+          itemBuilder: (BuildContext context, int index) {
+            return songSearchResult(searchResults[index], context);
+          },
+        ),
       ),
     );
   }
@@ -135,7 +139,7 @@ class _SearchPageState extends State<SearchPage> {
         color: Colors.white,
       ),
       onTap: () {
-        currentPlayList = null;
+        playingNow.currentPlaylist = null;
         playingNow.playSong(song);
         Navigator.push(
           context,

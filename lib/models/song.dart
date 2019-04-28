@@ -4,15 +4,19 @@ class Song {
   String _songUrl;
   String _imageUrl;
   String _songDownloadUrl;
+  String _songId;
 
   Song(String songName, String artist, String songUrl, String imageUrl,
-      String songDownloadUrl) {
+      String songDownloadUrl, String songId) {
     _songName = songName;
     _artist = artist;
     _songUrl = songUrl;
     _imageUrl = imageUrl;
     _songDownloadUrl = songDownloadUrl;
+    _songId = songId;
   }
+
+  String get getSongId => _songId;
 
   String get getSongDownloadUrl => _songDownloadUrl;
 
@@ -34,13 +38,16 @@ class Song {
 
   set setISmageUrl(String value) => _imageUrl = value;
 
+  set setSongId(String value) => _songId = value;
+
   toJson() {
     return {
       'songName': _songName,
       'artist': _artist,
       'songUrl': _songUrl,
       'imageUrl': _imageUrl,
-      'songDownloadUrl': _songDownloadUrl
+      'songDownloadUrl': _songDownloadUrl,
+      'songId': _songId,
     };
   }
 
@@ -55,6 +62,8 @@ class Song {
         " songUrl: " +
         _songUrl +
         " songDownloadUrl: " +
-        _songDownloadUrl;
+        _songDownloadUrl +
+        " songId: " +
+        _songId;
   }
 }

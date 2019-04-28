@@ -5,11 +5,13 @@ import 'package:myapp/models/song.dart';
 import 'package:myapp/models/user.dart';
 
 class FirebaseDatabaseManager {
-  static final String _usersDirectory = "users/";
+  static final String _usersDir = "users";
+  static final String _playlistsDir = "playlists";
+  static final String _favouritesDir = "favourites";
   static String _userPushId;
 
   static void saveUser() {
-    FirebaseDatabase.instance.reference().child(_usersDirectory).push().set(
+    FirebaseDatabase.instance.reference().child(_usersDir).push().set(
           currentUser.toJson(),
         );
   }
@@ -19,7 +21,7 @@ class FirebaseDatabaseManager {
     List<String> keys = new List();
     List<Map> playlists = new List();
     int i = 0;
-    var db = FirebaseDatabase.instance.reference().child("users");
+    var db = FirebaseDatabase.instance.reference().child(_usersDir);
     db.once().then(
       (DataSnapshot snapshot) {
         Map<dynamic, dynamic> values = snapshot.value;
@@ -54,9 +56,9 @@ class FirebaseDatabaseManager {
   static void addNewPlaylist(Playlist playlist) {
     var dir = FirebaseDatabase.instance
         .reference()
-        .child(_usersDirectory)
+        .child(_usersDir)
         .child(_userPushId)
-        .child("playlists")
+        .child(_playlistsDir)
         .child(playlist.getName)
         .push();
 
@@ -66,7 +68,7 @@ class FirebaseDatabaseManager {
   static void addSongToPlaylist(Playlist playlist, Song song) {
     FirebaseDatabase.instance
         .reference()
-        .child(_usersDirectory)
+        .child(_usersDir)
         .child(_userPushId)
         .child("playlists")
         .child(playlist.getName)
@@ -87,9 +89,10 @@ class FirebaseDatabaseManager {
               new Song(
                 values[0],
                 values[1],
-                values[4],
+                values[5],
                 values[2],
                 values[3],
+                values[4],
               ),
             );
           },
@@ -98,5 +101,17 @@ class FirebaseDatabaseManager {
       },
     );
     return playlists;
+  }
+
+  static Song buildSong(Map songMap) {
+    List values = songMap.values.toList();
+    return new Song(
+      values[0],
+      values[1],
+      values[5],
+      values[2],
+      values[3],
+      values[4],
+    );
   }
 }

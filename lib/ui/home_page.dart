@@ -33,7 +33,7 @@ class _HomePageState extends State<HomePage> {
     currentPage = discoverPage;
     if (playingNow.currentSong == null) {
       setState(() {
-        _height = 63;
+        _height = 65;
       });
     } else {
       setState(() {
@@ -193,11 +193,13 @@ class _HomePageState extends State<HomePage> {
                             playingNow.currentSong.getSongName,
                             18,
                             Colors.white,
+                            20,
                           ),
                           text(
                             playingNow.currentSong.getArtist,
                             16,
                             Colors.grey,
+                            30,
                           )
                         ],
                       ),
@@ -235,8 +237,8 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Widget text(String txt, double size, Color color) {
-    if (txt.length < 20) {
+  Widget text(String txt, double size, Color color, int txtMaxLength) {
+    if (txt.length < txtMaxLength) {
       return new Text(
         txt,
         textAlign: TextAlign.center,

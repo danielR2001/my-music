@@ -22,8 +22,7 @@ class AccountPage extends StatelessWidget {
             end: FractionalOffset.topLeft,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.only(top: 25),
+        child: SafeArea(
           child: new Column(
             children: <Widget>[
               new ListTile(
@@ -174,12 +173,15 @@ class AccountPage extends StatelessWidget {
                 onTap: () {},
               ),
               Expanded(
-                child: new ListView.builder(
-                  itemCount: currentUser.getMyPlaylists.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return userPlaylists(
-                        currentUser.getMyPlaylists[index], context);
-                  },
+                child: Theme(
+                  data: Theme.of(context).copyWith(accentColor: Colors.grey),
+                  child: new ListView.builder(
+                    itemCount: currentUser.getMyPlaylists.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return userPlaylists(
+                          currentUser.getMyPlaylists[index], context);
+                    },
+                  ),
                 ),
               ),
             ],
@@ -198,8 +200,9 @@ class AccountPage extends StatelessWidget {
   Padding userPlaylists(Playlist playlist, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
+        top: 10,
         left: 40,
-        bottom: 25,
+        bottom: 20,
       ),
       child: new ListTile(
         leading: new Container(

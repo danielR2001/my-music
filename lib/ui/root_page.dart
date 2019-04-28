@@ -19,29 +19,33 @@ class _RootPageState extends State<RootPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAuthentication.currentUser().then((user) {
-      if (user != null) {
-        FirebaseDatabaseManager.syncUser(user.uid);
-      }
-      //currentUser = new User(_userName, user.uid);
-      //FirebaseDatabaseManager.saveUser();
-      //print(currentUser.toString());
-
-      setState(() {
-        authStatus =
-            user == null ? AuthStatus.notSignedIn : AuthStatus.signedIn;
-      });
-    });
+    FirebaseAuthentication.currentUser().then(
+      (user) {
+        if (user != null) {
+          FirebaseDatabaseManager.syncUser(user.uid).then(
+            (a) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomePage(),
+                ),
+              );
+            },
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => WelcomePage(),
+            ),
+          );
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    switch (authStatus) {
-      case AuthStatus.notSignedIn:
-        return new WelcomePage();
-      case AuthStatus.signedIn:
-        return new HomePage();
-    }
-    return null;
+    return new Container();
   }
 }
