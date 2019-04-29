@@ -117,10 +117,10 @@ class PlayListPage extends StatelessWidget {
       delegate: new SliverChildListDelegate(
         new List.generate(playlist.getSongs.length, (int index) {
           String title;
-          if (playlist.getSongs[index].getSongName.length > 32) {
-            int pos = playlist.getSongs[index].getSongName.lastIndexOf("", 32);
-            if (pos < 25) {
-              pos = 32;
+          if (playlist.getSongs[index].getSongName.length > 30) {
+            int pos = playlist.getSongs[index].getSongName.lastIndexOf("", 30);
+            if (pos < 15) {
+              pos = 30;
             }
             title =
                 playlist.getSongs[index].getSongName.substring(0, pos) + "...";

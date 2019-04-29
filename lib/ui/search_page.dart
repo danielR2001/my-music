@@ -66,7 +66,11 @@ class _SearchPageState extends State<SearchPage> {
                               FetchData.fetchPost(txt).then((results) {
                                 setState(() {
                                   searchResults = results;
-                                  searchLength = searchResults.length;
+                                  if (searchResults != null) {
+                                    searchLength = searchResults.length;
+                                  } else {
+                                    searchLength = 0;
+                                  }
                                 });
                               }),
                             },
@@ -115,6 +119,7 @@ class _SearchPageState extends State<SearchPage> {
   ListTile songSearchResult(Song song, BuildContext context) {
     setSongImage(song);
     String title;
+    String artist;
     if (song.getSongName.length > 32) {
       int pos = song.getSongName.lastIndexOf("", 32);
       if (pos < 25) {
@@ -123,6 +128,15 @@ class _SearchPageState extends State<SearchPage> {
       title = song.getSongName.substring(0, pos) + "...";
     } else {
       title = song.getSongName;
+    }
+    if (song.getArtist.length > 45) {
+      int pos = song.getArtist.lastIndexOf("", 45);
+      if (pos < 30) {
+        pos = 45;
+      }
+      artist = song.getArtist.substring(0, pos) + "...";
+    } else {
+      artist = song.getArtist;
     }
     return ListTile(
       leading: new Container(
@@ -140,7 +154,7 @@ class _SearchPageState extends State<SearchPage> {
         ),
       ),
       subtitle: new Text(
-        song.getArtist,
+        artist,
         style: TextStyle(
           color: Colors.grey,
           fontSize: 12,

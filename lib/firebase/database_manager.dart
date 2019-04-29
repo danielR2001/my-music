@@ -40,7 +40,6 @@ class FirebaseDatabaseManager {
               currentUser = user;
               if (playlists[i] != null) {
                 currentUser.setMyPlaylists = buildPlaylist(playlists[i]);
-                print(currentUser.getMyPlaylists[0].getSongs.toString());
               }
               print("user synced successfuly");
               return;

@@ -65,7 +65,7 @@ class FetchData {
         .then((http.Response response) {
           List<dynamic> list = jsonDecode(
               response.body.substring(1, response.body.length - 2))['response'];
-          if (list != null) {
+          if (list != null || list.length > 0) {
             list?.removeAt(0);
             postResponses = fillList(list, searchStr);
           }
@@ -76,34 +76,28 @@ class FetchData {
   static List<Song> fillList(List<dynamic> list, String searchStr) {
     List<Song> tempList = new List();
     Song temp;
-    String tempTitle;
     list.forEach((item) {
-      searchStr = searchStr.toLowerCase();
-      tempTitle = item['title'];
-      tempTitle = tempTitle.toLowerCase();
-      if (tempTitle.contains(searchStr)) {
-        temp = new Song(
-          item['title'],
-          item['artist'],
-          playUrl +
-              encode(item['owner_id']) +
-              ":" +
-              encode(
-                item['id'],
-              ),
-          getImageUrl(
-            item['album'],
-          ),
-          downloadUrl +
-              encode(item['owner_id']) +
-              ":" +
-              encode(
-                item['id'],
-              ),
-          item['id'].toString(),
-        );
-        tempList.add(temp);
-      }
+      temp = new Song(
+        item['title'],
+        item['artist'],
+        playUrl +
+            encode(item['owner_id']) +
+            ":" +
+            encode(
+              item['id'],
+            ),
+        getImageUrl(
+          item['album'],
+        ),
+        downloadUrl +
+            encode(item['owner_id']) +
+            ":" +
+            encode(
+              item['id'],
+            ),
+        item['id'].toString(),
+      );
+      tempList.add(temp);
     });
     return tempList;
   }

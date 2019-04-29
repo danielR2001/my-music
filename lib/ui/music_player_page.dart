@@ -1,9 +1,10 @@
 import 'dart:async';
-
+import 'package:connectivity/connectivity.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
 import 'package:myapp/main.dart';
+import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/playlists_pick_page.dart';
 
 class MusicPlayerPage extends StatefulWidget {
@@ -18,7 +19,8 @@ class MusicPageState extends State<MusicPlayerPage> {
   StreamSubscription<AudioPlayerState> stream;
   StreamSubscription<Duration> posStream;
   StreamSubscription<Duration> durStream;
-  ImageProvider songImage;
+  ImageProvider songImage =
+      new AssetImage('assets/images/default_song_pic_big.png');
 
   @override
   void initState() {
@@ -181,7 +183,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                           Icons.skip_previous,
                           color: Colors.white,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          playPreviousSong();
+                        },
                       ),
                       new IconButton(
                         splashColor: Colors.grey,
@@ -203,7 +207,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                           Icons.skip_next,
                           color: Colors.white,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          playNextSong();
+                        },
                       ),
                     ],
                   ),
@@ -471,11 +477,19 @@ class MusicPageState extends State<MusicPlayerPage> {
     }
   }
 
-  void setSongImage() {
+  void setSongImage() async {
     if (playingNow.currentSong.getImageUrl.length > 0) {
-      songImage = new NetworkImage(
-        playingNow.currentSong.getImageUrl,
-      );
+      Connectivity().checkConnectivity().then((connectivityResult) {
+        if (connectivityResult == ConnectivityResult.mobile ||
+            connectivityResult == ConnectivityResult.wifi) {
+          songImage = new NetworkImage(
+            playingNow.currentSong.getImageUrl,
+          );
+        } else {
+          songImage = new AssetImage('assets/images/default_song_pic_big.png');
+          print("no internet connection for loading image");
+        }
+      });
     } else {
       songImage = new AssetImage('assets/images/default_song_pic_big.png');
     }
@@ -483,12 +497,16 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   Widget text(String txt, double size, Color color, int txtMaxLength) {
     if (txt.length < txtMaxLength) {
-      return new Text(
-        txt,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: size,
-          color: color,
+      return Container(
+        width: 320,
+        height: 32,
+        child: new Text(
+          txt,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: size,
+            color: color,
+          ),
         ),
       );
     } else {
@@ -506,6 +524,51 @@ class MusicPageState extends State<MusicPlayerPage> {
           velocity: 30.0,
         ),
       );
+    }
+  }
+
+  void playPreviousSong() {
+    if (playingNow.currentPlaylist != null) {
+      int i = 0;
+      Song correctPreviousSong;
+      if (playingNow.currentSong.getSongId ==
+          playingNow.currentPlaylist.getSongs[0].getSongId) {
+        playingNow.playSong(playingNow.currentPlaylist
+            .getSongs[playingNow.currentPlaylist.getSongs.length - 1]);
+      } else {
+        Song previousSong = playingNow.currentPlaylist.getSongs[0];
+        playingNow.currentPlaylist.getSongs.forEach((song) {
+          if (i != 0) {
+            if (song.getSongId == playingNow.currentSong.getSongId) {
+              correctPreviousSong = previousSong;
+            } else {
+              previousSong = song;
+            }
+          }
+          i++;
+        });
+        playingNow.playSong(correctPreviousSong);
+      }
+    }
+  }
+
+  void playNextSong() {
+    if (playingNow.currentPlaylist != null) {
+      bool foundSong = false;
+      Song nextSong;
+      playingNow.currentPlaylist.getSongs.forEach((song) {
+        if (foundSong) {
+          nextSong = song;
+          foundSong = false;
+        }
+        if (song.getSongId == playingNow.currentSong.getSongId) {
+          foundSong = true;
+        }
+      });
+      if (nextSong == null && foundSong) {
+        nextSong = playingNow.currentPlaylist.getSongs[0];
+      }
+      playingNow.playSong(nextSong);
     }
   }
 }

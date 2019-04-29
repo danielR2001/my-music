@@ -68,14 +68,15 @@ class DiscoverPage extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(
-                    right: 15.0,
-                    left: 15.0,
+                    right: 8.0,
+                    left: 8.0,
                     bottom: 5,
                   ),
                   child: Row(children: <Widget>[
                     Expanded(
                       child: Container(
                         height: 50,
+                        //width: 196,
                         child: new RaisedButton(
                           shape: new RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(8.0),

@@ -239,12 +239,16 @@ class _HomePageState extends State<HomePage> {
 
   Widget text(String txt, double size, Color color, int txtMaxLength) {
     if (txt.length < txtMaxLength) {
-      return new Text(
-        txt,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: size,
-          color: color,
+      return Container(
+        width: 230,
+        height: 23,
+        child: new Text(
+          txt,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: size,
+            color: color,
+          ),
         ),
       );
     } else {
