@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
-import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/ui/playlists_pick_page.dart';
 
@@ -19,6 +18,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   StreamSubscription<AudioPlayerState> stream;
   StreamSubscription<Duration> posStream;
   StreamSubscription<Duration> durStream;
+  ImageProvider songImage;
 
   @override
   void initState() {
@@ -36,6 +36,7 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   @override
   Widget build(BuildContext context) {
+    setSongImage();
     return Scaffold(
       body: new Container(
         decoration: new BoxDecoration(
@@ -94,7 +95,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                           ),
                         ],
                         image: new DecorationImage(
-                          image: songImage(),
+                          image: songImage,
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -270,10 +271,18 @@ class MusicPageState extends State<MusicPlayerPage> {
                     new Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        text(playingNow.currentSong.getSongName, 20,
-                            Colors.white, 20),
-                        text(playingNow.currentSong.getArtist, 15, Colors.grey,
-                            30),
+                        text(
+                          playingNow.currentSong.getSongName,
+                          20,
+                          Colors.white,
+                          20,
+                        ),
+                        text(
+                          playingNow.currentSong.getArtist,
+                          15,
+                          Colors.grey,
+                          30,
+                        ),
                       ],
                     )
                   ],
@@ -462,15 +471,13 @@ class MusicPageState extends State<MusicPlayerPage> {
     }
   }
 
-  NetworkImage songImage() {
+  void setSongImage() {
     if (playingNow.currentSong.getImageUrl.length > 0) {
-      return new NetworkImage(
+      songImage = new NetworkImage(
         playingNow.currentSong.getImageUrl,
       );
     } else {
-      return new NetworkImage(
-        'http://musicneedsyou.com/wp-content/uploads/2016/11/audio-engineer-300x200.jpg',
-      );
+      songImage = new AssetImage('assets/images/default_song_pic_big.png');
     }
   }
 

@@ -88,6 +88,8 @@ class PlayListPage extends StatelessWidget {
                               var rnd = new Random();
                               playingNow.currentSong = playlist.getSongs[
                                   rnd.nextInt(playlist.getSongs.length)];
+                              playingNow.currentPlaylist = playlist;
+                              playingNow.playSong(playingNow.currentSong);
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -113,43 +115,53 @@ class PlayListPage extends StatelessWidget {
   SliverList makeSliverList(Playlist playlist, BuildContext context) {
     return new SliverList(
       delegate: new SliverChildListDelegate(
-        new List.generate(
-          playlist.getSongs.length,
-          (int index) => new ListTile(
-                onTap: () {
-                  playingNow.currentPlaylist = playlist;
-                  playingNow.playSong(playlist.getSongs[index]);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MusicPlayerPage(),
-                    ),
-                  );
-                },
-                title: new Text(
-                  playlist.getSongs[index].getSongName,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+        new List.generate(playlist.getSongs.length, (int index) {
+          String title;
+          if (playlist.getSongs[index].getSongName.length > 32) {
+            int pos = playlist.getSongs[index].getSongName.lastIndexOf("", 32);
+            if (pos < 25) {
+              pos = 32;
+            }
+            title =
+                playlist.getSongs[index].getSongName.substring(0, pos) + "...";
+          } else {
+            title = playlist.getSongs[index].getSongName;
+          } //TODO exact cut
+          return new ListTile(
+            onTap: () {
+              playingNow.currentPlaylist = playlist;
+              playingNow.playSong(playlist.getSongs[index]);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MusicPlayerPage(),
                 ),
-                subtitle: new Text(
-                  playlist.getSongs[index].getArtist,
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
-                ),
-                trailing: IconButton(
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {},
-                ),
+              );
+            },
+            title: new Text(
+              title,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
-        ),
+            ),
+            subtitle: new Text(
+              playlist.getSongs[index].getArtist,
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+              ),
+            ),
+            trailing: IconButton(
+              icon: Icon(
+                Icons.more_vert,
+                color: Colors.white,
+              ),
+              onPressed: () {},
+            ),
+          );
+        }),
       ),
     );
   }

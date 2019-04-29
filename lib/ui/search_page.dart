@@ -13,6 +13,7 @@ class _SearchPageState extends State<SearchPage> {
   int searchLength = 0;
   static List<Song> searchResults = new List();
   TextEditingController textEditingController = new TextEditingController();
+  ImageProvider songImage;
   @override
   void dispose() {
     textEditingController.dispose();
@@ -83,7 +84,7 @@ class _SearchPageState extends State<SearchPage> {
                   new IconButton(
                     iconSize: 20,
                     icon: Icon(
-                      Icons.cancel,
+                      Icons.clear,
                       color: Colors.white,
                     ),
                     onPressed: () {
@@ -112,17 +113,28 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   ListTile songSearchResult(Song song, BuildContext context) {
+    setSongImage(song);
+    String title;
+    if (song.getSongName.length > 32) {
+      int pos = song.getSongName.lastIndexOf("", 32);
+      if (pos < 25) {
+        pos = 30;
+      }
+      title = song.getSongName.substring(0, pos) + "...";
+    } else {
+      title = song.getSongName;
+    }
     return ListTile(
       leading: new Container(
         width: 30,
         height: 30,
         decoration: BoxDecoration(
             image: DecorationImage(
-          image: songImage(song),
+          image: songImage,
         )),
       ),
       title: new Text(
-        song.getSongName,
+        title,
         style: TextStyle(
           color: Colors.white,
         ),
@@ -151,15 +163,13 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  NetworkImage songImage(Song song) {
+  void setSongImage(Song song) {
     if (song.getImageUrl.length > 0) {
-      return new NetworkImage(
+      songImage = new NetworkImage(
         song.getImageUrl,
       );
     } else {
-      return new NetworkImage(
-        'https://previews.123rf.com/images/fokaspokas/fokaspokas1803/fokaspokas180300237/96761327-music-note-icon-white-icon-with-shadow-on-transparent-background.jpg',
-      );
+      songImage = new AssetImage('assets/images/default_song_pic.png');
     }
   }
 }

@@ -7,7 +7,6 @@ import 'package:myapp/models/user.dart';
 class FirebaseDatabaseManager {
   static final String _usersDir = "users";
   static final String _playlistsDir = "playlists";
-  static final String _favouritesDir = "favourites";
   static String _userPushId;
 
   static void saveUser() {

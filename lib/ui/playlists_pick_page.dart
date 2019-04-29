@@ -3,7 +3,6 @@ import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/playlist.dart';
-import 'music_player_page.dart';
 
 class PlaylistPickPage extends StatefulWidget {
   @override
@@ -157,12 +156,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
             FirebaseDatabaseManager.addSongToPlaylist(
                 playlist, playingNow.currentSong);
             currentUser.addNewSongToPlaylist(playlist, playingNow.currentSong);
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MusicPlayerPage(),
-              ),
-            );
+            Navigator.pop(context);
           }),
     );
   }

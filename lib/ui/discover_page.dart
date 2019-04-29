@@ -49,7 +49,7 @@ class DiscoverPage extends StatelessWidget {
         child: SafeArea(
           child: Theme(
             data: Theme.of(context).copyWith(accentColor: Colors.grey),
-            child: new ListView(
+            child: new Column(
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.only(
@@ -70,75 +70,60 @@ class DiscoverPage extends StatelessWidget {
                   padding: const EdgeInsets.only(
                     right: 15.0,
                     left: 15.0,
-                    bottom: 30.0,
+                    bottom: 5,
                   ),
-                  child: Container(
-                    width: 150,
-                    height: 45,
-                    child: new RaisedButton(
-                      shape: new RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(30.0),
-                      ),
-                      splashColor: Colors.transparent,
-                      color: Colors.white,
-                      child: Text(
-                        "Artists, songs or albums",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
+                  child: Row(children: <Widget>[
+                    Expanded(
+                      child: Container(
+                        height: 50,
+                        child: new RaisedButton(
+                          shape: new RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(8.0),
+                          ),
+                          splashColor: Colors.transparent,
+                          color: Colors.white,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              new Icon(
+                                Icons.search,
+                                color: Colors.grey[700],
+                              ),
+                              new SizedBox(
+                                width: 10,
+                              ),
+                              new Text(
+                                "Search artists or songs",
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                          elevation: 6.0,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SearchPage(),
+                              ),
+                            );
+                          },
                         ),
                       ),
-                      elevation: 6.0,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SearchPage(),
-                          ),
-                        );
-                      },
                     ),
+                  ]),
+                ),
+                Expanded(
+                  child: new ListView.builder(
+                    itemCount: 6,
+                    itemBuilder: (BuildContext context, int index) {
+                      Padding padding = createGenres(index, context);
+                      index++;
+                      return padding;
+                    },
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 20,
-                    bottom: 20,
-                    left: 10,
-                  ),
-                  child: new Text(
-                    "Top Genres:",
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                createGenres(0, context),
-                new SizedBox(
-                  height: 10.0,
-                ),
-                createGenres(2, context),
-                new SizedBox(
-                  height: 10.0,
-                ),
-                createGenres(4, context),
-                new SizedBox(
-                  height: 10.0,
-                ),
-                createGenres(6, context),
-                new SizedBox(
-                  height: 10.0,
-                ),
-                createGenres(8, context),
-                new SizedBox(
-                  height: 10.0,
-                ),
-                createGenres(10, context),
-                new SizedBox(
-                  height: 10.0,
                 ),
               ],
             ),
@@ -157,10 +142,10 @@ class DiscoverPage extends StatelessWidget {
         child: new Container(
           alignment: Alignment.center,
           width: 180.0,
-          height: 150.0,
+          height: 120.0,
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(6.0),
             image: DecorationImage(
               image: ExactAssetImage(imagePath),
               fit: BoxFit.cover,
@@ -208,30 +193,34 @@ class DiscoverPage extends StatelessWidget {
         );
   }
 
-  Row createGenres(int index, BuildContext context) {
-    return new Row(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 8.0,
+  Padding createGenres(int index, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: new Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0,
+            ),
+            child: drawGenreWidget(
+              genresUrls[index * 2],
+              genres[index * 2],
+              context,
+            ),
           ),
-          child: drawGenreWidget(
-            genresUrls[index],
-            genres[index],
-            context,
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0,
+            ),
+            child: drawGenreWidget(
+              genresUrls[index * 2 + 1],
+              genres[index * 2 + 1],
+              context,
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 8.0,
-          ),
-          child: drawGenreWidget(
-            genresUrls[index + 1],
-            genres[index + 1],
-            context,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

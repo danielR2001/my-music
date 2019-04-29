@@ -94,7 +94,19 @@ class AccountPage extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
-              createSpace(50),
+              Expanded(
+                flex: 0,
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               new ListTile(
                 leading: Icon(
                   Icons.save_alt,
@@ -126,41 +138,12 @@ class AccountPage extends StatelessWidget {
               createSpace(25),
               new ListTile(
                 leading: Icon(
-                  Icons.favorite_border,
+                  Icons.queue_music,
                   color: Colors.white,
                   size: 30,
                 ),
                 title: Text(
-                  "Favourites",
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
-                ),
-                trailing: Icon(
-                  Icons.keyboard_arrow_right,
-                  color: Colors.white,
-                ),
-                onTap: () {
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //       builder: (context) => PlayListPage(
-                  //             playlist: "Favourites",
-                  //             imagePath: "",
-                  //           ),
-                  //     ));
-                },
-              ),
-              createSpace(25),
-              new ListTile(
-                leading: Icon(
-                  Icons.library_music,
-                  color: Colors.white,
-                  size: 30,
-                ),
-                title: Text(
-                  "Playlists",
+                  "My Playlists",
                   style: TextStyle(
                     fontSize: 20,
                     color: Colors.white,
