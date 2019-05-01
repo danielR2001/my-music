@@ -2,10 +2,10 @@ import 'dart:async';
 import 'package:connectivity/connectivity.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:marquee/marquee.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/ui/playlists_pick_page.dart';
+import 'package:myapp/ui/song_options_modal_buttom_sheet.dart';
+import 'text_style.dart';
 
 class MusicPlayerPage extends StatefulWidget {
   @override
@@ -64,7 +64,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                       Icons.keyboard_arrow_down,
                       color: Colors.white,
                     ),
-                    onPressed: () => {Navigator.pop(context)},
+                    onPressed: () => {
+                          Navigator.pop(context),
+                        },
                   ),
                   Expanded(
                     child: new Container(),
@@ -76,7 +78,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                         color: Colors.white,
                       ),
                       onPressed: () {
-                        showMoreOptions();
+                        showMoreOptions(context);
                       }),
                 ],
               ),
@@ -87,8 +89,8 @@ class MusicPageState extends State<MusicPlayerPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     new Container(
-                      width: 280,
-                      height: 280,
+                      width: 270,
+                      height: 270,
                       decoration: new BoxDecoration(
                         boxShadow: [
                           new BoxShadow(
@@ -108,8 +110,20 @@ class MusicPageState extends State<MusicPlayerPage> {
             ),
             Column(
               children: <Widget>[
-                text(playingNow.currentSong.getSongName, 25, Colors.white, 20),
-                text(playingNow.currentSong.getArtist, 14, Colors.grey, 30)
+                TextDecoration(
+                  playingNow.currentSong.getSongName,
+                  25,
+                  Colors.white,
+                  20,
+                  35,
+                ),
+                TextDecoration(
+                  playingNow.currentSong.getArtist,
+                  14,
+                  Colors.grey,
+                  30,
+                  35,
+                ),
               ],
             ),
             new Slider(
@@ -260,157 +274,12 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
   }
 
-  void showMoreOptions() {
+  void showMoreOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
       builder: (builder) {
-        return new Container(
-          alignment: Alignment.topCenter,
-          color: Color(0xFF000000),
-          child: new ListView(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                child: new Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    new Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        text(
-                          playingNow.currentSong.getSongName,
-                          20,
-                          Colors.white,
-                          20,
-                        ),
-                        text(
-                          playingNow.currentSong.getArtist,
-                          15,
-                          Colors.grey,
-                          30,
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: new ListTile(
-                  leading: new Icon(
-                    Icons.repeat,
-                    color: Colors.grey,
-                    size: 30,
-                  ),
-                  title: new Text(
-                    "Repeat",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  onTap: () {},
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
-                  child: new SizedBox(
-                    height: 1,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: new ListTile(
-                  leading: new Icon(
-                    Icons.save_alt,
-                    color: Colors.grey,
-                    size: 30,
-                  ),
-                  title: new Text(
-                    "Download",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: new ListTile(
-                  leading: new Icon(
-                    Icons.playlist_add,
-                    color: Colors.grey,
-                    size: 30,
-                  ),
-                  title: new Text(
-                    "Add To Playlist",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PlaylistPickPage(),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: new ListTile(
-                  leading: new Icon(
-                    Icons.account_circle,
-                    color: Colors.grey,
-                    size: 30,
-                  ),
-                  title: new Text(
-                    "View Artist",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: new ListTile(
-                  leading: new Icon(
-                    Icons.share,
-                    color: Colors.grey,
-                    size: 30,
-                  ),
-                  title: new Text(
-                    "Share",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
+        return SongOptionsModalSheet(
+            playingNow.currentSong, playingNow.currentPlaylist);
       },
     );
   }
@@ -456,6 +325,7 @@ class MusicPageState extends State<MusicPlayerPage> {
         setState(() => _duration = d);
       },
     );
+    setSongImage();
     checkSongStatus(playingNow.advancedPlayer.state);
     stream = playingNow.advancedPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
@@ -492,38 +362,6 @@ class MusicPageState extends State<MusicPlayerPage> {
       });
     } else {
       songImage = new AssetImage('assets/images/default_song_pic_big.png');
-    }
-  }
-
-  Widget text(String txt, double size, Color color, int txtMaxLength) {
-    if (txt.length < txtMaxLength) {
-      return Container(
-        width: 320,
-        height: 32,
-        child: new Text(
-          txt,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: size,
-            color: color,
-          ),
-        ),
-      );
-    } else {
-      return new Container(
-        width: 320,
-        height: 32,
-        child: new Marquee(
-          text: txt,
-          scrollAxis: Axis.horizontal,
-          style: TextStyle(
-            fontSize: size,
-            color: color,
-          ),
-          blankSpace: 30.0,
-          velocity: 30.0,
-        ),
-      );
     }
   }
 

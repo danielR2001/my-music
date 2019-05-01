@@ -31,13 +31,13 @@ class _SearchPageState extends State<SearchPage> {
         actions: <Widget>[
           Flexible(
             child: Container(
-              color: Colors.grey[850],
+              color: Colors.grey[700],
               child: Row(
                 children: <Widget>[
                   new IconButton(
-                    iconSize: 20,
+                    iconSize: 35,
                     icon: Icon(
-                      Icons.arrow_back_ios,
+                      Icons.chevron_left,
                       color: Colors.white,
                     ),
                     onPressed: () {
@@ -86,7 +86,7 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                   ),
                   new IconButton(
-                    iconSize: 20,
+                    iconSize: 25,
                     icon: Icon(
                       Icons.clear,
                       color: Colors.white,
@@ -103,14 +103,27 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ],
       ),
-      body: Theme(
-        data: Theme.of(context).copyWith(accentColor: Colors.grey),
-        child: new ListView.builder(
-          itemCount: searchLength,
-          itemExtent: 60,
-          itemBuilder: (BuildContext context, int index) {
-            return songSearchResult(searchResults[index], context);
-          },
+      body: Container(
+        decoration: new BoxDecoration(
+          gradient: new LinearGradient(
+            colors: [
+              Color(0xFF141414),
+              Color(0xFF363636),
+            ],
+            begin: FractionalOffset.bottomCenter,
+            stops: [0.4, 1.0],
+            end: FractionalOffset.topCenter,
+          ),
+        ),
+        child: Theme(
+          data: Theme.of(context).copyWith(accentColor: Colors.grey),
+          child: new ListView.builder(
+            itemCount: searchLength,
+            itemExtent: 60,
+            itemBuilder: (BuildContext context, int index) {
+              return songSearchResult(searchResults[index], context);
+            },
+          ),
         ),
       ),
     );
@@ -140,8 +153,8 @@ class _SearchPageState extends State<SearchPage> {
     }
     return ListTile(
       leading: new Container(
-        width: 30,
-        height: 30,
+        width: 35,
+        height: 35,
         decoration: BoxDecoration(
             image: DecorationImage(
           image: songImage,

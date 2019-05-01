@@ -5,22 +5,25 @@ import 'discover_page.dart';
 import 'account_page.dart';
 import 'music_player_page.dart';
 import 'package:myapp/main.dart';
-import 'package:marquee/marquee.dart';
+import 'text_style.dart';
 
 class HomePage extends StatefulWidget {
+  final int currentPage;
+  HomePage(this.currentPage);
   @override
-  _HomePageState createState() => _HomePageState();
+  _HomePageState createState() => _HomePageState(currentPage);
 }
 
 class _HomePageState extends State<HomePage> {
-  int currentTab = 0;
+  int currentTab;
   DiscoverPage discoverPage;
   AccountPage accountPage;
   List<Widget> pages;
   Widget currentPage;
   Icon musicPlayerIcon;
-  double _height;
   StreamSubscription<AudioPlayerState> stream;
+  final int currentPageInt;
+  _HomePageState(this.currentPageInt);
 
   @override
   void initState() {
@@ -30,15 +33,12 @@ class _HomePageState extends State<HomePage> {
       discoverPage,
       accountPage,
     ];
-    currentPage = discoverPage;
-    if (playingNow.currentSong == null) {
-      setState(() {
-        _height = 65;
-      });
+    if (currentPageInt == 0) {
+      currentTab = 0;
+      currentPage = discoverPage;
     } else {
-      setState(() {
-        _height = 118;
-      });
+      currentTab = 1;
+      currentPage = accountPage;
     }
     initSong();
     super.initState();
@@ -66,50 +66,41 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
           ),
-          child: Container(
-            height: _height,
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  color: Colors.black,
-                ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              musicPlayerControl(),
+              BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                fixedColor: Colors.white,
+                currentIndex: currentTab,
+                iconSize: 26.0,
+                onTap: (int index) {
+                  setState(
+                    () {
+                      currentTab = index;
+                      currentPage = pages[index];
+                    },
+                  );
+                },
+                items: [
+                  BottomNavigationBarItem(
+                    icon: new Icon(
+                      Icons.explore,
+                      size: 30.0,
+                    ),
+                    title: new Text("Discover"),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: new Icon(
+                      Icons.account_circle,
+                      size: 30.0,
+                    ),
+                    title: new Text("Account"),
+                  ),
+                ],
               ),
-            ),
-            child: Column(
-              children: <Widget>[
-                musicPlayerControl(),
-                BottomNavigationBar(
-                  type: BottomNavigationBarType.fixed,
-                  fixedColor: Colors.white,
-                  currentIndex: currentTab,
-                  iconSize: 26.0,
-                  onTap: (int index) {
-                    setState(
-                      () {
-                        currentTab = index;
-                        currentPage = pages[index];
-                      },
-                    );
-                  },
-                  items: [
-                    BottomNavigationBarItem(
-                      icon: new Icon(
-                        Icons.explore,
-                        size: 30.0,
-                      ),
-                      title: new Text("Discover"),
-                    ),
-                    BottomNavigationBarItem(
-                      icon: new Icon(
-                        Icons.account_circle,
-                        size: 30.0,
-                      ),
-                      title: new Text("Account"),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+            ],
           ),
         ),
       ),
@@ -164,7 +155,7 @@ class _HomePageState extends State<HomePage> {
   GestureDetector musicPlayerControl() {
     if (playingNow.currentSong != null) {
       setState(() {
-        _height = 118;
+        //   _height = 138;
       });
       return GestureDetector(
           child: new Container(
@@ -181,26 +172,29 @@ class _HomePageState extends State<HomePage> {
                   child: Container(),
                 ),
                 Expanded(
-                  flex: 3,
+                  flex: 5,
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          text(
+                          TextDecoration(
                             playingNow.currentSong.getSongName,
                             18,
                             Colors.white,
                             20,
+                            25,
                           ),
-                          text(
+                          TextDecoration(
                             playingNow.currentSong.getArtist,
                             16,
                             Colors.grey,
                             30,
-                          )
+                            25,
+                          ),
                         ],
                       ),
                     ],
@@ -226,44 +220,9 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(builder: (context) => MusicPlayerPage()),
               ));
     } else {
-      setState(() {
-        _height = 65;
-      });
       return GestureDetector(
         child: new Container(
           height: 0,
-        ),
-      );
-    }
-  }
-
-  Widget text(String txt, double size, Color color, int txtMaxLength) {
-    if (txt.length < txtMaxLength) {
-      return Container(
-        width: 230,
-        height: 23,
-        child: new Text(
-          txt,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: size,
-            color: color,
-          ),
-        ),
-      );
-    } else {
-      return new Container(
-        width: 230,
-        height: 23,
-        child: new Marquee(
-          text: txt,
-          scrollAxis: Axis.horizontal,
-          style: TextStyle(
-            fontSize: size,
-            color: color,
-          ),
-          blankSpace: 30.0,
-          velocity: 30.0,
         ),
       );
     }

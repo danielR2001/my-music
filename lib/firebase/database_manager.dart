@@ -51,27 +51,40 @@ class FirebaseDatabaseManager {
     );
   }
 
-  static void addNewPlaylist(Playlist playlist) {
-    var dir = FirebaseDatabase.instance
+  // static void addNewPlaylist(Playlist playlist) {
+  //   var dir = FirebaseDatabase.instance
+  //       .reference()
+  //       .child(_usersDir)
+  //       .child(_userPushId)
+  //       .child(_playlistsDir)
+  //       .child(playlist.getName)
+  //       .push();
+
+  //   dir.set(playlist.getSongs[0].toJson());
+  // }
+
+  static void addSongToPlaylist(Playlist playlist, Song song) {
+    var pushId = FirebaseDatabase.instance
         .reference()
         .child(_usersDir)
         .child(_userPushId)
         .child(_playlistsDir)
         .child(playlist.getName)
         .push();
-
-    dir.set(playlist.getSongs[0].toJson());
+    Song temp = Song.fromSong(song);
+    temp.setPushId = pushId.key;
+    pushId.set(temp.toJson());
   }
 
-  static void addSongToPlaylist(Playlist playlist, Song song) {
+  static void removeSongToPlaylist(Playlist playlist, Song song) {
     FirebaseDatabase.instance
         .reference()
         .child(_usersDir)
         .child(_userPushId)
-        .child("playlists")
+        .child(_playlistsDir)
         .child(playlist.getName)
-        .push()
-        .set(song.toJson());
+        .child(song.getPushId)
+        .remove();
   }
 
   static List<Playlist> buildPlaylist(Map playlistMap) {
@@ -85,12 +98,13 @@ class FirebaseDatabaseManager {
             List values = value.values.toList();
             temp.addNewSong(
               new Song(
-                values[0],
                 values[1],
-                values[5],
                 values[2],
+                values[6],
                 values[3],
                 values[4],
+                values[5],
+                values[0],
               ),
             );
           },
@@ -104,12 +118,13 @@ class FirebaseDatabaseManager {
   static Song buildSong(Map songMap) {
     List values = songMap.values.toList();
     return new Song(
-      values[0],
       values[1],
-      values[5],
       values[2],
+      values[6],
       values[3],
       values[4],
+      values[5],
+      values[0],
     );
   }
 }

@@ -5,16 +5,29 @@ class Song {
   String _imageUrl;
   String _songDownloadUrl;
   String _songId;
+  String _pushId;
 
   Song(String songName, String artist, String songUrl, String imageUrl,
-      String songDownloadUrl, String songId) {
+      String songDownloadUrl, String songId, String pushId) {
     _songName = songName;
     _artist = artist;
     _songUrl = songUrl;
     _imageUrl = imageUrl;
     _songDownloadUrl = songDownloadUrl;
     _songId = songId;
+    _pushId = pushId;
   }
+  Song.fromSong(Song song) {
+    _songName = song.getSongName;
+    _artist = song.getArtist;
+    _songUrl = song.getSongUrl;
+    _imageUrl = song.getImageUrl;
+    _songDownloadUrl = song._songDownloadUrl;
+    _songId = song.getSongId;
+    _pushId = song.getPushId;
+  }
+
+  String get getPushId => _pushId;
 
   String get getSongId => _songId;
 
@@ -40,6 +53,8 @@ class Song {
 
   set setSongId(String value) => _songId = value;
 
+  set setPushId(String value) => _pushId = value;
+
   toJson() {
     return {
       'songName': _songName,
@@ -48,6 +63,7 @@ class Song {
       'imageUrl': _imageUrl,
       'songDownloadUrl': _songDownloadUrl,
       'songId': _songId,
+      'pushId': _pushId,
     };
   }
 
@@ -64,6 +80,8 @@ class Song {
         " songDownloadUrl: " +
         _songDownloadUrl +
         " songId: " +
-        _songId;
+        _songId +
+        " pushId" +
+        _pushId;
   }
 }

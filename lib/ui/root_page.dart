@@ -27,7 +27,7 @@ class _RootPageState extends State<RootPage> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => HomePage(),
+                  builder: (context) => HomePage(0),
                 ),
               );
             },

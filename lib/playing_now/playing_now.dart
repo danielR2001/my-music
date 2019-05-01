@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'package:connectivity/connectivity.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/material.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 
@@ -20,7 +18,6 @@ class PlayingNow {
     audioCache = audioCache = new AudioCache(fixedPlayer: advancedPlayer);
     songDuration = new Duration();
     songPosition = new Duration();
-    Notification notification;
   }
 
   void playSong(Song song) {

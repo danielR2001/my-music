@@ -5,11 +5,15 @@ import 'package:myapp/models/song.dart';
 import 'package:myapp/models/playlist.dart';
 
 class PlaylistPickPage extends StatefulWidget {
+  final Song song;
+  PlaylistPickPage(this.song);
   @override
-  _PlaylistPickPageState createState() => _PlaylistPickPageState();
+  _PlaylistPickPageState createState() => _PlaylistPickPageState(song);
 }
 
 class _PlaylistPickPageState extends State<PlaylistPickPage> {
+  final Song song;
+  _PlaylistPickPageState(this.song);
   String _playlistName;
 
   final formKey = new GlobalKey<FormState>();
@@ -55,7 +59,16 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                                         hintColor: Colors.white,
                                       ),
                                       child: new TextFormField(
+                                        style: new TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
                                         decoration: InputDecoration(
+                                          focusedBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(
+                                              color: Colors.white,
+                                            ),
+                                          ),
                                           labelText: "Playlist name",
                                           labelStyle: TextStyle(
                                             color: Colors.grey,
@@ -153,10 +166,29 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
             style: TextStyle(color: Colors.white, fontSize: 18),
           ),
           onTap: () {
-            FirebaseDatabaseManager.addSongToPlaylist(
-                playlist, playingNow.currentSong);
-            currentUser.addNewSongToPlaylist(playlist, playingNow.currentSong);
-            Navigator.pop(context);
+            bool songAlreadyExistsInPlaylist = false;
+            playlist.getSongs.forEach((playlistSong) {
+              if (playlistSong.getSongId == song.getSongId) {
+                songAlreadyExistsInPlaylist = true;
+              }
+            });
+            if (!songAlreadyExistsInPlaylist) {
+              FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
+              currentUser.addNewSongToPlaylist(playlist, song);
+              Navigator.pop(context);
+            } else {
+              scafKey.currentState.showSnackBar(
+                new SnackBar(
+                  duration: new Duration(seconds: 5),
+                  content: new Text(
+                    "This Song Is Already In Playlist Exists!",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              );
+            }
           }),
     );
   }
@@ -179,24 +211,31 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     if (form.validate()) {
       form.save();
       currentUser.getMyPlaylists.forEach((playlist) {
-        //TODO show snack bar
         if (playlist.getName == _playlistName) {
           nameExists = true;
         }
       });
       if (!nameExists) {
         Playlist playlist = new Playlist(_playlistName);
-        playlist.addNewSong(playingNow.currentSong);
+        playlist.addNewSong(song);
         currentUser.addNewPlaylist(playlist);
-        FirebaseDatabaseManager.addNewPlaylist(playlist);
+        FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
+        playingNow.currentPlaylist = playlist;
         Navigator.pop(context);
+        Navigator.pop(context);
+      } else {
+        scafKey.currentState.showSnackBar(
+          new SnackBar(
+            duration: new Duration(seconds: 5),
+            content: new Text(
+              "Playlist With This Name Already Exists!",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+        );
       }
-      // scafKey.currentState.showSnackBar(
-      //   new SnackBar(
-      //     duration: new Duration(seconds: 5),
-      //     content: new Text("Song Added Successfuly!"),
-      //   ),
-      // );
     }
   }
 }

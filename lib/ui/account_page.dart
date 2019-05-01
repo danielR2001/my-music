@@ -5,8 +5,19 @@ import 'playlist_page.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'welcome_page.dart';
 
-class AccountPage extends StatelessWidget {
+class AccountPage extends StatefulWidget {
+  @override
+  _AccountPageState createState() => _AccountPageState();
+}
+
+class _AccountPageState extends State<AccountPage> {
   final Playlist playlist = new Playlist("My First Playlist");
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
