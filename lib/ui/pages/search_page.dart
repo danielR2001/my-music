@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
+import 'package:myapp/playing_now/playing_now.dart';
 import 'music_player_page.dart';
 
 class SearchPage extends StatefulWidget {
@@ -179,6 +180,7 @@ class _SearchPageState extends State<SearchPage> {
       ),
       onTap: () {
         playingNow.currentPlaylist = null;
+        playingNow.playlistMode = PlaylistMode.repeat;
         playingNow.playSong(song);
         Navigator.push(
           context,

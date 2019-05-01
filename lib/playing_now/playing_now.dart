@@ -1,8 +1,15 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
+
+enum PlaylistMode {
+  shuffle,
+  loop,
+  repeat,
+}
 
 class PlayingNow {
   AudioPlayer advancedPlayer;
@@ -12,6 +19,7 @@ class PlayingNow {
   Song currentSong;
   Playlist currentPlaylist;
   StreamSubscription<void> _stream;
+  PlaylistMode playlistMode;
 
   PlayingNow() {
     advancedPlayer = new AudioPlayer();
@@ -75,10 +83,25 @@ class PlayingNow {
   void listenIfCompleted() {
     _stream = advancedPlayer.onPlayerCompletion.listen((a) {
       if (currentPlaylist != null) {
-        playSong(getNextSong(currentPlaylist, currentSong));
+        if (playlistMode == PlaylistMode.loop) {
+          playSong(getNextSong(currentPlaylist, currentSong));
+        } else {
+          playSong(getRandomSong(currentPlaylist, currentSong));
+        }
       } else {
         playSong(currentSong);
       }
     });
+  }
+
+  Song getRandomSong(Playlist currentPlaylist, Song song) {
+    var rnd = new Random();
+    int pos = rnd.nextInt(currentPlaylist.getSongs.length);
+    Song nextSong = currentPlaylist.getSongs[pos];
+    while (nextSong.getSongId == song.getSongId) {
+      pos = rnd.nextInt(currentPlaylist.getSongs.length);
+      nextSong = currentPlaylist.getSongs[pos];
+    }
+    return nextSong;
   }
 }

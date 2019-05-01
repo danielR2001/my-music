@@ -5,7 +5,7 @@ import 'discover_page.dart';
 import 'account_page.dart';
 import 'music_player_page.dart';
 import 'package:myapp/main.dart';
-import 'text_style.dart';
+import 'package:myapp/ui/widgets/text_style.dart';
 
 class HomePage extends StatefulWidget {
   final int currentPage;

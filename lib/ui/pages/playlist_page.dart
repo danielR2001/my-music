@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/decorations/page_slide.dart';
+import 'package:myapp/ui/decorations/page_slide.dart';
 import 'package:myapp/models/playlist.dart';
 import 'dart:ui';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/ui/home_page.dart';
-import 'package:myapp/ui/song_options_modal_buttom_sheet.dart';
+import 'package:myapp/playing_now/playing_now.dart';
+import 'home_page.dart';
+import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'music_player_page.dart';
 import 'dart:math';
 
@@ -132,6 +133,7 @@ class _PlayListPageState extends State<PlayListPage> {
                                 elevation: 6.0,
                                 onPressed: () {
                                   playingNow.currentPlaylist = playlist;
+                                  playingNow.playlistMode = PlaylistMode.loop;
                                   playingNow.playSong(playlist.getSongs[0]);
                                   Navigator.push(
                                     context,
@@ -179,6 +181,8 @@ class _PlayListPageState extends State<PlayListPage> {
                                 onPressed: () {
                                   var rnd = new Random();
                                   playingNow.currentPlaylist = playlist;
+                                  playingNow.playlistMode =
+                                      PlaylistMode.shuffle;
                                   playingNow.playSong(playlist.getSongs[
                                       rnd.nextInt(playlist.getSongs.length)]);
                                   Navigator.push(
@@ -235,6 +239,7 @@ class _PlayListPageState extends State<PlayListPage> {
           return new ListTile(
             onTap: () {
               playingNow.currentPlaylist = playlist;
+              playingNow.playlistMode = PlaylistMode.loop;
               playingNow.playSong(playlist.getSongs[index]);
               Navigator.push(
                 context,

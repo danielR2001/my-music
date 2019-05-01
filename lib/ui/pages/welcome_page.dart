@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/ui/app_icon.dart';
+import 'package:myapp/ui/decorations/app_icon.dart';
 import 'sign_in_page.dart';
 import 'log_in_page.dart';
 

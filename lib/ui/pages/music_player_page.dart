@@ -4,8 +4,9 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/ui/song_options_modal_buttom_sheet.dart';
-import 'text_style.dart';
+import 'package:myapp/playing_now/playing_now.dart';
+import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
+import 'package:myapp/ui/widgets/text_style.dart';
 
 class MusicPlayerPage extends StatefulWidget {
   @override
@@ -16,6 +17,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   Duration _position;
   Duration _duration;
   Icon musicPlayerIcon;
+  Icon playlistModeIcon;
   StreamSubscription<AudioPlayerState> stream;
   StreamSubscription<Duration> posStream;
   StreamSubscription<Duration> durStream;
@@ -241,11 +243,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                       padding: const EdgeInsets.only(left: 20),
                       child: IconButton(
                         splashColor: Colors.grey,
-                        icon: new Icon(
-                          Icons.repeat,
-                          size: 25,
-                          color: Colors.white,
-                        ),
+                        icon: playlistModeIcon,
                         onPressed: () {},
                       ),
                     ),
@@ -306,6 +304,37 @@ class MusicPageState extends State<MusicPlayerPage> {
     }
   }
 
+  void changePlaylistModeIconState() {
+    if (playingNow.playlistMode == PlaylistMode.loop) {
+      setState(
+        () {
+          playlistModeIcon = Icon(
+            Icons.repeat,
+            color: Colors.white,
+          );
+        },
+      );
+    } else if (playingNow.playlistMode == PlaylistMode.shuffle) {
+      setState(
+        () {
+          playlistModeIcon = Icon(
+            Icons.shuffle,
+            color: Colors.white,
+          );
+        },
+      );
+    } else if (playingNow.playlistMode == PlaylistMode.repeat) {
+      setState(
+        () {
+          playlistModeIcon = Icon(
+            Icons.loop,
+            color: Colors.white,
+          );
+        },
+      );
+    }
+  }
+
   void checkSongStatus(AudioPlayerState state) {
     if (state == AudioPlayerState.PLAYING) {
       changePlayingIconState(true);
@@ -325,6 +354,7 @@ class MusicPageState extends State<MusicPlayerPage> {
         setState(() => _duration = d);
       },
     );
+    changePlaylistModeIconState();
     setSongImage();
     checkSongStatus(playingNow.advancedPlayer.state);
     stream = playingNow.advancedPlayer.onPlayerStateChanged.listen(

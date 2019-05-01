@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/decorations/page_slide.dart';
+import 'package:myapp/ui/decorations/page_slide.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/ui/home_page.dart';
-import 'package:myapp/ui/playlists_pick_page.dart';
+import 'package:myapp/ui/pages/home_page.dart';
+import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'text_style.dart';
 
 class SongOptionsModalSheet extends StatelessWidget {
