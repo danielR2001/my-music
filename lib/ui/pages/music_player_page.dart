@@ -244,7 +244,12 @@ class MusicPageState extends State<MusicPlayerPage> {
                       child: IconButton(
                         splashColor: Colors.grey,
                         icon: playlistModeIcon,
-                        onPressed: () {},
+                        onPressed: () {
+                          playingNow.playlistMode == PlaylistMode.loop
+                              ? playingNow.playlistMode = PlaylistMode.shuffle
+                              : playingNow.playlistMode = PlaylistMode.loop;
+                          changePlaylistModeIconState();
+                        },
                       ),
                     ),
                     Expanded(
@@ -314,20 +319,11 @@ class MusicPageState extends State<MusicPlayerPage> {
           );
         },
       );
-    } else if (playingNow.playlistMode == PlaylistMode.shuffle) {
+    } else {
       setState(
         () {
           playlistModeIcon = Icon(
             Icons.shuffle,
-            color: Colors.white,
-          );
-        },
-      );
-    } else if (playingNow.playlistMode == PlaylistMode.repeat) {
-      setState(
-        () {
-          playlistModeIcon = Icon(
-            Icons.loop,
             color: Colors.white,
           );
         },

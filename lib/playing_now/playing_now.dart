@@ -8,7 +8,6 @@ import 'package:myapp/models/song.dart';
 enum PlaylistMode {
   shuffle,
   loop,
-  repeat,
 }
 
 class PlayingNow {

@@ -180,7 +180,7 @@ class _SearchPageState extends State<SearchPage> {
       ),
       onTap: () {
         playingNow.currentPlaylist = null;
-        playingNow.playlistMode = PlaylistMode.repeat;
+        playingNow.playlistMode = PlaylistMode.loop;
         playingNow.playSong(song);
         Navigator.push(
           context,

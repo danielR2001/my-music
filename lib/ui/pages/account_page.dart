@@ -3,8 +3,6 @@ import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/ui/pages/settings_page.dart';
 import 'playlist_page.dart';
-import 'package:myapp/firebase/authentication.dart';
-import 'welcome_page.dart';
 
 class AccountPage extends StatefulWidget {
   @override
