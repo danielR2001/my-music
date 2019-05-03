@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/ui/widgets/sound_bar.dart';
 import 'discover_page.dart';
 import 'account_page.dart';
 import 'music_player_page.dart';
@@ -24,6 +25,7 @@ class _HomePageState extends State<HomePage> {
   StreamSubscription<AudioPlayerState> stream;
   final int currentPageInt;
   _HomePageState(this.currentPageInt);
+  Expanded soundBar;
 
   @override
   void initState() {
@@ -128,6 +130,28 @@ class _HomePageState extends State<HomePage> {
             Icons.pause,
             color: Colors.white,
           );
+          soundBar = Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  width: 8,
+                  height: 50,
+                  child: SoundBar(Duration(milliseconds: 400), 15.0, 5.0),
+                ),
+                Container(
+                  width: 8,
+                  height: 50,
+                  child: SoundBar(Duration(milliseconds: 450), 15.0, 5.0),
+                ),
+                Container(
+                  width: 8,
+                  height: 50,
+                  child: SoundBar(Duration(milliseconds: 350), 15.0, 5.0),
+                ),
+              ],
+            ),
+          );
         },
       );
     } else {
@@ -136,6 +160,32 @@ class _HomePageState extends State<HomePage> {
           musicPlayerIcon = Icon(
             Icons.play_arrow,
             color: Colors.white,
+          );
+          soundBar = Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Container(
+                  color: Colors.white,
+                  width: 5,
+                  height: 10,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  child: Container(
+                    color: Colors.white,
+                    width: 5,
+                    height: 15,
+                  ),
+                ),
+                Container(
+                  color: Colors.white,
+                  width: 5,
+                  height: 5,
+                ),
+              ],
+            ),
           );
         },
       );
@@ -154,9 +204,6 @@ class _HomePageState extends State<HomePage> {
 
   GestureDetector musicPlayerControl() {
     if (playingNow.currentSong != null) {
-      setState(() {
-        //   _height = 138;
-      });
       return GestureDetector(
           child: new Container(
             decoration: BoxDecoration(
@@ -168,9 +215,7 @@ class _HomePageState extends State<HomePage> {
             height: 55,
             child: Row(
               children: <Widget>[
-                Expanded(
-                  child: Container(),
-                ),
+                soundBar,
                 Expanded(
                   flex: 5,
                   child: Row(

@@ -12,22 +12,21 @@ class TextDecoration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (txt.length < txtMaxLength) {
-      return //Container(
-          // width: 290,
-          //height: 32,
-          //child:
-          new Text(
-        txt,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: size,
-          color: color,
+      return Container(
+        width: 280,
+        height: height,
+        child: new Text(
+          txt,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: size,
+            color: color,
+          ),
         ),
-        // ),
       );
     } else {
       return new Container(
-        width: 290,
+        width: 280,
         height: height,
         child: new Marquee(
           text: txt,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
+import 'package:myapp/ui/pages/settings_page.dart';
 import 'playlist_page.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'welcome_page.dart';
@@ -11,8 +12,6 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  final Playlist playlist = new Playlist("My First Playlist");
-
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -31,79 +30,45 @@ class _AccountPageState extends State<AccountPage> {
         child: SafeArea(
           child: new Column(
             children: <Widget>[
-              new ListTile(
-                trailing: new Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: new Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    new IconButton(
-                      icon: Icon(
-                        Icons.notifications,
-                        size: 30,
-                        color: Colors.grey,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: Text(
+                        currentUser.getName,
+                        style: TextStyle(color: Colors.white, fontSize: 30),
                       ),
-                      onPressed: () {},
                     ),
-                    new SizedBox(
-                      width: 12,
+                    Expanded(
+                      child: Container(),
                     ),
-                    new IconButton(
-                      icon: Icon(
-                        Icons.settings,
-                        size: 30,
-                        color: Colors.grey,
-                      ),
-                      onPressed: () {
-                        FirebaseAuthentication.signOut().then((user) {
-                          playingNow.closeSong();
-                          Navigator.pushReplacement(
+                    Padding(
+                      padding: const EdgeInsets.only(right: 5),
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.settings,
+                          size: 30,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => WelcomePage(),
+                                builder: (context) => SettingsPage(),
                               ));
-                        });
-                      },
+                        },
+                      ),
                     )
                   ],
-                ),
-              ),
-              createSpace(15),
-              new ListTile(
-                leading: new Container(
-                  width: 30.0,
-                  height: 30.0,
-                  decoration: new BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: new DecorationImage(
-                      fit: BoxFit.fill,
-                      image: ExactAssetImage(
-                        "assets/images/profile_pic.png",
-                      ),
-                    ),
-                  ),
-                ),
-                title: Text(
-                  "Daniel Rachlin",
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
-                ),
-                subtitle: Text(
-                  "View Your Profile",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[700],
-                  ),
-                ),
-                trailing: Icon(
-                  Icons.keyboard_arrow_right,
-                  color: Colors.white,
                 ),
               ),
               Expanded(
                 flex: 0,
                 child: Container(
-                  height: 50,
+                  height: 20,
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(

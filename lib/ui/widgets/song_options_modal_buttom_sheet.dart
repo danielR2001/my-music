@@ -32,14 +32,14 @@ class SongOptionsModalSheet extends StatelessWidget {
                       20,
                       Colors.white,
                       20,
-                      35,
+                      30,
                     ),
                     TextDecoration(
                       song.getArtist,
                       15,
                       Colors.grey,
                       30,
-                      35,
+                      30,
                     ),
                   ],
                 )
