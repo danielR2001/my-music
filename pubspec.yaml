@@ -68,7 +68,20 @@ flutter:
    - assets/images/classical.png
    - assets/images/chill.png
    - assets/images/blues.png
-   - assets/images/profile_pic.png
+   - assets/images/blues-512.png
+   - assets/images/chill-512.png
+   - assets/images/classic-512.png
+   - assets/images/country-512.png
+   - assets/images/electronic-512.png
+   - assets/images/hip-hop-512.png
+   - assets/images/dance_edm-512.png
+   - assets/images/electronic-512.png
+   - assets/images/hip-hop-512.png
+   - assets/images/jazz-512.png
+   - assets/images/pop-512.png
+   - assets/images/r&b-512.png
+   - assets/images/rap-512.png
+   - assets/images/rock-512.png
    - assets/images/sign_in_pic.png
    - assets/images/google_logo.png
    - assets/images/facebook_logo.png

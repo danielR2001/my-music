@@ -30,6 +30,20 @@ class DiscoverPage extends StatelessWidget {
     "assets/images/country.png",
     "assets/images/dance_edm.png",
   ];
+  final List<String> genresIconUrls = [
+    'assets/images/r&b-512.png',
+    'assets/images/rock-512.png',
+    'assets/images/chill-512.png',
+    'assets/images/classic-512.png',
+    'assets/images/pop-512.png',
+    'assets/images/rap-512.png',
+    'assets/images/jazz-512.png',
+    'assets/images/blues-512.png',
+    'assets/images/electronic-512.png',
+    'assets/images/hip-hop-512.png',
+    'assets/images/country-512.png',
+    'assets/images/dance_edm-512.png',
+  ];
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -136,50 +150,51 @@ class DiscoverPage extends StatelessWidget {
 
   GestureDetector drawGenreWidget(
     String imagePath,
+    String iconPath,
     String genre,
     BuildContext context,
   ) {
     return GestureDetector(
-        child: new Container(
-          alignment: Alignment.center,
-          width: 180.0,
-          height: 120.0,
-          decoration: BoxDecoration(
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(6.0),
-            image: DecorationImage(
-              image: ExactAssetImage(imagePath),
-              fit: BoxFit.cover,
+        child: Column(
+          children: <Widget>[
+            new Container(
+                alignment: Alignment.center,
+                width: 180.0,
+                height: 120.0,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    colorFilter: new ColorFilter.mode(
+                        Colors.black.withOpacity(0.2), BlendMode.dstATop),
+                    image: ExactAssetImage(imagePath),
+                    fit: BoxFit.cover,
+                  ),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 0.2,
+                  ),
+                ),
+                child: new Container(
+                  alignment: Alignment.center,
+                  width: 60.0,
+                  height: 60.0,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: ExactAssetImage(iconPath),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                )),
+            Padding(
+              padding: const EdgeInsets.only(top: 5),
+              child: new Text(
+                genre,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                ),
+              ),
             ),
-            border: Border.all(
-              color: Colors.grey[400],
-            ),
-          ),
-          child: new Text(
-            genre,
-            style: TextStyle(
-              color: Colors.white,
-              shadows: [
-                Shadow(
-                    // bottomLeft
-                    offset: Offset(-1.0, -1.0),
-                    color: Colors.black),
-                Shadow(
-                    // bottomRight
-                    offset: Offset(1.0, -1.0),
-                    color: Colors.black),
-                Shadow(
-                    // topRight
-                    offset: Offset(1.0, 1.0),
-                    color: Colors.black),
-                Shadow(
-                    // topLeft
-                    offset: Offset(-1.0, 1.0),
-                    color: Colors.black),
-              ],
-              fontSize: 32.0,
-            ),
-          ),
+          ],
         ),
         onTap: () => {}
         //  Navigator.push(
@@ -206,6 +221,7 @@ class DiscoverPage extends StatelessWidget {
             ),
             child: drawGenreWidget(
               genresUrls[index * 2],
+              genresIconUrls[index * 2],
               genres[index * 2],
               context,
             ),
@@ -216,6 +232,7 @@ class DiscoverPage extends StatelessWidget {
             ),
             child: drawGenreWidget(
               genresUrls[index * 2 + 1],
+              genresIconUrls[index * 2 + 1],
               genres[index * 2 + 1],
               context,
             ),
