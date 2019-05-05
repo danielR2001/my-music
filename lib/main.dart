@@ -6,13 +6,13 @@ import 'package:myapp/playing_now/playing_now.dart';
 import 'package:myapp/ui/pages/root_page.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/models/playlist.dart';
-import 'package:myapp/notification/music_control_notification.dart';
+//import 'package:myapp/notification/music_control_notification.dart';
 
 void main() => runApp(MyApp());
 PlayingNow playingNow;
 User currentUser;
 Playlist currentPlayList;
-MusicControlNotification musicControlNotification;
+//MusicControlNotification musicControlNotification;
 
 class MyApp extends StatelessWidget with PortraitModeMixin {
   @override
@@ -32,5 +32,7 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
   void init() {
     FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
     playingNow = new PlayingNow(); //init song status
+    //musicControlNotification.init();
+    //musicControlNotification.show("title", "author");
   }
 }

@@ -304,7 +304,7 @@ class _PlayListPageState extends State<PlayListPage> {
         song.getImageUrl,
       );
     } else {
-      songImage = new AssetImage('assets/images/default_song_pic.png');
+      songImage = new AssetImage('assets/images/default_song_pic_big.png');
     }
   }
 

@@ -94,9 +94,14 @@ class MusicPageState extends State<MusicPlayerPage> {
                       width: 270,
                       height: 270,
                       decoration: new BoxDecoration(
+                        color: Colors.black,
+                        border: Border.all(
+                          color: Colors.black,
+                          width: 0.2,
+                        ),
                         boxShadow: [
                           new BoxShadow(
-                            color: Colors.black,
+                            color: Colors.grey[850],
                             blurRadius: 20.0,
                           ),
                         ],
