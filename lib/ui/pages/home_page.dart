@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/ui/pages/playlist_page.dart';
 import 'package:myapp/ui/widgets/sound_bar.dart';
 import 'discover_page.dart';
 import 'account_page.dart';
@@ -19,6 +20,7 @@ class _HomePageState extends State<HomePage> {
   int currentTab;
   DiscoverPage discoverPage;
   AccountPage accountPage;
+  PlayListPage playlistPage;
   List<Widget> pages;
   Widget currentPage;
   Icon musicPlayerIcon;

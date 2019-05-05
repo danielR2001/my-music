@@ -138,9 +138,11 @@ class MusicPageState extends State<MusicPlayerPage> {
                     ? _position.inSeconds <= _duration.inSeconds
                         ? _position.inSeconds.toDouble()
                         : 0.0
-                    : 0.0,
+                    : playingNow.songPosition.inSeconds.toDouble(),
                 min: 0.0,
-                max: _duration != null ? _duration.inSeconds.toDouble() : 0.0,
+                max: _duration != null
+                    ? _duration.inSeconds.toDouble()
+                    : playingNow.songDuration.inSeconds.toDouble(),
                 inactiveColor: Colors.grey[700],
                 activeColor: Colors.white,
                 onChanged: (double value) {
@@ -165,7 +167,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                                     .toString()
                                     .substring(checkSongLength(), 7)
                                 : "00:00"
-                            : "00:00",
+                            : playingNow.songPosition
+                                .toString()
+                                .substring(checkSongLength(), 7),
                         textAlign: TextAlign.left,
                         style: TextStyle(
                           color: Colors.grey[400],
@@ -178,7 +182,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                             ? _duration
                                 .toString()
                                 .substring(checkSongLength(), 7)
-                            : "00:00",
+                            : playingNow.songDuration
+                                .toString()
+                                .substring(checkSongLength(), 7),
                         textAlign: TextAlign.right,
                         style: TextStyle(
                           color: Colors.grey[400],

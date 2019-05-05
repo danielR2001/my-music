@@ -7,7 +7,6 @@ import 'package:myapp/models/song.dart';
 import 'package:myapp/playing_now/playing_now.dart';
 import 'home_page.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
-import 'music_player_page.dart';
 import 'dart:math';
 
 class PlayListPage extends StatefulWidget {
@@ -45,12 +44,13 @@ class _PlayListPageState extends State<PlayListPage> {
                       color: Colors.white,
                     ),
                     onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        new MyCustomRoute(
-                          builder: (context) => new HomePage(1),
-                        ),
-                      );
+                      Navigator.pop(context);
+                      // Navigator.pushReplacement(
+                      //   context,
+                      //   new MyCustomRoute(
+                      //     builder: (context) => new HomePage(1),
+                      //   ),
+                      // );
                     },
                   ),
                   automaticallyImplyLeading: false,
@@ -135,12 +135,6 @@ class _PlayListPageState extends State<PlayListPage> {
                                   playingNow.currentPlaylist = playlist;
                                   playingNow.playlistMode = PlaylistMode.loop;
                                   playingNow.playSong(playlist.getSongs[0]);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MusicPlayerPage(),
-                                    ),
-                                  );
                                 },
                               ),
                             ),
@@ -185,12 +179,6 @@ class _PlayListPageState extends State<PlayListPage> {
                                       PlaylistMode.shuffle;
                                   playingNow.playSong(playlist.getSongs[
                                       rnd.nextInt(playlist.getSongs.length)]);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MusicPlayerPage(),
-                                    ),
-                                  );
                                 },
                               ),
                             ),
@@ -241,12 +229,6 @@ class _PlayListPageState extends State<PlayListPage> {
               playingNow.currentPlaylist = playlist;
               playingNow.playlistMode = PlaylistMode.loop;
               playingNow.playSong(playlist.getSongs[index]);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MusicPlayerPage(),
-                ),
-              );
             },
             leading: new Container(
               width: 50,

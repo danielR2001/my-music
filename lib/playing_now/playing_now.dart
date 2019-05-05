@@ -17,7 +17,9 @@ class PlayingNow {
   Duration songPosition;
   Song currentSong;
   Playlist currentPlaylist;
-  StreamSubscription<void> _stream;
+  StreamSubscription<void> _onCompletestream;
+  StreamSubscription<void> _onPosChangedstream;
+  StreamSubscription<void> _onDurChangedstream;
   PlaylistMode playlistMode;
 
   PlayingNow() {
@@ -32,6 +34,21 @@ class PlayingNow {
     currentSong = song;
     advancedPlayer.play(currentSong.getSongUrl);
     listenIfCompleted();
+    updateSongPosition();
+    getSongDuration();
+  }
+
+  void updateSongPosition() {
+    _onPosChangedstream =
+        advancedPlayer.onAudioPositionChanged.listen((duration) {
+      songPosition = duration;
+    });
+  }
+
+  void getSongDuration() {
+    _onDurChangedstream = advancedPlayer.onDurationChanged.listen((duration) {
+      songDuration = duration;
+    });
   }
 
   void resumeSong() {
@@ -45,8 +62,10 @@ class PlayingNow {
   void closeSong() {
     advancedPlayer.stop();
     releaseSong();
-    if (_stream != null) {
-      _stream.cancel();
+    if (_onCompletestream != null) {
+      _onCompletestream.cancel();
+      _onPosChangedstream.cancel();
+      _onDurChangedstream.cancel();
     }
     currentSong = null;
   }
@@ -80,7 +99,7 @@ class PlayingNow {
   }
 
   void listenIfCompleted() {
-    _stream = advancedPlayer.onPlayerCompletion.listen((a) {
+    _onCompletestream = advancedPlayer.onPlayerCompletion.listen((a) {
       if (currentPlaylist != null) {
         if (playlistMode == PlaylistMode.loop) {
           playSong(getNextSong(currentPlaylist, currentSong));
