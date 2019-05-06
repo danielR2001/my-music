@@ -18,9 +18,10 @@ class MusicPageState extends State<MusicPlayerPage> {
   Duration _duration;
   Icon musicPlayerIcon;
   Icon playlistModeIcon;
-  StreamSubscription<AudioPlayerState> stream;
+  StreamSubscription<AudioPlayerState> stateStream;
   StreamSubscription<Duration> posStream;
   StreamSubscription<Duration> durStream;
+  StreamSubscription<void> onSongCompleteStream;
   ImageProvider songImage =
       new AssetImage('assets/images/default_song_pic_big.png');
 
@@ -35,22 +36,22 @@ class MusicPageState extends State<MusicPlayerPage> {
     super.dispose();
     posStream.cancel();
     durStream.cancel();
-    stream.cancel();
+    stateStream.cancel();
+    onSongCompleteStream.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
-    setSongImage();
     return Scaffold(
       body: new Container(
         decoration: new BoxDecoration(
           gradient: new LinearGradient(
             colors: [
-              Color(0xE4000000),
+              Color(0xff0f0e0e),
               Colors.pink,
             ],
             begin: FractionalOffset.bottomCenter,
-            stops: [0.5, 1.0],
+            stops: [0.6, 1.0],
             end: FractionalOffset.topCenter,
           ),
         ),
@@ -102,7 +103,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                         boxShadow: [
                           new BoxShadow(
                             color: Colors.grey[850],
-                            blurRadius: 20.0,
+                            blurRadius: 5.0,
                           ),
                         ],
                         image: new DecorationImage(
@@ -364,11 +365,15 @@ class MusicPageState extends State<MusicPlayerPage> {
     changePlaylistModeIconState();
     setSongImage();
     checkSongStatus(playingNow.advancedPlayer.state);
-    stream = playingNow.advancedPlayer.onPlayerStateChanged.listen(
+    stateStream = playingNow.advancedPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
         checkSongStatus(state);
       },
     );
+    onSongCompleteStream =
+        playingNow.advancedPlayer.onPlayerCompletion.listen((a) {
+      setSongImage();
+    });
   }
 
   void seekToSecond(int second) {
@@ -386,19 +391,18 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   void setSongImage() async {
     if (playingNow.currentSong.getImageUrl.length > 0) {
-      Connectivity().checkConnectivity().then((connectivityResult) {
-        if (connectivityResult == ConnectivityResult.mobile ||
-            connectivityResult == ConnectivityResult.wifi) {
+      ConnectivityResult connectivityResult =
+          await Connectivity().checkConnectivity();
+      if (connectivityResult == ConnectivityResult.mobile ||
+          connectivityResult == ConnectivityResult.wifi) {
+        setState(() {
           songImage = new NetworkImage(
             playingNow.currentSong.getImageUrl,
           );
-        } else {
-          songImage = new AssetImage('assets/images/default_song_pic_big.png');
-          print("no internet connection for loading image");
-        }
-      });
-    } else {
-      songImage = new AssetImage('assets/images/default_song_pic_big.png');
+        });
+      } else {
+        print("no internet connection for loading image");
+      }
     }
   }
 

@@ -46,113 +46,113 @@ class DiscoverPage extends StatelessWidget {
   ];
   @override
   Widget build(BuildContext context) {
-    return Navigator(onGenerateRoute: (RouteSettings settings) {
-      return MaterialPageRoute(
+    return Navigator(
+      onGenerateRoute: (RouteSettings settings) {
+        return MaterialPageRoute(
           settings: settings,
           builder: (BuildContext context) {
-            return new Scaffold(
-              body: new Container(
-                alignment: Alignment(0.0, 0.0),
-                decoration: new BoxDecoration(
-                  gradient: new LinearGradient(
-                    colors: [
-                      Color(0xE4000000),
-                      Colors.pink,
-                    ],
-                    begin: FractionalOffset.bottomRight,
-                    stops: [0.7, 1.0],
-                    end: FractionalOffset.topLeft,
-                  ),
+            return Container(
+              alignment: Alignment(0.0, 0.0),
+              decoration: new BoxDecoration(
+                gradient: new LinearGradient(
+                  colors: [
+                    Color(0xAA000000),
+                    Colors.pink,
+                  ],
+                  begin: FractionalOffset.bottomRight,
+                  stops: [0.7, 1.0],
+                  end: FractionalOffset.topLeft,
                 ),
-                child: SafeArea(
-                  child: Theme(
-                    data: Theme.of(context).copyWith(accentColor: Colors.grey),
-                    child: new Column(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: 20,
-                            bottom: 10,
-                          ),
-                          child: new Text(
-                            "Search",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold,
-                            ),
+              ),
+              child: SafeArea(
+                child: Theme(
+                  data: Theme.of(context).copyWith(accentColor: Colors.grey),
+                  child: new Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 20,
+                          bottom: 10,
+                        ),
+                        child: new Text(
+                          "Search",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            right: 8.0,
-                            left: 8.0,
-                            bottom: 5,
-                          ),
-                          child: Row(children: <Widget>[
-                            Expanded(
-                              child: Container(
-                                height: 50,
-                                //width: 196,
-                                child: new RaisedButton(
-                                  shape: new RoundedRectangleBorder(
-                                    borderRadius:
-                                        new BorderRadius.circular(8.0),
-                                  ),
-                                  splashColor: Colors.transparent,
-                                  color: Colors.white,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      new Icon(
-                                        Icons.search,
-                                        color: Colors.grey[700],
-                                      ),
-                                      new SizedBox(
-                                        width: 10,
-                                      ),
-                                      new Text(
-                                        "Search artists or songs",
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  elevation: 6.0,
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => SearchPage(),
-                                      ),
-                                    );
-                                  },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          right: 8.0,
+                          left: 8.0,
+                          bottom: 5,
+                        ),
+                        child: Row(children: <Widget>[
+                          Expanded(
+                            child: Container(
+                              height: 50,
+                              //width: 196,
+                              child: new RaisedButton(
+                                shape: new RoundedRectangleBorder(
+                                  borderRadius: new BorderRadius.circular(8.0),
                                 ),
+                                splashColor: Colors.transparent,
+                                color: Colors.white,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    new Icon(
+                                      Icons.search,
+                                      color: Colors.grey[700],
+                                    ),
+                                    new SizedBox(
+                                      width: 10,
+                                    ),
+                                    new Text(
+                                      "Search artists or songs",
+                                      style: TextStyle(
+                                        color: Colors.grey[700],
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                elevation: 6.0,
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => SearchPage(),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
-                          ]),
-                        ),
-                        Expanded(
-                          child: new ListView.builder(
-                            itemCount: 6,
-                            itemBuilder: (BuildContext context, int index) {
-                              Padding padding = createGenres(index, context);
-                              index++;
-                              return padding;
-                            },
                           ),
+                        ]),
+                      ),
+                      Expanded(
+                        child: new ListView.builder(
+                          itemCount: 6,
+                          itemBuilder: (BuildContext context, int index) {
+                            Padding padding = createGenres(index, context);
+                            index++;
+                            return padding;
+                          },
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             );
-          });
-    });
+          },
+        );
+      },
+    );
   }
 
   GestureDetector drawGenreWidget(

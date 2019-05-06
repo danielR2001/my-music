@@ -11,7 +11,7 @@ class SettingsPage extends StatelessWidget {
         decoration: new BoxDecoration(
           gradient: new LinearGradient(
             colors: [
-              Color(0xE4000000),
+              Color(0xAA000000),
               Colors.pink,
             ],
             begin: FractionalOffset.bottomRight,

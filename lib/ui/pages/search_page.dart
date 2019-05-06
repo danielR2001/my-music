@@ -3,7 +3,6 @@ import 'package:myapp/models/song.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/playing_now/playing_now.dart';
-import 'music_player_page.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -23,15 +22,22 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFA000000),
-      appBar: AppBar(
-        backgroundColor: Color(0xFA000000),
-        automaticallyImplyLeading: false,
-        elevation: 1,
-        actions: <Widget>[
-          Flexible(
-            child: Container(
+    return SafeArea(
+      child: Container(
+        decoration: new BoxDecoration(
+          gradient: new LinearGradient(
+            colors: [
+              Color(0xFF141414),
+              Color(0xFF363636),
+            ],
+            begin: FractionalOffset.bottomCenter,
+            stops: [0.4, 1.0],
+            end: FractionalOffset.topCenter,
+          ),
+        ),
+        child: Column(
+          children: <Widget>[
+            Container(
               color: Colors.grey[700],
               child: Row(
                 children: <Widget>[
@@ -101,30 +107,19 @@ class _SearchPageState extends State<SearchPage> {
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-      body: Container(
-        decoration: new BoxDecoration(
-          gradient: new LinearGradient(
-            colors: [
-              Color(0xFF141414),
-              Color(0xFF363636),
-            ],
-            begin: FractionalOffset.bottomCenter,
-            stops: [0.4, 1.0],
-            end: FractionalOffset.topCenter,
-          ),
-        ),
-        child: Theme(
-          data: Theme.of(context).copyWith(accentColor: Colors.grey),
-          child: new ListView.builder(
-            itemCount: searchLength,
-            itemExtent: 60,
-            itemBuilder: (BuildContext context, int index) {
-              return songSearchResult(searchResults[index], context);
-            },
-          ),
+            Expanded(
+              child: Theme(
+                data: Theme.of(context).copyWith(accentColor: Colors.grey),
+                child: new ListView.builder(
+                  itemCount: searchLength,
+                  itemExtent: 60,
+                  itemBuilder: (BuildContext context, int index) {
+                    return songSearchResult(searchResults[index], context);
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -157,9 +152,10 @@ class _SearchPageState extends State<SearchPage> {
         width: 35,
         height: 35,
         decoration: BoxDecoration(
+            color: Colors.black,
             image: DecorationImage(
-          image: songImage,
-        )),
+              image: songImage,
+            )),
       ),
       title: new Text(
         title,
@@ -179,15 +175,16 @@ class _SearchPageState extends State<SearchPage> {
         color: Colors.white,
       ),
       onTap: () {
+        FocusScope.of(context).requestFocus(new FocusNode());
         playingNow.currentPlaylist = null;
         playingNow.playlistMode = PlaylistMode.loop;
         playingNow.playSong(song);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MusicPlayerPage(),
-          ),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => MusicPlayerPage(),
+        //   ),
+        // );
       },
     );
   }
@@ -198,7 +195,7 @@ class _SearchPageState extends State<SearchPage> {
         song.getImageUrl,
       );
     } else {
-      songImage = new AssetImage('assets/images/default_song_pic.png');
+      songImage = new AssetImage('assets/images/default_song_pic_big.png');
     }
   }
 }

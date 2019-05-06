@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/ui/decorations/page_slide.dart';
 import 'package:myapp/models/playlist.dart';
 import 'dart:ui';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/playing_now/playing_now.dart';
-import 'home_page.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'dart:math';
 
@@ -27,170 +25,155 @@ class _PlayListPageState extends State<PlayListPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: handleBackButton,
-      child: Scaffold(
-        body: new Container(
-          decoration: new BoxDecoration(
-            color: Color(0xE4000000),
-          ),
-          child: Theme(
-            data: Theme.of(context).copyWith(accentColor: Colors.grey),
-            child: new CustomScrollView(
-              slivers: <Widget>[
-                new SliverAppBar(
-                  leading: IconButton(
-                    icon: Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      // Navigator.pushReplacement(
-                      //   context,
-                      //   new MyCustomRoute(
-                      //     builder: (context) => new HomePage(1),
-                      //   ),
-                      // );
-                    },
+      onWillPop: () {
+        print("pop");
+        Navigator.pop(context);
+      },
+      child: new Container(
+        decoration: new BoxDecoration(
+          color: Color(0xE4000000),
+        ),
+        child: Theme(
+          data: Theme.of(context).copyWith(accentColor: Colors.grey),
+          child: new CustomScrollView(
+            slivers: <Widget>[
+              new SliverAppBar(
+                leading: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
                   ),
-                  automaticallyImplyLeading: false,
-                  backgroundColor: Colors.grey[850],
-                  expandedHeight: 200,
-                  pinned: true,
-                  floating: false,
-                  flexibleSpace: FlexibleSpaceBar(
-                    centerTitle: true,
-                    title: Text(
-                      playlist.getName,
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
-                        shadows: [
-                          Shadow(
-                              // bottomLeft
-                              offset: Offset(-1.0, -1.0),
-                              color: Colors.black),
-                          Shadow(
-                              // bottomRight
-                              offset: Offset(1.0, -1.0),
-                              color: Colors.black),
-                          Shadow(
-                              // topRight
-                              offset: Offset(1.0, 1.0),
-                              color: Colors.black),
-                          Shadow(
-                              // topLeft
-                              offset: Offset(-1.0, 1.0),
-                              color: Colors.black),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    // Navigator.pushReplacement(
+                    //   context,
+                    //   new MyCustomRoute(
+                    //     builder: (context) => new HomePage(1),
+                    //   ),
+                    // );
+                  },
+                ),
+                automaticallyImplyLeading: false,
+                backgroundColor: Colors.grey[850],
+                expandedHeight: 200,
+                pinned: true,
+                floating: false,
+                flexibleSpace: FlexibleSpaceBar(
+                  centerTitle: true,
+                  title: Text(
+                    playlist.getName,
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  background: imagePath != ""
+                      ? Image.network(
+                          imagePath,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset('assets/images/default_song_pic_small.png',
+                          fit: BoxFit.none),
+                ),
+              ),
+              new SliverList(
+                delegate: SliverChildListDelegate(
+                  [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            width: 150,
+                            height: 45,
+                            child: new RaisedButton(
+                              splashColor: Colors.deepOrange,
+                              shape: new RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(30.0),
+                              ),
+                              color: Colors.pink,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Expanded(
+                                    flex: 3,
+                                    child: Icon(
+                                      Icons.play_arrow,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 4,
+                                    child: Text(
+                                      "Play",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              elevation: 6.0,
+                              onPressed: () {
+                                playingNow.currentPlaylist = playlist;
+                                playingNow.playlistMode = PlaylistMode.loop;
+                                playingNow.playSong(playlist.getSongs[0]);
+                              },
+                            ),
+                          ),
+                          new SizedBox(
+                            width: 20,
+                          ),
+                          Container(
+                            width: 150,
+                            height: 45,
+                            child: new RaisedButton(
+                              splashColor: Colors.deepOrange,
+                              shape: new RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(30.0),
+                              ),
+                              color: Colors.pink,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Icon(
+                                      Icons.shuffle,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      "Shuffle",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              elevation: 6.0,
+                              onPressed: () {
+                                var rnd = new Random();
+                                playingNow.currentPlaylist = playlist;
+                                playingNow.playlistMode = PlaylistMode.shuffle;
+                                playingNow.playSong(playlist.getSongs[
+                                    rnd.nextInt(playlist.getSongs.length)]);
+                              },
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    background: new Image.network(
-                      imagePath,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                  ],
                 ),
-                new SliverList(
-                  delegate: SliverChildListDelegate(
-                    [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Container(
-                              width: 150,
-                              height: 45,
-                              child: new RaisedButton(
-                                splashColor: Colors.deepOrange,
-                                shape: new RoundedRectangleBorder(
-                                  borderRadius: new BorderRadius.circular(30.0),
-                                ),
-                                color: Colors.pink,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Expanded(
-                                      flex: 3,
-                                      child: Icon(
-                                        Icons.play_arrow,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 4,
-                                      child: Text(
-                                        "Play",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                elevation: 6.0,
-                                onPressed: () {
-                                  playingNow.currentPlaylist = playlist;
-                                  playingNow.playlistMode = PlaylistMode.loop;
-                                  playingNow.playSong(playlist.getSongs[0]);
-                                },
-                              ),
-                            ),
-                            new SizedBox(
-                              width: 20,
-                            ),
-                            Container(
-                              width: 150,
-                              height: 45,
-                              child: new RaisedButton(
-                                splashColor: Colors.deepOrange,
-                                shape: new RoundedRectangleBorder(
-                                  borderRadius: new BorderRadius.circular(30.0),
-                                ),
-                                color: Colors.pink,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Expanded(
-                                      child: Icon(
-                                        Icons.shuffle,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 2,
-                                      child: Text(
-                                        "Shuffle",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                elevation: 6.0,
-                                onPressed: () {
-                                  var rnd = new Random();
-                                  playingNow.currentPlaylist = playlist;
-                                  playingNow.playlistMode =
-                                      PlaylistMode.shuffle;
-                                  playingNow.playSong(playlist.getSongs[
-                                      rnd.nextInt(playlist.getSongs.length)]);
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                makeSliverList(playlist, context)
-              ],
-            ),
+              ),
+              makeSliverList(playlist, context)
+            ],
           ),
         ),
       ),
@@ -270,23 +253,13 @@ class _PlayListPageState extends State<PlayListPage> {
     );
   }
 
-  Future<bool> handleBackButton() {
-    return Navigator.pushReplacement(
-          context,
-          new MyCustomRoute(
-            builder: (context) => new HomePage(1),
-          ),
-        ) ??
-        false;
-  }
-
   void setSongImage(Song song) {
     if (song.getImageUrl.length > 0) {
       songImage = new NetworkImage(
         song.getImageUrl,
       );
     } else {
-      songImage = new AssetImage('assets/images/default_song_pic_big.png');
+      songImage = new AssetImage('assets/images/default_song_pic.png');
     }
   }
 
