@@ -23,4 +23,12 @@ class Album {
   set setImageUrl(String value) => _imageUrl = value;
 
   set setId(String value) => _id = value;
+
+  toJson() {
+    return {
+      'title': _title,
+      'imageUrl': _imageUrl,
+      'id': _id,
+    };
+  }
 }

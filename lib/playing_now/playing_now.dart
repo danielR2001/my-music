@@ -29,6 +29,7 @@ class PlayingNow {
     audioCache = new AudioCache(fixedPlayer: advancedPlayer);
     songDuration = new Duration();
     songPosition = new Duration();
+    AudioPlayer.logEnabled = true;
     initCacheDir();
   }
 
@@ -36,9 +37,12 @@ class PlayingNow {
     closeSong();
     currentSong = song;
     print("${dir.path}/${song.getTitle}-${song.getArtist.getName}.mp3");
-    advancedPlayer.play(
-      "${dir.path}/${song.getTitle}-${song.getArtist.getName}.mp3",
-    );
+    int status = await advancedPlayer.play(
+        "${dir.path}/${song.getTitle}-${song.getArtist.getName}.mp3",
+        isLocal: true);
+    if (status == 1) {
+      closeSong();
+    }
     listenIfCompleted();
     updateSongPosition();
     getSongDuration();

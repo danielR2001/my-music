@@ -1,5 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:myapp/main.dart';
+import 'package:myapp/models/album.dart';
+import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/user.dart';
@@ -83,11 +85,11 @@ class FirebaseDatabaseManager {
             List values = value.values.toList();
             temp.addNewSong(
               new Song(
-                values[0],
-                values[1],
-                values[2],
                 values[3],
+                buildArtist(values[1]),
                 values[4],
+                buildAlbum(values[2]),
+                values[0],
               ),
             );
           },
@@ -101,11 +103,19 @@ class FirebaseDatabaseManager {
   static Song buildSong(Map songMap) {
     List values = songMap.values.toList();
     return new Song(
-      values[0],
-      values[1],
-      values[2],
       values[3],
+      buildArtist(values[1]),
       values[4],
+      buildAlbum(values[2]),
+      values[0],
     );
+  }
+
+  static Artist buildArtist(Map artistMap) {
+    return new Artist(artistMap['name'], artistMap['imageUrl']);
+  }
+
+  static Album buildAlbum(Map albumMap) {
+    return new Album(albumMap['title'], albumMap['imageUrl'], albumMap['id']);
   }
 }

@@ -49,6 +49,7 @@ class Song {
       'title': _title,
       'artist': _artist.toJson(),
       'songId': _songId,
+      'album': _album.toJson(),
       'pushId': _pushId,
     };
   }

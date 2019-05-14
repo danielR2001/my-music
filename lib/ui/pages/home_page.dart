@@ -59,86 +59,78 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     homePageContext = context;
-    return WillPopScope(
-      onWillPop: () {},
-      //Future.sync(),
-      child: Scaffold(
-        backgroundColor: Colors.grey[850],
-        body: GestureDetector(
-            child: currentPage,
-            onPanUpdate: (details) {
-              if (currentTab == 0) {
-                if (details.delta.dx < -20) {
-                  setState(
-                    () {
-                      currentTab = 1;
-                      currentPage = pages[1];
-                    },
-                  );
-                }
-              } else {
-                if (details.delta.dx > 20) {
-                  setState(
-                    () {
-                      currentTab = 0;
-                      currentPage = pages[0];
-                    },
-                  );
-                }
+    return Scaffold(
+      backgroundColor: Colors.grey[850],
+      body: GestureDetector(
+          child: currentPage,
+          onPanUpdate: (details) {
+            if (currentTab == 0) {
+              if (details.delta.dx < -20) {
+                setState(
+                  () {
+                    currentTab = 1;
+                    currentPage = pages[1];
+                  },
+                );
               }
-            }),
-        bottomNavigationBar: new Theme(
-          data: Theme.of(context).copyWith(
-            canvasColor: Colors.grey[850],
-            textTheme: Theme.of(context).textTheme.copyWith(
-                  caption: new TextStyle(
-                    color: Colors.grey,
-                  ),
+            } else {
+              if (details.delta.dx > 20) {
+                setState(
+                  () {
+                    currentTab = 0;
+                    currentPage = pages[0];
+                  },
+                );
+              }
+            }
+          }),
+      bottomNavigationBar: new Theme(
+        data: Theme.of(context).copyWith(
+          canvasColor: Colors.grey[850],
+          textTheme: Theme.of(context).textTheme.copyWith(
+                caption: new TextStyle(
+                  color: Colors.grey,
                 ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              musicPlayerControl(),
-              BottomNavigationBar(
-                type: BottomNavigationBarType.fixed,
-                fixedColor: Colors.white,
-                currentIndex: currentTab,
-                iconSize: 26.0,
-                onTap: (int index) {
-                  setState(
-                    () {
-                      currentTab = index;
-                      currentPage = pages[index];
-                    },
-                  );
-                },
-                items: [
-                  BottomNavigationBarItem(
-                    icon: new Icon(
-                      Icons.explore,
-                      size: 30.0,
-                    ),
-                    title: new Text("Discover"),
-                  ),
-                  BottomNavigationBarItem(
-                    icon: new Icon(
-                      Icons.account_circle,
-                      size: 30.0,
-                    ),
-                    title: new Text("Account"),
-                  ),
-                ],
               ),
-            ],
-          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            musicPlayerControl(),
+            BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              fixedColor: Colors.white,
+              currentIndex: currentTab,
+              iconSize: 26.0,
+              onTap: (int index) {
+                setState(
+                  () {
+                    currentTab = index;
+                    currentPage = pages[index];
+                  },
+                );
+              },
+              items: [
+                BottomNavigationBarItem(
+                  icon: new Icon(
+                    Icons.explore,
+                    size: 30.0,
+                  ),
+                  title: new Text("Discover"),
+                ),
+                BottomNavigationBarItem(
+                  icon: new Icon(
+                    Icons.account_circle,
+                    size: 30.0,
+                  ),
+                  title: new Text("Account"),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  Future<bool> disableBackButton() {
-    return Future.value(false);
   }
 
   void initSong() {

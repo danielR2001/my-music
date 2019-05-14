@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'dart:ui';
 import 'package:myapp/main.dart';
@@ -201,9 +202,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
           }
           return new ListTile(
             onTap: () {
-              playingNow.currentPlaylist = playlist;
-              playingNow.playlistMode = PlaylistMode.loop;
-              playingNow.playSong(playlist.getSongs[index]);
+              ManageLocalSongs.cacheSong(playlist.getSongs[index]).then((a) {
+                playingNow.currentPlaylist = playlist;
+                playingNow.playlistMode = PlaylistMode.loop;
+                playingNow.playSong(playlist.getSongs[index]);
+              });
             },
             leading: new Container(
               width: 50,
@@ -235,7 +238,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
               ),
               onPressed: () {
                 setState(() {
-                  showMoreOptions(context, playlist.getSongs[index]);
+                  showMoreOptions(playlist.getSongs[index], playlist);
                 });
               },
             ),
@@ -255,11 +258,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
     }
   }
 
-  void showMoreOptions(BuildContext context, Song song) {
+  void showMoreOptions(Song song, Playlist currentPlaylist) {
     showModalBottomSheet(
       context: homePageContext,
       builder: (builder) {
-        return SongOptionsModalSheet(song, playlist);
+        return SongOptionsModalSheet(song, currentPlaylist);
       },
     );
   }

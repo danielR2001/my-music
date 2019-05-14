@@ -4,6 +4,8 @@ import 'package:myapp/models/song.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/playing_now/playing_now.dart';
+import 'package:myapp/ui/pages/home_page.dart';
+import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -172,9 +174,12 @@ class _SearchPageState extends State<SearchPage> {
           fontSize: 12,
         ),
       ),
-      trailing: Icon(
-        Icons.more_vert,
+      trailing: IconButton(
+        icon: Icon(Icons.more_vert),
         color: Colors.white,
+        onPressed: () {
+          showMoreOptions(song);
+        },
       ),
       onTap: () {
         FocusScope.of(context).requestFocus(new FocusNode());
@@ -195,5 +200,14 @@ class _SearchPageState extends State<SearchPage> {
     } else {
       songImage = new AssetImage('assets/images/default_song_pic_big.png');
     }
+  }
+
+  void showMoreOptions(Song song) {
+    showModalBottomSheet(
+      context: homePageContext,
+      builder: (builder) {
+        return SongOptionsModalSheet(song, null);
+      },
+    );
   }
 }
