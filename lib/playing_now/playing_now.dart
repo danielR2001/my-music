@@ -4,6 +4,7 @@ import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
+import 'package:path_provider/path_provider.dart';
 
 enum PlaylistMode {
   shuffle,
@@ -11,6 +12,7 @@ enum PlaylistMode {
 }
 
 class PlayingNow {
+  var dir;
   AudioPlayer advancedPlayer;
   AudioCache audioCache;
   Duration songDuration;
@@ -24,15 +26,19 @@ class PlayingNow {
 
   PlayingNow() {
     advancedPlayer = new AudioPlayer();
-    audioCache = audioCache = new AudioCache(fixedPlayer: advancedPlayer);
+    audioCache = new AudioCache(fixedPlayer: advancedPlayer);
     songDuration = new Duration();
     songPosition = new Duration();
+    initCacheDir();
   }
 
-  void playSong(Song song) {
+  void playSong(Song song) async {
     closeSong();
     currentSong = song;
-    advancedPlayer.play(currentSong.getSongUrl);
+    print("${dir.path}/${song.getTitle}-${song.getArtist.getName}.mp3");
+    advancedPlayer.play(
+      "${dir.path}/${song.getTitle}-${song.getArtist.getName}.mp3",
+    );
     listenIfCompleted();
     updateSongPosition();
     getSongDuration();
@@ -87,7 +93,7 @@ class PlayingNow {
           nextSong = songFromPlaylist;
           foundSong = false;
         }
-        if (songFromPlaylist.getSongUrl == song.getSongUrl) {
+        if (songFromPlaylist.getSongId == song.getSongId) {
           foundSong = true;
         }
       },
@@ -121,5 +127,9 @@ class PlayingNow {
       nextSong = currentPlaylist.getSongs[pos];
     }
     return nextSong;
+  }
+
+  void initCacheDir() async {
+    dir = await getApplicationDocumentsDirectory();
   }
 }

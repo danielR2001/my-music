@@ -9,6 +9,8 @@ import 'music_player_page.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/ui/widgets/text_style.dart';
 
+BuildContext homePageContext;
+
 class HomePage extends StatefulWidget {
   final int currentPage;
   HomePage(this.currentPage);
@@ -20,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   int currentTab;
   DiscoverPage discoverPage;
   AccountPage accountPage;
-  PlayListPage playlistPage;
+  PlaylistPage playlistPage;
   List<Widget> pages;
   Widget currentPage;
   Icon musicPlayerIcon;
@@ -56,11 +58,35 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    homePageContext = context;
     return WillPopScope(
-      onWillPop: disableBackButton,
-      child: new Scaffold(
+      onWillPop: () {},
+      //Future.sync(),
+      child: Scaffold(
         backgroundColor: Colors.grey[850],
-        body: currentPage,
+        body: GestureDetector(
+            child: currentPage,
+            onPanUpdate: (details) {
+              if (currentTab == 0) {
+                if (details.delta.dx < -20) {
+                  setState(
+                    () {
+                      currentTab = 1;
+                      currentPage = pages[1];
+                    },
+                  );
+                }
+              } else {
+                if (details.delta.dx > 20) {
+                  setState(
+                    () {
+                      currentTab = 0;
+                      currentPage = pages[0];
+                    },
+                  );
+                }
+              }
+            }),
         bottomNavigationBar: new Theme(
           data: Theme.of(context).copyWith(
             canvasColor: Colors.grey[850],
@@ -229,14 +255,14 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           TextDecoration(
-                            playingNow.currentSong.getSongName,
+                            playingNow.currentSong.getTitle,
                             18,
                             Colors.white,
                             20,
                             25,
                           ),
                           TextDecoration(
-                            playingNow.currentSong.getArtist,
+                            playingNow.currentSong.getArtist.getName,
                             16,
                             Colors.grey,
                             30,

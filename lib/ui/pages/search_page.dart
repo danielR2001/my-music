@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
@@ -69,26 +70,27 @@ class _SearchPageState extends State<SearchPage> {
                             fontSize: 18,
                           ),
                         ),
-                        onChanged: (txt) => {
-                              FetchData.fetchPost(txt).then((results) {
-                                setState(() {
-                                  searchResults = results;
-                                  if (searchResults != null) {
-                                    searchLength = searchResults.length;
-                                  } else {
-                                    searchLength = 0;
-                                  }
-                                });
-                              }),
-                            },
-                        onSubmitted: (txt) => {
-                              FetchData.fetchPost(txt).then((results) {
-                                setState(() {
-                                  searchResults = results;
+                        onChanged: (txt) {
+                          if (txt != "") {
+                            FetchData.fetchPost(txt).then((results) {
+                              setState(() {
+                                searchResults = results;
+                                if (searchResults != null) {
                                   searchLength = searchResults.length;
-                                });
-                              }),
-                            },
+                                } else {
+                                  searchLength = 0;
+                                }
+                              });
+                            });
+                          }
+                        },
+                        onSubmitted: (txt) =>
+                            FetchData.fetchPost(txt).then((results) {
+                              setState(() {
+                                searchResults = results;
+                                searchLength = searchResults.length;
+                              });
+                            }),
                       ),
                     ),
                   ),
@@ -129,23 +131,23 @@ class _SearchPageState extends State<SearchPage> {
     setSongImage(song);
     String title;
     String artist;
-    if (song.getSongName.length > 32) {
-      int pos = song.getSongName.lastIndexOf("", 32);
+    if (song.getTitle.length > 32) {
+      int pos = song.getTitle.lastIndexOf("", 32);
       if (pos < 25) {
         pos = 30;
       }
-      title = song.getSongName.substring(0, pos) + "...";
+      title = song.getTitle.substring(0, pos) + "...";
     } else {
-      title = song.getSongName;
+      title = song.getTitle;
     }
-    if (song.getArtist.length > 45) {
-      int pos = song.getArtist.lastIndexOf("", 45);
+    if (song.getArtist.getName.length > 45) {
+      int pos = song.getArtist.getName.lastIndexOf("", 45);
       if (pos < 30) {
         pos = 45;
       }
-      artist = song.getArtist.substring(0, pos) + "...";
+      artist = song.getArtist.getName.substring(0, pos) + "...";
     } else {
-      artist = song.getArtist;
+      artist = song.getArtist.getName;
     }
     return ListTile(
       leading: new Container(
@@ -176,23 +178,19 @@ class _SearchPageState extends State<SearchPage> {
       ),
       onTap: () {
         FocusScope.of(context).requestFocus(new FocusNode());
-        playingNow.currentPlaylist = null;
-        playingNow.playlistMode = PlaylistMode.loop;
-        playingNow.playSong(song);
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => MusicPlayerPage(),
-        //   ),
-        // );
+        ManageLocalSongs.cacheSong(song).then((a) {
+          playingNow.currentPlaylist = null;
+          playingNow.playlistMode = PlaylistMode.loop;
+          playingNow.playSong(song);
+        });
       },
     );
   }
 
   void setSongImage(Song song) {
-    if (song.getImageUrl.length > 0) {
+    if (song.getAlbum.getImageUrl.length > 0) {
       songImage = new NetworkImage(
-        song.getImageUrl,
+        song.getAlbum.getImageUrl,
       );
     } else {
       songImage = new AssetImage('assets/images/default_song_pic_big.png');

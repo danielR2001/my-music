@@ -67,9 +67,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                       Icons.keyboard_arrow_down,
                       color: Colors.white,
                     ),
-                    onPressed: () => {
-                          Navigator.pop(context),
-                        },
+                    onPressed: () => Navigator.pop(context),
                   ),
                   Expanded(
                     child: new Container(),
@@ -119,14 +117,14 @@ class MusicPageState extends State<MusicPlayerPage> {
             Column(
               children: <Widget>[
                 TextDecoration(
-                  playingNow.currentSong.getSongName,
+                  playingNow.currentSong.getTitle,
                   25,
                   Colors.white,
                   20,
                   35,
                 ),
                 TextDecoration(
-                  playingNow.currentSong.getArtist,
+                  playingNow.currentSong.getArtist.getName,
                   14,
                   Colors.grey,
                   30,
@@ -355,7 +353,7 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   void initSong() {
     posStream = playingNow.advancedPlayer.onAudioPositionChanged
-        .listen((Duration p) => {setState(() => _position = p)});
+        .listen((Duration p) => setState(() => _position = p));
 
     durStream = playingNow.advancedPlayer.onDurationChanged.listen(
       (Duration d) {
@@ -390,14 +388,14 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   void setSongImage() async {
-    if (playingNow.currentSong.getImageUrl.length > 0) {
+    if (playingNow.currentSong.getAlbum.getImageUrl.length > 0) {
       ConnectivityResult connectivityResult =
           await Connectivity().checkConnectivity();
       if (connectivityResult == ConnectivityResult.mobile ||
           connectivityResult == ConnectivityResult.wifi) {
         setState(() {
           songImage = new NetworkImage(
-            playingNow.currentSong.getImageUrl,
+            playingNow.currentSong.getAlbum.getImageUrl,
           );
         });
       } else {

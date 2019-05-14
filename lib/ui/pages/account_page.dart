@@ -56,10 +56,11 @@ class _AccountPageState extends State<AccountPage> {
                             ),
                             onPressed: () {
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => SettingsPage(),
-                                  ));
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SettingsPage(),
+                                ),
+                              );
                             },
                           ),
                         )
@@ -96,16 +97,7 @@ class _AccountPageState extends State<AccountPage> {
                       Icons.keyboard_arrow_right,
                       color: Colors.white,
                     ),
-                    onTap: () {
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //       builder: (context) => PlayListPage(
-                      //             playlistName: "Downloaded",
-                      //             imagePath: "",
-                      //           ),
-                      //     ));
-                    },
+                    onTap: () {},
                   ),
                   createSpace(25),
                   new ListTile(
@@ -160,12 +152,12 @@ class _AccountPageState extends State<AccountPage> {
       padding: const EdgeInsets.only(
         top: 10,
         left: 40,
-        bottom: 20,
+        bottom: 10,
       ),
       child: new ListTile(
         leading: new Container(
-          width: 70.0,
-          height: 70.0,
+          width: 60.0,
+          height: 60.0,
           decoration: new BoxDecoration(
             color: Colors.black,
             shape: BoxShape.rectangle,
@@ -182,9 +174,9 @@ class _AccountPageState extends State<AccountPage> {
             ],
             image: new DecorationImage(
               fit: BoxFit.fill,
-              image: playlist.getSongs[0].getImageUrl != ""
+              image: playlist.getSongs[0].getAlbum.getImageUrl != ""
                   ? NetworkImage(
-                      playlist.getSongs[0].getImageUrl,
+                      playlist.getSongs[0].getAlbum.getImageUrl,
                     )
                   : AssetImage('assets/images/default_song_pic.png'),
             ),
@@ -202,14 +194,17 @@ class _AccountPageState extends State<AccountPage> {
           color: Colors.white,
         ),
         onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => PlayListPage(
-                  playlist: playlist,
-                  imagePath: playlist.getSongs[0].getImageUrl != ""
-                      ? playlist.getSongs[0].getImageUrl
-                      : "",
-                ),
-          ));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PlaylistPage(
+                    playlist: playlist,
+                    imagePath: playlist.getSongs[0].getAlbum.getImageUrl != ""
+                        ? playlist.getSongs[0].getAlbum.getImageUrl
+                        : "",
+                  ),
+            ),
+          );
         },
       ),
     );

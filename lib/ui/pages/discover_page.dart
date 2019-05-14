@@ -203,17 +203,7 @@ class DiscoverPage extends StatelessWidget {
             ),
           ],
         ),
-        onTap: () => {}
-        //  Navigator.push(
-        //       context,
-        //       MaterialPageRoute(
-        //         builder: (context) => PlayListPage(
-        //               playlist: genre,
-        //               imagePath: imagePath,
-        //             ),
-        //       ),
-        //     ),
-        );
+        onTap: () => {});
   }
 
   Padding createGenres(int index, BuildContext context) {

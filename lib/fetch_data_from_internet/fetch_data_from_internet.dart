@@ -1,8 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:myapp/models/album.dart';
+import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
 
 class FetchData {
+  static String songID = '138545995'; //ADELE HELLO
+  static final String urlDownload =
+      'https://free-mp3-download.net/dl.php?i=$songID&c=72272&f=mp3';
+  static final String searchCallback =
+      'https://free-mp3-download.net/search.php?s='; // + SEARCH STRING
   static final String playUrl = "https://playx.fun/stream/";
   static final String downloadUrl = "https://playx.fun/";
   static var map = [
@@ -55,22 +62,21 @@ class FetchData {
     '2',
     '3'
   ];
+
   static Future<List<Song>> fetchPost(String searchStr) async {
     List<Song> postResponses;
     return http
-        .post('https://my-free-mp3s.com/api/search.php?callback',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: {"q": searchStr})
+        .get(
+          searchCallback + searchStr,
+        )
         .whenComplete(() => print('search completed'))
         .then((http.Response response) {
-          List<dynamic> list = jsonDecode(
-              response.body.substring(1, response.body.length - 2))['response'];
-          if (list != null || list.length > 0) {
-            list?.removeAt(0);
-            postResponses = fillList(list, searchStr);
-          }
-          return postResponses;
-        });
+      List<dynamic> list = jsonDecode(response.body)['data'];
+      if (list != null) {
+        postResponses = fillList(list, searchStr);
+      }
+      return postResponses;
+    });
   }
 
   static List<Song> fillList(List<dynamic> list, String searchStr) {
@@ -79,23 +85,9 @@ class FetchData {
     list.forEach((item) {
       temp = new Song(
         item['title'],
-        item['artist'],
-        playUrl +
-            encode(item['owner_id']) +
-            ":" +
-            encode(
-              item['id'],
-            ),
-        getImageUrl(
-          item['album'],
-        ),
-        downloadUrl +
-            encode(item['owner_id']) +
-            ":" +
-            encode(
-              item['id'],
-            ),
+        constractArtist(item['artist']),
         item['id'].toString(),
+        constractAlbum(item['album']),
         "",
       );
       tempList.add(temp);
@@ -103,38 +95,22 @@ class FetchData {
     return tempList;
   }
 
-  static String encode(int input) {
-    int length = map.length;
-    var encoded = "";
-    if (input == 0) return map[0];
-    if (input < 0) {
-      input *= -1;
-      encoded += "-";
-    }
-    while (input > 0) {
-      var val = input % length;
-      input = input ~/ length;
-      encoded += map[val];
-    }
-    return encoded;
+  static Artist constractArtist(Map artistMap) {
+    Artist artist;
+    artist = new Artist(
+      artistMap['name'],
+      artistMap['picture_big'],
+    );
+    return artist;
   }
 
-  static String getImageUrl(Map<String, dynamic> value) {
-    if (value != null) {
-      if (value.length > 4) {
-        var temp;
-        temp = value;
-        temp = temp.values;
-        temp = temp.toList();
-        temp?.removeRange(0, 4);
-        temp = temp[0].values.toList();
-        temp = temp[5];
-        return temp;
-      } else {
-        return "";
-      }
-    } else {
-      return "";
-    }
+  static Album constractAlbum(Map albumMap) {
+    Album album;
+    album = new Album(
+      albumMap['title'],
+      albumMap['cover_big'],
+      albumMap['id'].toString(),
+    );
+    return album;
   }
 }

@@ -4,32 +4,29 @@ import 'dart:ui';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/playing_now/playing_now.dart';
+import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'dart:math';
 
-class PlayListPage extends StatefulWidget {
+class PlaylistPage extends StatefulWidget {
   final Playlist playlist;
   final String imagePath;
 
-  PlayListPage({Key key, this.playlist, this.imagePath}) : super(key: key);
+  PlaylistPage({Key key, this.playlist, this.imagePath}) : super(key: key);
 
   @override
-  _PlayListPageState createState() => _PlayListPageState(playlist, imagePath);
+  _PlaylistPageState createState() => _PlaylistPageState(playlist, imagePath);
 }
 
-class _PlayListPageState extends State<PlayListPage> {
+class _PlaylistPageState extends State<PlaylistPage> {
   ImageProvider songImage;
   final Playlist playlist;
   final String imagePath;
-  _PlayListPageState(this.playlist, this.imagePath);
+  _PlaylistPageState(this.playlist, this.imagePath);
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () {
-        print("pop");
-        Navigator.pop(context);
-      },
-      child: new Container(
+    return Scaffold(
+      body: new Container(
         decoration: new BoxDecoration(
           color: Color(0xE4000000),
         ),
@@ -45,12 +42,6 @@ class _PlayListPageState extends State<PlayListPage> {
                   ),
                   onPressed: () {
                     Navigator.pop(context);
-                    // Navigator.pushReplacement(
-                    //   context,
-                    //   new MyCustomRoute(
-                    //     builder: (context) => new HomePage(1),
-                    //   ),
-                    // );
                   },
                 ),
                 automaticallyImplyLeading: false,
@@ -187,25 +178,26 @@ class _PlayListPageState extends State<PlayListPage> {
           setSongImage(playlist.getSongs[index]);
           String title;
           String artist;
-          if (playlist.getSongs[index].getSongName.length > 20) {
-            int pos = playlist.getSongs[index].getSongName.lastIndexOf("", 20);
+          if (playlist.getSongs[index].getTitle.length > 20) {
+            int pos = playlist.getSongs[index].getTitle.lastIndexOf("", 20);
             if (pos < 15) {
               pos = 20;
             }
-            title =
-                playlist.getSongs[index].getSongName.substring(0, pos) + "...";
+            title = playlist.getSongs[index].getTitle.substring(0, pos) + "...";
           } else {
-            title = playlist.getSongs[index].getSongName;
+            title = playlist.getSongs[index].getTitle;
           } //TODO exact cut
-          if (playlist.getSongs[index].getArtist.length > 40) {
-            int pos = playlist.getSongs[index].getArtist.lastIndexOf("", 40);
+          if (playlist.getSongs[index].getArtist.getName.length > 40) {
+            int pos =
+                playlist.getSongs[index].getArtist.getName.lastIndexOf("", 40);
             if (pos < 30) {
               pos = 40;
             }
             artist =
-                playlist.getSongs[index].getArtist.substring(0, pos) + "...";
+                playlist.getSongs[index].getArtist.getName.substring(0, pos) +
+                    "...";
           } else {
-            artist = playlist.getSongs[index].getArtist;
+            artist = playlist.getSongs[index].getArtist.getName;
           }
           return new ListTile(
             onTap: () {
@@ -254,9 +246,9 @@ class _PlayListPageState extends State<PlayListPage> {
   }
 
   void setSongImage(Song song) {
-    if (song.getImageUrl.length > 0) {
+    if (song.getAlbum.getImageUrl.length > 0) {
       songImage = new NetworkImage(
-        song.getImageUrl,
+        song.getAlbum.getImageUrl,
       );
     } else {
       songImage = new AssetImage('assets/images/default_song_pic.png');
@@ -265,7 +257,7 @@ class _PlayListPageState extends State<PlayListPage> {
 
   void showMoreOptions(BuildContext context, Song song) {
     showModalBottomSheet(
-      context: context,
+      context: homePageContext,
       builder: (builder) {
         return SongOptionsModalSheet(song, playlist);
       },

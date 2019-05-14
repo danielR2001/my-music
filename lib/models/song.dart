@@ -1,67 +1,53 @@
+import 'package:myapp/models/album.dart';
+import 'package:myapp/models/artist.dart';
+
 class Song {
-  String _songName;
-  String _artist;
-  String _songUrl;
-  String _imageUrl;
-  String _songDownloadUrl;
+  String _title;
+  Artist _artist;
   String _songId;
+  Album _album;
   String _pushId;
 
-  Song(String songName, String artist, String songUrl, String imageUrl,
-      String songDownloadUrl, String songId, String pushId) {
-    _songName = songName;
+  Song(String songName, Artist artist, String songId, Album album,
+      String pushId) {
+    _title = songName;
     _artist = artist;
-    _songUrl = songUrl;
-    _imageUrl = imageUrl;
-    _songDownloadUrl = songDownloadUrl;
     _songId = songId;
+    _album = album;
     _pushId = pushId;
   }
   Song.fromSong(Song song) {
-    _songName = song.getSongName;
+    _title = song.getTitle;
     _artist = song.getArtist;
-    _songUrl = song.getSongUrl;
-    _imageUrl = song.getImageUrl;
-    _songDownloadUrl = song._songDownloadUrl;
     _songId = song.getSongId;
+    _album = song.getAlbum;
     _pushId = song.getPushId;
   }
 
-  String get getPushId => _pushId;
+  String get getTitle => _title;
+
+  Artist get getArtist => _artist;
 
   String get getSongId => _songId;
 
-  String get getSongDownloadUrl => _songDownloadUrl;
+  Album get getAlbum => _album;
 
-  String get getImageUrl => _imageUrl;
+  String get getPushId => _pushId;
 
-  String get getSongUrl => _songUrl;
+  set setTitle(String value) => _title = value;
 
-  String get getSongName => _songName;
-
-  String get getArtist => _artist;
-
-  set serSongDownloadUrl(String value) => _songDownloadUrl = value;
-
-  set setSongName(String value) => _songName = value;
-
-  set setArtist(String value) => _artist = value;
-
-  set setSongUrl(String value) => _songUrl = value;
-
-  set setISmageUrl(String value) => _imageUrl = value;
+  set setArtist(Artist value) => _artist = value;
 
   set setSongId(String value) => _songId = value;
+
+  set setAlbum(Album value) => _album = value;
 
   set setPushId(String value) => _pushId = value;
 
   toJson() {
     return {
-      'songName': _songName,
-      'artist': _artist,
-      'songUrl': _songUrl,
-      'imageUrl': _imageUrl,
-      'songDownloadUrl': _songDownloadUrl,
+      'title': _title,
+      'artist': _artist.toJson(),
       'songId': _songId,
       'pushId': _pushId,
     };
@@ -70,15 +56,9 @@ class Song {
   @override
   String toString() {
     return " title: " +
-        _songName +
+        _title +
         " artist: " +
-        _artist +
-        " imageUrl: " +
-        _imageUrl +
-        " songUrl: " +
-        _songUrl +
-        " songDownloadUrl: " +
-        _songDownloadUrl +
+        _artist.getName +
         " songId: " +
         _songId +
         " pushId" +

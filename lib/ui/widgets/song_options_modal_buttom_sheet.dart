@@ -28,14 +28,14 @@ class SongOptionsModalSheet extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     TextDecoration(
-                      song.getSongName,
+                      song.getTitle,
                       20,
                       Colors.white,
                       20,
                       30,
                     ),
                     TextDecoration(
-                      song.getArtist,
+                      song.getArtist.getName,
                       15,
                       Colors.grey,
                       30,

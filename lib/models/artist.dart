@@ -4,15 +4,23 @@ class Artist {
 
   Artist(
     String name,
-    //String imageUrl,
+    String imageUrl,
   ) {
     _name = name;
-    //_imageUrl = imageUrl;
+    _imageUrl = imageUrl;
   }
 
   String get getName => _name;
   String get getImageUrl => _imageUrl;
 
   set setName(String value) => _name = value;
+
   set setImageUrl(String value) => _imageUrl = value;
+
+  toJson() {
+    return {
+      'name': _name,
+      'imageUrl': _imageUrl,
+    };
+  }
 }

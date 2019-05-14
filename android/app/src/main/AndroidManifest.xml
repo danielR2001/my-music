@@ -9,9 +9,6 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="My Music"
         android:icon="@mipmap/ic_launcher">
-                 <service
-    android:name="com.mythichelm.localnotifications.services.LocalNotificationsService"
-    android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
