@@ -25,19 +25,19 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        decoration: new BoxDecoration(
-          gradient: new LinearGradient(
-            colors: [
-              Color(0xFF141414),
-              Color(0xFF363636),
-            ],
-            begin: FractionalOffset.bottomCenter,
-            stops: [0.4, 1.0],
-            end: FractionalOffset.topCenter,
-          ),
+    return Container(
+      decoration: new BoxDecoration(
+        gradient: new LinearGradient(
+          colors: [
+            Color(0xFF141414),
+            Color(0xFF363636),
+          ],
+          begin: FractionalOffset.bottomCenter,
+          stops: [0.4, 1.0],
+          end: FractionalOffset.topCenter,
         ),
+      ),
+      child: SafeArea(
         child: Column(
           children: <Widget>[
             Container(

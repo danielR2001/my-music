@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'search_page.dart';
 
 class DiscoverPage extends StatelessWidget {
+  DiscoverPage({this.onPush});
   final List<String> genres = [
     "R&B/Soul",
     "Rock",
@@ -44,6 +45,7 @@ class DiscoverPage extends StatelessWidget {
     'assets/images/country-512.png',
     'assets/images/dance_edm-512.png',
   ];
+  final onPush;
   @override
   Widget build(BuildContext context) {
     return Navigator(
@@ -56,7 +58,7 @@ class DiscoverPage extends StatelessWidget {
               decoration: new BoxDecoration(
                 gradient: new LinearGradient(
                   colors: [
-                    Color(0xAA000000),
+                    Color(0xEA000000),
                     Colors.pink,
                   ],
                   begin: FractionalOffset.bottomRight,
@@ -122,12 +124,13 @@ class DiscoverPage extends StatelessWidget {
                                 ),
                                 elevation: 6.0,
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => SearchPage(),
-                                    ),
-                                  );
+                                  // Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //     builder: (context) => SearchPage(),
+                                  //   ),
+                                  // );
+                                  onPush();
                                 },
                               ),
                             ),

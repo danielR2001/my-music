@@ -377,7 +377,7 @@ class _State extends State<SignInPage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomePage(0),
+              builder: (context) => HomePage(),
             ),
           );
         } else {

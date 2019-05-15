@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/ui/pages/playlist_page.dart';
+import 'package:myapp/ui/widgets/buttom_navigation_bar.dart';
 import 'package:myapp/ui/widgets/sound_bar.dart';
-import 'discover_page.dart';
-import 'account_page.dart';
+import 'package:myapp/ui/widgets/tab_navigator.dart';
 import 'music_player_page.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/ui/widgets/text_style.dart';
@@ -12,40 +11,28 @@ import 'package:myapp/ui/widgets/text_style.dart';
 BuildContext homePageContext;
 
 class HomePage extends StatefulWidget {
-  final int currentPage;
-  HomePage(this.currentPage);
   @override
-  _HomePageState createState() => _HomePageState(currentPage);
+  _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  int currentTab;
-  DiscoverPage discoverPage;
-  AccountPage accountPage;
-  PlaylistPage playlistPage;
-  List<Widget> pages;
-  Widget currentPage;
   Icon musicPlayerIcon;
   StreamSubscription<AudioPlayerState> stream;
-  final int currentPageInt;
-  _HomePageState(this.currentPageInt);
   Expanded soundBar;
+  TabItem currentTab = TabItem.discover;
+  Map<TabItem, GlobalKey<NavigatorState>> navigatorKeys = {
+    TabItem.discover: GlobalKey<NavigatorState>(),
+    TabItem.account: GlobalKey<NavigatorState>(),
+  };
+
+  void selectTab(TabItem tabItem) {
+    setState(() {
+      currentTab = tabItem;
+    });
+  }
 
   @override
   void initState() {
-    discoverPage = DiscoverPage();
-    accountPage = AccountPage();
-    pages = [
-      discoverPage,
-      accountPage,
-    ];
-    if (currentPageInt == 0) {
-      currentTab = 0;
-      currentPage = discoverPage;
-    } else {
-      currentTab = 1;
-      currentPage = accountPage;
-    }
     initSong();
     super.initState();
   }
@@ -59,76 +46,44 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     homePageContext = context;
-    return Scaffold(
-      backgroundColor: Colors.grey[850],
-      body: GestureDetector(
-          child: currentPage,
-          onPanUpdate: (details) {
-            if (currentTab == 0) {
-              if (details.delta.dx < -20) {
-                setState(
-                  () {
-                    currentTab = 1;
-                    currentPage = pages[1];
-                  },
-                );
-              }
-            } else {
-              if (details.delta.dx > 20) {
-                setState(
-                  () {
-                    currentTab = 0;
-                    currentPage = pages[0];
-                  },
-                );
-              }
-            }
-          }),
-      bottomNavigationBar: new Theme(
-        data: Theme.of(context).copyWith(
-          canvasColor: Colors.grey[850],
-          textTheme: Theme.of(context).textTheme.copyWith(
-                caption: new TextStyle(
-                  color: Colors.grey,
+    return WillPopScope(
+      onWillPop: () async =>
+          !await navigatorKeys[currentTab].currentState.maybePop(),
+      child: Scaffold(
+        body: Stack(children: <Widget>[
+          buildOffstageNavigator(TabItem.discover),
+          buildOffstageNavigator(TabItem.account),
+        ]),
+        bottomNavigationBar: new Theme(
+          data: Theme.of(context).copyWith(
+            canvasColor: Colors.grey[850],
+            textTheme: Theme.of(context).textTheme.copyWith(
+                  caption: new TextStyle(
+                    color: Colors.grey,
+                  ),
                 ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              musicPlayerControl(),
+              BottomNavigation(
+                currentTab: currentTab,
+                onSelectTab: selectTab,
               ),
+            ],
+          ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            musicPlayerControl(),
-            BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
-              fixedColor: Colors.white,
-              currentIndex: currentTab,
-              iconSize: 26.0,
-              onTap: (int index) {
-                setState(
-                  () {
-                    currentTab = index;
-                    currentPage = pages[index];
-                  },
-                );
-              },
-              items: [
-                BottomNavigationBarItem(
-                  icon: new Icon(
-                    Icons.explore,
-                    size: 30.0,
-                  ),
-                  title: new Text("Discover"),
-                ),
-                BottomNavigationBarItem(
-                  icon: new Icon(
-                    Icons.account_circle,
-                    size: 30.0,
-                  ),
-                  title: new Text("Account"),
-                ),
-              ],
-            ),
-          ],
-        ),
+      ),
+    );
+  }
+
+  Widget buildOffstageNavigator(TabItem tabItem) {
+    return Offstage(
+      offstage: currentTab != tabItem,
+      child: TabNavigator(
+        navigatorKey: navigatorKeys[tabItem],
+        tabItem: tabItem,
       ),
     );
   }
@@ -232,7 +187,7 @@ class _HomePageState extends State<HomePage> {
                 bottom: BorderSide(color: Colors.black),
               ),
             ),
-            height: 55,
+            height: 45,
             child: Row(
               children: <Widget>[
                 soundBar,
@@ -248,17 +203,17 @@ class _HomePageState extends State<HomePage> {
                         children: <Widget>[
                           TextDecoration(
                             playingNow.currentSong.getTitle,
-                            18,
+                            15,
                             Colors.white,
                             20,
-                            25,
+                            20,
                           ),
                           TextDecoration(
                             playingNow.currentSong.getArtist.getName,
-                            16,
+                            15,
                             Colors.grey,
                             30,
-                            25,
+                            20,
                           ),
                         ],
                       ),

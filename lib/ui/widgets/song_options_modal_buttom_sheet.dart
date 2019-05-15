@@ -179,7 +179,7 @@ class SongOptionsModalSheet extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 new MyCustomRoute(
-                  builder: (context) => new HomePage(1),
+                  builder: (context) => new HomePage(),
                 ),
               );
             }

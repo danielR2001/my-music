@@ -13,7 +13,7 @@ class PlaylistPage extends StatefulWidget {
   final Playlist playlist;
   final String imagePath;
 
-  PlaylistPage({Key key, this.playlist, this.imagePath}) : super(key: key);
+  PlaylistPage({this.playlist, this.imagePath});
 
   @override
   _PlaylistPageState createState() => _PlaylistPageState(playlist, imagePath);

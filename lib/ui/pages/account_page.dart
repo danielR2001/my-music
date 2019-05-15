@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
+import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/settings_page.dart';
 import 'playlist_page.dart';
 
-class AccountPage extends StatefulWidget {
-  @override
-  _AccountPageState createState() => _AccountPageState();
-}
-
-class _AccountPageState extends State<AccountPage> {
+class AccountPage extends StatelessWidget {
+  AccountPage({this.onPush});
+  final ValueChanged<Map> onPush;
   @override
   Widget build(BuildContext context) {
     return Navigator(onGenerateRoute: (RouteSettings settings) {
@@ -20,7 +18,7 @@ class _AccountPageState extends State<AccountPage> {
             decoration: new BoxDecoration(
               gradient: new LinearGradient(
                 colors: [
-                  Color(0xAA000000),
+                  Color(0xEA000000),
                   Colors.pink,
                 ],
                 begin: FractionalOffset.bottomRight,
@@ -56,7 +54,7 @@ class _AccountPageState extends State<AccountPage> {
                             ),
                             onPressed: () {
                               Navigator.push(
-                                context,
+                                homePageContext,
                                 MaterialPageRoute(
                                   builder: (context) => SettingsPage(),
                                 ),
@@ -193,20 +191,17 @@ class _AccountPageState extends State<AccountPage> {
           Icons.keyboard_arrow_right,
           color: Colors.white,
         ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PlaylistPage(
-                    playlist: playlist,
-                    imagePath: playlist.getSongs[0].getAlbum.getImageUrl != ""
-                        ? playlist.getSongs[0].getAlbum.getImageUrl
-                        : "",
-                  ),
-            ),
-          );
-        },
+        onTap: () => onPush(createMap(playlist)),
       ),
     );
+  }
+
+  Map createMap(Playlist playlist) {
+    Map<String, dynamic> playlistValues = Map();
+    playlistValues['playlist'] = playlist;
+    playlistValues['imageUrl'] = playlist.getSongs[0].getAlbum.getImageUrl != ""
+        ? playlist.getSongs[0].getAlbum.getImageUrl
+        : "";
+    return playlistValues;
   }
 }

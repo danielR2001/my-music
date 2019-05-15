@@ -273,7 +273,7 @@ class _State extends State<LogInPage> {
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => HomePage(0),
+                builder: (context) => HomePage(),
               ));
         } else {
           key.currentState.showSnackBar(
