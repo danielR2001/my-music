@@ -47,8 +47,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     homePageContext = context;
     return WillPopScope(
-      onWillPop: () async =>
-          !await navigatorKeys[currentTab].currentState.maybePop(),
+      onWillPop: () async {
+        if (navigatorKeys[currentTab].currentState.canPop())
+          await navigatorKeys[currentTab].currentState.maybePop();
+      },
       child: Scaffold(
         body: Stack(children: <Widget>[
           buildOffstageNavigator(TabItem.discover),

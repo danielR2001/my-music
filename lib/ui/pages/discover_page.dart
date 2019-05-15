@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'search_page.dart';
 
 class DiscoverPage extends StatelessWidget {
   DiscoverPage({this.onPush});

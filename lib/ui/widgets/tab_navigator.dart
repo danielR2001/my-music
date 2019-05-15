@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/models/playlist.dart';
 import 'package:myapp/ui/pages/account_page.dart';
 import 'package:myapp/ui/pages/discover_page.dart';
 import 'package:myapp/ui/pages/playlist_page.dart';
