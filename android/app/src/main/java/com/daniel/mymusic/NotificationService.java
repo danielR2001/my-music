@@ -104,6 +104,12 @@ public class NotificationService extends Service {
         }
         return START_STICKY;
     }
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+          NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+          mNotificationManager.cancel(0);
+    }
 
     @Override
     public void onDestroy() {
