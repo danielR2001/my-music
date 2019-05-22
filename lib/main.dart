@@ -7,12 +7,10 @@ import 'package:myapp/ui/pages/root_page.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/models/playlist.dart';
 
-
 void main() => runApp(MyApp());
 PlayingNow playingNow;
 User currentUser;
 Playlist currentPlayList;
-//MusicControlNotification musicControlNotification;
 
 class MyApp extends StatelessWidget with PortraitModeMixin {
   @override
@@ -29,7 +27,7 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
     );
   }
 
-  void init() {
+  void init() async {
     FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
     playingNow = new PlayingNow(); //init song status
   }

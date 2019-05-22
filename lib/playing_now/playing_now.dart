@@ -4,6 +4,7 @@ import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
+import 'package:myapp/notification/music_control_notification.dart';
 import 'package:path_provider/path_provider.dart';
 
 enum PlaylistMode {
@@ -29,20 +30,21 @@ class PlayingNow {
     audioCache = new AudioCache(fixedPlayer: advancedPlayer);
     songDuration = new Duration();
     songPosition = new Duration();
-    AudioPlayer.logEnabled = true;
+    AudioPlayer.logEnabled = false;
     initCacheDir();
   }
 
   void playSong(Song song) async {
     closeSong();
     currentSong = song;
-    print("${dir.path}/${song.getTitle}-${song.getArtist.getName}.mp3");
-    int status = await advancedPlayer.play(
-        "${dir.path}/${song.getTitle}-${song.getArtist.getName}.mp3",
-        isLocal: true);
-    if (status == 1) {
-      closeSong();
-    }
+    advancedPlayer.play(
+        "https://cdns-preview-7.dzcdn.net/stream/c-7ddea0c2a4b20840f9d087df278336a4-5.mp3");
+    //advancedPlayer.play(
+    //   "${dir.path}/${song.getTitle}-${song.getArtist.getName}.mp3",
+    //     isLocal: true);
+    await MusicControlNotification.responseFromNativeCode(
+        song.getTitle, song.getArtist.getName, song.getAlbum.getImageUrl, true);
+
     listenIfCompleted();
     updateSongPosition();
     getSongDuration();
@@ -61,12 +63,16 @@ class PlayingNow {
     });
   }
 
-  void resumeSong() {
+  void resumeSong() async {
     advancedPlayer.resume();
+    await MusicControlNotification.responseFromNativeCode(currentSong.getTitle,
+        currentSong.getArtist.getName, currentSong.getAlbum.getImageUrl, true);
   }
 
-  void pauseSong() {
+  void pauseSong() async {
     advancedPlayer.pause();
+    await MusicControlNotification.responseFromNativeCode(currentSong.getTitle,
+        currentSong.getArtist.getName, currentSong.getAlbum.getImageUrl, false);
   }
 
   void closeSong() {

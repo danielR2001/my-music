@@ -1,36 +1,90 @@
-// import 'dart:async';
-// import 'package:flutter/services.dart';
-// import 'package:media_notification/media_notification.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
+import 'package:myapp/main.dart';
+import 'package:myapp/models/song.dart';
 
-// class MusicControlNotification {
-//   String status = 'hidden';
-//   init() {
-//     MediaNotification.setListener('pause', () {
-//       status = 'pause';
-//     });
+class MusicControlNotification {
+  static const platform = const MethodChannel('flutter.native/helper');
 
-//     MediaNotification.setListener('play', () {
-//       status = 'play';
-//     });
+  static Future<bool> responseFromNativeCode(
+      String title, String artist, String imageUrl, bool isPlaying) async {
+    bool response;
+    try {
+      final bool result = await platform.invokeMethod('makeNotification', {
+        "title": title,
+        "artist": artist,
+        "imageUrl": imageUrl,
+        "isPlaying": isPlaying
+      });
+      response = result;
+      platform.setMethodCallHandler(myUtilsHandler);
+    } on PlatformException catch (e) {
+      print("error invoking method from native: $e");
+      response = false;
+    }
+    return response;
+  }
 
-//     MediaNotification.setListener('next', () {});
+  static Future<dynamic> myUtilsHandler(MethodCall methodCall) async {
+    switch (methodCall.method) {
+      case 'playOrPause':
+        playingNow.advancedPlayer.state == AudioPlayerState.PLAYING
+            ? playingNow.pauseSong()
+            : playingNow.resumeSong();
+        break;
+      case 'nextSong':
+        playNextSong();
+        break;
+      case 'prevSong':
+        playPreviousSong();
+        break;
+      default:
+      // todo - throw not implemented
+    }
+  }
 
-//     MediaNotification.setListener('prev', () {});
+  static void playPreviousSong() {
+    if (playingNow.currentPlaylist != null) {
+      int i = 0;
+      Song correctPreviousSong;
+      if (playingNow.currentSong.getSongId ==
+          playingNow.currentPlaylist.getSongs[0].getSongId) {
+        playingNow.playSong(playingNow.currentPlaylist
+            .getSongs[playingNow.currentPlaylist.getSongs.length - 1]);
+      } else {
+        Song previousSong = playingNow.currentPlaylist.getSongs[0];
+        playingNow.currentPlaylist.getSongs.forEach((song) {
+          if (i != 0) {
+            if (song.getSongId == playingNow.currentSong.getSongId) {
+              correctPreviousSong = previousSong;
+            } else {
+              previousSong = song;
+            }
+          }
+          i++;
+        });
+        playingNow.playSong(correctPreviousSong);
+      }
+    }
+  }
 
-//     MediaNotification.setListener('select', () {});
-//   }
-
-//   Future<void> hide() async {
-//     try {
-//       await MediaNotification.hide();
-//       status = 'hidden';
-//     } on PlatformException {}
-//   }
-
-//   Future<void> show(title, author) async {
-//     try {
-//       await MediaNotification.show(title: title, author: author);
-//       status = 'play';
-//     } on PlatformException {}
-//   }
-// }
+  static void playNextSong() {
+    if (playingNow.currentPlaylist != null) {
+      bool foundSong = false;
+      Song nextSong;
+      playingNow.currentPlaylist.getSongs.forEach((song) {
+        if (foundSong) {
+          nextSong = song;
+          foundSong = false;
+        }
+        if (song.getSongId == playingNow.currentSong.getSongId) {
+          foundSong = true;
+        }
+      });
+      if (nextSong == null && foundSong) {
+        nextSong = playingNow.currentPlaylist.getSongs[0];
+      }
+      playingNow.playSong(nextSong);
+    }
+  }
+}
