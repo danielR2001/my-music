@@ -4,7 +4,7 @@ import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/notification/music_control_notification.dart';
+import 'package:myapp/notifications/music_control_notification.dart';
 import 'package:path_provider/path_provider.dart';
 
 enum PlaylistMode {
@@ -12,7 +12,7 @@ enum PlaylistMode {
   loop,
 }
 
-class PlayingNow {
+class AudioPlayerManager {
   var dir;
   AudioPlayer advancedPlayer;
   AudioCache audioCache;
@@ -20,12 +20,14 @@ class PlayingNow {
   Duration songPosition;
   Song currentSong;
   Playlist currentPlaylist;
+  Playlist shuffledPlaylist;
+  Playlist loopPlaylist;
   StreamSubscription<void> _onCompletestream;
   StreamSubscription<void> _onPosChangedstream;
   StreamSubscription<void> _onDurChangedstream;
   PlaylistMode playlistMode;
 
-  PlayingNow() {
+  AudioPlayerManager() {
     advancedPlayer = new AudioPlayer();
     audioCache = new AudioCache(fixedPlayer: advancedPlayer);
     songDuration = new Duration();
@@ -117,29 +119,93 @@ class PlayingNow {
   void listenIfCompleted() {
     _onCompletestream = advancedPlayer.onPlayerCompletion.listen((a) {
       if (currentPlaylist != null) {
-        if (playlistMode == PlaylistMode.loop) {
           playSong(getNextSong(currentPlaylist, currentSong));
-        } else {
-          playSong(getRandomSong(currentPlaylist, currentSong));
-        }
       } else {
         playSong(currentSong);
       }
     });
   }
 
-  Song getRandomSong(Playlist currentPlaylist, Song song) {
-    var rnd = new Random();
-    int pos = rnd.nextInt(currentPlaylist.getSongs.length);
-    Song nextSong = currentPlaylist.getSongs[pos];
-    while (nextSong.getSongId == song.getSongId) {
-      pos = rnd.nextInt(currentPlaylist.getSongs.length);
-      nextSong = currentPlaylist.getSongs[pos];
-    }
-    return nextSong;
-  }
-
   void initCacheDir() async {
     dir = await getApplicationDocumentsDirectory();
+  }
+
+  void playPreviousSong() {
+    if (currentPlaylist != null) {
+      int i = 0;
+      Song correctPreviousSong;
+      if (currentSong.getSongId ==
+          currentPlaylist.getSongs[0].getSongId) {
+        playSong(currentPlaylist
+            .getSongs[currentPlaylist.getSongs.length - 1]);
+      } else {
+        Song previousSong = currentPlaylist.getSongs[0];
+        currentPlaylist.getSongs.forEach((song) {
+          if (i != 0) {
+            if (song.getSongId == currentSong.getSongId) {
+              correctPreviousSong = previousSong;
+            } else {
+              previousSong = song;
+            }
+          }
+          i++;
+        });
+        playSong(correctPreviousSong);
+      }
+    }
+  }
+
+  void playNextSong() {
+    if (currentPlaylist != null) {
+      bool foundSong = false;
+      Song nextSong;
+      currentPlaylist.getSongs.forEach((song) {
+        if (foundSong) {
+          nextSong = song;
+          foundSong = false;
+        }
+        if (song.getSongId == currentSong.getSongId) {
+          foundSong = true;
+        }
+      });
+      if (nextSong == null && foundSong) {
+        nextSong = currentPlaylist.getSongs[0];
+      }
+      playSong(nextSong);
+    }
+  }
+
+  void createShuffledPlaylist(){
+    List<Song> shuffledlist = new List();
+    List <int> randomPosList = createRandomPosList();
+    int pos = 0;
+    while(shuffledlist.length!=loopPlaylist.getSongs.length){
+      shuffledlist.add(loopPlaylist.getSongs[randomPosList[pos]]);
+      pos++;
+    }
+    shuffledPlaylist = new Playlist(loopPlaylist.getName);
+    shuffledPlaylist.setSongs = shuffledlist;
+  }
+  
+  List<int> createRandomPosList(){
+    List<int> randomPosList = new List();
+    var rnd = new Random();
+    int pos;
+    while(randomPosList.length != loopPlaylist.getSongs.length){
+      pos = rnd.nextInt(loopPlaylist.getSongs.length);
+      if(!randomPosList.contains(pos)){
+        randomPosList.add(pos);
+      }
+    }
+    return randomPosList;
+  }
+
+  void setCurrentPlaylist(){
+    if(playlistMode == PlaylistMode.loop){
+      currentPlaylist = loopPlaylist;
+    }else{
+      createShuffledPlaylist();
+      currentPlaylist = shuffledPlaylist;
+    }
   }
 }

@@ -3,7 +3,7 @@ import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
-import 'package:myapp/playing_now/playing_now.dart';
+import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 
@@ -184,9 +184,10 @@ class _SearchPageState extends State<SearchPage> {
       onTap: () {
         FocusScope.of(context).requestFocus(new FocusNode());
         ManageLocalSongs.cacheSong(song).then((a) {
-          playingNow.currentPlaylist = null;
-          playingNow.playlistMode = PlaylistMode.loop;
-          playingNow.playSong(song);
+          audioPlayerManager.currentPlaylist = null;
+          audioPlayerManager.playlistMode = PlaylistMode.loop;
+          audioPlayerManager.setCurrentPlaylist();
+          audioPlayerManager.playSong(song);
         });
       },
     );

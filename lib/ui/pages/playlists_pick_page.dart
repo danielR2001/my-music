@@ -158,7 +158,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         playlist.addNewSong(song);
         currentUser.addNewPlaylist(playlist);
         FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
-        playingNow.currentPlaylist = playlist;
+        audioPlayerManager.currentPlaylist = playlist;
         Navigator.of(context, rootNavigator: true).pop(true);
         Navigator.pop(context);
       } else {

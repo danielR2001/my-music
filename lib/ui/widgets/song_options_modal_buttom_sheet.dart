@@ -168,9 +168,9 @@ class SongOptionsModalSheet extends StatelessWidget {
           onTap: () {
             FirebaseDatabaseManager.removeSongToPlaylist(playlist, song);
             currentUser.removeSongFromPlaylist(playlist, song);
-            if (playingNow.currentPlaylist != null) {
-              if (playingNow.currentPlaylist.getName == playlist.getName) {
-                playingNow.currentPlaylist.getSongs.remove(song);
+            if (audioPlayerManager.currentPlaylist != null) {
+              if (audioPlayerManager.currentPlaylist.getName == playlist.getName) {
+                audioPlayerManager.currentPlaylist.getSongs.remove(song);
               }
             }
             if (playlist.getSongs.length > 0) {

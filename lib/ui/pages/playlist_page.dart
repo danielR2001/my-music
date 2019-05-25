@@ -4,7 +4,7 @@ import 'package:myapp/models/playlist.dart';
 import 'dart:ui';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/playing_now/playing_now.dart';
+import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'dart:math';
@@ -109,9 +109,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               ),
                               elevation: 6.0,
                               onPressed: () {
-                                playingNow.currentPlaylist = playlist;
-                                playingNow.playlistMode = PlaylistMode.loop;
-                                playingNow.playSong(playlist.getSongs[0]);
+                                audioPlayerManager.loopPlaylist = playlist;
+                                audioPlayerManager.playlistMode = PlaylistMode.loop;
+                                audioPlayerManager.setCurrentPlaylist();
+                                audioPlayerManager.playSong(playlist.getSongs[0]);
                               },
                             ),
                           ),
@@ -151,9 +152,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               elevation: 6.0,
                               onPressed: () {
                                 var rnd = new Random();
-                                playingNow.currentPlaylist = playlist;
-                                playingNow.playlistMode = PlaylistMode.shuffle;
-                                playingNow.playSong(playlist.getSongs[
+                                audioPlayerManager.loopPlaylist = playlist;
+                                audioPlayerManager.playlistMode = PlaylistMode.shuffle;
+                                audioPlayerManager.setCurrentPlaylist();
+                                audioPlayerManager.playSong(playlist.getSongs[
                                     rnd.nextInt(playlist.getSongs.length)]);
                               },
                             ),
@@ -203,9 +205,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
           return new ListTile(
             onTap: () {
               ManageLocalSongs.cacheSong(playlist.getSongs[index]).then((a) {
-                playingNow.currentPlaylist = playlist;
-                playingNow.playlistMode = PlaylistMode.loop;
-                playingNow.playSong(playlist.getSongs[index]);
+                audioPlayerManager.loopPlaylist = playlist;
+                audioPlayerManager.playlistMode = PlaylistMode.loop;
+                audioPlayerManager.setCurrentPlaylist();
+                audioPlayerManager.playSong(playlist.getSongs[index]);
               });
             },
             leading: new Container(
@@ -220,7 +223,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
               title,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 18,
+                fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
             ),

@@ -8,6 +8,9 @@ class Playlist {
   List<Song> get getSongs => _songs;
 
   set setName(String value) => _name = value;
+
+  set setSongs(List<Song> value) => _songs = value;
+  
   addNewSong(Song song) => _songs.add(song);
 
   Playlist(String name) {

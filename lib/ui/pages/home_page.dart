@@ -91,8 +91,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void initSong() {
-    checkSongStatus(playingNow.advancedPlayer.state);
-    stream = playingNow.advancedPlayer.onPlayerStateChanged.listen(
+    checkSongStatus(audioPlayerManager.advancedPlayer.state);
+    stream = audioPlayerManager.advancedPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
         checkSongStatus(state);
       },
@@ -180,7 +180,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   GestureDetector musicPlayerControl() {
-    if (playingNow.currentSong != null) {
+    if (audioPlayerManager.currentSong != null) {
       return GestureDetector(
           child: new Container(
             decoration: BoxDecoration(
@@ -204,14 +204,14 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           TextDecoration(
-                            playingNow.currentSong.getTitle,
+                            audioPlayerManager.currentSong.getTitle,
                             15,
                             Colors.white,
                             20,
                             20,
                           ),
                           TextDecoration(
-                            playingNow.currentSong.getArtist.getName,
+                            audioPlayerManager.currentSong.getArtist.getName,
                             15,
                             Colors.grey,
                             30,
@@ -227,10 +227,10 @@ class _HomePageState extends State<HomePage> {
                     icon: musicPlayerIcon,
                     iconSize: 30,
                     onPressed: () {
-                      playingNow.advancedPlayer.state ==
+                      audioPlayerManager.advancedPlayer.state ==
                               AudioPlayerState.PLAYING
-                          ? playingNow.pauseSong()
-                          : playingNow.resumeSong();
+                          ? audioPlayerManager.pauseSong()
+                          : audioPlayerManager.resumeSong();
                     },
                   ),
                 )

@@ -31,7 +31,7 @@ public class NotificationService extends Service {
   PendingIntent pnextIntent;
   PendingIntent pendingIntent;
   PendingIntent pdeleteIntent;
-  final String CHANNEL_ID = "channel";
+  final String CHANNEL_ID = "Playback";
   NotificationManager notificationManager;
   Notification notification;
   NotificationManagerCompat notificationManagerForOreo;
@@ -113,7 +113,6 @@ public class NotificationService extends Service {
 
     @Override
     public void onDestroy() {
-        Toast.makeText(getApplicationContext(),"service has been destroyed",Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -131,7 +130,6 @@ public class NotificationService extends Service {
                     .setSmallIcon(R.drawable.app_logo_no_background)
                     .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.app_logo_square))
                     .setAutoCancel(true)
-                    .setSound(null)
                     .setShowWhen(false)
                     .setColor(getResources().getColor(R.color.pink))
                     .addAction(R.drawable.ic_skip_previous,"previous",pprevIntent)
@@ -165,8 +163,8 @@ public class NotificationService extends Service {
     }
     private void CreateNotificationChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "channel", NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("this is my channel");
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Playback", NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setSound(null, null);
             notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(channel);
         }

@@ -29,7 +29,7 @@ class SettingsPage extends StatelessWidget {
               ),
               onPressed: () {
                 FirebaseAuthentication.signOut().then((user) {
-                  playingNow.closeSong();
+                  audioPlayerManager.closeSong();
                   Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
