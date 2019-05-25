@@ -183,12 +183,12 @@ class _SearchPageState extends State<SearchPage> {
       ),
       onTap: () {
         FocusScope.of(context).requestFocus(new FocusNode());
-        ManageLocalSongs.cacheSong(song).then((a) {
+       // ManageLocalSongs.cacheSong(song).then((a) {
           audioPlayerManager.currentPlaylist = null;
           audioPlayerManager.playlistMode = PlaylistMode.loop;
           audioPlayerManager.setCurrentPlaylist();
           audioPlayerManager.playSong(song);
-        });
+      //  });
       },
     );
   }

@@ -204,12 +204,12 @@ class _PlaylistPageState extends State<PlaylistPage> {
           }
           return new ListTile(
             onTap: () {
-              ManageLocalSongs.cacheSong(playlist.getSongs[index]).then((a) {
+            //  ManageLocalSongs.cacheSong(playlist.getSongs[index]).then((a) {
                 audioPlayerManager.loopPlaylist = playlist;
                 audioPlayerManager.playlistMode = PlaylistMode.loop;
                 audioPlayerManager.setCurrentPlaylist();
                 audioPlayerManager.playSong(playlist.getSongs[index]);
-              });
+            //  });
             },
             leading: new Container(
               width: 50,
