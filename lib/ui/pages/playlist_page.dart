@@ -65,7 +65,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           fit: BoxFit.cover,
                         )
                       : Image.asset('assets/images/default_song_pic_small.png',
-                          fit: BoxFit.none),
+                          fit: BoxFit.none,),
                 ),
               ),
               new SliverList(
