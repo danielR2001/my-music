@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/notifications/music_control_notification.dart';
@@ -39,13 +40,10 @@ class AudioPlayerManager {
   void playSong(Song song) async {
     closeSong();
     currentSong = song;
-    advancedPlayer.play(
-        "https://cdns-preview-7.dzcdn.net/stream/c-7ddea0c2a4b20840f9d087df278336a4-5.mp3");
-    //advancedPlayer.play(
-    //   "${dir.path}/${song.getTitle}-${song.getArtist.getName}.mp3",
-    //     isLocal: true);
+    //String realStreamUrl = await FetchData.getRealSongUrl(song);
+    advancedPlayer.play(song.getStreamUrl);
     await MusicControlNotification.responseFromNativeCode(
-        song.getTitle, song.getArtist.getName, song.getAlbum.getImageUrl, true);
+        song.getTitle, song.getArtist, song.getImageUrl, true);
 
     listenIfCompleted();
     updateSongPosition();
@@ -68,13 +66,13 @@ class AudioPlayerManager {
   void resumeSong() async {
     advancedPlayer.resume();
     await MusicControlNotification.responseFromNativeCode(currentSong.getTitle,
-        currentSong.getArtist.getName, currentSong.getAlbum.getImageUrl, true);
+        currentSong.getArtist, currentSong.getImageUrl, true);
   }
 
   void pauseSong() async {
     advancedPlayer.pause();
     await MusicControlNotification.responseFromNativeCode(currentSong.getTitle,
-        currentSong.getArtist.getName, currentSong.getAlbum.getImageUrl, false);
+        currentSong.getArtist, currentSong.getImageUrl, false);
   }
 
   void closeSong() {

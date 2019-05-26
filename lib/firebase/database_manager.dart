@@ -85,10 +85,11 @@ class FirebaseDatabaseManager {
             List values = value.values.toList();
             temp.addNewSong(
               new Song(
-                values[3],
-                buildArtist(values[1]),
                 values[4],
-                buildAlbum(values[2]),
+                values[2],
+                values[5],
+                values[1],
+                values[3],
                 values[0],
               ),
             );
@@ -100,16 +101,19 @@ class FirebaseDatabaseManager {
     return playlists;
   }
 
-  static Song buildSong(Map songMap) {
-    List values = songMap.values.toList();
-    return new Song(
-      values[3],
-      buildArtist(values[1]),
-      values[4],
-      buildAlbum(values[2]),
-      values[0],
-    );
-  }
+  // static Song buildSong(Map songMap) {
+  //   List values = songMap.values.toList();
+  //   return new Song(
+  //     values[3],
+  //     //buildArtist(values[1]),
+  //     '',
+  //     '',
+  //     values[4],
+  //     '',
+  //    // buildAlbum(values[2]),
+  //     values[0],
+  //   );
+  // }
 
   static Artist buildArtist(Map artistMap) {
     return new Artist(artistMap['name'], artistMap['imageUrl']);

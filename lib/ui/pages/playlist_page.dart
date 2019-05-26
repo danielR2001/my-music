@@ -190,17 +190,17 @@ class _PlaylistPageState extends State<PlaylistPage> {
           } else {
             title = playlist.getSongs[index].getTitle;
           } //TODO exact cut
-          if (playlist.getSongs[index].getArtist.getName.length > 40) {
+          if (playlist.getSongs[index].getArtist.length > 40) {
             int pos =
-                playlist.getSongs[index].getArtist.getName.lastIndexOf("", 40);
+                playlist.getSongs[index].getArtist.lastIndexOf("", 40);
             if (pos < 30) {
               pos = 40;
             }
             artist =
-                playlist.getSongs[index].getArtist.getName.substring(0, pos) +
+                playlist.getSongs[index].getArtist.substring(0, pos) +
                     "...";
           } else {
-            artist = playlist.getSongs[index].getArtist.getName;
+            artist = playlist.getSongs[index].getArtist;
           }
           return new ListTile(
             onTap: () {
@@ -252,9 +252,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
   }
 
   void setSongImage(Song song) {
-    if (song.getAlbum.getImageUrl.length > 0) {
+    if (song.getImageUrl.length > 0) {
       songImage = new NetworkImage(
-        song.getAlbum.getImageUrl,
+        song.getImageUrl,
       );
     } else {
       songImage = new AssetImage('assets/images/default_song_pic.png');

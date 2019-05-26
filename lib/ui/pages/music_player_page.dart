@@ -123,7 +123,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                   30,
                 ),
                 TextDecoration(
-                  audioPlayerManager.currentSong.getArtist.getName,
+                  audioPlayerManager.currentSong.getArtist,
                   14,
                   Colors.grey,
                   30,
@@ -389,19 +389,21 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   void setSongImage() async {
-    if (audioPlayerManager.currentSong.getAlbum.getImageUrl.length > 0) {
+    if (audioPlayerManager.currentSong.getImageUrl.length > 0) {
       ConnectivityResult connectivityResult =
           await Connectivity().checkConnectivity();
       if (connectivityResult == ConnectivityResult.mobile ||
           connectivityResult == ConnectivityResult.wifi) {
         setState(() {
           songImage = new NetworkImage(
-            audioPlayerManager.currentSong.getAlbum.getImageUrl,
+            audioPlayerManager.currentSong.getImageUrl,
           );
         });
       } else {
         print("no internet connection for loading image");
       }
+    }else {
+      songImage = new AssetImage('assets/images/default_song_pic.png');
     }
   }
 }

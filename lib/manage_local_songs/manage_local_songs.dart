@@ -11,23 +11,23 @@ class ManageLocalSongs {
   static bool downloading = false;
   static Dio dio = new Dio();
 
-  static Future<void> cacheSong(Song song) async {
-    try {
-      songID = song.getSongId;
-      var dir = await getApplicationDocumentsDirectory();
-      await dio.download(downloadUrl,
-          "${dir.path}/${song.getTitle}-${song.getArtist.getName}.mp3",
-          onReceiveProgress: (prog, total) {
-        downloading = true;
-        downloadProg = prog;
-        downloadTotal = total;
-        print("prog: $prog , total: $total");
-      }).whenComplete(() {
-        downloading = false;
-        print("download completed!");
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
+  // static Future<void> cacheSong(Song song) async {
+  //   try {
+  //     songID = song.getSongId;
+  //     var dir = await getApplicationDocumentsDirectory();
+  //     await dio.download(downloadUrl,
+  //         "${dir.path}/${song.getTitle}-${song.getArtist.getName}.mp3",
+  //         onReceiveProgress: (prog, total) {
+  //       downloading = true;
+  //       downloadProg = prog;
+  //       downloadTotal = total;
+  //       print("prog: $prog , total: $total");
+  //     }).whenComplete(() {
+  //       downloading = false;
+  //       print("download completed!");
+  //     });
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 }

@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:myapp/models/album.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
+import 'package:html/parser.dart' show parse;
 
 class FetchData {
   static String songID = '138545995'; //ADELE HELLO
@@ -10,107 +11,79 @@ class FetchData {
       'https://free-mp3-download.net/dl.php?i=$songID&c=72272&f=mp3';
   static final String searchCallback =
       'https://free-mp3-download.net/search.php?s='; // + SEARCH STRING
-  static final String playUrl = "https://playx.fun/stream/";
-  static final String downloadUrl = "https://playx.fun/";
-  static var map = [
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    'H',
-    'J',
-    'K',
-    'M',
-    'N',
-    'P',
-    'Q',
-    'R',
-    'S',
-    'T',
-    'U',
-    'V',
-    'W',
-    'X',
-    'Y',
-    'Z',
-    'a',
-    'b',
-    'c',
-    'd',
-    'e',
-    'f',
-    'g',
-    'h',
-    'j',
-    'k',
-    'm',
-    'n',
-    'p',
-    'q',
-    'r',
-    's',
-    't',
-    'u',
-    'v',
-    'x',
-    'y',
-    'z',
-    '1',
-    '2',
-    '3'
-  ];
+
+  static final String urlSearch = 'https://ru-music.com/search/';
 
   static Future<List<Song>> fetchPost(String searchStr) async {
     List<Song> postResponses;
     return http
         .get(
-          searchCallback + searchStr,
+          urlSearch + searchStr+"/",
         )
         .whenComplete(() => print('search completed'))
         .then((http.Response response) {
-      List<dynamic> list = jsonDecode(response.body)['data'];
-      if (list != null) {
-        postResponses = fillList(list, searchStr);
-      }
+          var document = parse(response.body);
+          var elements = document.getElementsByClassName("playlist");
+          //var element1 = elements[0].
+          if(elements.length>0){
+          var html = elements[0].outerHtml;
+          html = html.replaceAll('\n', '');
+          var a = html.split("</li>");
+          postResponses = buildSearchResult(a);
+          }
       return postResponses;
     });
   }
 
-  static List<Song> fillList(List<dynamic> list, String searchStr) {
-    List<Song> tempList = new List();
-    Song temp;
-    list.forEach((item) {
-      temp = new Song(
-        item['title'],
-        constractArtist(item['artist']),
-        item['id'].toString(),
-        constractAlbum(item['album']),
-        "",
-      );
-      tempList.add(temp);
+  static List<Song> buildSearchResult(List<String> list){
+    int startPos;
+    int endPos;
+    String imageUrl;
+    String stream;
+    String songTitle;
+    String artist;
+    String songId;
+    List<Song> songs = new List();
+    list.removeLast();
+    list.forEach((item){
+      startPos = item.indexOf('data-img="')+ 'data-img="'.length;
+      endPos = item.indexOf('" data-audio_hash');
+      imageUrl =  item.substring(startPos,endPos);
+      if(imageUrl =='https://vk.com/images/audio_row_placeholder.png'){
+        imageUrl = '';
+      }
+
+      startPos = item.indexOf('data-mp3="')+ 'data-img="'.length;
+      endPos = item.indexOf('" data-url_song');
+      stream =  'https://ru-music.com'+item.substring(startPos,endPos).replaceFirst("amp;", "");
+
+      startPos = item.lastIndexOf('<em>')+ '<em>'.length;
+      endPos = item.lastIndexOf('</em>');
+      songTitle =  item.substring(startPos,endPos);
+      if(songTitle.contains('amp;')){
+        songTitle = songTitle.replaceAll('amp;', '');
+      }
+
+      startPos = item.lastIndexOf('<b>')+ '<b>'.length;
+      endPos = item.lastIndexOf('</b>');
+      artist =  item.substring(startPos,endPos);
+      if(artist.contains('amp;')){
+        artist = artist.replaceAll('amp;', '');
+      }
+
+      startPos = item.lastIndexOf('data-id="')+ 'data-id="'.length;
+      endPos = item.lastIndexOf('" data-img=');
+      songId =  item.substring(startPos,endPos);
+
+      songs.add(new Song(songTitle,artist,songId,stream,imageUrl,''));
     });
-    return tempList;
+    return songs;
   }
 
-  static Artist constractArtist(Map artistMap) {
-    Artist artist;
-    artist = new Artist(
-      artistMap['name'],
-      artistMap['picture_big'],
-    );
-    return artist;
-  }
-
-  static Album constractAlbum(Map albumMap) {
-    Album album;
-    album = new Album(
-      albumMap['title'],
-      albumMap['cover_big'],
-      albumMap['id'].toString(),
-    );
-    return album;
+  static Future<String> getRealSongUrl(Song song)async{
+    return http
+        .get(song.getStreamUrl).then((http.Response response){
+          return response.headers['location'];
+        });
   }
 }

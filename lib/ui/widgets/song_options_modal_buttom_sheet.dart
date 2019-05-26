@@ -35,7 +35,7 @@ class SongOptionsModalSheet extends StatelessWidget {
                       30,
                     ),
                     TextDecoration(
-                      song.getArtist.getName,
+                      song.getArtist,
                       15,
                       Colors.grey,
                       30,

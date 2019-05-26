@@ -211,7 +211,7 @@ class _HomePageState extends State<HomePage> {
                             20,
                           ),
                           TextDecoration(
-                            audioPlayerManager.currentSong.getArtist.getName,
+                            audioPlayerManager.currentSong.getArtist,
                             15,
                             Colors.grey,
                             30,

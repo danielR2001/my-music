@@ -134,9 +134,9 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
   }
 
   ImageProvider songImage(Song song) {
-    if (song.getAlbum.getImageUrl.length > 0) {
+    if (song.getImageUrl.length > 0) {
       return NetworkImage(
-        song.getAlbum.getImageUrl,
+        song.getImageUrl,
       );
     } else {
       return AssetImage('assets/images/default_song_pic.png');

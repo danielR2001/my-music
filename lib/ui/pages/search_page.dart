@@ -142,14 +142,14 @@ class _SearchPageState extends State<SearchPage> {
     } else {
       title = song.getTitle;
     }
-    if (song.getArtist.getName.length > 45) {
-      int pos = song.getArtist.getName.lastIndexOf("", 45);
-      if (pos < 30) {
-        pos = 45;
+    if (song.getArtist.length > 40) {
+      int pos = song.getArtist.lastIndexOf("", 40);
+      if (pos < 25) {
+        pos = 40;
       }
-      artist = song.getArtist.getName.substring(0, pos) + "...";
+      artist = song.getArtist.substring(0, pos) + "...";
     } else {
-      artist = song.getArtist.getName;
+      artist = song.getArtist;
     }
     return ListTile(
       leading: new Container(
@@ -194,12 +194,12 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void setSongImage(Song song) {
-    if (song.getAlbum.getImageUrl.length > 0) {
+    if (song.getImageUrl.length > 0) {
       songImage = new NetworkImage(
-        song.getAlbum.getImageUrl,
+        song.getImageUrl,
       );
     } else {
-      songImage = new AssetImage('assets/images/default_song_pic_big.png');
+      songImage = new AssetImage('assets/images/default_song_pic.png');
     }
   }
 

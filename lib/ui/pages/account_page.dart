@@ -171,9 +171,9 @@ class AccountPage extends StatelessWidget {
             ],
             image: new DecorationImage(
               fit: BoxFit.fill,
-              image: playlist.getSongs[0].getAlbum.getImageUrl != ""
+              image: playlist.getSongs[0].getImageUrl != ""
                   ? NetworkImage(
-                      playlist.getSongs[0].getAlbum.getImageUrl,
+                      playlist.getSongs[0].getImageUrl,
                     )
                   : AssetImage('assets/images/default_song_pic.png'),
             ),
@@ -198,8 +198,8 @@ class AccountPage extends StatelessWidget {
   Map createMap(Playlist playlist) {
     Map<String, dynamic> playlistValues = Map();
     playlistValues['playlist'] = playlist;
-    playlistValues['imageUrl'] = playlist.getSongs[0].getAlbum.getImageUrl != ""
-        ? playlist.getSongs[0].getAlbum.getImageUrl
+    playlistValues['imageUrl'] = playlist.getSongs[0].getImageUrl != ""
+        ? playlist.getSongs[0].getImageUrl
         : "";
     return playlistValues;
   }
