@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/models/playlist.dart';
 
 class DiscoverPage extends StatelessWidget {
   DiscoverPage({this.onPush});
@@ -54,8 +55,8 @@ class DiscoverPage extends StatelessWidget {
           builder: (BuildContext context) {
             return Container(
               alignment: Alignment(0.0, 0.0),
-              decoration:  BoxDecoration(
-                gradient:  LinearGradient(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
                   colors: [
                     Color(0xEA000000),
                     Colors.pink,
@@ -68,14 +69,14 @@ class DiscoverPage extends StatelessWidget {
               child: SafeArea(
                 child: Theme(
                   data: Theme.of(context).copyWith(accentColor: Colors.grey),
-                  child:  Column(
+                  child: Column(
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.only(
                           top: 20,
                           bottom: 10,
                         ),
-                        child:  Text(
+                        child: Text(
                           "Search",
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -95,24 +96,23 @@ class DiscoverPage extends StatelessWidget {
                           Expanded(
                             child: Container(
                               height: 50,
-                              //width: 196,
-                              child:  RaisedButton(
-                                shape:  RoundedRectangleBorder(
-                                  borderRadius:  BorderRadius.circular(8.0),
+                              child: RaisedButton(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
                                 ),
                                 splashColor: Colors.transparent,
                                 color: Colors.white,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
-                                     Icon(
+                                    Icon(
                                       Icons.search,
                                       color: Colors.grey[700],
                                     ),
-                                     SizedBox(
+                                    SizedBox(
                                       width: 10,
                                     ),
-                                     Text(
+                                    Text(
                                       "Search artists or songs",
                                       style: TextStyle(
                                         color: Colors.grey[700],
@@ -123,12 +123,6 @@ class DiscoverPage extends StatelessWidget {
                                 ),
                                 elevation: 6.0,
                                 onPressed: () {
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) => SearchPage(),
-                                  //   ),
-                                  // );
                                   onPush();
                                 },
                               ),
@@ -137,7 +131,7 @@ class DiscoverPage extends StatelessWidget {
                         ]),
                       ),
                       Expanded(
-                        child:  ListView.builder(
+                        child: ListView.builder(
                           itemCount: 6,
                           itemBuilder: (BuildContext context, int index) {
                             Padding padding = createGenres(index, context);
@@ -164,54 +158,55 @@ class DiscoverPage extends StatelessWidget {
     BuildContext context,
   ) {
     return GestureDetector(
-        child: Column(
-          children: <Widget>[
-             Container(
-                alignment: Alignment.center,
-                width: 180.0,
-                height: 120.0,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    colorFilter:  ColorFilter.mode(
-                        Colors.black.withOpacity(0.2), BlendMode.dstATop),
-                    image: ExactAssetImage(imagePath),
-                    fit: BoxFit.cover,
-                  ),
-                  border: Border.all(
-                    color: Colors.black,
-                    width: 0.2,
-                  ),
+      child: Column(
+        children: <Widget>[
+          Container(
+              alignment: Alignment.center,
+              width: 180.0,
+              height: 120.0,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  colorFilter: ColorFilter.mode(
+                      Colors.black.withOpacity(0.2), BlendMode.dstATop),
+                  image: ExactAssetImage(imagePath),
+                  fit: BoxFit.cover,
                 ),
-                child:  Container(
-                  alignment: Alignment.center,
-                  width: 60.0,
-                  height: 60.0,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: ExactAssetImage(iconPath),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                )),
-            Padding(
-              padding: const EdgeInsets.only(top: 5),
-              child:  Text(
-                genre,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20.0,
+                border: Border.all(
+                  color: Colors.black,
+                  width: 0.2,
                 ),
               ),
+              child: Container(
+                alignment: Alignment.center,
+                width: 60.0,
+                height: 60.0,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: ExactAssetImage(iconPath),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )),
+          Padding(
+            padding: const EdgeInsets.only(top: 5),
+            child: Text(
+              genre,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20.0,
+              ),
             ),
-          ],
-        ),
-        onTap: () => {});
+          ),
+        ],
+      ),
+      onTap: () => onPush(createMap(Playlist(genre))),
+    );
   }
 
   Padding createGenres(int index, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
-      child:  Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Padding(
@@ -239,5 +234,19 @@ class DiscoverPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Map createMap(Playlist playlist) {
+    Map<String, dynamic> playlistValues = Map();
+    if (playlist.getSongs.length > 0) {
+      playlistValues['playlist'] = playlist;
+      playlistValues['imageUrl'] = playlist.getSongs[0].getImageUrl != ""
+          ? playlist.getSongs[0].getImageUrl
+          : "";
+    } else {
+      playlistValues['playlist'] = playlist;
+      playlistValues['imageUrl'] = "assets/images/downloaded_image.jpg";
+    }
+    return playlistValues;
   }
 }

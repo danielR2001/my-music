@@ -19,7 +19,13 @@ import android.util.Log;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.Result;
+
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+
+
 
 public class NotificationService extends Service {
   Intent playIntent;
@@ -56,11 +62,11 @@ public class NotificationService extends Service {
             }else{
               index = 1;
             }
-            makeNotification(title,artist,imageUrl);
+            loadImageUrl(title,artist,imageUrl);
         } else if (intent.getAction().equals(Constants.PREV_ACTION)) {
             index = 0;
             isPlaying = true;
-            makeNotification(title,artist,imageUrl);
+            loadImageUrl(title,artist,imageUrl);
             MainActivity.channel.invokeMethod("prevSong", null, new Result() {
             @Override
             public void success(Object o) {
@@ -77,7 +83,7 @@ public class NotificationService extends Service {
             }else{
               index = 1;
             }
-            makeNotification(title,artist,imageUrl);
+            loadImageUrl(title,artist,imageUrl);
             MainActivity.channel.invokeMethod("playOrPause", null, new Result() {
             @Override
             public void success(Object o) {
@@ -90,7 +96,7 @@ public class NotificationService extends Service {
         } else if (intent.getAction().equals(Constants.NEXT_ACTION)) {
             index = 0;
             isPlaying = true;
-            makeNotification(title,artist,imageUrl);
+            loadImageUrl(title,artist,imageUrl);
             MainActivity.channel.invokeMethod("nextSong", null, new Result() {
             @Override
             public void success(Object o) {
@@ -121,8 +127,30 @@ public class NotificationService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    private void makeNotification(String title,String artist,String imageUrl) {
-        try{
+    private void loadImageUrl(String title,String artist,String imageUrl){
+        if(imageUrl != null){
+        Picasso.get().load(imageUrl).into(new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                makeNotification(title,artist,bitmap);
+            }
+
+            @Override
+            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                makeNotification(title,artist,null);
+            }
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {}
+        });
+    }else{
+        makeNotification(title,artist,null);
+    }
+    }
+
+    private void makeNotification(String title,String artist,Bitmap imageBitmap) {
+        if(imageBitmap ==null){
+            imageBitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.app_logo_square);
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             CreateNotificationChannel();
             notificationManagerForOreo = NotificationManagerCompat.from(this);
@@ -130,7 +158,7 @@ public class NotificationService extends Service {
                     .setContentTitle(title)
                     .setContentText(artist)
                     .setSmallIcon(R.drawable.app_logo_no_background)
-                    .setLargeIcon(Picasso.with(getApplicationContext()).load(imageUrl).get())
+                    .setLargeIcon(imageBitmap)
                     .setAutoCancel(true)
                     .setShowWhen(false)
                     .setColor(getResources().getColor(R.color.pink))
@@ -148,7 +176,7 @@ public class NotificationService extends Service {
                     .setContentTitle(title)
                     .setContentText(artist)
                     .setSmallIcon(R.drawable.app_logo_no_background)
-                    .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.app_logo_square))
+                    .setLargeIcon(imageBitmap)
                     .setAutoCancel(true)
                     .setSound(null)
                     .setShowWhen(false)
@@ -162,9 +190,6 @@ public class NotificationService extends Service {
             notificationManager.notify(notificationId, notification);
         }
         notification.contentIntent = pendingIntent;
-    }catch(Exception e){
-        Log.d("d",e.toString());
-    }
     }
     private void CreateNotificationChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

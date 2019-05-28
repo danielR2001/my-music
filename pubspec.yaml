@@ -90,6 +90,7 @@ flutter:
    - assets/images/facebook_logo.png
    - assets/images/default_song_pic.png
    - assets/images/default_song_pic_small.png
+   - assets/images/downloaded_image.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

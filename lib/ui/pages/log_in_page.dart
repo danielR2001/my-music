@@ -233,7 +233,6 @@ class _State extends State<LogInPage> {
                       child: GestureDetector(
                         onTap: () {
                           FocusScope.of(context).requestFocus(FocusNode());
-                          // SystemChannels.textInput.invokeMethod('TextInput.hide');
                           signInWithEmailAndPass(key);
                         },
                         child: Container(
@@ -269,12 +268,13 @@ class _State extends State<LogInPage> {
       form.save();
       FirebaseAuthentication.logInWithEmail(_email, _password).then((user) {
         if (user != null) {
-          FirebaseDatabaseManager.syncUser(user.uid);
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomePage(),
-              ));
+          FirebaseDatabaseManager.syncUser(user.uid).then((a) {
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomePage(),
+                ));
+          });
         } else {
           key.currentState.showSnackBar(
             SnackBar(

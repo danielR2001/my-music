@@ -77,6 +77,7 @@ class AccountPage extends StatelessWidget {
                       ),
                     ),
                   ),
+                  createSpace(20),
                   ListTile(
                     leading: Icon(
                       Icons.save_alt,
@@ -94,9 +95,9 @@ class AccountPage extends StatelessWidget {
                       Icons.keyboard_arrow_right,
                       color: Colors.white,
                     ),
-                    onTap: () {},
+                    onTap: () => onPush(createMap(Playlist("Downloaded"))),
                   ),
-                  createSpace(25),
+                  createSpace(20),
                   ListTile(
                     leading: Icon(
                       Icons.queue_music,
@@ -197,10 +198,15 @@ class AccountPage extends StatelessWidget {
 
   Map createMap(Playlist playlist) {
     Map<String, dynamic> playlistValues = Map();
-    playlistValues['playlist'] = playlist;
-    playlistValues['imageUrl'] = playlist.getSongs[0].getImageUrl != ""
-        ? playlist.getSongs[0].getImageUrl
-        : "";
+    if (playlist.getSongs.length> 0) {
+      playlistValues['playlist'] = playlist;
+      playlistValues['imageUrl'] = playlist.getSongs[0].getImageUrl != ""
+          ? playlist.getSongs[0].getImageUrl
+          : "";
+    } else {
+      playlistValues['playlist'] = playlist;
+      playlistValues['imageUrl'] = "";
+    }
     return playlistValues;
   }
 }

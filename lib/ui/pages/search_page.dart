@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-//import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
@@ -17,113 +16,131 @@ class _SearchPageState extends State<SearchPage> {
   static List<Song> searchResults = List();
   TextEditingController textEditingController = TextEditingController();
   ImageProvider songImage;
+  FocusNode focusNode = FocusNode();
+  String hintText = "Search";
+  @override
+  void initState() {
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        hintText = "";
+      } else {
+        hintText = "Search";
+      }
+    });
+    super.initState();
+  }
+
   @override
   void dispose() {
+    focusNode.removeListener(() {});
     textEditingController.dispose();
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFF141414),
-            Color(0xFF363636),
-          ],
-          begin: FractionalOffset.bottomCenter,
-          stops: [0.4, 1.0],
-          end: FractionalOffset.topCenter,
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF141414),
+              Color(0xFF363636),
+            ],
+            begin: FractionalOffset.bottomCenter,
+            stops: [0.4, 1.0],
+            end: FractionalOffset.topCenter,
+          ),
         ),
-      ),
-      child: SafeArea(
-        child: Column(
-          children: <Widget>[
-            Container(
-              color: Colors.grey[700],
-              child: Row(
-                children: <Widget>[
-                  IconButton(
-                    iconSize: 35,
-                    icon: Icon(
-                      Icons.chevron_left,
-                      color: Colors.white,
+        child: SafeArea(
+          child: Column(
+            children: <Widget>[
+              Container(
+                color: Colors.grey[700],
+                child: Row(
+                  children: <Widget>[
+                    IconButton(
+                      iconSize: 35,
+                      icon: Icon(
+                        Icons.chevron_left,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
                     ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Flexible(
-                    child: Container(
-                      child: TextField(
-                        controller: textEditingController,
-                        autofocus: true,
-                        obscureText: false,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                        cursorColor: Colors.pink,
-                        decoration: InputDecoration.collapsed(
-                          hintText: "Search",
-                          hintStyle: TextStyle(
+                    Flexible(
+                      child: Container(
+                        child: TextField(
+                          controller: textEditingController,
+                          autofocus: true,
+                          focusNode: focusNode,
+                          style: TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 16,
                           ),
-                        ),
-                        onChanged: (txt) {
-                          if (txt != "") {
-                            FetchData.fetchPost(txt).then((results) {
-                              setState(() {
-                                searchResults = results;
-                                if (searchResults != null) {
+                          cursorColor: Colors.pink,
+                          decoration: InputDecoration.collapsed(
+                            hintText: hintText,
+                            hintStyle: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          ),
+                          onChanged: (txt) {
+                            if (txt != "") {
+                              FetchData.fetchPost(txt).then((results) {
+                                setState(() {
+                                  searchResults = results;
+                                  if (searchResults != null) {
+                                    searchLength = searchResults.length;
+                                  } else {
+                                    searchLength = 0;
+                                  }
+                                });
+                              });
+                            }
+                          },
+                          onSubmitted: (txt) =>
+                              FetchData.fetchPost(txt).then((results) {
+                                setState(() {
+                                  searchResults = results;
                                   searchLength = searchResults.length;
-                                } else {
-                                  searchLength = 0;
-                                }
-                              });
-                            });
-                          }
-                        },
-                        onSubmitted: (txt) =>
-                            FetchData.fetchPost(txt).then((results) {
-                              setState(() {
-                                searchResults = results;
-                                searchLength = searchResults.length;
-                              });
-                            }),
+                                });
+                              }),
+                        ),
                       ),
                     ),
-                  ),
-                  IconButton(
-                    iconSize: 25,
-                    icon: Icon(
-                      Icons.clear,
-                      color: Colors.white,
+                    IconButton(
+                      iconSize: 25,
+                      icon: Icon(
+                        Icons.clear,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          textEditingController.clear();
+                        });
+                      },
                     ),
-                    onPressed: () {
-                      setState(() {
-                        textEditingController.clear();
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Theme(
-                data: Theme.of(context).copyWith(accentColor: Colors.grey),
-                child: ListView.builder(
-                  itemCount: searchLength,
-                  itemExtent: 60,
-                  itemBuilder: (BuildContext context, int index) {
-                    return songSearchResult(searchResults[index], context);
-                  },
+                  ],
                 ),
               ),
-            ),
-          ],
+              Expanded(
+                child: Theme(
+                  data: Theme.of(context).copyWith(accentColor: Colors.grey),
+                  child: ListView.builder(
+                    itemCount: searchLength,
+                    itemExtent: 60,
+                    itemBuilder: (BuildContext context, int index) {
+                      return songSearchResult(searchResults[index], context);
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -186,8 +203,7 @@ class _SearchPageState extends State<SearchPage> {
         FetchData.getRealSongUrl(song).then((streamUrl) {
           song.setStreamUrl = streamUrl;
         });
-        audioPlayerManager.playSong(song,
-            playlist: null, playlistMode: PlaylistMode.loop);
+        audioPlayerManager.playSong(song, null, PlaylistMode.loop);
       },
     );
   }

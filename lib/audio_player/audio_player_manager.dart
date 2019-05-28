@@ -30,8 +30,7 @@ class AudioPlayerManager {
     AudioPlayer.logEnabled = false;
   }
 
-  void playSong(Song song,
-      {Playlist playlist, PlaylistMode playlistMode}) async {
+  void playSong(Song song, Playlist playlist, PlaylistMode playlistMode) async {
     closeSong();
     this.playlistMode = playlistMode;
     loopPlaylist = playlist;
@@ -118,9 +117,10 @@ class AudioPlayerManager {
   void listenIfCompleted() {
     _onCompletestream = advancedPlayer.onPlayerCompletion.listen((a) {
       if (currentPlaylist != null) {
-        playSong(getNextSong(currentPlaylist, currentSong));
+        playSong(getNextSong(currentPlaylist, currentSong), currentPlaylist,
+            playlistMode);
       } else {
-        playSong(currentSong);
+        playSong(currentSong, currentPlaylist, playlistMode);
       }
     });
   }
@@ -130,7 +130,8 @@ class AudioPlayerManager {
       int i = 0;
       Song correctPreviousSong;
       if (currentSong.getSongId == currentPlaylist.getSongs[0].getSongId) {
-        playSong(currentPlaylist.getSongs[currentPlaylist.getSongs.length - 1]);
+        playSong(currentPlaylist.getSongs[currentPlaylist.getSongs.length - 1],
+            currentPlaylist, playlistMode);
       } else {
         Song previousSong = currentPlaylist.getSongs[0];
         currentPlaylist.getSongs.forEach((song) {
@@ -143,7 +144,7 @@ class AudioPlayerManager {
           }
           i++;
         });
-        playSong(correctPreviousSong);
+        playSong(correctPreviousSong, currentPlaylist, playlistMode);
       }
     }
   }
@@ -164,7 +165,7 @@ class AudioPlayerManager {
       if (nextSong == null && foundSong) {
         nextSong = currentPlaylist.getSongs[0];
       }
-      playSong(nextSong);
+      playSong(nextSong, currentPlaylist, playlistMode);
     }
   }
 

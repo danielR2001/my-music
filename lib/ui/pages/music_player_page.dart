@@ -404,10 +404,14 @@ class MusicPageState extends State<MusicPlayerPage> {
           );
         });
       } else {
-        print("no internet connection for loading image");
+        setState(() {
+          songImage = AssetImage('assets/images/default_song_pic.png');
+        });
       }
     } else {
-      songImage = AssetImage('assets/images/default_song_pic.png');
+      setState(() {
+        songImage = AssetImage('assets/images/default_song_pic.png');
+      });
     }
   }
 }
