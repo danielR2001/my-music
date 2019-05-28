@@ -14,8 +14,8 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   int searchLength = 0;
-  static List<Song> searchResults = new List();
-  TextEditingController textEditingController = new TextEditingController();
+  static List<Song> searchResults = List();
+  TextEditingController textEditingController = TextEditingController();
   ImageProvider songImage;
   @override
   void dispose() {
@@ -26,8 +26,8 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: new BoxDecoration(
-        gradient: new LinearGradient(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
           colors: [
             Color(0xFF141414),
             Color(0xFF363636),
@@ -44,7 +44,7 @@ class _SearchPageState extends State<SearchPage> {
               color: Colors.grey[700],
               child: Row(
                 children: <Widget>[
-                  new IconButton(
+                  IconButton(
                     iconSize: 35,
                     icon: Icon(
                       Icons.chevron_left,
@@ -56,16 +56,16 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                   Flexible(
                     child: Container(
-                      child: new TextField(
+                      child: TextField(
                         controller: textEditingController,
                         autofocus: true,
                         obscureText: false,
-                        style: new TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                         ),
                         cursorColor: Colors.pink,
-                        decoration: new InputDecoration.collapsed(
+                        decoration: InputDecoration.collapsed(
                           hintText: "Search",
                           hintStyle: TextStyle(
                             color: Colors.white,
@@ -96,7 +96,7 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                     ),
                   ),
-                  new IconButton(
+                  IconButton(
                     iconSize: 25,
                     icon: Icon(
                       Icons.clear,
@@ -114,7 +114,7 @@ class _SearchPageState extends State<SearchPage> {
             Expanded(
               child: Theme(
                 data: Theme.of(context).copyWith(accentColor: Colors.grey),
-                child: new ListView.builder(
+                child: ListView.builder(
                   itemCount: searchLength,
                   itemExtent: 60,
                   itemBuilder: (BuildContext context, int index) {
@@ -152,7 +152,7 @@ class _SearchPageState extends State<SearchPage> {
       artist = song.getArtist;
     }
     return ListTile(
-      leading: new Container(
+      leading: Container(
         width: 35,
         height: 35,
         decoration: BoxDecoration(
@@ -161,13 +161,13 @@ class _SearchPageState extends State<SearchPage> {
               image: songImage,
             )),
       ),
-      title: new Text(
+      title: Text(
         title,
         style: TextStyle(
           color: Colors.white,
         ),
       ),
-      subtitle: new Text(
+      subtitle: Text(
         artist,
         style: TextStyle(
           color: Colors.grey,
@@ -182,34 +182,35 @@ class _SearchPageState extends State<SearchPage> {
         },
       ),
       onTap: () {
-        FocusScope.of(context).requestFocus(new FocusNode());
-        FetchData.getRealSongUrl(song).then((newStreamUrl){
-          song.setStreamUrl = newStreamUrl;
+        FocusScope.of(context).requestFocus(FocusNode());
+        FetchData.getRealSongUrl(song).then((streamUrl) {
+          song.setStreamUrl = streamUrl;
         });
-        audioPlayerManager.playSong(song,playlist: null,playlistMode: PlaylistMode.loop);
+        audioPlayerManager.playSong(song,
+            playlist: null, playlistMode: PlaylistMode.loop);
       },
     );
   }
 
   void setSongImage(Song song) {
     if (song.getImageUrl.length > 0) {
-      songImage = new NetworkImage(
+      songImage = NetworkImage(
         song.getImageUrl,
       );
     } else {
-      songImage = new AssetImage('assets/images/default_song_pic.png');
+      songImage = AssetImage('assets/images/default_song_pic.png');
     }
   }
 
-  void showMoreOptions(Song song)  {
-      FetchData.getRealSongUrl(song).then((newStreamUrl){
-          song.setStreamUrl = newStreamUrl;
-              showModalBottomSheet(
-      context: homePageContext,
-      builder: (builder) {
-        return SongOptionsModalSheet(song, null);
-      },
-    );
-      });
+  void showMoreOptions(Song song) {
+    FetchData.getRealSongUrl(song).then((streamUrl) {
+      song.setStreamUrl = streamUrl;
+      showModalBottomSheet(
+        context: homePageContext,
+        builder: (builder) {
+          return SongOptionsModalSheet(song, null);
+        },
+      );
+    });
   }
 }

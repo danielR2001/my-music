@@ -11,8 +11,8 @@ class LogInPage extends StatefulWidget {
 class _State extends State<LogInPage> {
   String _email;
   String _password;
-  final formKey = new GlobalKey<FormState>();
-  static final key = new GlobalKey<ScaffoldState>();
+  final formKey = GlobalKey<FormState>();
+  static final key = GlobalKey<ScaffoldState>();
 
   @override
   void dispose() {
@@ -21,11 +21,11 @@ class _State extends State<LogInPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
       key: key,
       body: Container(
-        decoration: new BoxDecoration(
-          gradient: new LinearGradient(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
             colors: [
               Color(0xE4000000),
               Colors.pink,
@@ -35,14 +35,14 @@ class _State extends State<LogInPage> {
             end: FractionalOffset.topLeft,
           ),
         ),
-        child: new ListView(
+        child: ListView(
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(
                 left: 10.0,
                 top: 10.0,
               ),
-              child: new IconButton(
+              child: IconButton(
                 alignment: Alignment.topLeft,
                 icon: Icon(
                   Icons.arrow_back,
@@ -58,7 +58,7 @@ class _State extends State<LogInPage> {
               padding: const EdgeInsets.only(
                 bottom: 20,
               ),
-              child: new Text(
+              child: Text(
                 "Welcome Back!",
                 style: TextStyle(
                   fontSize: 25.0,
@@ -77,21 +77,21 @@ class _State extends State<LogInPage> {
                   color: Color(0xff3b5998),
                   borderRadius: BorderRadius.circular(30),
                 ),
-                child: new ListTile(
-                  leading: new Text(
+                child: ListTile(
+                  leading: Text(
                     "Log In With FaceBook",
-                    style: new TextStyle(
+                    style: TextStyle(
                       fontSize: 20.0,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  trailing: new Container(
+                  trailing: Container(
                     width: 35.0,
                     height: 35.0,
-                    decoration: new BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      image: new DecorationImage(
+                      image: DecorationImage(
                         fit: BoxFit.fill,
                         image: ExactAssetImage(
                           "assets/images/facebook_logo.png",
@@ -111,21 +111,21 @@ class _State extends State<LogInPage> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30),
                 ),
-                child: new ListTile(
-                  leading: new Text(
+                child: ListTile(
+                  leading: Text(
                     "Log In With Google",
-                    style: new TextStyle(
+                    style: TextStyle(
                       fontSize: 20.0,
                       color: Colors.grey[700],
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  trailing: new Container(
+                  trailing: Container(
                     width: 35.0,
                     height: 35.0,
-                    decoration: new BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      image: new DecorationImage(
+                      image: DecorationImage(
                         fit: BoxFit.fill,
                         image: ExactAssetImage(
                           "assets/images/google_logo.png",
@@ -136,7 +136,7 @@ class _State extends State<LogInPage> {
                 ),
               ),
             ),
-            new Row(
+            Row(
               children: <Widget>[
                 Expanded(
                   child: Container(
@@ -145,12 +145,12 @@ class _State extends State<LogInPage> {
                           color: Colors.white,
                         ),
                       ),
-                      child: new SizedBox()),
+                      child: SizedBox()),
                 ),
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 60),
-                  child: new Text(
+                  child: Text(
                     "or",
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
@@ -162,27 +162,27 @@ class _State extends State<LogInPage> {
                           color: Colors.white,
                         ),
                       ),
-                      child: new SizedBox()),
+                      child: SizedBox()),
                 ),
               ],
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: new Form(
+              child: Form(
                 key: formKey,
-                child: new Column(
+                child: Column(
                   children: <Widget>[
                     Theme(
-                      data: new ThemeData(
+                      data: ThemeData(
                         hintColor: Colors.white,
                       ),
-                      child: new TextFormField(
-                        style: new TextStyle(
+                      child: TextFormField(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                         ),
                         cursorColor: Colors.pink,
-                        decoration: new InputDecoration(
+                        decoration: InputDecoration(
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
                               color: Colors.white,
@@ -200,17 +200,17 @@ class _State extends State<LogInPage> {
                       ),
                     ),
                     Theme(
-                      data: new ThemeData(
+                      data: ThemeData(
                         hintColor: Colors.white,
                       ),
-                      child: new TextFormField(
+                      child: TextFormField(
                         obscureText: true,
-                        style: new TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                         ),
                         cursorColor: Colors.pink,
-                        decoration: new InputDecoration(
+                        decoration: InputDecoration(
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
                               color: Colors.white,
@@ -232,20 +232,20 @@ class _State extends State<LogInPage> {
                           horizontal: 40, vertical: 20),
                       child: GestureDetector(
                         onTap: () {
-                          FocusScope.of(context).requestFocus(new FocusNode());
+                          FocusScope.of(context).requestFocus(FocusNode());
                           // SystemChannels.textInput.invokeMethod('TextInput.hide');
                           signInWithEmailAndPass(key);
                         },
-                        child: new Container(
+                        child: Container(
                           alignment: Alignment.center,
                           height: 60.0,
-                          decoration: new BoxDecoration(
+                          decoration: BoxDecoration(
                             color: Colors.pink,
-                            borderRadius: new BorderRadius.circular(40.0),
+                            borderRadius: BorderRadius.circular(40.0),
                           ),
-                          child: new Text(
+                          child: Text(
                             "Log In",
-                            style: new TextStyle(
+                            style: TextStyle(
                               fontSize: 20.0,
                               color: Colors.white,
                             ),
@@ -277,9 +277,9 @@ class _State extends State<LogInPage> {
               ));
         } else {
           key.currentState.showSnackBar(
-            new SnackBar(
-              duration: new Duration(seconds: 5),
-              content: new Text("Email or password is incorrect!"),
+            SnackBar(
+              duration: Duration(seconds: 5),
+              content: Text("Email or password is incorrect!"),
             ),
           );
         }

@@ -8,8 +8,8 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: new BoxDecoration(
-          gradient: new LinearGradient(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
             colors: [
               Color(0xEA000000),
               Colors.pink,

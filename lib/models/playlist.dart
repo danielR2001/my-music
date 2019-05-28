@@ -10,11 +10,11 @@ class Playlist {
   set setName(String value) => _name = value;
 
   set setSongs(List<Song> value) => _songs = value;
-  
+
   addNewSong(Song song) => _songs.add(song);
 
   Playlist(String name) {
     _name = name;
-    _songs = new List<Song>();
+    _songs = List<Song>();
   }
 }

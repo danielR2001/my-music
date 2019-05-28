@@ -27,151 +27,154 @@ class _PlaylistPageState extends State<PlaylistPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: new Container(
-        decoration: new BoxDecoration(
+      body: Container(
+          decoration:  BoxDecoration(
           color: Color(0xE4000000),
-        ),
-        child: Theme(
-          data: Theme.of(context).copyWith(accentColor: Colors.grey),
-          child: new CustomScrollView(
-            slivers: <Widget>[
-              new SliverAppBar(
-                leading: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                automaticallyImplyLeading: false,
-                backgroundColor: Colors.grey[850],
-                expandedHeight: 200,
-                pinned: true,
-                floating: false,
-                flexibleSpace: FlexibleSpaceBar(
-                  centerTitle: true,
-                  title: Text(
-                    playlist.getName,
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  background: imagePath != ""
-                      ? Image.network(
-                          imagePath,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.asset('assets/images/default_song_pic_small.png',
-                          fit: BoxFit.none,),
-                ),
-              ),
-              new SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Container(
-                            width: 150,
-                            height: 45,
-                            child: new RaisedButton(
-                              splashColor: Colors.deepOrange,
-                              shape: new RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(30.0),
-                              ),
-                              color: Colors.pink,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 3,
-                                    child: Icon(
-                                      Icons.play_arrow,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 4,
-                                    child: Text(
-                                      "Play",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              elevation: 6.0,
-                              onPressed: () {
-                                audioPlayerManager.playSong(playlist.getSongs[0],playlist: playlist,playlistMode: PlaylistMode.loop);
-                              },
-                            ),
-                          ),
-                          new SizedBox(
-                            width: 20,
-                          ),
-                          Container(
-                            width: 150,
-                            height: 45,
-                            child: new RaisedButton(
-                              splashColor: Colors.deepOrange,
-                              shape: new RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(30.0),
-                              ),
-                              color: Colors.pink,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Expanded(
-                                    child: Icon(
-                                      Icons.shuffle,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      "Shuffle",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              elevation: 6.0,
-                              onPressed: () {
-                                var rnd = new Random();
-                                audioPlayerManager.playSong(playlist.getSongs[
-                                    rnd.nextInt(playlist.getSongs.length)],playlist: playlist,playlistMode: PlaylistMode.shuffle);
-                              },
-                            ),
-                          ),
-                        ],
+          ),
+        child: SafeArea(
+            child: Theme(
+              data: Theme.of(context).copyWith(accentColor: Colors.grey),
+              child:  CustomScrollView(
+                slivers: <Widget>[
+                   SliverAppBar(
+                    leading: IconButton(
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
                       ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
                     ),
-                  ],
-                ),
+                    automaticallyImplyLeading: false,
+                    backgroundColor: Colors.grey[850],
+                    expandedHeight: 200,
+                    pinned: true,
+                    floating: false,
+                    flexibleSpace: FlexibleSpaceBar(
+                      centerTitle: true,
+                      title: Text(
+                        playlist.getName,
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      background: imagePath != ""
+                          ? Image.network(
+                              imagePath,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.asset('assets/images/default_song_pic_small.png',
+                              fit: BoxFit.none,
+                              ),
+                    ),
+                  ),
+                   SliverList(
+                    delegate: SliverChildListDelegate(
+                      [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Container(
+                                width: 150,
+                                height: 45,
+                                child:  RaisedButton(
+                                  splashColor: Colors.deepOrange,
+                                  shape:  RoundedRectangleBorder(
+                                    borderRadius:  BorderRadius.circular(30.0),
+                                  ),
+                                  color: Colors.pink,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Expanded(
+                                        flex: 3,
+                                        child: Icon(
+                                          Icons.play_arrow,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 4,
+                                        child: Text(
+                                          "Play",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  elevation: 6.0,
+                                  onPressed: () {
+                                    audioPlayerManager.playSong(playlist.getSongs[0],playlist: playlist,playlistMode: PlaylistMode.loop);
+                                  },
+                                ),
+                              ),
+                               SizedBox(
+                                width: 20,
+                              ),
+                              Container(
+                                width: 150,
+                                height: 45,
+                                child:  RaisedButton(
+                                  splashColor: Colors.deepOrange,
+                                  shape:  RoundedRectangleBorder(
+                                    borderRadius:  BorderRadius.circular(30.0),
+                                  ),
+                                  color: Colors.pink,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: Icon(
+                                          Icons.shuffle,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          "Shuffle",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  elevation: 6.0,
+                                  onPressed: () {
+                                    var rnd =  Random();
+                                    audioPlayerManager.playSong(playlist.getSongs[
+                                        rnd.nextInt(playlist.getSongs.length)],playlist: playlist,playlistMode: PlaylistMode.shuffle);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  makeSliverList(playlist, context)
+                ],
               ),
-              makeSliverList(playlist, context)
-            ],
+            ),
           ),
         ),
-      ),
     );
   }
 
   SliverList makeSliverList(Playlist playlist, BuildContext context) {
-    return new SliverList(
-      delegate: new SliverChildListDelegate(
-        new List.generate(playlist.getSongs.length, (int index) {
+    return  SliverList(
+      delegate:  SliverChildListDelegate(
+         List.generate(playlist.getSongs.length, (int index) {
           setSongImage(playlist.getSongs[index]);
           String title;
           String artist;
@@ -196,46 +199,48 @@ class _PlaylistPageState extends State<PlaylistPage> {
           } else {
             artist = playlist.getSongs[index].getArtist;
           }
-          return new ListTile(
-            onTap: () {
-              audioPlayerManager.playSong(playlist.getSongs[index],playlist: playlist,playlistMode: PlaylistMode.loop);
-            },
-            leading: new Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                  image: DecorationImage(
-                image: songImage,
-                fit: BoxFit.contain
-              )),
-            ),
-            title: new Text(
-              title,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            subtitle: new Text(
-              artist,
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 12,
-              ),
-            ),
-            trailing: IconButton(
-              icon: Icon(
-                Icons.more_vert,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                setState(() {
-                  showMoreOptions(playlist.getSongs[index], playlist);
-                });
+          return 
+               ListTile(
+              onTap: () {
+                audioPlayerManager.playSong(playlist.getSongs[index],playlist: playlist,playlistMode: PlaylistMode.loop);
               },
-            ),
+              leading:  Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                    image: DecorationImage(
+                  image: songImage,
+                  fit: BoxFit.contain
+                )),
+              ),
+              title:  Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle:  Text(
+                artist,
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 12,
+                ),
+              ),
+              trailing: IconButton(
+                icon: Icon(
+                  Icons.more_vert,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  setState(() {
+                    showMoreOptions(playlist.getSongs[index], playlist);
+                  });
+                },
+              ),
+            
           );
         }),
       ),
@@ -244,11 +249,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
 
   void setSongImage(Song song) {
     if (song.getImageUrl.length > 0) {
-      songImage = new NetworkImage(
+      songImage =  NetworkImage(
         song.getImageUrl,
       );
     } else {
-      songImage = new AssetImage('assets/images/default_song_pic.png');
+      songImage = AssetImage('assets/images/default_song_pic.png');
     }
   }
 

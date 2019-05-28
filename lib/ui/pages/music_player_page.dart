@@ -22,7 +22,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   StreamSubscription<Duration> durStream;
   StreamSubscription<void> onSongCompleteStream;
   ImageProvider songImage =
-      new AssetImage('assets/images/default_song_pic_big.png');
+      AssetImage('assets/images/default_song_pic_big.png');
 
   @override
   void initState() {
@@ -42,9 +42,9 @@ class MusicPageState extends State<MusicPlayerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: new Container(
-        decoration: new BoxDecoration(
-          gradient: new LinearGradient(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
             colors: [
               Color(0xff0f0e0e),
               Colors.pink,
@@ -60,7 +60,7 @@ class MusicPageState extends State<MusicPlayerPage> {
               padding: const EdgeInsets.only(top: 40, left: 15, right: 15),
               child: Row(
                 children: <Widget>[
-                  new IconButton(
+                  IconButton(
                     iconSize: 40,
                     icon: Icon(
                       Icons.keyboard_arrow_down,
@@ -69,9 +69,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   Expanded(
-                    child: new Container(),
+                    child: Container(),
                   ),
-                  new IconButton(
+                  IconButton(
                       iconSize: 30,
                       icon: Icon(
                         Icons.more_vert,
@@ -83,27 +83,27 @@ class MusicPageState extends State<MusicPlayerPage> {
                 ],
               ),
             ),
-            new Expanded(
-              child: new Container(
-                child: new Column(
+            Expanded(
+              child: Container(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    new Container(
+                    Container(
                       width: 270,
                       height: 270,
-                      decoration: new BoxDecoration(
+                      decoration: BoxDecoration(
                         color: Colors.black,
                         border: Border.all(
                           color: Colors.black,
                           width: 0.2,
                         ),
                         boxShadow: [
-                          new BoxShadow(
+                          BoxShadow(
                             color: Colors.grey[850],
                             blurRadius: 5.0,
                           ),
                         ],
-                        image: new DecorationImage(
+                        image: DecorationImage(
                           image: songImage,
                           fit: BoxFit.contain,
                         ),
@@ -131,7 +131,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                 ),
               ],
             ),
-            new Slider(
+            Slider(
                 value: _position != null
                     ? _position.inSeconds <= _duration.inSeconds
                         ? _position.inSeconds.toDouble()
@@ -146,19 +146,20 @@ class MusicPageState extends State<MusicPlayerPage> {
                 onChanged: (double value) {
                   setState(() {
                     value = value;
+                    _position = Duration(seconds: value.toInt());
                     seekToSecond(value.toInt());
                   });
                 }),
-            new Container(
+            Container(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
                 ),
-                child: new Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Expanded(
-                      child: new Text(
+                      child: Text(
                         _position != null
                             ? _position.inSeconds <= _duration.inSeconds
                                 ? _position
@@ -175,7 +176,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                       ),
                     ),
                     Expanded(
-                      child: new Text(
+                      child: Text(
                         _duration != null
                             ? _duration
                                 .toString()
@@ -193,18 +194,18 @@ class MusicPageState extends State<MusicPlayerPage> {
                 ),
               ),
             ),
-            new Container(
-              child: new Row(
+            Container(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  new Row(
+                  Row(
                     children: <Widget>[
                       IconButton(
                         splashColor: Colors.grey,
                         alignment: Alignment.center,
                         iconSize: 45,
-                        icon: new Icon(
+                        icon: Icon(
                           Icons.skip_previous,
                           color: Colors.white,
                         ),
@@ -213,7 +214,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                           setSongImage();
                         },
                       ),
-                      new IconButton(
+                      IconButton(
                         splashColor: Colors.grey,
                         alignment: Alignment.center,
                         iconSize: 80,
@@ -229,7 +230,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                         splashColor: Colors.grey,
                         alignment: Alignment.center,
                         iconSize: 45,
-                        icon: new Icon(
+                        icon: Icon(
                           Icons.skip_next,
                           color: Colors.white,
                         ),
@@ -243,12 +244,12 @@ class MusicPageState extends State<MusicPlayerPage> {
                 ],
               ),
             ),
-            new Container(
+            Container(
               child: Padding(
-                padding: new EdgeInsets.only(
+                padding: EdgeInsets.only(
                   bottom: 50,
                 ),
-                child: new Row(
+                child: Row(
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(left: 20),
@@ -257,21 +258,23 @@ class MusicPageState extends State<MusicPlayerPage> {
                         icon: playlistModeIcon,
                         onPressed: () {
                           audioPlayerManager.playlistMode == PlaylistMode.loop
-                              ? audioPlayerManager.playlistMode = PlaylistMode.shuffle
-                              : audioPlayerManager.playlistMode = PlaylistMode.loop;
+                              ? audioPlayerManager.playlistMode =
+                                  PlaylistMode.shuffle
+                              : audioPlayerManager.playlistMode =
+                                  PlaylistMode.loop;
                           changePlaylistModeIconState();
                           audioPlayerManager.setCurrentPlaylist();
                         },
                       ),
                     ),
                     Expanded(
-                      child: new Container(),
+                      child: Container(),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(right: 20),
                       child: IconButton(
                         splashColor: Colors.grey,
-                        icon: new Icon(
+                        icon: Icon(
                           Icons.share,
                           size: 25,
                           color: Colors.white,
@@ -372,13 +375,13 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
     onSongCompleteStream =
         audioPlayerManager.advancedPlayer.onPlayerCompletion.listen((a) {
-          setSongImage();
-        });
+      setSongImage();
+    });
   }
 
   void seekToSecond(int second) {
-    Duration newDuration = Duration(seconds: second);
-    audioPlayerManager.seekTime(newDuration);
+    Duration duration = new Duration(seconds: second);
+    audioPlayerManager.seekTime(duration);
   }
 
   int checkSongLength() {
@@ -396,15 +399,15 @@ class MusicPageState extends State<MusicPlayerPage> {
       if (connectivityResult == ConnectivityResult.mobile ||
           connectivityResult == ConnectivityResult.wifi) {
         setState(() {
-          songImage = new NetworkImage(
+          songImage = NetworkImage(
             audioPlayerManager.currentSong.getImageUrl,
           );
         });
       } else {
         print("no internet connection for loading image");
       }
-    }else {
-      songImage = new AssetImage('assets/images/default_song_pic.png');
+    } else {
+      songImage = AssetImage('assets/images/default_song_pic.png');
     }
   }
 }

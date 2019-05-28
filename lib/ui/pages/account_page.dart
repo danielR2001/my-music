@@ -13,9 +13,9 @@ class AccountPage extends StatelessWidget {
       return MaterialPageRoute(
         settings: settings,
         builder: (BuildContext context) {
-          return new Container(
-            decoration: new BoxDecoration(
-              gradient: new LinearGradient(
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
                 colors: [
                   Color(0xEA000000),
                   Colors.pink,
@@ -26,11 +26,11 @@ class AccountPage extends StatelessWidget {
               ),
             ),
             child: SafeArea(
-              child: new Column(
+              child: Column(
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
-                    child: new Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Padding(
@@ -77,7 +77,7 @@ class AccountPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  new ListTile(
+                  ListTile(
                     leading: Icon(
                       Icons.save_alt,
                       color: Colors.white,
@@ -97,7 +97,7 @@ class AccountPage extends StatelessWidget {
                     onTap: () {},
                   ),
                   createSpace(25),
-                  new ListTile(
+                  ListTile(
                     leading: Icon(
                       Icons.queue_music,
                       color: Colors.white,
@@ -120,7 +120,7 @@ class AccountPage extends StatelessWidget {
                     child: Theme(
                       data:
                           Theme.of(context).copyWith(accentColor: Colors.grey),
-                      child: new ListView.builder(
+                      child: ListView.builder(
                         itemCount: currentUser.getMyPlaylists.length,
                         itemBuilder: (BuildContext context, int index) {
                           return userPlaylists(
@@ -139,7 +139,7 @@ class AccountPage extends StatelessWidget {
   }
 
   SizedBox createSpace(double space) {
-    return new SizedBox(
+    return SizedBox(
       height: space,
     );
   }
@@ -151,11 +151,11 @@ class AccountPage extends StatelessWidget {
         left: 40,
         bottom: 10,
       ),
-      child: new ListTile(
-        leading: new Container(
+      child: ListTile(
+        leading: Container(
           width: 60.0,
           height: 60.0,
-          decoration: new BoxDecoration(
+          decoration: BoxDecoration(
             color: Colors.black,
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(10),
@@ -164,12 +164,12 @@ class AccountPage extends StatelessWidget {
               width: 0.2,
             ),
             boxShadow: [
-              new BoxShadow(
+              BoxShadow(
                 color: Colors.grey[850],
                 blurRadius: 2.0,
               ),
             ],
-            image: new DecorationImage(
+            image: DecorationImage(
               fit: BoxFit.fill,
               image: playlist.getSongs[0].getImageUrl != ""
                   ? NetworkImage(

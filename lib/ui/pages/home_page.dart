@@ -56,11 +56,11 @@ class _HomePageState extends State<HomePage> {
           buildOffstageNavigator(TabItem.discover),
           buildOffstageNavigator(TabItem.account),
         ]),
-        bottomNavigationBar: new Theme(
+        bottomNavigationBar:  Theme(
           data: Theme.of(context).copyWith(
             canvasColor: Colors.grey[850],
             textTheme: Theme.of(context).textTheme.copyWith(
-                  caption: new TextStyle(
+                  caption:  TextStyle(
                     color: Colors.grey,
                   ),
                 ),
@@ -182,7 +182,7 @@ class _HomePageState extends State<HomePage> {
   GestureDetector musicPlayerControl() {
     if (audioPlayerManager.currentSong != null) {
       return GestureDetector(
-          child: new Container(
+          child:  Container(
             decoration: BoxDecoration(
               color: Colors.grey[850],
               border: Border(
@@ -223,7 +223,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 Expanded(
-                  child: new IconButton(
+                  child:  IconButton(
                     icon: musicPlayerIcon,
                     iconSize: 30,
                     onPressed: () {
@@ -243,7 +243,7 @@ class _HomePageState extends State<HomePage> {
               ));
     } else {
       return GestureDetector(
-        child: new Container(
+        child:  Container(
           height: 0,
         ),
       );

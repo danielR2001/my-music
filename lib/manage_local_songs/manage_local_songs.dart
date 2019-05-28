@@ -7,7 +7,7 @@ class ManageLocalSongs {
   static int downloadProg;
   static int downloadTotal;
   static bool downloading = false;
-  static Dio dio = new Dio();
+  static Dio dio = Dio();
 
   // static Future<void> cacheSong(Song song) async {
   //   try {

@@ -18,9 +18,9 @@ class FirebaseDatabaseManager {
   }
 
   static Future<void> syncUser(String currentUserId) async {
-    List<User> users = new List();
-    List<String> keys = new List();
-    List<Map> playlists = new List();
+    List<User> users = List();
+    List<String> keys = List();
+    List<Map> playlists = List();
     int i = 0;
     var snapshot =
         await FirebaseDatabase.instance.reference().child(_usersDir).once();
@@ -29,7 +29,7 @@ class FirebaseDatabaseManager {
       (key, values) {
         keys.add(key);
         playlists.add(values["playlists"]);
-        User user = new User(values["userName"], values["firebaseUId"]);
+        User user = User(values["userName"], values["firebaseUId"]);
         users.add(user);
       },
     );
@@ -75,16 +75,16 @@ class FirebaseDatabaseManager {
   }
 
   static List<Playlist> buildPlaylist(Map playlistMap) {
-    List<Playlist> playlists = new List();
+    List<Playlist> playlists = List();
     Playlist temp;
     playlistMap.forEach(
       (key, value) {
-        temp = new Playlist(key);
+        temp = Playlist(key);
         value.forEach(
           (key, value) {
             List values = value.values.toList();
             temp.addNewSong(
-              new Song(
+              Song(
                 values[4],
                 values[2],
                 values[5],
@@ -103,7 +103,7 @@ class FirebaseDatabaseManager {
 
   // static Song buildSong(Map songMap) {
   //   List values = songMap.values.toList();
-  //   return new Song(
+  //   return  Song(
   //     values[3],
   //     //buildArtist(values[1]),
   //     '',
@@ -116,10 +116,10 @@ class FirebaseDatabaseManager {
   // }
 
   static Artist buildArtist(Map artistMap) {
-    return new Artist(artistMap['name'], artistMap['imageUrl']);
+    return Artist(artistMap['name'], artistMap['imageUrl']);
   }
 
   static Album buildAlbum(Map albumMap) {
-    return new Album(albumMap['title'], albumMap['imageUrl'], albumMap['id']);
+    return Album(albumMap['title'], albumMap['imageUrl'], albumMap['id']);
   }
 }

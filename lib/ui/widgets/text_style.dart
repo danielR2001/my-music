@@ -15,7 +15,7 @@ class TextDecoration extends StatelessWidget {
       return Container(
         width: 280,
         height: height,
-        child: new Text(
+        child:  Text(
           txt,
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -25,10 +25,10 @@ class TextDecoration extends StatelessWidget {
         ),
       );
     } else {
-      return new Container(
+      return  Container(
         width: 280,
         height: height,
-        child: new Marquee(
+        child:  Marquee(
           text: txt,
           scrollAxis: Axis.horizontal,
           style: TextStyle(

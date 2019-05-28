@@ -6,11 +6,11 @@ import 'log_in_page.dart';
 class WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
       body: Container(
-        decoration: new BoxDecoration(
-          image: new DecorationImage(
-            image: new AssetImage(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(
               "assets/images/sign_in_pic.png",
             ),
             fit: BoxFit.cover,
@@ -23,9 +23,9 @@ class WelcomePage extends StatelessWidget {
                 top: 120.0,
                 bottom: 25,
               ),
-              child: new AppIcon(),
+              child: AppIcon(),
             ),
-            new Text(
+            Text(
               "My Music",
               style: TextStyle(
                 fontSize: 40.0,
@@ -37,7 +37,7 @@ class WelcomePage extends StatelessWidget {
               padding: const EdgeInsets.only(
                 top: 100,
               ),
-              child: new Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
                   Padding(
@@ -53,16 +53,16 @@ class WelcomePage extends StatelessWidget {
                               builder: (context) => LogInPage(),
                             ));
                       },
-                      child: new Container(
+                      child: Container(
                         alignment: Alignment.center,
                         height: 60.0,
-                        decoration: new BoxDecoration(
+                        decoration: BoxDecoration(
                           color: Colors.pink,
-                          borderRadius: new BorderRadius.circular(40.0),
+                          borderRadius: BorderRadius.circular(40.0),
                         ),
-                        child: new Text(
+                        child: Text(
                           "Log In",
-                          style: new TextStyle(
+                          style: TextStyle(
                             fontSize: 20.0,
                             color: Colors.white,
                           ),
@@ -83,16 +83,16 @@ class WelcomePage extends StatelessWidget {
                               builder: (context) => SignInPage(),
                             ));
                       },
-                      child: new Container(
+                      child: Container(
                         alignment: Alignment.center,
                         height: 60.0,
-                        decoration: new BoxDecoration(
+                        decoration: BoxDecoration(
                           color: Colors.pink,
-                          borderRadius: new BorderRadius.circular(40.0),
+                          borderRadius: BorderRadius.circular(40.0),
                         ),
-                        child: new Text(
+                        child: Text(
                           "Sign In",
-                          style: new TextStyle(
+                          style: TextStyle(
                             fontSize: 20.0,
                             color: Colors.white,
                           ),

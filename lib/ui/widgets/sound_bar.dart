@@ -9,8 +9,8 @@ class SpritePainter extends CustomPainter {
     Color color = Colors.white;
 
     Rect rect2 =
-        new Rect.fromLTRB(0.0, size.height * value, size.width, size.height);
-    final Paint paint = new Paint()..color = color;
+        Rect.fromLTRB(0.0, size.height * value, size.width, size.height);
+    final Paint paint = Paint()..color = color;
     canvas.drawRect(rect2, paint);
   }
 
@@ -31,7 +31,7 @@ class SoundBar extends StatefulWidget {
   final double width;
   SoundBar(this.dur, this.height, this.width);
   @override
-  SoundBarState createState() => new SoundBarState(dur, height, width);
+  SoundBarState createState() => SoundBarState(dur, height, width);
 }
 
 class SoundBarState extends State<SoundBar>
@@ -45,7 +45,7 @@ class SoundBarState extends State<SoundBar>
   @override
   void initState() {
     super.initState();
-    _controller = new AnimationController(
+    _controller = AnimationController(
       vsync: this,
       duration: dur,
     );
@@ -74,9 +74,9 @@ class SoundBarState extends State<SoundBar>
     return Container(
       color: Colors.transparent,
       child: Center(
-        child: new CustomPaint(
-          painter: new SpritePainter(_controller),
-          child: new SizedBox(
+        child: CustomPaint(
+          painter: SpritePainter(_controller),
+          child: SizedBox(
             width: width,
             height: height,
           ),

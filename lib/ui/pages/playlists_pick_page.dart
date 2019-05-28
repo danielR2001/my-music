@@ -16,7 +16,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
   _PlaylistPickPageState(this.song);
   String _playlistName;
 
-  final formKey = new GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
 
   final scafKey = GlobalKey<ScaffoldState>();
 
@@ -88,7 +88,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         leading: Container(
           width: 60,
           height: 60,
-          decoration: new BoxDecoration(
+          decoration: BoxDecoration(
             color: Colors.black,
             image: DecorationImage(
               image: songImage(playlist.getSongs[0]),

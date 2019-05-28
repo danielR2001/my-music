@@ -54,8 +54,8 @@ class DiscoverPage extends StatelessWidget {
           builder: (BuildContext context) {
             return Container(
               alignment: Alignment(0.0, 0.0),
-              decoration: new BoxDecoration(
-                gradient: new LinearGradient(
+              decoration:  BoxDecoration(
+                gradient:  LinearGradient(
                   colors: [
                     Color(0xEA000000),
                     Colors.pink,
@@ -68,14 +68,14 @@ class DiscoverPage extends StatelessWidget {
               child: SafeArea(
                 child: Theme(
                   data: Theme.of(context).copyWith(accentColor: Colors.grey),
-                  child: new Column(
+                  child:  Column(
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.only(
                           top: 20,
                           bottom: 10,
                         ),
-                        child: new Text(
+                        child:  Text(
                           "Search",
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -96,23 +96,23 @@ class DiscoverPage extends StatelessWidget {
                             child: Container(
                               height: 50,
                               //width: 196,
-                              child: new RaisedButton(
-                                shape: new RoundedRectangleBorder(
-                                  borderRadius: new BorderRadius.circular(8.0),
+                              child:  RaisedButton(
+                                shape:  RoundedRectangleBorder(
+                                  borderRadius:  BorderRadius.circular(8.0),
                                 ),
                                 splashColor: Colors.transparent,
                                 color: Colors.white,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
-                                    new Icon(
+                                     Icon(
                                       Icons.search,
                                       color: Colors.grey[700],
                                     ),
-                                    new SizedBox(
+                                     SizedBox(
                                       width: 10,
                                     ),
-                                    new Text(
+                                     Text(
                                       "Search artists or songs",
                                       style: TextStyle(
                                         color: Colors.grey[700],
@@ -137,7 +137,7 @@ class DiscoverPage extends StatelessWidget {
                         ]),
                       ),
                       Expanded(
-                        child: new ListView.builder(
+                        child:  ListView.builder(
                           itemCount: 6,
                           itemBuilder: (BuildContext context, int index) {
                             Padding padding = createGenres(index, context);
@@ -166,13 +166,13 @@ class DiscoverPage extends StatelessWidget {
     return GestureDetector(
         child: Column(
           children: <Widget>[
-            new Container(
+             Container(
                 alignment: Alignment.center,
                 width: 180.0,
                 height: 120.0,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    colorFilter: new ColorFilter.mode(
+                    colorFilter:  ColorFilter.mode(
                         Colors.black.withOpacity(0.2), BlendMode.dstATop),
                     image: ExactAssetImage(imagePath),
                     fit: BoxFit.cover,
@@ -182,7 +182,7 @@ class DiscoverPage extends StatelessWidget {
                     width: 0.2,
                   ),
                 ),
-                child: new Container(
+                child:  Container(
                   alignment: Alignment.center,
                   width: 60.0,
                   height: 60.0,
@@ -195,7 +195,7 @@ class DiscoverPage extends StatelessWidget {
                 )),
             Padding(
               padding: const EdgeInsets.only(top: 5),
-              child: new Text(
+              child:  Text(
                 genre,
                 style: TextStyle(
                   color: Colors.white,
@@ -211,7 +211,7 @@ class DiscoverPage extends StatelessWidget {
   Padding createGenres(int index, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
-      child: new Row(
+      child:  Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Padding(

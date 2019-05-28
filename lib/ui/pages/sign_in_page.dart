@@ -14,17 +14,17 @@ class _State extends State<SignInPage> {
   String _email;
   String _password;
   String _userName;
-  final formKey = new GlobalKey<FormState>();
-  final key = new GlobalKey<ScaffoldState>();
+  final formKey = GlobalKey<FormState>();
+  final key = GlobalKey<ScaffoldState>();
   bool signIn = true;
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
       key: key,
       body: Container(
-        decoration: new BoxDecoration(
-          gradient: new LinearGradient(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
             colors: [
               Color(0xE4000000),
               Colors.pink,
@@ -34,14 +34,14 @@ class _State extends State<SignInPage> {
             end: FractionalOffset.topLeft,
           ),
         ),
-        child: new ListView(
+        child: ListView(
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(
                 left: 10.0,
                 top: 10.0,
               ),
-              child: new IconButton(
+              child: IconButton(
                 alignment: Alignment.topLeft,
                 icon: Icon(
                   Icons.arrow_back,
@@ -57,7 +57,7 @@ class _State extends State<SignInPage> {
               padding: const EdgeInsets.only(
                 bottom: 20,
               ),
-              child: new Text(
+              child: Text(
                 "Hello! Let`s sign up",
                 style: TextStyle(
                   fontSize: 25.0,
@@ -76,21 +76,21 @@ class _State extends State<SignInPage> {
                   color: Color(0xff3b5998),
                   borderRadius: BorderRadius.circular(30),
                 ),
-                child: new ListTile(
-                  leading: new Text(
+                child: ListTile(
+                  leading: Text(
                     "Sign In With FaceBook",
-                    style: new TextStyle(
+                    style: TextStyle(
                       fontSize: 20.0,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  trailing: new Container(
+                  trailing: Container(
                     width: 35.0,
                     height: 35.0,
-                    decoration: new BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      image: new DecorationImage(
+                      image: DecorationImage(
                         fit: BoxFit.fill,
                         image: ExactAssetImage(
                           "assets/images/facebook_logo.png",
@@ -110,21 +110,21 @@ class _State extends State<SignInPage> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30),
                 ),
-                child: new ListTile(
-                  leading: new Text(
+                child: ListTile(
+                  leading: Text(
                     "Sign In With Google",
-                    style: new TextStyle(
+                    style: TextStyle(
                       fontSize: 20.0,
                       color: Colors.grey[700],
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  trailing: new Container(
+                  trailing: Container(
                     width: 35.0,
                     height: 35.0,
-                    decoration: new BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      image: new DecorationImage(
+                      image: DecorationImage(
                         fit: BoxFit.fill,
                         image: ExactAssetImage(
                           "assets/images/google_logo.png",
@@ -135,7 +135,7 @@ class _State extends State<SignInPage> {
                 ),
               ),
             ),
-            new Row(
+            Row(
               children: <Widget>[
                 Expanded(
                   child: Container(
@@ -144,12 +144,12 @@ class _State extends State<SignInPage> {
                           color: Colors.white,
                         ),
                       ),
-                      child: new SizedBox()),
+                      child: SizedBox()),
                 ),
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 60),
-                  child: new Text(
+                  child: Text(
                     "or",
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
@@ -161,27 +161,27 @@ class _State extends State<SignInPage> {
                           color: Colors.white,
                         ),
                       ),
-                      child: new SizedBox()),
+                      child: SizedBox()),
                 ),
               ],
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: new Form(
+              child: Form(
                 key: formKey,
-                child: new Column(
+                child: Column(
                   children: <Widget>[
                     Theme(
-                      data: new ThemeData(
+                      data: ThemeData(
                         hintColor: Colors.white,
                       ),
-                      child: new TextFormField(
-                        style: new TextStyle(
+                      child: TextFormField(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                         ),
                         cursorColor: Colors.pink,
-                        decoration: new InputDecoration(
+                        decoration: InputDecoration(
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
                               color: Colors.white,
@@ -199,17 +199,17 @@ class _State extends State<SignInPage> {
                       ),
                     ),
                     Theme(
-                      data: new ThemeData(
+                      data: ThemeData(
                         hintColor: Colors.white,
                       ),
-                      child: new TextFormField(
+                      child: TextFormField(
                         obscureText: true,
-                        style: new TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                         ),
                         cursorColor: Colors.pink,
-                        decoration: new InputDecoration(
+                        decoration: InputDecoration(
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
                               color: Colors.white,
@@ -227,16 +227,16 @@ class _State extends State<SignInPage> {
                       ),
                     ),
                     Theme(
-                      data: new ThemeData(
+                      data: ThemeData(
                         hintColor: Colors.white,
                       ),
-                      child: new TextFormField(
-                        style: new TextStyle(
+                      child: TextFormField(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                         ),
                         cursorColor: Colors.pink,
-                        decoration: new InputDecoration(
+                        decoration: InputDecoration(
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
                               color: Colors.white,
@@ -276,16 +276,16 @@ class _State extends State<SignInPage> {
                 signIn = false;
               });
               key.currentState.showSnackBar(
-                new SnackBar(
-                  duration: new Duration(seconds: 5),
-                  content: new Text("Email verification was sent to you"),
+                SnackBar(
+                  duration: Duration(seconds: 5),
+                  content: Text("Email verification was sent to you"),
                 ),
               );
             } else {
               key.currentState.showSnackBar(
-                new SnackBar(
-                  duration: new Duration(seconds: 5),
-                  content: new Text("This email is already in use!"),
+                SnackBar(
+                  duration: Duration(seconds: 5),
+                  content: Text("This email is already in use!"),
                 ),
               );
             }
@@ -293,9 +293,9 @@ class _State extends State<SignInPage> {
         );
       } else {
         key.currentState.showSnackBar(
-          new SnackBar(
-            duration: new Duration(seconds: 5),
-            content: new Text(
+          SnackBar(
+            duration: Duration(seconds: 5),
+            content: Text(
                 "Email is not valid! Or password is shorter than 6 symbols"),
           ),
         );
@@ -313,20 +313,20 @@ class _State extends State<SignInPage> {
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
         child: GestureDetector(
           onTap: () {
-            FocusScope.of(context).requestFocus(new FocusNode());
+            FocusScope.of(context).requestFocus(FocusNode());
             // SystemChannels.textInput.invokeMethod('TextInput.hide');
             signInWithEmailAndPass(key);
           },
-          child: new Container(
+          child: Container(
             alignment: Alignment.center,
             height: 60.0,
-            decoration: new BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.pink,
-              borderRadius: new BorderRadius.circular(40.0),
+              borderRadius: BorderRadius.circular(40.0),
             ),
-            child: new Text(
+            child: Text(
               "Sign In",
-              style: new TextStyle(
+              style: TextStyle(
                 fontSize: 20.0,
                 color: Colors.white,
               ),
@@ -341,16 +341,16 @@ class _State extends State<SignInPage> {
           onTap: () {
             tryToSignIn();
           },
-          child: new Container(
+          child: Container(
             alignment: Alignment.center,
             height: 60.0,
-            decoration: new BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.pink,
-              borderRadius: new BorderRadius.circular(40.0),
+              borderRadius: BorderRadius.circular(40.0),
             ),
-            child: new Text(
+            child: Text(
               "Verified",
-              style: new TextStyle(
+              style: TextStyle(
                 fontSize: 20.0,
                 color: Colors.white,
               ),
@@ -368,7 +368,7 @@ class _State extends State<SignInPage> {
           FirebaseAuthentication.currentUser().then(
             (user) {
               FirebaseDatabaseManager.syncUser(user.uid).then((a) {
-                currentUser = new User(_userName, user.uid);
+                currentUser = User(_userName, user.uid);
                 FirebaseDatabaseManager.saveUser();
                 print(currentUser.toString());
               });
@@ -382,9 +382,9 @@ class _State extends State<SignInPage> {
           );
         } else {
           key.currentState.showSnackBar(
-            new SnackBar(
-              duration: new Duration(seconds: 5),
-              content: new Text("Email isn't verified!"),
+            SnackBar(
+              duration: Duration(seconds: 5),
+              content: Text("Email isn't verified!"),
             ),
           );
         }

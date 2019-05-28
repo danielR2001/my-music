@@ -15,7 +15,7 @@ class User {
     _name = name;
     //_imageUrl = imageUrl;
     _firebaseUId = firebaseUId;
-    _myPlaylists = new List<Playlist>();
+    _myPlaylists = List<Playlist>();
   }
 
   String get getName => _name;

@@ -29,6 +29,6 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
 
   void init() async {
     FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
-    audioPlayerManager = new AudioPlayerManager(); //init song status
+    audioPlayerManager = AudioPlayerManager(); //init song status
   }
 }

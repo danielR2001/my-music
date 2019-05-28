@@ -14,17 +14,17 @@ class SongOptionsModalSheet extends StatelessWidget {
   SongOptionsModalSheet(this.song, this.playlist);
   @override
   Widget build(BuildContext context) {
-    return new Container(
+    return Container(
       alignment: Alignment.topCenter,
       color: Color(0xFF000000),
-      child: new ListView(
+      child: ListView(
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 15),
-            child: new Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                new Column(
+                Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     TextDecoration(
@@ -56,7 +56,7 @@ class SongOptionsModalSheet extends StatelessWidget {
                   ),
                 ),
               ),
-              child: new SizedBox(
+              child: SizedBox(
                 height: 1,
               ),
             ),
@@ -64,13 +64,13 @@ class SongOptionsModalSheet extends StatelessWidget {
           showRemoveFromPlaylist(context),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: new ListTile(
-              leading: new Icon(
+            child: ListTile(
+              leading: Icon(
                 Icons.save_alt,
                 color: Colors.grey,
                 size: 30,
               ),
-              title: new Text(
+              title: Text(
                 "Download",
                 style: TextStyle(
                   color: Colors.white,
@@ -82,13 +82,13 @@ class SongOptionsModalSheet extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: new ListTile(
-              leading: new Icon(
+            child: ListTile(
+              leading: Icon(
                 Icons.playlist_add,
                 color: Colors.grey,
                 size: 30,
               ),
-              title: new Text(
+              title: Text(
                 "Add To Playlist",
                 style: TextStyle(
                   color: Colors.white,
@@ -108,13 +108,13 @@ class SongOptionsModalSheet extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: new ListTile(
-              leading: new Icon(
+            child: ListTile(
+              leading: Icon(
                 Icons.account_circle,
                 color: Colors.grey,
                 size: 30,
               ),
-              title: new Text(
+              title: Text(
                 "View Artist",
                 style: TextStyle(
                   color: Colors.white,
@@ -126,13 +126,13 @@ class SongOptionsModalSheet extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: new ListTile(
-              leading: new Icon(
+            child: ListTile(
+              leading: Icon(
                 Icons.share,
                 color: Colors.grey,
                 size: 30,
               ),
-              title: new Text(
+              title: Text(
                 "Share",
                 style: TextStyle(
                   color: Colors.white,
@@ -151,13 +151,13 @@ class SongOptionsModalSheet extends StatelessWidget {
     if (playlist != null) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: new ListTile(
-          leading: new Icon(
+        child: ListTile(
+          leading: Icon(
             Icons.remove_circle_outline,
             color: Colors.grey,
             size: 30,
           ),
-          title: new Text(
+          title: Text(
             "Remove From This Playlist",
             style: TextStyle(
               color: Colors.white,
@@ -169,7 +169,8 @@ class SongOptionsModalSheet extends StatelessWidget {
             FirebaseDatabaseManager.removeSongToPlaylist(playlist, song);
             currentUser.removeSongFromPlaylist(playlist, song);
             if (audioPlayerManager.currentPlaylist != null) {
-              if (audioPlayerManager.currentPlaylist.getName == playlist.getName) {
+              if (audioPlayerManager.currentPlaylist.getName ==
+                  playlist.getName) {
                 audioPlayerManager.currentPlaylist.getSongs.remove(song);
               }
             }
@@ -178,8 +179,8 @@ class SongOptionsModalSheet extends StatelessWidget {
             } else {
               Navigator.pushReplacement(
                 context,
-                new MyCustomRoute(
-                  builder: (context) => new HomePage(),
+                MyCustomRoute(
+                  builder: (context) => HomePage(),
                 ),
               );
             }
@@ -187,7 +188,7 @@ class SongOptionsModalSheet extends StatelessWidget {
         ),
       );
     } else {
-      return new Container();
+      return Container();
     }
   }
 }
