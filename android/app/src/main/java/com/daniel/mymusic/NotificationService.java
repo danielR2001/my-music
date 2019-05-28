@@ -25,30 +25,29 @@ import com.squareup.picasso.Target;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
-
-
 public class NotificationService extends Service {
-  Intent playIntent;
-  Intent prevIntent;
-  Intent nextIntent;
-  Intent notificationIntent;
-  Intent deleteIntent;
-  PendingIntent pplayIntent;
-  PendingIntent pprevIntent;
-  PendingIntent pnextIntent;
-  PendingIntent pendingIntent;
-  PendingIntent pdeleteIntent;
-  final String CHANNEL_ID = "Playback";
-  NotificationManager notificationManager;
-  Notification notification;
-  NotificationManagerCompat notificationManagerForOreo;
-  int notificationId = 0;
-  boolean isPlaying;
-  int[] iconInts = {R.drawable.ic_pause,R.drawable.ic_play};
-  int index = 0;
-  String title;
-  String artist;
-  String imageUrl;
+    Intent playIntent;
+    Intent prevIntent;
+    Intent nextIntent;
+    Intent notificationIntent;
+    Intent deleteIntent;
+    PendingIntent pplayIntent;
+    PendingIntent pprevIntent;
+    PendingIntent pnextIntent;
+    PendingIntent pendingIntent;
+    PendingIntent pdeleteIntent;
+    final String CHANNEL_ID = "Playback";
+    NotificationManager notificationManager;
+    Notification notification;
+    NotificationManagerCompat notificationManagerForOreo;
+    int notificationId = 0;
+    boolean isPlaying;
+    int[] iconInts = { R.drawable.ic_pause, R.drawable.ic_play };
+    int index = 0;
+    String title;
+    String artist;
+    String imageUrl;
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent.getAction().equals(Constants.STARTFOREGROUND_ACTION)) {
@@ -56,66 +55,79 @@ public class NotificationService extends Service {
             title = intent.getStringExtra("title");
             artist = intent.getStringExtra("artist");
             imageUrl = intent.getStringExtra("imageUrl");
-            isPlaying = intent.getBooleanExtra("isPlaying",true);
-            if(isPlaying){
-              index = 0;
-            }else{
-              index = 1;
+            isPlaying = intent.getBooleanExtra("isPlaying", true);
+            if (isPlaying) {
+                index = 0;
+            } else {
+                index = 1;
             }
-            loadImageUrl(title,artist,imageUrl);
+            loadImageUrl(title, artist, imageUrl);
         } else if (intent.getAction().equals(Constants.PREV_ACTION)) {
             index = 0;
             isPlaying = true;
-            loadImageUrl(title,artist,imageUrl);
+            loadImageUrl(title, artist, imageUrl);
             MainActivity.channel.invokeMethod("prevSong", null, new Result() {
-            @Override
-            public void success(Object o) {
-            }
-            @Override
-            public void error(String s, String s1, Object o) {}
-            @Override
-            public void notImplemented() {}
-        });
+                @Override
+                public void success(Object o) {
+                }
+
+                @Override
+                public void error(String s, String s1, Object o) {
+                }
+
+                @Override
+                public void notImplemented() {
+                }
+            });
         } else if (intent.getAction().equals(Constants.PLAY_ACTION)) {
-          isPlaying = !isPlaying;
-            if(isPlaying){
-              index = 0;
-            }else{
-              index = 1;
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                index = 0;
+            } else {
+                index = 1;
             }
-            loadImageUrl(title,artist,imageUrl);
+            loadImageUrl(title, artist, imageUrl);
             MainActivity.channel.invokeMethod("playOrPause", null, new Result() {
-            @Override
-            public void success(Object o) {
-            }
-            @Override
-            public void error(String s, String s1, Object o) {}
-            @Override
-            public void notImplemented() {}
-        });
+                @Override
+                public void success(Object o) {
+                }
+
+                @Override
+                public void error(String s, String s1, Object o) {
+                }
+
+                @Override
+                public void notImplemented() {
+                }
+            });
         } else if (intent.getAction().equals(Constants.NEXT_ACTION)) {
             index = 0;
             isPlaying = true;
-            loadImageUrl(title,artist,imageUrl);
+            loadImageUrl(title, artist, imageUrl);
             MainActivity.channel.invokeMethod("nextSong", null, new Result() {
-            @Override
-            public void success(Object o) {
-            }
-            @Override
-            public void error(String s, String s1, Object o) {}
-            @Override
-            public void notImplemented() {}
-        });
-        } else if(intent.getAction().equals(Constants.STOPFOREGROUND_ACTION)){
+                @Override
+                public void success(Object o) {
+                }
+
+                @Override
+                public void error(String s, String s1, Object o) {
+                }
+
+                @Override
+                public void notImplemented() {
+                }
+            });
+        } else if (intent.getAction().equals(Constants.STOPFOREGROUND_ACTION)) {
             stopSelf();
         }
         return START_STICKY;
     }
+
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-          NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-          mNotificationManager.cancel(0);
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancel(0);
     }
 
     @Override
@@ -127,83 +139,76 @@ public class NotificationService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    private void loadImageUrl(String title,String artist,String imageUrl){
-        if(imageUrl != null){
-        Picasso.get().load(imageUrl).into(new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                makeNotification(title,artist,bitmap);
-            }
+    private void loadImageUrl(String title, String artist, String imageUrl) {
+        if (!imageUrl.equals("")) {
+            Picasso.get().load(imageUrl).into(new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    makeNotification(title, artist, bitmap);
+                }
 
-            @Override
-            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                makeNotification(title,artist,null);
-            }
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {}
-        });
-    }else{
-        makeNotification(title,artist,null);
-    }
-    }
+                @Override
+                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+                    makeNotification(title, artist, null);
+                }
 
-    private void makeNotification(String title,String artist,Bitmap imageBitmap) {
-        if(imageBitmap ==null){
-            imageBitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.app_logo_square);
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+                }
+            });
+        } else {
+            makeNotification(title, artist, null);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+    }
+
+    private void makeNotification(String title, String artist, Bitmap imageBitmap) {
+        if (imageBitmap == null) {
+            imageBitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(),
+                    R.drawable.app_logo_square);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CreateNotificationChannel();
             notificationManagerForOreo = NotificationManagerCompat.from(this);
-            notification = new NotificationCompat.Builder(getApplicationContext(),CHANNEL_ID)
-                    .setContentTitle(title)
-                    .setContentText(artist)
-                    .setSmallIcon(R.drawable.app_logo_no_background)
-                    .setLargeIcon(imageBitmap)
-                    .setAutoCancel(true)
-                    .setShowWhen(false)
-                    .setColor(getResources().getColor(R.color.pink))
-                    .addAction(R.drawable.ic_skip_previous,"previous",pprevIntent)
-                    .addAction(iconInts[index],"pause",pplayIntent)
-                    .addAction(R.drawable.ic_skip_next,"next",pnextIntent)
-                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0,1,2))
-                    .setDeleteIntent(pdeleteIntent)
-                    .build();
+            notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID).setContentTitle(title)
+                    .setContentText(artist).setSmallIcon(R.drawable.app_logo_no_background).setLargeIcon(imageBitmap)
+                    .setAutoCancel(true).setShowWhen(false).setColor(getResources().getColor(R.color.pink))
+                    .addAction(R.drawable.ic_skip_previous, "previous", pprevIntent)
+                    .addAction(iconInts[index], "pause", pplayIntent)
+                    .addAction(R.drawable.ic_skip_next, "next", pnextIntent)
+                    .setStyle(
+                            new androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0, 1, 2))
+                    .setDeleteIntent(pdeleteIntent).build();
             notification.flags |= Notification.FLAG_AUTO_CANCEL;
             notificationManagerForOreo.notify(notificationId, notification);
-        }else {
+        } else {
             notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notification = new NotificationCompat.Builder(getApplicationContext())
-                    .setContentTitle(title)
-                    .setContentText(artist)
-                    .setSmallIcon(R.drawable.app_logo_no_background)
-                    .setLargeIcon(imageBitmap)
-                    .setAutoCancel(true)
-                    .setSound(null)
-                    .setShowWhen(false)
+            notification = new NotificationCompat.Builder(getApplicationContext()).setContentTitle(title)
+                    .setContentText(artist).setSmallIcon(R.drawable.app_logo_no_background).setLargeIcon(imageBitmap)
+                    .setAutoCancel(true).setSound(null).setShowWhen(false)
                     .setColor(getResources().getColor(R.color.pink))
-                    .addAction(R.drawable.ic_skip_previous,"previous",pprevIntent)
-                    .addAction(iconInts[index],"pause",pplayIntent)
-                    .addAction(R.drawable.ic_skip_next,"next",pnextIntent)
-                    .setDeleteIntent(pdeleteIntent)
-                    .build();
+                    .addAction(R.drawable.ic_skip_previous, "previous", pprevIntent)
+                    .addAction(iconInts[index], "pause", pplayIntent)
+                    .addAction(R.drawable.ic_skip_next, "next", pnextIntent).setDeleteIntent(pdeleteIntent).build();
             notification.flags |= Notification.FLAG_AUTO_CANCEL;
             notificationManager.notify(notificationId, notification);
         }
         notification.contentIntent = pendingIntent;
     }
-    private void CreateNotificationChannel(){
+
+    private void CreateNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Playback", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Playback",
+                    NotificationManager.IMPORTANCE_DEFAULT);
             channel.setSound(null, null);
             notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(channel);
         }
     }
-    private void initIntents(){
+
+    private void initIntents() {
         notificationIntent = new Intent(this, MainActivity.class);
         notificationIntent.setAction(Constants.MAIN_ACTION);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-        | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         playIntent = new Intent(this, NotificationService.class);
