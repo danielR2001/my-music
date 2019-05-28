@@ -1,17 +1,8 @@
-import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:myapp/models/album.dart';
-import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:html/parser.dart' show parse;
 
 class FetchData {
-  static String songID = '138545995'; //ADELE HELLO
-  static final String urlDownload =
-      'https://free-mp3-download.net/dl.php?i=$songID&c=72272&f=mp3';
-  static final String searchCallback =
-      'https://free-mp3-download.net/search.php?s='; // + SEARCH STRING
-
   static final String urlSearch = 'https://ru-music.com/search/';
 
   static Future<List<Song>> fetchPost(String searchStr) async {
@@ -81,9 +72,12 @@ class FetchData {
   }
 
   static Future<String> getRealSongUrl(Song song)async{
-    return http
-        .get(song.getStreamUrl).then((http.Response response){
-          return response.headers['location'];
-        });
+  final client = http.Client();
+  final request = new http.Request('GET', Uri.parse(song.getStreamUrl))
+    ..followRedirects = false;
+  final response = await client.send(request);
+
+  return response.headers['location'];
+
   }
 }

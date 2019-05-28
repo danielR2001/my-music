@@ -183,12 +183,10 @@ class _SearchPageState extends State<SearchPage> {
       ),
       onTap: () {
         FocusScope.of(context).requestFocus(new FocusNode());
-       // ManageLocalSongs.cacheSong(song).then((a) {
-          audioPlayerManager.currentPlaylist = null;
-          audioPlayerManager.playlistMode = PlaylistMode.loop;
-          audioPlayerManager.setCurrentPlaylist();
-          audioPlayerManager.playSong(song);
-      //  });
+        FetchData.getRealSongUrl(song).then((newStreamUrl){
+          song.setStreamUrl = newStreamUrl;
+        });
+        audioPlayerManager.playSong(song,playlist: null,playlistMode: PlaylistMode.loop);
       },
     );
   }
@@ -203,12 +201,15 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  void showMoreOptions(Song song) {
-    showModalBottomSheet(
+  void showMoreOptions(Song song)  {
+      FetchData.getRealSongUrl(song).then((newStreamUrl){
+          song.setStreamUrl = newStreamUrl;
+              showModalBottomSheet(
       context: homePageContext,
       builder: (builder) {
         return SongOptionsModalSheet(song, null);
       },
     );
+      });
   }
 }

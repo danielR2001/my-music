@@ -109,10 +109,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               ),
                               elevation: 6.0,
                               onPressed: () {
-                                audioPlayerManager.loopPlaylist = playlist;
-                                audioPlayerManager.playlistMode = PlaylistMode.loop;
-                                audioPlayerManager.setCurrentPlaylist();
-                                audioPlayerManager.playSong(playlist.getSongs[0]);
+                                audioPlayerManager.playSong(playlist.getSongs[0],playlist: playlist,playlistMode: PlaylistMode.loop);
                               },
                             ),
                           ),
@@ -152,11 +149,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               elevation: 6.0,
                               onPressed: () {
                                 var rnd = new Random();
-                                audioPlayerManager.loopPlaylist = playlist;
-                                audioPlayerManager.playlistMode = PlaylistMode.shuffle;
-                                audioPlayerManager.setCurrentPlaylist();
                                 audioPlayerManager.playSong(playlist.getSongs[
-                                    rnd.nextInt(playlist.getSongs.length)]);
+                                    rnd.nextInt(playlist.getSongs.length)],playlist: playlist,playlistMode: PlaylistMode.shuffle);
                               },
                             ),
                           ),
@@ -204,19 +198,16 @@ class _PlaylistPageState extends State<PlaylistPage> {
           }
           return new ListTile(
             onTap: () {
-            //  ManageLocalSongs.cacheSong(playlist.getSongs[index]).then((a) {
-                audioPlayerManager.loopPlaylist = playlist;
-                audioPlayerManager.playlistMode = PlaylistMode.loop;
-                audioPlayerManager.setCurrentPlaylist();
-                audioPlayerManager.playSong(playlist.getSongs[index]);
-            //  });
+              audioPlayerManager.playSong(playlist.getSongs[index],playlist: playlist,playlistMode: PlaylistMode.loop);
             },
             leading: new Container(
               width: 50,
               height: 50,
               decoration: BoxDecoration(
+                color: Colors.black,
                   image: DecorationImage(
                 image: songImage,
+                fit: BoxFit.contain
               )),
             ),
             title: new Text(

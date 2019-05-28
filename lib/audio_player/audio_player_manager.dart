@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/notifications/music_control_notification.dart';
@@ -37,10 +36,17 @@ class AudioPlayerManager {
     initCacheDir();
   }
 
-  void playSong(Song song) async {
+  void playSong(Song song,{Playlist playlist,PlaylistMode playlistMode}) async {
     closeSong();
+    this.playlistMode = playlistMode;
+    loopPlaylist = playlist;
+    if(this.playlistMode ==PlaylistMode.loop){
+      currentPlaylist = loopPlaylist;
+    }else{
+      createShuffledPlaylist();
+      currentPlaylist = shuffledPlaylist;
+    }
     currentSong = song;
-    //String realStreamUrl = await FetchData.getRealSongUrl(song);
     advancedPlayer.play(song.getStreamUrl);
     await MusicControlNotification.responseFromNativeCode(
         song.getTitle, song.getArtist, song.getImageUrl, true);

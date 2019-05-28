@@ -19,6 +19,7 @@ import android.util.Log;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.Result;
+import com.squareup.picasso.Picasso;
 
 public class NotificationService extends Service {
   Intent playIntent;
@@ -121,6 +122,7 @@ public class NotificationService extends Service {
     }
 
     private void makeNotification(String title,String artist,String imageUrl) {
+        try{
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             CreateNotificationChannel();
             notificationManagerForOreo = NotificationManagerCompat.from(this);
@@ -128,7 +130,7 @@ public class NotificationService extends Service {
                     .setContentTitle(title)
                     .setContentText(artist)
                     .setSmallIcon(R.drawable.app_logo_no_background)
-                    .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.app_logo_square))
+                    .setLargeIcon(Picasso.with(getApplicationContext()).load(imageUrl).get())
                     .setAutoCancel(true)
                     .setShowWhen(false)
                     .setColor(getResources().getColor(R.color.pink))
@@ -160,6 +162,9 @@ public class NotificationService extends Service {
             notificationManager.notify(notificationId, notification);
         }
         notification.contentIntent = pendingIntent;
+    }catch(Exception e){
+        Log.d("d",e.toString());
+    }
     }
     private void CreateNotificationChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -1,6 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:myapp/models/song.dart';
-import 'package:path_provider/path_provider.dart';
 
 class ManageLocalSongs {
   static String songID;

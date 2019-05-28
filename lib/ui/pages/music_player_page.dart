@@ -260,6 +260,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                               ? audioPlayerManager.playlistMode = PlaylistMode.shuffle
                               : audioPlayerManager.playlistMode = PlaylistMode.loop;
                           changePlaylistModeIconState();
+                          audioPlayerManager.setCurrentPlaylist();
                         },
                       ),
                     ),
