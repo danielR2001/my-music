@@ -30,7 +30,6 @@ class _PlaylistPageState extends State<PlaylistPage> {
         decoration: BoxDecoration(
           color: Color(0xE4000000),
         ),
-        child: SafeArea(
           child: Theme(
             data: Theme.of(context).copyWith(accentColor: Colors.grey),
             child: CustomScrollView(
@@ -47,7 +46,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                   ),
                   automaticallyImplyLeading: false,
                   backgroundColor: Colors.grey[850],
-                  expandedHeight: 200,
+                  expandedHeight: 300,
                   pinned: true,
                   floating: false,
                   flexibleSpace: FlexibleSpaceBar(
@@ -173,7 +172,6 @@ class _PlaylistPageState extends State<PlaylistPage> {
             ),
           ),
         ),
-      ),
     );
   }
 
@@ -184,19 +182,19 @@ class _PlaylistPageState extends State<PlaylistPage> {
           setSongImage(playlist.getSongs[index]);
           String title;
           String artist;
-          if (playlist.getSongs[index].getTitle.length > 20) {
-            int pos = playlist.getSongs[index].getTitle.lastIndexOf("", 20);
-            if (pos < 15) {
-              pos = 20;
+          if (playlist.getSongs[index].getTitle.length > 35) {
+            int pos = playlist.getSongs[index].getTitle.lastIndexOf("", 35);
+            if (pos < 20) {
+              pos = 35;
             }
             title = playlist.getSongs[index].getTitle.substring(0, pos) + "...";
           } else {
             title = playlist.getSongs[index].getTitle;
-          } //TODO exact cut
-          if (playlist.getSongs[index].getArtist.length > 40) {
-            int pos = playlist.getSongs[index].getArtist.lastIndexOf("", 40);
-            if (pos < 30) {
-              pos = 40;
+          } 
+          if (playlist.getSongs[index].getArtist.length > 35) {
+            int pos = playlist.getSongs[index].getArtist.lastIndexOf("", 35);
+            if (pos < 25) {
+              pos = 35;
             }
             artist =
                 playlist.getSongs[index].getArtist.substring(0, pos) + "...";

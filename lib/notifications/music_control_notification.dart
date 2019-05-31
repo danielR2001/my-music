@@ -5,7 +5,20 @@ import 'package:myapp/main.dart';
 class MusicControlNotification {
   static const platform = const MethodChannel('flutter.native/helper');
 
-  static Future<bool> responseFromNativeCode(
+  static Future<bool> startService() async {
+    bool response;
+    try {
+      final bool result = await platform.invokeMethod('startService');
+      response = result;
+      platform.setMethodCallHandler(myUtilsHandler);
+    } on PlatformException catch (e) {
+      print("error invoking method from native: $e");
+      response = false;
+    }
+    return response;
+  }
+
+  static Future<bool> makeNotification(
       String title, String artist, String imageUrl, bool isPlaying) async {
     bool response;
     try {
@@ -13,10 +26,9 @@ class MusicControlNotification {
         "title": title,
         "artist": artist,
         "imageUrl": imageUrl,
-        "isPlaying": isPlaying
+        "isPlaying": isPlaying,
       });
       response = result;
-      platform.setMethodCallHandler(myUtilsHandler);
     } on PlatformException catch (e) {
       print("error invoking method from native: $e");
       response = false;

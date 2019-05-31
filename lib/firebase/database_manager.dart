@@ -50,7 +50,7 @@ class FirebaseDatabaseManager {
     );
   }
 
-  static void addSongToPlaylist(Playlist playlist, Song song) {
+  static Song addSongToPlaylist(Playlist playlist, Song song){
     var pushId = FirebaseDatabase.instance
         .reference()
         .child(_usersDir)
@@ -58,9 +58,9 @@ class FirebaseDatabaseManager {
         .child(_playlistsDir)
         .child(playlist.getName)
         .push();
-    Song temp = Song.fromSong(song);
-    temp.setPushId = pushId.key;
-    pushId.set(temp.toJson());
+    song.setPushId = pushId.key;
+    pushId.set(song.toJson());
+    return song;
   }
 
   static void removeSongToPlaylist(Playlist playlist, Song song) {
@@ -80,40 +80,14 @@ class FirebaseDatabaseManager {
     playlistMap.forEach(
       (key, value) {
         temp = Playlist(key);
-        value.forEach(
-          (key, value) {
-            List values = value.values.toList();
-            temp.addNewSong(
-              Song(
-                values[4],
-                values[2],
-                values[5],
-                values[1],
-                values[3],
-                values[0],
-              ),
-            );
-          },
-        );
+        value.forEach((key,value){
+          temp.addNewSong(Song(value['title'],value['artist'],value['songId'],value['streamUrl'],value['imageUrl'],value['pushId']));
+        });
         playlists.add(temp);
       },
     );
     return playlists;
   }
-
-  // static Song buildSong(Map songMap) {
-  //   List values = songMap.values.toList();
-  //   return  Song(
-  //     values[3],
-  //     //buildArtist(values[1]),
-  //     '',
-  //     '',
-  //     values[4],
-  //     '',
-  //    // buildAlbum(values[2]),
-  //     values[0],
-  //   );
-  // }
 
   static Artist buildArtist(Map artistMap) {
     return Artist(artistMap['name'], artistMap['imageUrl']);

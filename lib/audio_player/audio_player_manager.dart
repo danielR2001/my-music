@@ -30,24 +30,30 @@ class AudioPlayerManager {
     AudioPlayer.logEnabled = false;
   }
 
-  void playSong(Song song, Playlist playlist, PlaylistMode playlistMode) async {
+  void playSong(Song song, Playlist playlist, PlaylistMode playlistMode){
+    try{
     closeSong();
     this.playlistMode = playlistMode;
     loopPlaylist = playlist;
-    if (this.playlistMode == PlaylistMode.loop) {
-      currentPlaylist = loopPlaylist;
-    } else {
-      createShuffledPlaylist();
-      currentPlaylist = shuffledPlaylist;
+    if (playlist != null) {
+      if (this.playlistMode == PlaylistMode.loop) {
+        currentPlaylist = loopPlaylist;
+      } else {
+        createShuffledPlaylist();
+        currentPlaylist = shuffledPlaylist;
+      }
     }
     currentSong = song;
     advancedPlayer.play(song.getStreamUrl);
-    await MusicControlNotification.responseFromNativeCode(
+    MusicControlNotification.makeNotification(
         song.getTitle, song.getArtist, song.getImageUrl, true);
 
     listenIfCompleted();
     updateSongPosition();
     getSongDuration();
+    }catch(e){
+      print("AudioPlayerManager eror: $e");
+    }
   }
 
   void updateSongPosition() {
@@ -63,15 +69,15 @@ class AudioPlayerManager {
     });
   }
 
-  void resumeSong() async {
+  void resumeSong() {
     advancedPlayer.resume();
-    await MusicControlNotification.responseFromNativeCode(currentSong.getTitle,
+    MusicControlNotification.makeNotification(currentSong.getTitle,
         currentSong.getArtist, currentSong.getImageUrl, true);
   }
 
-  void pauseSong() async {
+  void pauseSong() {
     advancedPlayer.pause();
-    await MusicControlNotification.responseFromNativeCode(currentSong.getTitle,
+    MusicControlNotification.makeNotification(currentSong.getTitle,
         currentSong.getArtist, currentSong.getImageUrl, false);
   }
 

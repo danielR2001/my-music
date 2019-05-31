@@ -115,8 +115,8 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
       }
     });
     if (!songAlreadyExistsInPlaylist) {
-      FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
-      currentUser.addNewSongToPlaylist(playlist, song);
+      Song updatedsong = FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
+      currentUser.addNewSongToPlaylist(playlist, updatedsong);
       Navigator.pop(context);
     } else {
       scafKey.currentState.showSnackBar(
