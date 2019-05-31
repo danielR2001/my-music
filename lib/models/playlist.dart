@@ -13,6 +13,8 @@ class Playlist {
 
   addNewSong(Song song) => _songs.add(song);
 
+  removeSong(Song song) => _songs.remove(song);
+
   Playlist(String name) {
     _name = name;
     _songs = List<Song>();

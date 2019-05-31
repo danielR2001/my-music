@@ -30,28 +30,28 @@ class AudioPlayerManager {
     AudioPlayer.logEnabled = false;
   }
 
-  void playSong(Song song, Playlist playlist, PlaylistMode playlistMode){
-    try{
-    closeSong();
-    this.playlistMode = playlistMode;
-    loopPlaylist = playlist;
-    if (playlist != null) {
-      if (this.playlistMode == PlaylistMode.loop) {
-        currentPlaylist = loopPlaylist;
-      } else {
-        createShuffledPlaylist();
-        currentPlaylist = shuffledPlaylist;
+  void playSong(Song song, Playlist playlist, PlaylistMode playlistMode) {
+    try {
+      closeSong();
+      this.playlistMode = playlistMode;
+      loopPlaylist = playlist;
+      if (playlist != null) {
+        if (this.playlistMode == PlaylistMode.loop) {
+          currentPlaylist = loopPlaylist;
+        } else {
+          createShuffledPlaylist();
+          currentPlaylist = shuffledPlaylist;
+        }
       }
-    }
-    currentSong = song;
-    advancedPlayer.play(song.getStreamUrl);
-    MusicControlNotification.makeNotification(
-        song.getTitle, song.getArtist, song.getImageUrl, true);
+      currentSong = song;
+      advancedPlayer.play(song.getStreamUrl);
+      MusicControlNotification.makeNotification(
+          song.getTitle, song.getArtist, song.getImageUrl, true);
 
-    listenIfCompleted();
-    updateSongPosition();
-    getSongDuration();
-    }catch(e){
+      listenIfCompleted();
+      updateSongPosition();
+      getSongDuration();
+    } catch (e) {
       print("AudioPlayerManager eror: $e");
     }
   }

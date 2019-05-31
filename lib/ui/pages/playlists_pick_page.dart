@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
@@ -115,9 +116,22 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
       }
     });
     if (!songAlreadyExistsInPlaylist) {
-      Song updatedsong = FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
-      currentUser.addNewSongToPlaylist(playlist, updatedsong);
-      Navigator.pop(context);
+      if (audioPlayerManager.playlistMode == PlaylistMode.shuffle) {
+        Song updatedsong =
+            FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
+        playlist.addNewSong(updatedsong);
+        currentUser.updatePlaylist(playlist);
+        audioPlayerManager.loopPlaylist = playlist;
+        audioPlayerManager.setCurrentPlaylist();
+        Navigator.pop(context);
+      } else {
+        Song updatedsong =
+            FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
+        playlist.addNewSong(updatedsong);
+        currentUser.updatePlaylist(playlist);
+        audioPlayerManager.loopPlaylist = playlist;
+        Navigator.pop(context);
+      }
     } else {
       scafKey.currentState.showSnackBar(
         SnackBar(

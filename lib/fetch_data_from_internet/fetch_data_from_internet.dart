@@ -3,7 +3,8 @@ import 'package:myapp/models/song.dart';
 import 'package:html/parser.dart' show parse;
 
 class FetchData {
-  static final String urlSearch = 'https://ru-music.com/search/';
+  //static final String urlSearch = 'https://ru-music.com/search/';
+  static final String urlSearch = 'https://vmusic.xn--41a.wiki/search/';
 
   static Future<List<Song>> fetchPost(String searchStr) async {
     List<Song> postResponses;
@@ -15,10 +16,10 @@ class FetchData {
         .then((http.Response response) {
       var document = parse(response.body);
       var elements = document.getElementsByClassName("playlist");
-      //var element1 = elements[0].
       if (elements.length > 0) {
         var html = elements[0].outerHtml;
         html = html.replaceAll('\n', '');
+        html = html.replaceFirst('<ul class="playlist">', '');
         var a = html.split("</li>");
         postResponses = buildSearchResult(a);
       }
@@ -37,16 +38,16 @@ class FetchData {
     List<Song> songs = List();
     list.removeLast();
     list.forEach((item) {
-      startPos = item.indexOf('data-img="') + 'data-img="'.length;
-      endPos = item.indexOf('" data-audio_hash');
-      imageUrl = item.substring(startPos, endPos);
-      if (imageUrl == 'https://vk.com/images/audio_row_placeholder.png') {
+     // startPos = item.indexOf('data-img="') + 'data-img="'.length;
+     // endPos = item.indexOf('" data-audio_hash');
+      //imageUrl = item.substring(startPos, endPos);
+     // if (imageUrl == 'https://vk.com/images/audio_row_placeholder.png') {
         imageUrl = '';
-      }
+      //}
 
       startPos = item.indexOf('data-mp3="') + 'data-img="'.length;
       endPos = item.indexOf('" data-url_song');
-      stream = 'https://ru-music.com' +
+      stream = 'https://vmusic.xn--41a.wiki/' +
           item.substring(startPos, endPos).replaceFirst("amp;", "");
 
       startPos = item.lastIndexOf('<em>') + '<em>'.length;
@@ -64,7 +65,7 @@ class FetchData {
       }
 
       startPos = item.lastIndexOf('data-id="') + 'data-id="'.length;
-      endPos = item.lastIndexOf('" data-img=');
+      endPos = item.lastIndexOf('" data-mp3=');
       songId = item.substring(startPos, endPos);
 
       songs.add(Song(songTitle, artist, songId, stream, imageUrl, ''));
