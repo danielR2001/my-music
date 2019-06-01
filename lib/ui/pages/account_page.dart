@@ -17,7 +17,7 @@ class AccountPage extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xEA000000),
+                  Color(0xDE000000),
                   Colors.pink,
                 ],
                 begin: FractionalOffset.bottomRight,
@@ -36,8 +36,12 @@ class AccountPage extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(left: 20),
                           child: Text(
-                            currentUser.getName,
-                            style: TextStyle(color: Colors.white, fontSize: 30),
+                            "Your Library",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         Expanded(
@@ -77,7 +81,9 @@ class AccountPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  createSpace(20),
+                  SizedBox(
+                    height: 20,
+                  ),
                   ListTile(
                     leading: Icon(
                       Icons.save_alt,
@@ -97,7 +103,9 @@ class AccountPage extends StatelessWidget {
                     ),
                     onTap: () => onPush(createMap(Playlist("Downloaded"))),
                   ),
-                  createSpace(20),
+                  SizedBox(
+                    height: 20,
+                  ),
                   ListTile(
                     leading: Icon(
                       Icons.queue_music,
@@ -111,11 +119,6 @@ class AccountPage extends StatelessWidget {
                         color: Colors.white,
                       ),
                     ),
-                    trailing: Icon(
-                      Icons.add_circle_outline,
-                      color: Colors.white,
-                    ),
-                    onTap: () {},
                   ),
                   Expanded(
                     child: Theme(
@@ -139,12 +142,6 @@ class AccountPage extends StatelessWidget {
     });
   }
 
-  SizedBox createSpace(double space) {
-    return SizedBox(
-      height: space,
-    );
-  }
-
   Padding userPlaylists(Playlist playlist, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
@@ -160,16 +157,6 @@ class AccountPage extends StatelessWidget {
             color: Colors.black,
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: Colors.black,
-              width: 0.2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey[850],
-                blurRadius: 2.0,
-              ),
-            ],
             image: DecorationImage(
               fit: BoxFit.fill,
               image: playlist.getSongs[0].getImageUrl != ""
@@ -198,7 +185,7 @@ class AccountPage extends StatelessWidget {
 
   Map createMap(Playlist playlist) {
     Map<String, dynamic> playlistValues = Map();
-    if (playlist.getSongs.length> 0) {
+    if (playlist.getSongs.length > 0) {
       playlistValues['playlist'] = playlist;
       playlistValues['imageUrl'] = playlist.getSongs[0].getImageUrl != ""
           ? playlist.getSongs[0].getImageUrl

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/notifications/music_control_notification.dart';
@@ -30,30 +31,27 @@ class AudioPlayerManager {
     AudioPlayer.logEnabled = false;
   }
 
-  void playSong(Song song, Playlist playlist, PlaylistMode playlistMode) {
-    try {
-      closeSong();
-      this.playlistMode = playlistMode;
-      loopPlaylist = playlist;
-      if (playlist != null) {
-        if (this.playlistMode == PlaylistMode.loop) {
-          currentPlaylist = loopPlaylist;
-        } else {
-          createShuffledPlaylist();
-          currentPlaylist = shuffledPlaylist;
-        }
+  void playSong(Song song, Playlist playlist, PlaylistMode playlistMode,
+      String streamUrl) {
+    closeSong();
+    this.playlistMode = playlistMode;
+    loopPlaylist = playlist;
+    if (playlist != null) {
+      if (this.playlistMode == PlaylistMode.loop) {
+        currentPlaylist = loopPlaylist;
+      } else {
+        createShuffledPlaylist();
+        currentPlaylist = shuffledPlaylist;
       }
-      currentSong = song;
-      advancedPlayer.play(song.getStreamUrl);
-      MusicControlNotification.makeNotification(
-          song.getTitle, song.getArtist, song.getImageUrl, true);
-
-      listenIfCompleted();
-      updateSongPosition();
-      getSongDuration();
-    } catch (e) {
-      print("AudioPlayerManager eror: $e");
     }
+    currentSong = song;
+    advancedPlayer.play(streamUrl);
+    MusicControlNotification.makeNotification(
+        song.getTitle, song.getArtist, song.getImageUrl, true);
+
+    listenIfCompleted();
+    updateSongPosition();
+    getSongDuration();
   }
 
   void updateSongPosition() {
@@ -123,10 +121,24 @@ class AudioPlayerManager {
   void listenIfCompleted() {
     _onCompletestream = advancedPlayer.onPlayerCompletion.listen((a) {
       if (currentPlaylist != null) {
-        playSong(getNextSong(currentPlaylist, currentSong), currentPlaylist,
-            playlistMode);
+        Song nextSong = getNextSong(currentPlaylist, currentSong);
+        FetchData.getSongPlayUrl(nextSong).then((streamUrl) {
+          playSong(
+            nextSong,
+            currentPlaylist,
+            playlistMode,
+            streamUrl,
+          );
+        });
       } else {
-        playSong(currentSong, currentPlaylist, playlistMode);
+        FetchData.getSongPlayUrl(currentSong).then((streamUrl) {
+          playSong(
+            currentSong,
+            currentPlaylist,
+            playlistMode,
+            streamUrl,
+          );
+        });
       }
     });
   }
@@ -136,8 +148,16 @@ class AudioPlayerManager {
       int i = 0;
       Song correctPreviousSong;
       if (currentSong.getSongId == currentPlaylist.getSongs[0].getSongId) {
-        playSong(currentPlaylist.getSongs[currentPlaylist.getSongs.length - 1],
-            currentPlaylist, playlistMode);
+        FetchData.getSongPlayUrl(
+                currentPlaylist.getSongs[currentPlaylist.getSongs.length - 1])
+            .then((streamUrl) {
+          playSong(
+            currentPlaylist.getSongs[currentPlaylist.getSongs.length - 1],
+            currentPlaylist,
+            playlistMode,
+            streamUrl,
+          );
+        });
       } else {
         Song previousSong = currentPlaylist.getSongs[0];
         currentPlaylist.getSongs.forEach((song) {
@@ -150,7 +170,14 @@ class AudioPlayerManager {
           }
           i++;
         });
-        playSong(correctPreviousSong, currentPlaylist, playlistMode);
+        FetchData.getSongPlayUrl(correctPreviousSong).then((streamUrl) {
+          playSong(
+            correctPreviousSong,
+            currentPlaylist,
+            playlistMode,
+            streamUrl,
+          );
+        });
       }
     }
   }
@@ -171,7 +198,14 @@ class AudioPlayerManager {
       if (nextSong == null && foundSong) {
         nextSong = currentPlaylist.getSongs[0];
       }
-      playSong(nextSong, currentPlaylist, playlistMode);
+      FetchData.getSongPlayUrl(nextSong).then((streamUrl) {
+        playSong(
+          nextSong,
+          currentPlaylist,
+          playlistMode,
+          streamUrl,
+        );
+      });
     }
   }
 

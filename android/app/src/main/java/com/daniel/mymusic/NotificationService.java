@@ -10,7 +10,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.IBinder;
-import android.widget.Toast;
+
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -53,7 +53,6 @@ public class NotificationService extends Service {
         if (intent.getAction().equals(Constants.STARTFOREGROUND_ACTION)) {
             initIntents();
             isPlaying = true;
-            Toast.makeText(this, "Service started!", Toast.LENGTH_SHORT).show();
         } else if (intent.getAction().equals(Constants.MAIN_ACTION)) {
 
         } else if (intent.getAction().equals(Constants.PREV_ACTION)) {
@@ -158,11 +157,19 @@ public class NotificationService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CreateNotificationChannel(context);
             notificationManagerForOreo = NotificationManagerCompat.from(context);
-            notification = new NotificationCompat.Builder(context, CHANNEL_ID).setContentTitle(title)
-                    .setContentText(artist).setSmallIcon(R.drawable.app_logo_no_background).setLargeIcon(imageBitmap)
-                    .setAutoCancel(true).setShowWhen(false).setColor(context.getResources().getColor(R.color.pink))
-                    .addAction(R.drawable.ic_skip_previous, "", pprevIntent).addAction(iconInts[index], "", pplayIntent)
-                    .addAction(R.drawable.ic_skip_next, "", pnextIntent).setTimeoutAfter(1800000)
+            notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+            .setContentTitle(title)
+                    .setContentText(artist)
+                    .setSmallIcon(R.drawable.app_logo_no_background)
+                    .setLargeIcon(imageBitmap)
+                    .setAutoCancel(true)
+                    .setShowWhen(false)
+                    .setColor(context.getResources()
+                    .getColor(R.color.pink))
+                    .addAction(R.drawable.ic_skip_previous, "", pprevIntent)
+                    .addAction(iconInts[index], "", pplayIntent)
+                    .addAction(R.drawable.ic_skip_next, "", pnextIntent)
+                    .setTimeoutAfter(1800000)
                     .setStyle(
                             new androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0, 1, 2))
                     .setDeleteIntent(pdeleteIntent).build();

@@ -90,7 +90,7 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                           onChanged: (txt) {
                             if (txt != "") {
-                              FetchData.fetchPost(txt).then((results) {
+                              FetchData.searchForResults(txt).then((results) {
                                 setState(() {
                                   searchResults = results;
                                   if (searchResults != null) {
@@ -103,7 +103,7 @@ class _SearchPageState extends State<SearchPage> {
                             }
                           },
                           onSubmitted: (txt) =>
-                              FetchData.fetchPost(txt).then((results) {
+                              FetchData.searchForResults(txt).then((results) {
                                 setState(() {
                                   searchResults = results;
                                   searchLength = searchResults.length;
@@ -147,7 +147,6 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   ListTile songSearchResult(Song song, BuildContext context) {
-    setSongImage(song);
     String title;
     String artist;
     if (song.getTitle.length > 32) {
@@ -169,15 +168,6 @@ class _SearchPageState extends State<SearchPage> {
       artist = song.getArtist;
     }
     return ListTile(
-      leading: Container(
-        width: 35,
-        height: 35,
-        decoration: BoxDecoration(
-            color: Colors.black,
-            image: DecorationImage(
-              image: songImage,
-            )),
-      ),
       title: Text(
         title,
         style: TextStyle(
@@ -200,33 +190,26 @@ class _SearchPageState extends State<SearchPage> {
       ),
       onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
-        FetchData.getRealSongUrl(song).then((streamUrl) {
-          song.setStreamUrl = streamUrl;
-        });
-        audioPlayerManager.playSong(song, null, PlaylistMode.loop);
+        FetchData.getSongPlayUrl(
+          song,
+        ).then((streamUrl) async {
+          if(song.getImageUrl.length == 0){
+          String imageUrl = await FetchData.getSongImageUrl(song);
+            song.setImageUrl = imageUrl;
+          }
+            audioPlayerManager.playSong(
+                song, null, PlaylistMode.loop, streamUrl);
+          });
       },
     );
   }
 
-  void setSongImage(Song song) {
-    if (song.getImageUrl.length > 0) {
-      songImage = NetworkImage(
-        song.getImageUrl,
-      );
-    } else {
-      songImage = AssetImage('assets/images/default_song_pic.png');
-    }
-  }
-
   void showMoreOptions(Song song) {
-    FetchData.getRealSongUrl(song).then((streamUrl) {
-      song.setStreamUrl = streamUrl;
-      showModalBottomSheet(
-        context: homePageContext,
-        builder: (builder) {
-          return SongOptionsModalSheet(song, null);
-        },
-      );
-    });
+    showModalBottomSheet(
+      context: homePageContext,
+      builder: (builder) {
+        return SongOptionsModalSheet(song, null);
+      },
+    );
   }
 }

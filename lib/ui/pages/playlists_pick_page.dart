@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
+import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
@@ -26,55 +27,95 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     return Container(
       child: Scaffold(
         key: scafKey,
-        backgroundColor: Color(0xAA000000),
-        body: SafeArea(
-          child: Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                  height: 40,
-                ),
-                GestureDetector(
-                  child: Container(
-                    alignment: Alignment.center,
-                    height: 55,
-                    width: 140,
-                    decoration: BoxDecoration(
-                      color: Colors.pink,
-                      borderRadius: BorderRadius.circular(40.0),
+        body: Container(
+          decoration: BoxDecoration(
+            color: Color(0xDE000000),
+          ),
+          child: SafeArea(
+            child: Container(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6, left: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        Expanded(
+                          child: Container(),
+                          flex: 3,
+                        ),
+                        Text(
+                          "Add to playlist",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(),
+                          flex: 5,
+                        ),
+                      ],
                     ),
-                    child: Text(
-                      "New Playlist",
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        color: Colors.white,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  GestureDetector(
+                    child: Container(
+                      alignment: Alignment.center,
+                      height: 55,
+                      width: 180,
+                      decoration: BoxDecoration(
+                        color: Colors.pink,
+                        borderRadius: BorderRadius.circular(40.0),
+                      ),
+                      child: Text(
+                        "New Playlist",
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    onTap: () {
+                      showNewPlaylistDialog();
+                    },
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Expanded(
+                    child: Theme(
+                      data: Theme.of(context)
+                          .copyWith(accentColor: Colors.transparent),
+                      child: ListView.builder(
+                        itemCount: currentUser.getMyPlaylists.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return userPlaylists(
+                              currentUser.getMyPlaylists[index]);
+                        },
                       ),
                     ),
                   ),
-                  onTap: () {
-                    showNewPlaylistDialog();
-                  },
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                Expanded(
-                  child: Theme(
-                    data: Theme.of(context)
-                        .copyWith(accentColor: Colors.transparent),
-                    child: ListView.builder(
-                      itemCount: currentUser.getMyPlaylists.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return userPlaylists(currentUser.getMyPlaylists[index]);
-                      },
-                    ),
+                  SizedBox(
+                    height: 10,
                   ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -99,7 +140,10 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         ),
         title: Text(
           playlist.getName,
-          style: TextStyle(color: Colors.white, fontSize: 18),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+          ),
         ),
         onTap: () {
           selectedPlaylist(playlist);
@@ -108,7 +152,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     );
   }
 
-  void selectedPlaylist(Playlist playlist) {
+  void selectedPlaylist(Playlist playlist) async {
     bool songAlreadyExistsInPlaylist = false;
     playlist.getSongs.forEach((playlistSong) {
       if (playlistSong.getSongId == song.getSongId) {
@@ -117,6 +161,10 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     });
     if (!songAlreadyExistsInPlaylist) {
       if (audioPlayerManager.playlistMode == PlaylistMode.shuffle) {
+        if (song.getImageUrl.length == 0) {
+          String imageUrl = await FetchData.getSongImageUrl(song);
+          song.setImageUrl = imageUrl;
+        }
         Song updatedsong =
             FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
         playlist.addNewSong(updatedsong);
@@ -125,6 +173,10 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         audioPlayerManager.setCurrentPlaylist();
         Navigator.pop(context);
       } else {
+        if (song.getImageUrl.length == 0) {
+          String imageUrl = await FetchData.getSongImageUrl(song);
+          song.setImageUrl = imageUrl;
+        }
         Song updatedsong =
             FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
         playlist.addNewSong(updatedsong);

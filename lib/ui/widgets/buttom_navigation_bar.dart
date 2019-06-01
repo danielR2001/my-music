@@ -13,22 +13,22 @@ class TabHelper {
     return TabItem.discover;
   }
 
-  static String title(TabItem tabItem) {
-    switch (tabItem) {
-      case TabItem.discover:
-        return 'Discover';
-      case TabItem.account:
-        return 'Account';
-    }
-    return '';
-  }
+  // static String title(TabItem tabItem) {
+  //   switch (tabItem) {
+  //     case TabItem.discover:
+  //       return 'Discover';
+  //     case TabItem.account:
+  //       return 'Account';
+  //   }
+  //   return '';
+  // }
 
   static IconData icon(TabItem tabItem) {
     switch (tabItem) {
       case TabItem.discover:
         return Icons.explore;
       case TabItem.account:
-        return Icons.account_circle;
+        return Icons.person_outline;
     }
     return null;
   }
@@ -56,16 +56,14 @@ class BottomNavigation extends StatelessWidget {
   }
 
   BottomNavigationBarItem buildItem({TabItem tabItem}) {
-    String text = TabHelper.title(tabItem);
+    //String text = TabHelper.title(tabItem);
     IconData icon = TabHelper.icon(tabItem);
     return BottomNavigationBarItem(
       icon: Icon(
         icon,
         size: 30,
       ),
-      title: Text(
-        text,
-      ),
+      title: Container(height: 0,)
     );
   }
 }

@@ -26,6 +26,8 @@ class User {
 
   addNewPlaylist(Playlist playlist) => _myPlaylists.add(playlist);
 
+  removePlaylist(Playlist playlist) => _myPlaylists.remove(playlist);
+
   set setFirebaseUId(String value) => _firebaseUId = value;
 
   set setMyPlaylists(List<Playlist> value) => _myPlaylists = value;

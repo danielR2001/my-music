@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/ui/decorations/page_slide.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'text_style.dart';
 
@@ -16,7 +14,7 @@ class SongOptionsModalSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topCenter,
-      color: Color(0xFF000000),
+      color: Colors.grey[850],
       child: ListView(
         children: <Widget>[
           Padding(
@@ -38,7 +36,7 @@ class SongOptionsModalSheet extends StatelessWidget {
                       song.getArtist,
                       15,
                       Colors.grey,
-                      30,
+                      40,
                       30,
                     ),
                   ],
@@ -78,6 +76,9 @@ class SongOptionsModalSheet extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              onTap: (){
+
+              },
             ),
           ),
           Padding(
@@ -122,6 +123,9 @@ class SongOptionsModalSheet extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              onTap: (){
+
+              },
             ),
           ),
           Padding(
@@ -140,6 +144,9 @@ class SongOptionsModalSheet extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              onTap: (){
+                
+              },
             ),
           ),
         ],
@@ -168,24 +175,27 @@ class SongOptionsModalSheet extends StatelessWidget {
           onTap: () {
             FirebaseDatabaseManager.removeSongToPlaylist(playlist, song);
             playlist.removeSong(song);
-            currentUser.updatePlaylist(playlist);
-            audioPlayerManager.loopPlaylist = playlist;
-            audioPlayerManager.setCurrentPlaylist();
+            if (playlist.getSongs.length == 0) {
+              currentUser.removePlaylist(playlist);
+            } else {
+              currentUser.updatePlaylist(playlist);
+            }
             if (audioPlayerManager.currentPlaylist != null) {
               if (audioPlayerManager.currentPlaylist.getName ==
                   playlist.getName) {
-                audioPlayerManager.currentPlaylist.getSongs.remove(song);
+                if (playlist.getSongs.length == 0) {
+                  audioPlayerManager.loopPlaylist = null;
+                  audioPlayerManager.currentPlaylist = null;
+                } else {
+                  audioPlayerManager.loopPlaylist = playlist;
+                  audioPlayerManager.setCurrentPlaylist();
+                }
               }
             }
-            if (playlist.getSongs.length > 0) {
+            if (playlist.getSongs.length == 0) {
               Navigator.pop(context);
             } else {
-              Navigator.pushReplacement(
-                context,
-                MyCustomRoute(
-                  builder: (context) => HomePage(),
-                ),
-              );
+              Navigator.pop(context);
             }
           },
         ),

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:connectivity/connectivity.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/main.dart';
@@ -20,9 +19,6 @@ class MusicPageState extends State<MusicPlayerPage> {
   StreamSubscription<AudioPlayerState> stateStream;
   StreamSubscription<Duration> posStream;
   StreamSubscription<Duration> durStream;
-  StreamSubscription<void> onSongCompleteStream;
-  ImageProvider songImage =
-      AssetImage('assets/images/default_song_pic_big.png');
 
   @override
   void initState() {
@@ -36,7 +32,6 @@ class MusicPageState extends State<MusicPlayerPage> {
     posStream.cancel();
     durStream.cancel();
     stateStream.cancel();
-    onSongCompleteStream.cancel();
   }
 
   @override
@@ -104,7 +99,14 @@ class MusicPageState extends State<MusicPlayerPage> {
                           ),
                         ],
                         image: DecorationImage(
-                          image: songImage,
+                          image: audioPlayerManager
+                                      .currentSong.getImageUrl.length >
+                                  0
+                              ? NetworkImage(
+                                  audioPlayerManager.currentSong.getImageUrl,
+                                )
+                              : AssetImage(
+                                  'assets/images/default_song_pic.png'),
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -211,7 +213,6 @@ class MusicPageState extends State<MusicPlayerPage> {
                         ),
                         onPressed: () {
                           audioPlayerManager.playPreviousSong();
-                          setSongImage();
                         },
                       ),
                       IconButton(
@@ -236,7 +237,6 @@ class MusicPageState extends State<MusicPlayerPage> {
                         ),
                         onPressed: () {
                           audioPlayerManager.playNextSong();
-                          setSongImage();
                         },
                       ),
                     ],
@@ -366,17 +366,12 @@ class MusicPageState extends State<MusicPlayerPage> {
       },
     );
     changePlaylistModeIconState();
-    setSongImage();
     checkSongStatus(audioPlayerManager.advancedPlayer.state);
     stateStream = audioPlayerManager.advancedPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
         checkSongStatus(state);
       },
     );
-    onSongCompleteStream =
-        audioPlayerManager.advancedPlayer.onPlayerCompletion.listen((a) {
-      setSongImage();
-    });
   }
 
   void seekToSecond(int second) {
@@ -389,29 +384,6 @@ class MusicPageState extends State<MusicPlayerPage> {
       return 2;
     } else {
       return 0;
-    }
-  }
-
-  void setSongImage() async {
-    if (audioPlayerManager.currentSong.getImageUrl.length > 0) {
-      ConnectivityResult connectivityResult =
-          await Connectivity().checkConnectivity();
-      if (connectivityResult == ConnectivityResult.mobile ||
-          connectivityResult == ConnectivityResult.wifi) {
-        setState(() {
-          songImage = NetworkImage(
-            audioPlayerManager.currentSong.getImageUrl,
-          );
-        });
-      } else {
-        setState(() {
-          songImage = AssetImage('assets/images/default_song_pic.png');
-        });
-      }
-    } else {
-      setState(() {
-        songImage = AssetImage('assets/images/default_song_pic.png');
-      });
     }
   }
 }

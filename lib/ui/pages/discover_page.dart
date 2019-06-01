@@ -58,7 +58,7 @@ class DiscoverPage extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xEA000000),
+                    Color(0xDE000000),
                     Colors.pink,
                   ],
                   begin: FractionalOffset.bottomRight,
@@ -167,7 +167,7 @@ class DiscoverPage extends StatelessWidget {
               decoration: BoxDecoration(
                 image: DecorationImage(
                   colorFilter: ColorFilter.mode(
-                      Colors.black.withOpacity(0.2), BlendMode.dstATop),
+                      Colors.black.withOpacity(0.3), BlendMode.dstATop),
                   image: ExactAssetImage(imagePath),
                   fit: BoxFit.cover,
                 ),
