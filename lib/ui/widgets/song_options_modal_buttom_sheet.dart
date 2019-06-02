@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as prefix0;
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
+import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
 import 'text_style.dart';
 
 class SongOptionsModalSheet extends StatelessWidget {
   final Playlist playlist;
   final Song song;
-  SongOptionsModalSheet(this.song, this.playlist);
+  final bool isMusicPlayerMenu;
+  SongOptionsModalSheet(this.song, this.playlist, this.isMusicPlayerMenu);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -76,9 +79,7 @@ class SongOptionsModalSheet extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              onTap: (){
-
-              },
+              onTap: () {},
             ),
           ),
           Padding(
@@ -107,6 +108,7 @@ class SongOptionsModalSheet extends StatelessWidget {
               },
             ),
           ),
+          showQueue(context),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: ListTile(
@@ -123,9 +125,7 @@ class SongOptionsModalSheet extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              onTap: (){
-
-              },
+              onTap: () {},
             ),
           ),
           Padding(
@@ -144,9 +144,7 @@ class SongOptionsModalSheet extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              onTap: (){
-                
-              },
+              onTap: () {},
             ),
           ),
         ],
@@ -187,8 +185,13 @@ class SongOptionsModalSheet extends StatelessWidget {
                   audioPlayerManager.loopPlaylist = null;
                   audioPlayerManager.currentPlaylist = null;
                 } else {
+                  if(audioPlayerManager.currentSong.getSongId == song.getSongId){
+                    audioPlayerManager.loopPlaylist = null;
+                    audioPlayerManager.currentPlaylist = null;
+                  }else{
                   audioPlayerManager.loopPlaylist = playlist;
                   audioPlayerManager.setCurrentPlaylist();
+                  }
                 }
               }
             }
@@ -203,5 +206,43 @@ class SongOptionsModalSheet extends StatelessWidget {
     } else {
       return Container();
     }
+  }
+
+  Widget showQueue(BuildContext context) {
+    if (isMusicPlayerMenu && playlist != null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ListTile(
+          leading: Icon(
+            Icons.queue_music,
+            color: Colors.grey,
+            size: 30,
+          ),
+          title: Text(
+            "View Queue",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () {
+            showMoreOptions(context);
+          },
+        ),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  void showMoreOptions(BuildContext context) {
+    Navigator.pop(context);
+    showModalBottomSheet(
+      context: context,
+      builder: (builder) {
+        return QueueModalSheet();
+      },
+    );
   }
 }

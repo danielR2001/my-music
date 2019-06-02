@@ -222,7 +222,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
           }
           return ListTile(
             onTap: () {
-              if (audioPlayerManager.currentSong != null) {
+              if (audioPlayerManager.currentSong != null&& audioPlayerManager.currentPlaylist!=null) {
                 if (audioPlayerManager.currentSong.getSongId ==
                         playlist.getSongs[index].getSongId &&
                     audioPlayerManager.currentPlaylist.getName ==
@@ -273,7 +273,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
             title: Text(
               title,
               style: TextStyle(
-                color: audioPlayerManager.currentSong != null
+                color: audioPlayerManager.currentSong != null && audioPlayerManager.currentPlaylist !=null
                     ? audioPlayerManager.loopPlaylist.getName ==
                             playlist.getName
                         ? audioPlayerManager.currentSong.getSongId ==
@@ -289,7 +289,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
             subtitle: Text(
               artist,
               style: TextStyle(
-                color: audioPlayerManager.currentSong != null
+                color: audioPlayerManager.currentSong != null && audioPlayerManager.currentPlaylist !=null
                     ? audioPlayerManager.loopPlaylist.getName ==
                             playlist.getName
                         ? audioPlayerManager.currentSong.getSongId ==
@@ -304,7 +304,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
             trailing: IconButton(
               icon: Icon(
                 Icons.more_vert,
-                color: audioPlayerManager.currentSong != null
+                color: audioPlayerManager.currentSong != null && audioPlayerManager.currentPlaylist !=null
                     ? audioPlayerManager.loopPlaylist.getName ==
                             playlist.getName
                         ? audioPlayerManager.currentSong.getSongId ==
@@ -313,7 +313,6 @@ class _PlaylistPageState extends State<PlaylistPage> {
                             : Colors.white
                         : Colors.white
                     : Colors.white,
-                    
               ),
               iconSize: 30,
               onPressed: () {
@@ -332,7 +331,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
     showModalBottomSheet(
       context: homePageContext,
       builder: (builder) {
-        return SongOptionsModalSheet(song, currentPlaylist);
+        return SongOptionsModalSheet(
+          song,
+          currentPlaylist,
+          false,
+        );
       },
     );
   }

@@ -23,7 +23,7 @@ class FetchData {
         html = html.replaceAll('\n', '');
         html = html.replaceFirst('<ul class="playlist">', '');
         var a = html.split("</li>");
-        return buildSearchResult(a, searchUrl + searchStr + "/");
+        return buildSearchResult(a, searchUrl);
       }
       return null;
     });
@@ -44,31 +44,37 @@ class FetchData {
         html = html.replaceAll('\n', '');
         html = html.replaceFirst('<ul class="playlist">', '');
         responseList = html.split("</li>");
+        responseList.removeLast();
       }
-      return buildSong(responseList[song.getSearchPos]);
+      return buildSong(responseList,song);
     });
   }
 
-  static String editSearchParams(String searchParams) {
-    searchParams = searchParams.replaceAll(" ", "%20");
-    if (searchParams.contains("feat")) {
-      int pos = searchParams.indexOf("feat");
-      searchParams = searchParams.substring(0, pos);
+  static String editSearchParams(String str, bool isTitle) {
+    str = str.replaceAll(" ", "%20");
+    str = str.replaceAll("&", "%26");
+    if (str.contains("feat")) {
+      int pos = str.indexOf("feat");
+      str = str.substring(0, pos);
     }
-    if (searchParams.contains(",")) {
-      int pos = searchParams.indexOf(",");
-      searchParams = searchParams.substring(0, pos);
+    if (str.contains(",") && isTitle) {
+      int pos = str.indexOf(",");
+      str = str.substring(0, pos);
     }
-    if (searchParams.contains("'")) {
-      int pos = searchParams.indexOf("'");
-      searchParams = searchParams.substring(0, pos);
+    if (str.contains("'")) {
+      int pos = str.indexOf("'");
+      str = str.substring(0, pos);
     }
-    return searchParams;
+
+    return str;
   }
 
   static Future<String> getSongImageUrl(Song song) async {
-    String searchParams = song.getTitle + " " + song.getArtist;
-    searchParams = editSearchParams(searchParams);
+    String title = song.getTitle;
+    String artist = song.getArtist;
+    title = editSearchParams(title, false);
+    artist = editSearchParams(artist, true);
+    String searchParams = title + "%20" + artist;
     return http
         .get(imageSearchUrl + searchParams)
         .whenComplete(() => print('image search completed'))
@@ -82,15 +88,26 @@ class FetchData {
     });
   }
 
-  static String buildSong(String list) {
+  static String buildSong(List<String> list,Song song) {
     int startPos;
     int endPos;
+    String songId;
+    String strSong;
     String stream;
-    startPos = list.indexOf('data-mp3="') + 'data-mp3="'.length;
-    endPos = list.indexOf('" data-url_song=');
+    list.forEach((item){
+      startPos = item.lastIndexOf('data-id="') + 'data-id="'.length;
+      endPos = item.lastIndexOf('" data-img=');
+      songId = item.substring(startPos, endPos);
+      if(songId == song.getSongId){
+        strSong = item;
+      }
+    });
+    if(strSong!=null){
+    startPos = strSong.indexOf('data-mp3="') + 'data-mp3="'.length;
+    endPos = strSong.indexOf('" data-url_song=');
     stream = 'https://ru-music.com' +
-        list.substring(startPos, endPos).replaceFirst("amp;", "");
-
+        strSong.substring(startPos, endPos).replaceFirst("amp;", "");
+    }
     return stream;
   }
 
@@ -101,7 +118,7 @@ class FetchData {
     String songTitle;
     String artist;
     String songId;
-    int pos = 0;
+    String streamUrl;
     List<Song> songs = List();
     list.removeLast();
     list.forEach((item) {
@@ -125,9 +142,12 @@ class FetchData {
       endPos = item.lastIndexOf('" data-img=');
       songId = item.substring(startPos, endPos);
 
-      songs.add(
-          Song(songTitle, artist, songId, pos, searchString, imageUrl, ''));
-      pos++;
+      streamUrl =
+          songTitle.replaceAll(" ", "-") + "-" + artist.replaceAll(" ", "-");
+          streamUrl = streamUrl.replaceAll(",", "");
+          streamUrl = streamUrl.replaceAll("&", "-");
+      songs.add(Song(songTitle, artist, songId,
+          searchString + streamUrl + "/", imageUrl, ''));
     });
     return songs;
   }

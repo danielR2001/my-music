@@ -193,13 +193,12 @@ class _SearchPageState extends State<SearchPage> {
         FetchData.getSongPlayUrl(
           song,
         ).then((streamUrl) async {
-          if(song.getImageUrl.length == 0){
-          String imageUrl = await FetchData.getSongImageUrl(song);
+          if (song.getImageUrl.length == 0) {
+            String imageUrl = await FetchData.getSongImageUrl(song);
             song.setImageUrl = imageUrl;
           }
-            audioPlayerManager.playSong(
-                song, null, PlaylistMode.loop, streamUrl);
-          });
+          audioPlayerManager.playSong(song, null, PlaylistMode.loop, streamUrl);
+        });
       },
     );
   }
@@ -208,7 +207,11 @@ class _SearchPageState extends State<SearchPage> {
     showModalBottomSheet(
       context: homePageContext,
       builder: (builder) {
-        return SongOptionsModalSheet(song, null);
+        return SongOptionsModalSheet(
+          song,
+          null,
+          false,
+        );
       },
     );
   }

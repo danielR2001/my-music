@@ -2,7 +2,6 @@ class Song {
   String _title;
   String _artist;
   String _songId;
-  int _searchPos;
   String _searchString;
   String _imageUrl;
   String _pushId;
@@ -10,7 +9,6 @@ class Song {
   Song(String songName, 
       String artist, 
       String songId,
-      int searchPos, 
       String searchString,
       String imageUrl,
       String pushId,
@@ -18,7 +16,6 @@ class Song {
     _title = songName;
     _artist = artist;
     _songId = songId;
-    _searchPos = searchPos;
     _searchString = searchString;
     _imageUrl = imageUrl;
     _pushId = pushId;
@@ -27,7 +24,6 @@ class Song {
     _title = song.getTitle;
     _artist = song.getArtist;
     _songId = song.getSongId;
-    _searchPos = song.getSearchPos;
     _searchString = song.getSearchString;
     _imageUrl = song.getImageUrl;
     _pushId = song.getPushId;
@@ -39,7 +35,6 @@ class Song {
 
   String get getSongId => _songId;
 
-  int get getSearchPos => _searchPos;
 
   String get getSearchString => _searchString;
 
@@ -55,7 +50,6 @@ class Song {
 
   set setSongId(String value) => _songId = value;
 
-  set setSearchPos(int value) => _searchPos = value;
 
   set setSearchString(String value) => _searchString = value;
 
@@ -68,7 +62,6 @@ class Song {
       'title': _title,
       'artist': _artist,
       'songId': _songId,
-      'searchPos': _searchPos,
       'searchString': _searchString,
       'imageUrl': _imageUrl,
       'pushId': _pushId,

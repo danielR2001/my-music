@@ -297,7 +297,10 @@ class MusicPageState extends State<MusicPlayerPage> {
       context: context,
       builder: (builder) {
         return SongOptionsModalSheet(
-            audioPlayerManager.currentSong, audioPlayerManager.currentPlaylist);
+          audioPlayerManager.currentSong,
+          audioPlayerManager.currentPlaylist,
+          true,
+        );
       },
     );
   }

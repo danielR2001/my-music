@@ -81,7 +81,7 @@ class FirebaseDatabaseManager {
       (key, value) {
         temp = Playlist(key);
         value.forEach((key,value){
-          temp.addNewSong(Song(value['title'],value['artist'],value['songId'],value['searchPos'],value['searchString'],value['imageUrl'],value['pushId']));
+          temp.addNewSong(Song(value['title'],value['artist'],value['songId'],value['searchString'],value['imageUrl'],value['pushId']));
         });
         playlists.add(temp);
       },

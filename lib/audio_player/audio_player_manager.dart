@@ -35,14 +35,15 @@ class AudioPlayerManager {
       String streamUrl) {
     closeSong();
     this.playlistMode = playlistMode;
-    loopPlaylist = playlist;
+    setCurrentPlaylist(playlist:playlist);
     if (playlist != null) {
       if (this.playlistMode == PlaylistMode.loop) {
         currentPlaylist = loopPlaylist;
       } else {
-        createShuffledPlaylist();
         currentPlaylist = shuffledPlaylist;
       }
+    } else {
+      currentPlaylist = null;
     }
     currentSong = song;
     advancedPlayer.play(streamUrl);
@@ -234,11 +235,16 @@ class AudioPlayerManager {
     return randomPosList;
   }
 
-  void setCurrentPlaylist() {
+  void setCurrentPlaylist({Playlist playlist}) {
+    if(loopPlaylist == null){
+        loopPlaylist = playlist;
+    }
     if (playlistMode == PlaylistMode.loop) {
       currentPlaylist = loopPlaylist;
     } else {
-      createShuffledPlaylist();
+      if (shuffledPlaylist == null) {
+        createShuffledPlaylist();
+      }
       currentPlaylist = shuffledPlaylist;
     }
   }
