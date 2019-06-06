@@ -3,12 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 class FirebaseAuthentication {
   static Future<FirebaseUser> signInWithEmail(
       String email, String password) async {
-    FirebaseUser user =
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
+    FirebaseUser user;
     try {
+      user = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
       await user.sendEmailVerification();
       return user;
     } catch (e) {

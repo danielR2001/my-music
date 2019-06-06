@@ -2,7 +2,6 @@ import 'playlist.dart';
 
 class User {
   String _name;
-  String _imageUrl;
   String _firebaseUId;
   List<Playlist> _myPlaylists;
 
@@ -16,13 +15,11 @@ class User {
 
   String get getFirebaseUId => _firebaseUId;
 
-  String get getImageUrl => _imageUrl;
 
   List<Playlist> get getMyPlaylists => _myPlaylists;
 
   set setName(String value) => _name = value;
 
-  set setImageUrl(String value) => _imageUrl = value;
 
   addNewPlaylist(Playlist playlist) => _myPlaylists.add(playlist);
 
@@ -35,7 +32,6 @@ class User {
   toJson() {
     return {
       'userName': _name,
-      'imageUrl': _imageUrl,
       'firebaseUId': _firebaseUId,
     };
   }

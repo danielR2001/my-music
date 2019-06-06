@@ -22,6 +22,7 @@ class MusicControlNotification {
       String title, String artist, String imageUrl, bool isPlaying) async {
     bool response;
     try {
+      print("making notification: "+title+" "+artist+" "+imageUrl+" $isPlaying");
       final bool result = await platform.invokeMethod('makeNotification', {
         "title": title,
         "artist": artist,

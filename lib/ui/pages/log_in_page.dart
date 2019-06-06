@@ -263,12 +263,14 @@ class _State extends State<LogInPage> {
   }
 
   void signInWithEmailAndPass(final key) {
+    showLoadingBar();
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
       FirebaseAuthentication.logInWithEmail(_email, _password).then((user) {
         if (user != null) {
           FirebaseDatabaseManager.syncUser(user.uid).then((a) {
+            Navigator.of(context, rootNavigator: true).pop('dialog');
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -276,6 +278,7 @@ class _State extends State<LogInPage> {
                 ));
           });
         } else {
+          Navigator.of(context, rootNavigator: true).pop('dialog');
           key.currentState.showSnackBar(
             SnackBar(
               duration: Duration(seconds: 5),
@@ -289,5 +292,43 @@ class _State extends State<LogInPage> {
 
   bool checkForValidEmail(String email) {
     return RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
+  }
+
+    void showLoadingBar() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          contentPadding: EdgeInsets.all(0.0),
+          backgroundColor: Colors.transparent,
+          children: <Widget>[
+            Container(
+              width: 60.0,
+              height: 60.0,
+              alignment: AlignmentDirectional.center,
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  new Center(
+                    child: new SizedBox(
+                      height: 50.0,
+                      width: 50.0,
+                      child: new CircularProgressIndicator(
+                        value: null,
+                        strokeWidth: 3.0,
+                        valueColor:
+                            new AlwaysStoppedAnimation<Color>(Colors.pink),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        );
+      },
+    );
   }
 }

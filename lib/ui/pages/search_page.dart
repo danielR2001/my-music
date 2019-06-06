@@ -188,16 +188,21 @@ class _SearchPageState extends State<SearchPage> {
           showMoreOptions(song);
         },
       ),
-      onTap: () {
+      onTap: () async {
         FocusScope.of(context).requestFocus(FocusNode());
+        String imageUrl = await FetchData.getSongImageUrl(song);
+        if (song.getImageUrl.length == 0) {
+          song.setImageUrl = imageUrl;
+        }
+        audioPlayerManager.initSong(
+          song,
+          null,
+          PlaylistMode.loop,
+        );
         FetchData.getSongPlayUrl(
           song,
-        ).then((streamUrl) async {
-          if (song.getImageUrl.length == 0) {
-            String imageUrl = await FetchData.getSongImageUrl(song);
-            song.setImageUrl = imageUrl;
-          }
-          audioPlayerManager.playSong(song, null, PlaylistMode.loop, streamUrl);
+        ).then((streamUrl) {
+          audioPlayerManager.playSong(streamUrl);
         });
       },
     );

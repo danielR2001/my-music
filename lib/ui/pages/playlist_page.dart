@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/models/playlist.dart';
-import 'dart:ui';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/music_player_page.dart';
+import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'dart:math';
 
@@ -24,6 +24,20 @@ class _PlaylistPageState extends State<PlaylistPage> {
   final Playlist playlist;
   final String imagePath;
   _PlaylistPageState(this.playlist, this.imagePath);
+  ImageProvider imageProvider;
+  Color iconColor = Colors.white;
+  @override
+  void initState() {
+    // FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    //FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,26 +51,50 @@ class _PlaylistPageState extends State<PlaylistPage> {
             slivers: <Widget>[
               SliverAppBar(
                 actions: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.more_vert),
-                    iconSize: 30,
-                    onPressed: () {}, //TODO sort
+                  Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.pink,
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: iconColor,
+                        ),
+                        iconSize: 30,
+                        onPressed: () {
+                          showPlaylistOptions(playlist);
+                        },
+                      ),
+                    ),
                   ),
                 ],
-                leading: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
+                leading: Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.pink,
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: iconColor,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
                   ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
                 ),
                 automaticallyImplyLeading: false,
                 backgroundColor: Colors.grey[850],
                 expandedHeight: 300,
                 pinned: true,
-                floating: false,
+                floating: true,
+                snap: true,
                 flexibleSpace: FlexibleSpaceBar(
                   centerTitle: true,
                   title: Text(
@@ -64,6 +102,24 @@ class _PlaylistPageState extends State<PlaylistPage> {
                     style: TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                            // bottomLeft
+                            offset: Offset(-0.4, -0.4),
+                            color: Colors.black),
+                        Shadow(
+                            // bottomRight
+                            offset: Offset(0.4, -0.4),
+                            color: Colors.black),
+                        Shadow(
+                            // topRight
+                            offset: Offset(0.4, 0.4),
+                            color: Colors.black),
+                        Shadow(
+                            // topLeft
+                            offset: Offset(-0.4, 0.4),
+                            color: Colors.black),
+                      ],
                     ),
                   ),
                   background: imagePath != ""
@@ -118,12 +174,14 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               ),
                               elevation: 6.0,
                               onPressed: () {
+                                audioPlayerManager.initSong(
+                                  playlist.getSongs[0],
+                                  playlist,
+                                  PlaylistMode.loop,
+                                );
                                 FetchData.getSongPlayUrl(playlist.getSongs[0])
                                     .then((streamUrl) {
                                   audioPlayerManager.playSong(
-                                    playlist.getSongs[0],
-                                    playlist,
-                                    PlaylistMode.loop,
                                     streamUrl,
                                   );
                                 });
@@ -168,13 +226,15 @@ class _PlaylistPageState extends State<PlaylistPage> {
                                 var rnd = Random();
                                 int randomNum =
                                     rnd.nextInt(playlist.getSongs.length);
+                                audioPlayerManager.initSong(
+                                  playlist.getSongs[randomNum],
+                                  playlist,
+                                  PlaylistMode.shuffle,
+                                );
                                 FetchData.getSongPlayUrl(
                                         playlist.getSongs[randomNum])
                                     .then((streamUrl) {
                                   audioPlayerManager.playSong(
-                                    playlist.getSongs[randomNum],
-                                    playlist,
-                                    PlaylistMode.shuffle,
                                     streamUrl,
                                   );
                                 });
@@ -222,7 +282,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
           }
           return ListTile(
             onTap: () {
-              if (audioPlayerManager.currentSong != null&& audioPlayerManager.currentPlaylist!=null) {
+              if (audioPlayerManager.currentSong != null &&
+                  audioPlayerManager.currentPlaylist != null) {
                 if (audioPlayerManager.currentSong.getSongId ==
                         playlist.getSongs[index].getSongId &&
                     audioPlayerManager.currentPlaylist.getName ==
@@ -233,23 +294,27 @@ class _PlaylistPageState extends State<PlaylistPage> {
                         builder: (homePageContext) => MusicPlayerPage()),
                   );
                 } else {
+                  audioPlayerManager.initSong(
+                    playlist.getSongs[index],
+                    playlist,
+                    PlaylistMode.loop,
+                  );
                   FetchData.getSongPlayUrl(playlist.getSongs[index])
                       .then((streamUrl) {
                     audioPlayerManager.playSong(
-                      playlist.getSongs[index],
-                      playlist,
-                      PlaylistMode.loop,
                       streamUrl,
                     );
                   });
                 }
               } else {
+                audioPlayerManager.initSong(
+                  playlist.getSongs[index],
+                  playlist,
+                  PlaylistMode.loop,
+                );
                 FetchData.getSongPlayUrl(playlist.getSongs[index])
                     .then((streamUrl) {
                   audioPlayerManager.playSong(
-                    playlist.getSongs[index],
-                    playlist,
-                    PlaylistMode.loop,
                     streamUrl,
                   );
                 });
@@ -273,7 +338,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
             title: Text(
               title,
               style: TextStyle(
-                color: audioPlayerManager.currentSong != null && audioPlayerManager.currentPlaylist !=null
+                color: audioPlayerManager.currentSong != null &&
+                        audioPlayerManager.currentPlaylist != null
                     ? audioPlayerManager.loopPlaylist.getName ==
                             playlist.getName
                         ? audioPlayerManager.currentSong.getSongId ==
@@ -289,7 +355,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
             subtitle: Text(
               artist,
               style: TextStyle(
-                color: audioPlayerManager.currentSong != null && audioPlayerManager.currentPlaylist !=null
+                color: audioPlayerManager.currentSong != null &&
+                        audioPlayerManager.currentPlaylist != null
                     ? audioPlayerManager.loopPlaylist.getName ==
                             playlist.getName
                         ? audioPlayerManager.currentSong.getSongId ==
@@ -304,7 +371,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
             trailing: IconButton(
               icon: Icon(
                 Icons.more_vert,
-                color: audioPlayerManager.currentSong != null && audioPlayerManager.currentPlaylist !=null
+                color: audioPlayerManager.currentSong != null &&
+                        audioPlayerManager.currentPlaylist != null
                     ? audioPlayerManager.loopPlaylist.getName ==
                             playlist.getName
                         ? audioPlayerManager.currentSong.getSongId ==
@@ -317,7 +385,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
               iconSize: 30,
               onPressed: () {
                 setState(() {
-                  showMoreOptions(playlist.getSongs[index], playlist);
+                  showSongOptions(playlist.getSongs[index], playlist);
                 });
               },
             ),
@@ -327,7 +395,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
     );
   }
 
-  void showMoreOptions(Song song, Playlist currentPlaylist) {
+  void showSongOptions(Song song, Playlist currentPlaylist) {
     showModalBottomSheet(
       context: homePageContext,
       builder: (builder) {
@@ -335,6 +403,17 @@ class _PlaylistPageState extends State<PlaylistPage> {
           song,
           currentPlaylist,
           false,
+        );
+      },
+    );
+  }
+
+  void showPlaylistOptions(Playlist currentPlaylist) {
+    showModalBottomSheet(
+      context: homePageContext,
+      builder: (builder) {
+        return PlaylistOptionsModalSheet(
+          currentPlaylist,
         );
       },
     );

@@ -227,10 +227,12 @@ class _HomePageState extends State<HomePage> {
                     icon: musicPlayerIcon,
                     iconSize: 30,
                     onPressed: () {
-                      audioPlayerManager.advancedPlayer.state ==
-                              AudioPlayerState.PLAYING
-                          ? audioPlayerManager.pauseSong()
-                          : audioPlayerManager.resumeSong();
+                      if (audioPlayerManager.isLoaded) {
+                        audioPlayerManager.advancedPlayer.state ==
+                                AudioPlayerState.PLAYING
+                            ? audioPlayerManager.pauseSong()
+                            : audioPlayerManager.resumeSong();
+                      }
                     },
                   ),
                 )

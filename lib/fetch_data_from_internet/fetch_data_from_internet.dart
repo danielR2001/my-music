@@ -23,7 +23,7 @@ class FetchData {
         html = html.replaceAll('\n', '');
         html = html.replaceFirst('<ul class="playlist">', '');
         var a = html.split("</li>");
-        return buildSearchResult(a, searchUrl);
+        return buildSearchResult(a, searchUrl + searchStr + "/");
       }
       return null;
     });
@@ -35,7 +35,7 @@ class FetchData {
         .get(
           song.getSearchString,
         )
-        .whenComplete(() => print('search completed'))
+        .whenComplete(() => print('song search completed'))
         .then((http.Response response) {
       var document = parse(response.body);
       var elements = document.getElementsByClassName("playlist");
@@ -46,7 +46,7 @@ class FetchData {
         responseList = html.split("</li>");
         responseList.removeLast();
       }
-      return buildSong(responseList,song);
+      return buildSong(responseList, song);
     });
   }
 
@@ -65,7 +65,6 @@ class FetchData {
       int pos = str.indexOf("'");
       str = str.substring(0, pos);
     }
-
     return str;
   }
 
@@ -88,32 +87,30 @@ class FetchData {
     });
   }
 
-  static String buildSong(List<String> list,Song song) {
+  static String buildSong(List<String> list, Song song) {
     int startPos;
     int endPos;
     String songId;
     String strSong;
     String stream;
-    list.forEach((item){
+    list.forEach((item) {
       startPos = item.lastIndexOf('data-id="') + 'data-id="'.length;
       endPos = item.lastIndexOf('" data-img=');
       songId = item.substring(startPos, endPos);
-      if(songId == song.getSongId){
+      if (songId == song.getSongId) {
         strSong = item;
       }
     });
-    if(strSong!=null){
-    startPos = strSong.indexOf('data-mp3="') + 'data-mp3="'.length;
-    endPos = strSong.indexOf('" data-url_song=');
-    stream = 'https://ru-music.com' +
-        strSong.substring(startPos, endPos).replaceFirst("amp;", "");
+    if (strSong != null) {
+      startPos = strSong.indexOf('data-mp3="') + 'data-mp3="'.length;
+      endPos = strSong.indexOf('" data-url_song=');
+      stream = 'https://ru-music.com' +
+          strSong.substring(startPos, endPos).replaceFirst("amp;", "");
     }
     return stream;
   }
 
   static List<Song> buildSearchResult(List<String> list, String searchString) {
-    int startPos;
-    int endPos;
     String imageUrl;
     String songTitle;
     String artist;
@@ -124,30 +121,38 @@ class FetchData {
     list.forEach((item) {
       imageUrl = '';
 
-      startPos = item.lastIndexOf('<em>') + '<em>'.length;
-      endPos = item.lastIndexOf('</em>');
-      songTitle = item.substring(startPos, endPos);
+      songTitle = item.substring(
+          item.lastIndexOf('<em>') + '<em>'.length, item.lastIndexOf('</em>'));
       if (songTitle.contains('amp;')) {
         songTitle = songTitle.replaceAll('amp;', '');
       }
+      songTitle = songTitle.substring(
+          songTitle.indexOf(">") + 1, songTitle.lastIndexOf("<"));
 
-      startPos = item.lastIndexOf('<b>') + '<b>'.length;
-      endPos = item.lastIndexOf('</b>');
-      artist = item.substring(startPos, endPos);
+      artist = item.substring(
+          item.lastIndexOf('<b>') + '<b>'.length, item.lastIndexOf('</b>'));
       if (artist.contains('amp;')) {
         artist = artist.replaceAll('amp;', '');
       }
+      artist =
+          artist.substring(artist.indexOf(">") + 1, artist.lastIndexOf("<"));
 
-      startPos = item.lastIndexOf('data-id="') + 'data-id="'.length;
-      endPos = item.lastIndexOf('" data-img=');
-      songId = item.substring(startPos, endPos);
+      songId = item.substring(
+          item.lastIndexOf('data-id="') + 'data-id="'.length,
+          item.lastIndexOf('" data-img='));
 
       streamUrl =
           songTitle.replaceAll(" ", "-") + "-" + artist.replaceAll(" ", "-");
-          streamUrl = streamUrl.replaceAll(",", "");
-          streamUrl = streamUrl.replaceAll("&", "-");
-      songs.add(Song(songTitle, artist, songId,
-          searchString + streamUrl + "/", imageUrl, ''));
+      streamUrl = streamUrl.replaceAll(",", "");
+      streamUrl = streamUrl.replaceAll("&", "-");
+      if(streamUrl.allMatches(".*[a-z].*")==null){
+        streamUrl = searchString;
+      }
+      // else if(streamUrl.contains("â")||streamUrl.contains("ä")||streamUrl.contains("à")||streamUrl.contains("å")||streamUrl.contains("Á")||streamUrl.contains("Â")||streamUrl.contains("Ã")||streamUrl.contains("À")||streamUrl.contains("")||streamUrl.contains("")||streamUrl.contains("")){
+      //   streamUrl.
+      // } TODO locate special chars
+      songs.add(Song(songTitle, artist, songId, searchUrl + streamUrl + "/",
+          imageUrl, ''));
     });
     return songs;
   }

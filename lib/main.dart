@@ -6,12 +6,10 @@ import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/ui/pages/root_page.dart';
 import 'package:myapp/models/user.dart';
-import 'package:myapp/models/playlist.dart';
 
 void main() => runApp(MyApp());
 AudioPlayerManager audioPlayerManager;
 User currentUser;
-Playlist currentPlayList;
 
 class MyApp extends StatelessWidget with PortraitModeMixin {
   @override
@@ -30,6 +28,7 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
 
   void init() async {
     FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
+    FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
     audioPlayerManager = AudioPlayerManager(); //init song status
     MusicControlNotification.startService();
   }

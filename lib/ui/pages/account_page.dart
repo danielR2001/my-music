@@ -4,9 +4,18 @@ import 'package:myapp/models/playlist.dart';
 import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/settings_page.dart';
 
-class AccountPage extends StatelessWidget {
+class AccountPage extends StatefulWidget {
   AccountPage({this.onPush});
   final ValueChanged<Map> onPush;
+
+  @override
+  _AccountPageState createState() => _AccountPageState();
+}
+
+class _AccountPageState extends State<AccountPage> {
+  // int playlistLength =
+  //    currentUser.getMyPlaylists != null ? currentUser.getMyPlaylists.length : 0;
+  bool openPlaylists = true;
   @override
   Widget build(BuildContext context) {
     return Navigator(onGenerateRoute: (RouteSettings settings) {
@@ -101,7 +110,8 @@ class AccountPage extends StatelessWidget {
                       Icons.keyboard_arrow_right,
                       color: Colors.white,
                     ),
-                    onTap: () => onPush(createMap(Playlist("Downloaded"))),
+                    onTap: () =>
+                        widget.onPush(createMap(Playlist("Downloaded"))),
                   ),
                   SizedBox(
                     height: 20,
@@ -119,20 +129,24 @@ class AccountPage extends StatelessWidget {
                         color: Colors.white,
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: Theme(
-                      data:
-                          Theme.of(context).copyWith(accentColor: Colors.grey),
-                      child: ListView.builder(
-                        itemCount: currentUser.getMyPlaylists.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return userPlaylists(
-                              currentUser.getMyPlaylists[index], context);
-                        },
-                      ),
+                    trailing: IconButton(
+                      icon: openPlaylists
+                          ? Icon(
+                              Icons.keyboard_arrow_down,
+                              color: Colors.white,
+                            )
+                          : Icon(
+                              Icons.keyboard_arrow_up,
+                              color: Colors.white,
+                            ),
+                      onPressed: () {
+                        setState(() {
+                          openPlaylists = !openPlaylists;
+                        });
+                      },
                     ),
                   ),
+                  showOrHidePlaylists(),
                 ],
               ),
             ),
@@ -156,7 +170,6 @@ class AccountPage extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.black,
             shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(10),
             image: DecorationImage(
               fit: BoxFit.fill,
               image: playlist.getSongs[0].getImageUrl != ""
@@ -178,7 +191,7 @@ class AccountPage extends StatelessWidget {
           Icons.keyboard_arrow_right,
           color: Colors.white,
         ),
-        onTap: () => onPush(createMap(playlist)),
+        onTap: () => widget.onPush(createMap(playlist)),
       ),
     );
   }
@@ -195,5 +208,25 @@ class AccountPage extends StatelessWidget {
       playlistValues['imageUrl'] = "";
     }
     return playlistValues;
+  }
+
+  Widget showOrHidePlaylists() {
+    if (openPlaylists) {
+      return Expanded(
+        child: Theme(
+          data: Theme.of(context).copyWith(accentColor: Colors.grey),
+          child: ListView.builder(
+            itemCount: currentUser.getMyPlaylists != null
+                ? currentUser.getMyPlaylists.length
+                : 0,
+            itemBuilder: (BuildContext context, int index) {
+              return userPlaylists(currentUser.getMyPlaylists[index], context);
+            },
+          ),
+        ),
+      );
+    } else {
+      return Container();
+    }
   }
 }

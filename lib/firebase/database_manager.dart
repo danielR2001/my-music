@@ -1,7 +1,5 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:myapp/main.dart';
-import 'package:myapp/models/album.dart';
-import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/user.dart';
@@ -9,6 +7,7 @@ import 'package:myapp/models/user.dart';
 class FirebaseDatabaseManager {
   static final String _usersDir = "users";
   static final String _playlistsDir = "playlists";
+  static final String _songsDir = "songs";
   static String _userPushId;
 
   static void saveUser() {
@@ -50,13 +49,36 @@ class FirebaseDatabaseManager {
     );
   }
 
-  static Song addSongToPlaylist(Playlist playlist, Song song){
+  static Playlist addPlaylist(Playlist playlist) {
     var pushId = FirebaseDatabase.instance
         .reference()
         .child(_usersDir)
         .child(_userPushId)
         .child(_playlistsDir)
-        .child(playlist.getName)
+        .push();
+    playlist.setPushId = pushId.key;
+    pushId.set(playlist.toJson());
+    return playlist;
+  }
+
+  static void renamePlaylist(Playlist playlist, String newName) {
+    FirebaseDatabase.instance
+        .reference()
+        .child(_usersDir)
+        .child(_userPushId)
+        .child(_playlistsDir)
+        .child(playlist.getPushId)
+        .update({"name":newName});
+  }
+
+  static Song addSongToPlaylist(Playlist playlist, Song song) {
+    var pushId = FirebaseDatabase.instance
+        .reference()
+        .child(_usersDir)
+        .child(_userPushId)
+        .child(_playlistsDir)
+        .child(playlist.getPushId)
+        .child(_songsDir)
         .push();
     song.setPushId = pushId.key;
     pushId.set(song.toJson());
@@ -76,24 +98,25 @@ class FirebaseDatabaseManager {
 
   static List<Playlist> buildPlaylist(Map playlistMap) {
     List<Playlist> playlists = List();
-    Playlist temp;
+    Playlist tempPlaylist;
+    Map tempMap;
     playlistMap.forEach(
       (key, value) {
-        temp = Playlist(key);
-        value.forEach((key,value){
-          temp.addNewSong(Song(value['title'],value['artist'],value['songId'],value['searchString'],value['imageUrl'],value['pushId']));
+        tempMap = value["songs"];
+        tempPlaylist = Playlist(value["name"]);
+        tempPlaylist.setPushId = key;
+        tempMap.forEach((key, value) {
+          tempPlaylist.addNewSong(Song(
+              value['title'],
+              value['artist'],
+              value['songId'],
+              value['searchString'],
+              value['imageUrl'],
+              value['pushId']));
         });
-        playlists.add(temp);
+        playlists.add(tempPlaylist);
       },
     );
     return playlists;
-  }
-
-  static Artist buildArtist(Map artistMap) {
-    return Artist(artistMap['name'], artistMap['imageUrl']);
-  }
-
-  static Album buildAlbum(Map albumMap) {
-    return Album(albumMap['title'], albumMap['imageUrl'], albumMap['id']);
   }
 }

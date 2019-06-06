@@ -91,11 +91,13 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
       ),
       onTap: () {
         if (audioPlayerManager.currentSong.getSongId != song.getSongId) {
+          audioPlayerManager.initSong(
+            song,
+            audioPlayerManager.currentPlaylist,
+            audioPlayerManager.playlistMode,
+          );
           FetchData.getSongPlayUrl(song).then((streamUrl) {
             audioPlayerManager.playSong(
-              song,
-              audioPlayerManager.currentPlaylist,
-              audioPlayerManager.playlistMode,
               streamUrl,
             );
           });

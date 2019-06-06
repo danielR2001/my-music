@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/firebase/database_manager.dart';
-import 'package:myapp/models/user.dart';
 import 'package:myapp/firebase/authentication.dart';
-import 'home_page.dart';
+import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
+import 'package:myapp/models/user.dart';
+import 'home_page.dart';
 
 class SignInPage extends StatefulWidget {
   @override
@@ -269,12 +269,14 @@ class _State extends State<SignInPage> {
     if (form.validate()) {
       form.save();
       if (_password.length >= 6 && checkForValidEmail(_email)) {
+        showLoadingBar();
         FirebaseAuthentication.signInWithEmail(_email, _password).then(
           (user) {
             if (user != null) {
               setState(() {
                 signIn = false;
               });
+              Navigator.of(context, rootNavigator: true).pop('dialog');
               key.currentState.showSnackBar(
                 SnackBar(
                   duration: Duration(seconds: 5),
@@ -282,6 +284,7 @@ class _State extends State<SignInPage> {
                 ),
               );
             } else {
+              Navigator.of(context, rootNavigator: true).pop('dialog');
               key.currentState.showSnackBar(
                 SnackBar(
                   duration: Duration(seconds: 5),
@@ -314,7 +317,6 @@ class _State extends State<SignInPage> {
         child: GestureDetector(
           onTap: () {
             FocusScope.of(context).requestFocus(FocusNode());
-            // SystemChannels.textInput.invokeMethod('TextInput.hide');
             signInWithEmailAndPass(key);
           },
           child: Container(
@@ -362,25 +364,23 @@ class _State extends State<SignInPage> {
   }
 
   void tryToSignIn() {
+    showLoadingBar();
     FirebaseAuthentication.userReload().then(
       (isEmailVerified) {
         if (isEmailVerified) {
-          FirebaseAuthentication.currentUser().then(
-            (user) {
-              FirebaseDatabaseManager.syncUser(user.uid).then((a) {
-                currentUser = User(_userName, user.uid);
-                FirebaseDatabaseManager.saveUser();
-                print(currentUser.toString());
-              });
-            },
-          );
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HomePage(),
-            ),
-          );
+          FirebaseAuthentication.currentUser().then((user) {
+            currentUser = User(_userName, user.uid);
+            FirebaseDatabaseManager.saveUser();
+            Navigator.of(context, rootNavigator: true).pop('dialog');
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomePage(),
+              ),
+            );
+          });
         } else {
+          Navigator.of(context, rootNavigator: true).pop('dialog');
           key.currentState.showSnackBar(
             SnackBar(
               duration: Duration(seconds: 5),
@@ -388,6 +388,44 @@ class _State extends State<SignInPage> {
             ),
           );
         }
+      },
+    );
+  }
+
+  void showLoadingBar() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          contentPadding: EdgeInsets.all(0.0),
+          backgroundColor: Colors.transparent,
+          children: <Widget>[
+            Container(
+              width: 60.0,
+              height: 60.0,
+              alignment: AlignmentDirectional.center,
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  new Center(
+                    child: new SizedBox(
+                      height: 50.0,
+                      width: 50.0,
+                      child: new CircularProgressIndicator(
+                        value: null,
+                        strokeWidth: 3.0,
+                        valueColor:
+                            new AlwaysStoppedAnimation<Color>(Colors.pink),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        );
       },
     );
   }

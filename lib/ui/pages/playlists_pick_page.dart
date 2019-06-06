@@ -103,7 +103,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                       data: Theme.of(context)
                           .copyWith(accentColor: Colors.transparent),
                       child: ListView.builder(
-                        itemCount: currentUser.getMyPlaylists.length,
+                        itemCount: currentUser.getMyPlaylists!=null? currentUser.getMyPlaylists.length:0,
                         itemBuilder: (BuildContext context, int index) {
                           return userPlaylists(
                               currentUser.getMyPlaylists[index]);
@@ -160,6 +160,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
       }
     });
     if (!songAlreadyExistsInPlaylist) {
+      showLoadingBar();
       if (audioPlayerManager.playlistMode == PlaylistMode.shuffle) {
         if (song.getImageUrl.length == 0) {
           String imageUrl = await FetchData.getSongImageUrl(song);
@@ -171,6 +172,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         currentUser.updatePlaylist(playlist);
         audioPlayerManager.loopPlaylist = playlist;
         audioPlayerManager.setCurrentPlaylist();
+        Navigator.of(context, rootNavigator: true).pop('dialog');
         Navigator.pop(context);
       } else {
         if (song.getImageUrl.length == 0) {
@@ -182,6 +184,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         playlist.addNewSong(updatedsong);
         currentUser.updatePlaylist(playlist);
         audioPlayerManager.loopPlaylist = playlist;
+        Navigator.of(context, rootNavigator: true).pop('dialog');
         Navigator.pop(context);
       }
     } else {
@@ -209,7 +212,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     }
   }
 
-  void createNewPlatlist() {
+  Future createNewPlatlist() async {
     bool nameExists = false;
     final form = formKey.currentState;
     if (form.validate()) {
@@ -220,12 +223,20 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         }
       });
       if (!nameExists) {
+        Navigator.of(context, rootNavigator: true).pop('dialog');
+        showLoadingBar();
         Playlist playlist = Playlist(_playlistName);
-        playlist.addNewSong(song);
+
+        if (song.getImageUrl.length == 0) {
+          String imageUrl = await FetchData.getSongImageUrl(song);
+          song.setImageUrl = imageUrl;
+        }
+        FirebaseDatabaseManager.addPlaylist(playlist);
+        Song updatedsong =
+          FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
+        playlist.addNewSong(updatedsong);
         currentUser.addNewPlaylist(playlist);
-        FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
-        audioPlayerManager.currentPlaylist = playlist;
-        Navigator.of(context, rootNavigator: true).pop(true);
+        Navigator.of(context, rootNavigator: true).pop('dialog');
         Navigator.pop(context);
       } else {
         scafKey.currentState.showSnackBar(
@@ -321,6 +332,43 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                 ],
               ),
             ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showLoadingBar() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          contentPadding: EdgeInsets.all(0.0),
+          backgroundColor: Colors.transparent,
+          children: <Widget>[
+            Container(
+              width: 60.0,
+              height: 60.0,
+              alignment: AlignmentDirectional.center,
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  new Center(
+                    child: new SizedBox(
+                      height: 50.0,
+                      width: 50.0,
+                      child: new CircularProgressIndicator(
+                        value: null,
+                        strokeWidth: 3.0,
+                        valueColor: new AlwaysStoppedAnimation<Color>(Colors.pink),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
           ],
         );
       },
