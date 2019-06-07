@@ -100,14 +100,14 @@ class MusicPageState extends State<MusicPlayerPage> {
                                 Column(
                                   children: <Widget>[
                                     Text(
-                                      "Playing From:",
+                                      audioPlayerManager.currentPlaylist!=null?"Playing From:":"",
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 13,
                                       ),
                                     ),
                                     Text(
-                                      audioPlayerManager.currentPlaylist.getName,
+                                      audioPlayerManager.currentPlaylist!=null? audioPlayerManager.currentPlaylist.getName:"",
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,

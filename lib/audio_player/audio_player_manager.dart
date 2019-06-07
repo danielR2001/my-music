@@ -28,18 +28,24 @@ class AudioPlayerManager {
   }
   void initSong(
     Song song,
-    Playlist playlist, 
+    Playlist playlist,
     PlaylistMode playlistMode,
   ) {
     closeSong();
     this.playlistMode = playlistMode;
+    if(playlist!=null){
     if (currentPlaylist != null) {
       if (currentPlaylist.getName != playlist.getName) {
         loopPlaylist = null;
         shuffledPlaylist = null;
       }
-    }
+    }       
     setCurrentPlaylist(playlist: playlist);
+    }else{
+              loopPlaylist = null;
+        shuffledPlaylist = null;
+        currentPlaylist = null;
+    }
     currentSong = song;
     MusicControlNotification.makeNotification(
         song.getTitle, song.getArtist, song.getImageUrl, true);
