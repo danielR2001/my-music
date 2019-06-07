@@ -42,7 +42,6 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   @override
   Widget build(BuildContext context) {
-    tryLoadingImage();
     return Scaffold(
       body: GestureDetector(
         onTap: () {
@@ -496,13 +495,6 @@ class MusicPageState extends State<MusicPlayerPage> {
     }
   }
 
-  void tryLoadingImage() async {
-    if (audioPlayerManager.currentSong.getImageUrl == "") {
-      String imageUrl =
-          await FetchData.getSongImageUrl(audioPlayerManager.currentSong);
-      audioPlayerManager.currentSong.setImageUrl = imageUrl;
-    }
-  }
 
   // void gifTimer() {
   //   var a =Future.delayed(const Duration(seconds: 20), () {

@@ -227,9 +227,17 @@ class FetchData {
         if (streamUrl.allMatches(".*[a-z].*") == null) {
           streamUrl = searchString;
         }
-        // else if(streamUrl.contains("â")||streamUrl.contains("ä")||streamUrl.contains("à")||streamUrl.contains("å")||streamUrl.contains("Á")||streamUrl.contains("Â")||streamUrl.contains("Ã")||streamUrl.contains("À")||streamUrl.contains("")||streamUrl.contains("")||streamUrl.contains("")){
-        //   streamUrl.
-        // } TODO locate special chars
+        // else if(streamUrl.contains("â")
+        // ||streamUrl.contains("ä")
+        // ||streamUrl.contains("à")
+        // ||streamUrl.contains("å")
+        // ||streamUrl.contains("Á")
+        // ||streamUrl.contains("Â")
+        // ||streamUrl.contains("Ã")
+        // ||streamUrl.contains("À")){
+        //   //replace the special char with "a"
+        //  } 
+         //TODO locate special chars
         songs.add(
             Song(songTitle, artist, songId, streamUrl + "/", imageUrl, ''));
       }

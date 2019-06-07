@@ -26,27 +26,31 @@ class AudioPlayerManager {
     advancedPlayer = AudioPlayer();
     AudioPlayer.logEnabled = true;
   }
-  void initSong(
+  Future initSong(
     Song song,
     Playlist playlist,
     PlaylistMode playlistMode,
-  ) {
+  ) async {
     closeSong();
     this.playlistMode = playlistMode;
-    if(playlist!=null){
-    if (currentPlaylist != null) {
-      if (currentPlaylist.getName != playlist.getName) {
-        loopPlaylist = null;
-        shuffledPlaylist = null;
+    if (playlist != null) {
+      if (currentPlaylist != null) {
+        if (currentPlaylist.getName != playlist.getName) {
+          loopPlaylist = null;
+          shuffledPlaylist = null;
+        }
       }
-    }       
-    setCurrentPlaylist(playlist: playlist);
-    }else{
-              loopPlaylist = null;
-        shuffledPlaylist = null;
-        currentPlaylist = null;
+      setCurrentPlaylist(playlist: playlist);
+    } else {
+      loopPlaylist = null;
+      shuffledPlaylist = null;
+      currentPlaylist = null;
     }
     currentSong = song;
+    if (currentSong.getImageUrl == "") {
+      String imageUrl = await FetchData.getSongImageUrl(currentSong);
+      currentSong.setImageUrl = imageUrl;
+    }
     MusicControlNotification.makeNotification(
         song.getTitle, song.getArtist, song.getImageUrl, true);
   }
