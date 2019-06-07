@@ -172,10 +172,12 @@ class _AccountPageState extends State<AccountPage> {
             shape: BoxShape.rectangle,
             image: DecorationImage(
               fit: BoxFit.fill,
-              image: playlist.getSongs[0].getImageUrl != ""
-                  ? NetworkImage(
-                      playlist.getSongs[0].getImageUrl,
-                    )
+              image: playlist.getSongs.length>0
+                  ? playlist.getSongs[0].getImageUrl != ""
+                      ? NetworkImage(
+                          playlist.getSongs[0].getImageUrl,
+                        )
+                      : AssetImage('assets/images/default_song_pic.png')
                   : AssetImage('assets/images/default_song_pic.png'),
             ),
           ),

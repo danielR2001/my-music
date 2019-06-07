@@ -170,13 +170,11 @@ class SongOptionsModalSheet extends StatelessWidget {
             ),
           ),
           onTap: () {
-            FirebaseDatabaseManager.removeSongToPlaylist(playlist, song);
+            FirebaseDatabaseManager.removeSongFromPlaylist(playlist, song);
             playlist.removeSong(song);
-            if (playlist.getSongs.length == 0) {
-              currentUser.removePlaylist(playlist);
-            } else {
-              currentUser.updatePlaylist(playlist);
-            }
+
+            currentUser.updatePlaylist(playlist);
+
             if (audioPlayerManager.currentPlaylist != null) {
               if (audioPlayerManager.currentPlaylist.getName ==
                   playlist.getName) {
@@ -184,12 +182,13 @@ class SongOptionsModalSheet extends StatelessWidget {
                   audioPlayerManager.loopPlaylist = null;
                   audioPlayerManager.currentPlaylist = null;
                 } else {
-                  if(audioPlayerManager.currentSong.getSongId == song.getSongId){
+                  if (audioPlayerManager.currentSong.getSongId ==
+                      song.getSongId) {
                     audioPlayerManager.loopPlaylist = null;
                     audioPlayerManager.currentPlaylist = null;
-                  }else{
-                  audioPlayerManager.loopPlaylist = playlist;
-                  audioPlayerManager.setCurrentPlaylist();
+                  } else {
+                    audioPlayerManager.loopPlaylist = playlist;
+                    audioPlayerManager.setCurrentPlaylist();
                   }
                 }
               }

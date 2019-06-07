@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/firebase/database_manager.dart';
@@ -103,7 +104,9 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                       data: Theme.of(context)
                           .copyWith(accentColor: Colors.transparent),
                       child: ListView.builder(
-                        itemCount: currentUser.getMyPlaylists!=null? currentUser.getMyPlaylists.length:0,
+                        itemCount: currentUser.getMyPlaylists != null
+                            ? currentUser.getMyPlaylists.length
+                            : 0,
                         itemBuilder: (BuildContext context, int index) {
                           return userPlaylists(
                               currentUser.getMyPlaylists[index]);
@@ -133,7 +136,9 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           decoration: BoxDecoration(
             color: Colors.black,
             image: DecorationImage(
-              image: songImage(playlist.getSongs[0]),
+              image: playlist.getSongs.length > 0
+                  ? songImage(playlist.getSongs[0])
+                  : AssetImage('assets/images/default_song_pic.png'),
               fit: BoxFit.fill,
             ),
           ),
@@ -203,6 +208,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
   }
 
   ImageProvider songImage(Song song) {
+    //TODO remove this method!
     if (song.getImageUrl.length > 0) {
       return NetworkImage(
         song.getImageUrl,
@@ -233,7 +239,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         }
         FirebaseDatabaseManager.addPlaylist(playlist);
         Song updatedsong =
-          FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
+            FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
         playlist.addNewSong(updatedsong);
         currentUser.addNewPlaylist(playlist);
         Navigator.of(context, rootNavigator: true).pop('dialog');
@@ -280,6 +286,9 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                         hintColor: Colors.white,
                       ),
                       child: TextFormField(
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(18),
+                        ],
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -362,7 +371,8 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                       child: new CircularProgressIndicator(
                         value: null,
                         strokeWidth: 3.0,
-                        valueColor: new AlwaysStoppedAnimation<Color>(Colors.pink),
+                        valueColor:
+                            new AlwaysStoppedAnimation<Color>(Colors.pink),
                       ),
                     ),
                   ),

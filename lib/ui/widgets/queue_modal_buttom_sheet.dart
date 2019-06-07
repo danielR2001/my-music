@@ -96,7 +96,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
             audioPlayerManager.currentPlaylist,
             audioPlayerManager.playlistMode,
           );
-          FetchData.getSongPlayUrl(song).then((streamUrl) {
+          FetchData.getSongPlayUrlDefault(song).then((streamUrl) {
             audioPlayerManager.playSong(
               streamUrl,
             );

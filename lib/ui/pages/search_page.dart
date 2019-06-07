@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
@@ -18,6 +19,7 @@ class _SearchPageState extends State<SearchPage> {
   ImageProvider songImage;
   FocusNode focusNode = FocusNode();
   String hintText = "Search";
+  Playlist searchResultsPlaylist;
   @override
   void initState() {
     focusNode.addListener(() {
@@ -90,9 +92,13 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                           onChanged: (txt) {
                             if (txt != "") {
-                              FetchData.searchForResults(txt).then((results) {
+                              FetchData.searchForResults1(txt).then((results) {
                                 setState(() {
                                   searchResults = results;
+                                  searchResultsPlaylist =
+                                      Playlist("Search Playlist");
+                                  searchResultsPlaylist.setSongs =
+                                      searchResults;
                                   if (searchResults != null) {
                                     searchLength = searchResults.length;
                                   } else {
@@ -103,10 +109,16 @@ class _SearchPageState extends State<SearchPage> {
                             }
                           },
                           onSubmitted: (txt) =>
-                              FetchData.searchForResults(txt).then((results) {
+                              FetchData.searchForResults1(txt).then((results) {
                                 setState(() {
-                                  searchResults = results;
-                                  searchLength = searchResults.length;
+                                  if (results != null) {
+                                    searchResults = results;
+                                    searchResultsPlaylist =
+                                        Playlist("Search Playlist");
+                                    searchResultsPlaylist.setSongs =
+                                        searchResults;
+                                    searchLength = searchResults.length;
+                                  }
                                 });
                               }),
                         ),
@@ -189,6 +201,8 @@ class _SearchPageState extends State<SearchPage> {
         },
       ),
       onTap: () async {
+        Playlist temp = Playlist("Search Playlist");
+        temp.setSongs = searchResultsPlaylist.getSongs;
         FocusScope.of(context).requestFocus(FocusNode());
         String imageUrl = await FetchData.getSongImageUrl(song);
         if (song.getImageUrl.length == 0) {
@@ -196,10 +210,10 @@ class _SearchPageState extends State<SearchPage> {
         }
         audioPlayerManager.initSong(
           song,
-          null,
+          temp,
           PlaylistMode.loop,
         );
-        FetchData.getSongPlayUrl(
+        FetchData.getSongPlayUrlDefault(
           song,
         ).then((streamUrl) {
           audioPlayerManager.playSong(streamUrl);

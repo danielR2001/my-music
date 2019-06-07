@@ -11,7 +11,6 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.IBinder;
 
-
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import android.util.Log;
@@ -24,6 +23,10 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import android.graphics.BitmapFactory;
 
 public class NotificationService extends Service {
     public static Intent playIntent;
@@ -45,8 +48,8 @@ public class NotificationService extends Service {
     public static int index = 0;
     public static String title;
     public static String artist;
-    public static String imageUrl;
     public static boolean isPlaying;
+    public static Bitmap imageBitmap;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -71,7 +74,7 @@ public class NotificationService extends Service {
             });
         } else if (intent.getAction().equals(Constants.PLAY_ACTION)) {
             isPlaying = !isPlaying;
-            loadImageUrl(title, artist, imageUrl, getApplicationContext(), isPlaying);
+            makeNotification(title, artist, imageBitmap, getApplicationContext(), isPlaying);
             MainActivity.channel.invokeMethod("playOrPause", null, new Result() {
                 @Override
                 public void success(Object o) {
@@ -119,73 +122,46 @@ public class NotificationService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    public static void loadImageUrl(final String t, final String a, String i, final Context context, boolean iP) {
+    public static void makeNotification(String t, String a, Bitmap b, Context context, boolean iP) {
+        title = t;
+        artist = a;
+        imageBitmap = b;
         isPlaying = iP;
         if (isPlaying) {
             index = 0;
         } else {
             index = 1;
         }
-        title = t;
-        artist = a;
-        imageUrl = i;
-        if (!imageUrl.equals("")) {
-            Picasso.get().load(imageUrl).into(new Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    makeNotification(title, artist, bitmap, context);
-                }
-
-                @Override
-                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                    makeNotification(title, artist, null, context);
-                }
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-                }
-            });
-        } else {
-            makeNotification(title, artist, null, context);
-        }
-    }
-
-    private static void makeNotification(String title, String artist, Bitmap imageBitmap, Context context) {
         if (imageBitmap == null) {
             imageBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.app_logo_square);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CreateNotificationChannel(context);
             notificationManagerForOreo = NotificationManagerCompat.from(context);
-            notification = new NotificationCompat.Builder(context, CHANNEL_ID)
-            .setContentTitle(title)
-                    .setContentText(artist)
-                    .setSmallIcon(R.drawable.app_logo_no_background)
-                    .setLargeIcon(imageBitmap)
-                    .setAutoCancel(true)
-                    .setShowWhen(false)
-                    .setColor(context.getResources()
-                    .getColor(R.color.pink))
-                    .addAction(R.drawable.ic_skip_previous, "", pprevIntent)
-                    .addAction(iconInts[index], "", pplayIntent)
-                    .addAction(R.drawable.ic_skip_next, "", pnextIntent)
-                    .setTimeoutAfter(1800000)
+            notification = new NotificationCompat.Builder(context, CHANNEL_ID).setContentTitle(title)
+                    .setContentText(artist).setSmallIcon(R.drawable.app_logo_no_background).setLargeIcon(imageBitmap)
+                    .setShowWhen(false).setColor(context.getResources().getColor(R.color.pink))
+                    .addAction(R.drawable.ic_skip_previous, "", pprevIntent).addAction(iconInts[index], "", pplayIntent)
+                    .addAction(R.drawable.ic_skip_next, "", pnextIntent).setTimeoutAfter(1800000)
                     .setStyle(
                             new androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0, 1, 2))
                     .setDeleteIntent(pdeleteIntent).build();
-            notification.flags |= Notification.FLAG_AUTO_CANCEL;
-            notificationManagerForOreo.notify(notificationId, notification);
+
         } else {
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notification = new NotificationCompat.Builder(context).setContentTitle(title).setContentText(artist)
-                    .setSmallIcon(R.drawable.app_logo_no_background).setLargeIcon(imageBitmap).setAutoCancel(true)
-                    .setSound(null).setShowWhen(false).setColor(context.getResources().getColor(R.color.pink))
+                    .setSmallIcon(R.drawable.app_logo_no_background).setLargeIcon(imageBitmap).setSound(null)
+                    .setShowWhen(false).setColor(context.getResources().getColor(R.color.pink))
                     .addAction(R.drawable.ic_skip_previous, "", pprevIntent).addAction(iconInts[index], "", pplayIntent)
                     .addAction(R.drawable.ic_skip_next, "", pnextIntent).setTimeoutAfter(1800000)
                     .setDeleteIntent(pdeleteIntent).build();
-            notification.flags |= Notification.FLAG_AUTO_CANCEL;
-            notificationManager.notify(notificationId, notification);
         }
+        if (iP) {
+            notification.flags |= Notification.FLAG_ONGOING_EVENT;
+        } else {
+            notification.flags |= Notification.FLAG_AUTO_CANCEL;
+        }
+        notificationManager.notify(notificationId, notification);
         notification.contentIntent = pendingIntent;
     }
 
@@ -221,5 +197,22 @@ public class NotificationService extends Service {
         deleteIntent = new Intent(this, NotificationService.class);
         deleteIntent.setAction(Constants.STOPFOREGROUND_ACTION);
         pdeleteIntent = PendingIntent.getService(this, 0, deleteIntent, 0);
+    }
+
+    private static Bitmap getBitmapfromUrl(String imageUrl) {
+        try {
+            URL url = new URL(imageUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            Bitmap bitmap = BitmapFactory.decodeStream(input);
+            return bitmap;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+
+        }
     }
 }

@@ -26,9 +26,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
   _PlaylistPageState(this.playlist, this.imagePath);
   ImageProvider imageProvider;
   Color iconColor = Colors.white;
+  ScrollController _scrollController;
   @override
   void initState() {
     // FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    _scrollController = ScrollController()..addListener(() => setState(() {}));
     super.initState();
   }
 
@@ -48,16 +50,24 @@ class _PlaylistPageState extends State<PlaylistPage> {
         child: Theme(
           data: Theme.of(context).copyWith(accentColor: Colors.grey),
           child: CustomScrollView(
+            controller: _scrollController,
             slivers: <Widget>[
               SliverAppBar(
                 actions: <Widget>[
                   Padding(
                     padding: const EdgeInsets.all(6),
                     child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.pink,
-                      ),
+                      decoration: _scrollController.hasClients
+                          ? _scrollController.offset > 300 - kToolbarHeight
+                              ? BoxDecoration()
+                              : BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey[850],
+                                )
+                          : BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.grey[850],
+                            ),
                       child: IconButton(
                         icon: Icon(
                           Icons.more_vert,
@@ -74,10 +84,17 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 leading: Padding(
                   padding: const EdgeInsets.all(6),
                   child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.pink,
-                    ),
+                    decoration: _scrollController.hasClients
+                        ? _scrollController.offset > 300 - kToolbarHeight
+                            ? BoxDecoration()
+                            : BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.grey[850],
+                              )
+                        : BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.grey[850],
+                          ),
                     child: IconButton(
                       icon: Icon(
                         Icons.arrow_back,
@@ -93,8 +110,6 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 backgroundColor: Colors.grey[850],
                 expandedHeight: 300,
                 pinned: true,
-                floating: true,
-                snap: true,
                 flexibleSpace: FlexibleSpaceBar(
                   centerTitle: true,
                   title: Text(
@@ -179,7 +194,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                                   playlist,
                                   PlaylistMode.loop,
                                 );
-                                FetchData.getSongPlayUrl(playlist.getSongs[0])
+                                FetchData.getSongPlayUrlDefault(playlist.getSongs[0])
                                     .then((streamUrl) {
                                   audioPlayerManager.playSong(
                                     streamUrl,
@@ -231,7 +246,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                                   playlist,
                                   PlaylistMode.shuffle,
                                 );
-                                FetchData.getSongPlayUrl(
+                                FetchData.getSongPlayUrlDefault(
                                         playlist.getSongs[randomNum])
                                     .then((streamUrl) {
                                   audioPlayerManager.playSong(
@@ -299,7 +314,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                     playlist,
                     PlaylistMode.loop,
                   );
-                  FetchData.getSongPlayUrl(playlist.getSongs[index])
+                  FetchData.getSongPlayUrlDefault(playlist.getSongs[index])
                       .then((streamUrl) {
                     audioPlayerManager.playSong(
                       streamUrl,
@@ -312,7 +327,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                   playlist,
                   PlaylistMode.loop,
                 );
-                FetchData.getSongPlayUrl(playlist.getSongs[index])
+                FetchData.getSongPlayUrlDefault(playlist.getSongs[index])
                     .then((streamUrl) {
                   audioPlayerManager.playSong(
                     streamUrl,

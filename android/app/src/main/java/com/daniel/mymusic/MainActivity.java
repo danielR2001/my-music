@@ -32,7 +32,7 @@ public class MainActivity extends FlutterActivity {
           String artist = call.argument("artist");
           String imageUrl = call.argument("imageUrl");
           boolean isPlaying = call.argument("isPlaying");
-          NotificationService.loadImageUrl(title, artist, imageUrl, getApplicationContext(), isPlaying);
+          new LoadImageFromUrl(title,artist,imageUrl,getApplicationContext(),isPlaying).execute();
           result.success(true);
         } else if (call.method.equals("startService")) {
           StartService();

@@ -28,30 +28,29 @@ class AudioPlayerManager {
   }
   void initSong(
     Song song,
-    Playlist playlist,
+    Playlist playlist, 
     PlaylistMode playlistMode,
   ) {
     closeSong();
     this.playlistMode = playlistMode;
-    setCurrentPlaylist(playlist: playlist);
-    if (playlist != null) {
-      if (this.playlistMode == PlaylistMode.loop) {
-        currentPlaylist = loopPlaylist;
-      } else {
-        currentPlaylist = shuffledPlaylist;
+    if (currentPlaylist != null) {
+      if (currentPlaylist.getName != playlist.getName) {
+        loopPlaylist = null;
+        shuffledPlaylist = null;
       }
-    } else {
-      currentPlaylist = null;
     }
+    setCurrentPlaylist(playlist: playlist);
     currentSong = song;
     MusicControlNotification.makeNotification(
         song.getTitle, song.getArtist, song.getImageUrl, true);
   }
 
   void playSong(String streamUrl) {
-    advancedPlayer.play(streamUrl);
-    listenForDurationChanged();
-    listenIfCompleted();
+    if (streamUrl != null) {
+      advancedPlayer.play(streamUrl);
+      listenForDurationChanged();
+      listenIfCompleted();
+    }
   }
 
   void listenForDurationChanged() {
@@ -119,7 +118,7 @@ class AudioPlayerManager {
           currentPlaylist,
           playlistMode,
         );
-        FetchData.getSongPlayUrl(nextSong).then((streamUrl) {
+        FetchData.getSongPlayUrlDefault(nextSong).then((streamUrl) {
           playSong(
             streamUrl,
           );
@@ -130,7 +129,7 @@ class AudioPlayerManager {
           currentPlaylist,
           playlistMode,
         );
-        FetchData.getSongPlayUrl(currentSong).then((streamUrl) {
+        FetchData.getSongPlayUrlDefault(currentSong).then((streamUrl) {
           playSong(
             streamUrl,
           );
@@ -149,7 +148,7 @@ class AudioPlayerManager {
           currentPlaylist,
           playlistMode,
         );
-        FetchData.getSongPlayUrl(
+        FetchData.getSongPlayUrlDefault(
                 currentPlaylist.getSongs[currentPlaylist.getSongs.length - 1])
             .then((streamUrl) {
           playSong(
@@ -173,7 +172,7 @@ class AudioPlayerManager {
           currentPlaylist,
           playlistMode,
         );
-        FetchData.getSongPlayUrl(correctPreviousSong).then((streamUrl) {
+        FetchData.getSongPlayUrlDefault(correctPreviousSong).then((streamUrl) {
           playSong(
             streamUrl,
           );
@@ -203,7 +202,7 @@ class AudioPlayerManager {
         currentPlaylist,
         playlistMode,
       );
-      FetchData.getSongPlayUrl(nextSong).then((streamUrl) {
+      FetchData.getSongPlayUrlDefault(nextSong).then((streamUrl) {
         playSong(
           streamUrl,
         );

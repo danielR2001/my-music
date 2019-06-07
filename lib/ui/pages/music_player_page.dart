@@ -59,7 +59,7 @@ class MusicPageState extends State<MusicPlayerPage> {
               ? BoxDecoration(
                   image: DecorationImage(
                       image: AssetImage(
-                        "assets/gifs/kygo_gif.gif",
+                        "assets/images/downloaded_image.jpg",
                       ),
                       fit: BoxFit.none),
                 )
@@ -91,9 +91,35 @@ class MusicPageState extends State<MusicPlayerPage> {
                             ),
                             onPressed: () => Navigator.pop(context),
                           ),
+                          //Expanded(
+                          // child:
                           Expanded(
-                            child: Container(),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Column(
+                                  children: <Widget>[
+                                    Text(
+                                      "Playing From:",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    Text(
+                                      audioPlayerManager.currentPlaylist.getName,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 17,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
+                          // ),
                           IconButton(
                               iconSize: 30,
                               icon: Icon(
@@ -204,7 +230,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                           children: <Widget>[
                             Expanded(
                               child: Text(
-                                _position != null && _duration!=null
+                                _position != null && _duration != null
                                     ? _position.inSeconds <= _duration.inSeconds
                                         ? _position
                                             .toString()
@@ -254,7 +280,10 @@ class MusicPageState extends State<MusicPlayerPage> {
                               setState(() {
                                 gifPage = false;
                                 //gifTimer();
-                                _position = Duration(seconds: 0);
+                                if (audioPlayerManager.currentPlaylist !=
+                                    null) {
+                                  _position = Duration(seconds: 0);
+                                }
                               });
 
                               audioPlayerManager.playPreviousSong();
@@ -288,7 +317,10 @@ class MusicPageState extends State<MusicPlayerPage> {
                               setState(() {
                                 gifPage = false;
                                 //gifTimer();
-                                _position = Duration(seconds: 0);
+                                if (audioPlayerManager.currentPlaylist !=
+                                    null) {
+                                  _position = Duration(seconds: 0);
+                                }
                               });
 
                               audioPlayerManager.playNextSong();

@@ -61,6 +61,16 @@ class FirebaseDatabaseManager {
     return playlist;
   }
 
+  static void removePlaylist(Playlist playlist) {
+    FirebaseDatabase.instance
+        .reference()
+        .child(_usersDir)
+        .child(_userPushId)
+        .child(_playlistsDir)
+        .child(playlist.getPushId)
+        .remove();
+  }
+
   static void renamePlaylist(Playlist playlist, String newName) {
     FirebaseDatabase.instance
         .reference()
@@ -68,7 +78,7 @@ class FirebaseDatabaseManager {
         .child(_userPushId)
         .child(_playlistsDir)
         .child(playlist.getPushId)
-        .update({"name":newName});
+        .update({"name": newName});
   }
 
   static Song addSongToPlaylist(Playlist playlist, Song song) {
@@ -85,13 +95,14 @@ class FirebaseDatabaseManager {
     return song;
   }
 
-  static void removeSongToPlaylist(Playlist playlist, Song song) {
+  static void removeSongFromPlaylist(Playlist playlist, Song song) {
     FirebaseDatabase.instance
         .reference()
         .child(_usersDir)
         .child(_userPushId)
         .child(_playlistsDir)
-        .child(playlist.getName)
+        .child(playlist.getPushId)
+        .child(_songsDir)
         .child(song.getPushId)
         .remove();
   }
@@ -105,15 +116,17 @@ class FirebaseDatabaseManager {
         tempMap = value["songs"];
         tempPlaylist = Playlist(value["name"]);
         tempPlaylist.setPushId = key;
-        tempMap.forEach((key, value) {
-          tempPlaylist.addNewSong(Song(
-              value['title'],
-              value['artist'],
-              value['songId'],
-              value['searchString'],
-              value['imageUrl'],
-              value['pushId']));
-        });
+        if (tempMap != null) {
+          tempMap.forEach((key, value) {
+            tempPlaylist.addNewSong(Song(
+                value['title'],
+                value['artist'],
+                value['songId'],
+                value['searchString'],
+                value['imageUrl'],
+                value['pushId']));
+          });
+        }
         playlists.add(tempPlaylist);
       },
     );
