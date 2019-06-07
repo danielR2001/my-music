@@ -7,7 +7,8 @@ import 'package:myapp/ui/widgets/sort_options_modal_buttom_sheet.dart';
 
 class PlaylistOptionsModalSheet extends StatelessWidget {
   final Playlist playlist;
-  PlaylistOptionsModalSheet(this.playlist);
+  final BuildContext playlistPageContext;
+  PlaylistOptionsModalSheet(this.playlist,this.playlistPageContext);
   String _playlistNewName;
   final formKey = GlobalKey<FormState>();
   @override
@@ -73,7 +74,17 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
                   fontSize: 15,
                 ),
               ),
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context, rootNavigator: true).pop('dialog');
+                Navigator.of(playlistPageContext).pop();
+                FirebaseDatabaseManager.removePlaylist(playlist);
+                currentUser.removePlaylist(playlist);
+                if(audioPlayerManager.currentPlaylist.getName == audioPlayerManager.currentPlaylist.getName){
+                  audioPlayerManager.loopPlaylist = null;
+                  audioPlayerManager.shuffledPlaylist = null;
+                  audioPlayerManager.currentPlaylist = null;
+                }
+              },
             ),
           ),
         ],

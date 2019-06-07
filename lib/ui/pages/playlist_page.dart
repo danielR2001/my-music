@@ -429,6 +429,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
       builder: (builder) {
         return PlaylistOptionsModalSheet(
           currentPlaylist,
+          context,
         );
       },
     );

@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' as prefix0;
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
-import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/text_style.dart';
 
@@ -44,7 +42,7 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   @override
   Widget build(BuildContext context) {
-       tryLoadingImage();
+    tryLoadingImage();
     return Scaffold(
       body: GestureDetector(
         onTap: () {
@@ -499,9 +497,11 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   void tryLoadingImage() async {
-    String imageUrl =
-        await FetchData.getSongImageUrl(audioPlayerManager.currentSong);
-    audioPlayerManager.currentSong.setImageUrl = imageUrl;
+    if (audioPlayerManager.currentSong.getImageUrl == "") {
+      String imageUrl =
+          await FetchData.getSongImageUrl(audioPlayerManager.currentSong);
+      audioPlayerManager.currentSong.setImageUrl = imageUrl;
+    }
   }
 
   // void gifTimer() {
