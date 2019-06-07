@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as prefix0;
+import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
+import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/text_style.dart';
 
@@ -20,13 +23,14 @@ class MusicPageState extends State<MusicPlayerPage> {
   StreamSubscription<Duration> posStream;
   StreamSubscription<Duration> durStream;
   StreamSubscription<void> completionStream;
-  bool gifPage = false;
+  //bool gifPage = false;
 
   @override
   void initState() {
     super.initState();
     initSong();
     //gifTimer();
+    //tryLoadingImage();
   }
 
   @override
@@ -40,226 +44,230 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   @override
   Widget build(BuildContext context) {
+       tryLoadingImage();
     return Scaffold(
       body: GestureDetector(
         onTap: () {
-          if (gifPage) {
-            setState(() {
-              gifPage = false;
-              //gifTimer();
-            });
-          } else {
-            setState(() {
-              gifPage = true;
-            });
-          }
+          // if (gifPage) {
+          //   setState(() {
+          //     gifPage = false;
+          //     //gifTimer();
+          //   });
+          // } else {
+          //   setState(() {
+          //     gifPage = true;
+          //   });
+          // }
         },
         child: Container(
-          decoration: gifPage
-              ? BoxDecoration(
-                  image: DecorationImage(
-                      image: AssetImage(
-                        "assets/images/downloaded_image.jpg",
-                      ),
-                      fit: BoxFit.none),
-                )
-              : BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xff0f0e0e),
-                      Colors.pink,
-                    ],
-                    begin: FractionalOffset.bottomCenter,
-                    stops: [0.6, 1.0],
-                    end: FractionalOffset.topCenter,
-                  ),
-                ),
+          decoration: //gifPage
+              // ? BoxDecoration(
+              //     image: DecorationImage(
+              //         image: AssetImage(
+              //           "assets/images/downloaded_image.jpg",
+              //         ),
+              //         fit: BoxFit.none),
+              //   )
+              // :
+              BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xff0f0e0e),
+                Colors.pink,
+              ],
+              begin: FractionalOffset.bottomCenter,
+              stops: [0.6, 1.0],
+              end: FractionalOffset.topCenter,
+            ),
+          ),
           child: Column(
             children: <Widget>[
-              gifPage
-                  ? Container()
-                  : Padding(
-                      padding:
-                          const EdgeInsets.only(top: 40, left: 15, right: 15),
+              // gifPage
+              //     ? Container()
+              //     :
+              Padding(
+                padding: const EdgeInsets.only(top: 40, left: 15, right: 15),
+                child: Row(
+                  children: <Widget>[
+                    IconButton(
+                      iconSize: 40,
+                      icon: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Colors.white,
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Expanded(
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          IconButton(
-                            iconSize: 40,
-                            icon: Icon(
-                              Icons.keyboard_arrow_down,
-                              color: Colors.white,
-                            ),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          //Expanded(
-                          // child:
-                          Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Column(
-                                  children: <Widget>[
-                                    Text(
-                                      audioPlayerManager.currentPlaylist!=null?"Playing From:":"",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                    Text(
-                                      audioPlayerManager.currentPlaylist!=null? audioPlayerManager.currentPlaylist.getName:"",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 17,
-                                      ),
-                                    ),
-                                  ],
+                          Column(
+                            children: <Widget>[
+                              Text(
+                                audioPlayerManager.currentPlaylist != null
+                                    ? "Playing From:"
+                                    : "",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
                                 ),
-                              ],
-                            ),
-                          ),
-                          // ),
-                          IconButton(
-                              iconSize: 30,
-                              icon: Icon(
-                                Icons.more_vert,
-                                color: Colors.white,
                               ),
-                              onPressed: () {
-                                showMoreOptions(context);
-                              }),
+                              Text(
+                                audioPlayerManager.currentPlaylist != null
+                                    ? audioPlayerManager.currentPlaylist.getName
+                                    : "",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17,
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
-              gifPage
-                  ? Expanded(
-                      child: Container(
-                      width: 270,
-                      height: 270,
-                    ))
-                  : Expanded(
-                      child: Container(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Container(
-                              width: 270,
-                              height: 270,
-                              decoration: BoxDecoration(
-                                color: Colors.black,
-                                border: Border.all(
-                                  color: Colors.black,
-                                  width: 0.2,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey[850],
-                                    blurRadius: 5.0,
+                    IconButton(
+                        iconSize: 30,
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          showMoreOptions(context);
+                        }),
+                  ],
+                ),
+              ),
+              // gifPage
+              //     ? Expanded(
+              //         child: Container(
+              //         width: 270,
+              //         height: 270,
+              //       ))
+              //     :
+              Expanded(
+                child: Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        width: 270,
+                        height: 270,
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          border: Border.all(
+                            color: Colors.black,
+                            width: 0.2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey[850],
+                              blurRadius: 5.0,
+                            ),
+                          ],
+                          image: DecorationImage(
+                            image: audioPlayerManager
+                                        .currentSong.getImageUrl.length >
+                                    0
+                                ? NetworkImage(
+                                    audioPlayerManager.currentSong.getImageUrl,
+                                  )
+                                : AssetImage(
+                                    'assets/images/default_song_pic.png',
                                   ),
-                                ],
-                                image: DecorationImage(
-                                  image: audioPlayerManager
-                                              .currentSong.getImageUrl.length >
-                                          0
-                                      ? NetworkImage(
-                                          audioPlayerManager
-                                              .currentSong.getImageUrl,
-                                        )
-                                      : AssetImage(
-                                          'assets/images/default_song_pic.png',
-                                        ),
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            )
-                          ],
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              // gifPage
+              //     ? Container()
+              //     :
+              Column(
+                children: <Widget>[
+                  TextDecoration(
+                    audioPlayerManager.currentSong.getTitle,
+                    25,
+                    Colors.white,
+                    20,
+                    30,
+                  ),
+                  TextDecoration(
+                    audioPlayerManager.currentSong.getArtist,
+                    14,
+                    Colors.grey,
+                    30,
+                    30,
+                  ),
+                ],
+              ),
+              // gifPage
+              //     ? Container()
+              //     :
+              Slider(
+                  value: _position != null && _duration != null
+                      ? _position.inSeconds <= _duration.inSeconds
+                          ? _position.inSeconds.toDouble()
+                          : 0.0
+                      : 0.0,
+                  min: 0.0,
+                  max: _duration != null ? _duration.inSeconds.toDouble() : 0.0,
+                  inactiveColor: Colors.grey[700],
+                  activeColor: Colors.white,
+                  onChanged: (double value) {
+                    setState(() {
+                      value = value;
+                      _position = Duration(seconds: value.toInt());
+                      seekToSecond(value.toInt());
+                    });
+                  }),
+              // gifPage
+              //     ? Container()
+              //     :
+              Container(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          _position != null && _duration != null
+                              ? _position.inSeconds <= _duration.inSeconds
+                                  ? _position
+                                      .toString()
+                                      .substring(checkSongLength(), 7)
+                                  : "00:00"
+                              : "00:00",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                          ),
                         ),
                       ),
-                    ),
-              gifPage
-                  ? Container()
-                  : Column(
-                      children: <Widget>[
-                        TextDecoration(
-                          audioPlayerManager.currentSong.getTitle,
-                          25,
-                          Colors.white,
-                          20,
-                          30,
-                        ),
-                        TextDecoration(
-                          audioPlayerManager.currentSong.getArtist,
-                          14,
-                          Colors.grey,
-                          30,
-                          30,
-                        ),
-                      ],
-                    ),
-              gifPage
-                  ? Container()
-                  : Slider(
-                      value: _position != null && _duration != null
-                          ? _position.inSeconds <= _duration.inSeconds
-                              ? _position.inSeconds.toDouble()
-                              : 0.0
-                          : 0.0,
-                      min: 0.0,
-                      max: _duration != null
-                          ? _duration.inSeconds.toDouble()
-                          : 0.0,
-                      inactiveColor: Colors.grey[700],
-                      activeColor: Colors.white,
-                      onChanged: (double value) {
-                        setState(() {
-                          value = value;
-                          _position = Duration(seconds: value.toInt());
-                          seekToSecond(value.toInt());
-                        });
-                      }),
-              gifPage
-                  ? Container()
-                  : Container(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Expanded(
-                              child: Text(
-                                _position != null && _duration != null
-                                    ? _position.inSeconds <= _duration.inSeconds
-                                        ? _position
-                                            .toString()
-                                            .substring(checkSongLength(), 7)
-                                        : "00:00"
-                                    : "00:00",
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                _duration != null
-                                    ? _duration
-                                        .toString()
-                                        .substring(checkSongLength(), 7)
-                                    : "00:00",
-                                textAlign: TextAlign.right,
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                ),
-                              ),
-                            ),
-                          ],
+                      Expanded(
+                        child: Text(
+                          _duration != null
+                              ? _duration
+                                  .toString()
+                                  .substring(checkSongLength(), 7)
+                              : "00:00",
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                          ),
                         ),
                       ),
-                    ),
+                    ],
+                  ),
+                ),
+              ),
               Container(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -278,7 +286,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                           onPressed: () {
                             if (audioPlayerManager.isLoaded) {
                               setState(() {
-                                gifPage = false;
+                                //gifPage = false;
                                 //gifTimer();
                                 if (audioPlayerManager.currentPlaylist !=
                                     null) {
@@ -315,7 +323,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                           onPressed: () {
                             if (audioPlayerManager.isLoaded) {
                               setState(() {
-                                gifPage = false;
+                                //gifPage = false;
                                 //gifTimer();
                                 if (audioPlayerManager.currentPlaylist !=
                                     null) {
@@ -332,51 +340,51 @@ class MusicPageState extends State<MusicPlayerPage> {
                   ],
                 ),
               ),
-              gifPage
-                  ? Container()
-                  : Container(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          bottom: 50,
-                        ),
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 20),
-                              child: IconButton(
-                                splashColor: Colors.grey,
-                                icon: playlistModeIcon,
-                                onPressed: () {
-                                  audioPlayerManager.playlistMode ==
-                                          PlaylistMode.loop
-                                      ? audioPlayerManager.playlistMode =
-                                          PlaylistMode.shuffle
-                                      : audioPlayerManager.playlistMode =
-                                          PlaylistMode.loop;
-                                  changePlaylistModeIconState();
-                                  audioPlayerManager.setCurrentPlaylist();
-                                },
-                              ),
-                            ),
-                            Expanded(
-                              child: Container(),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 20),
-                              child: IconButton(
-                                splashColor: Colors.grey,
-                                icon: Icon(
-                                  Icons.share,
-                                  size: 25,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () {},
-                              ),
-                            ),
-                          ],
+              // gifPage
+              //     ? Container()
+              //     :
+              Container(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: 50,
+                  ),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: IconButton(
+                          splashColor: Colors.grey,
+                          icon: playlistModeIcon,
+                          onPressed: () {
+                            audioPlayerManager.playlistMode == PlaylistMode.loop
+                                ? audioPlayerManager.playlistMode =
+                                    PlaylistMode.shuffle
+                                : audioPlayerManager.playlistMode =
+                                    PlaylistMode.loop;
+                            changePlaylistModeIconState();
+                            audioPlayerManager.setCurrentPlaylist();
+                          },
                         ),
                       ),
-                    ),
+                      Expanded(
+                        child: Container(),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 20),
+                        child: IconButton(
+                          splashColor: Colors.grey,
+                          icon: Icon(
+                            Icons.share,
+                            size: 25,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {},
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -464,7 +472,7 @@ class MusicPageState extends State<MusicPlayerPage> {
         audioPlayerManager.advancedPlayer.onPlayerCompletion.listen((a) {
       setState(() {
         _position = Duration(seconds: 0);
-        gifPage = false;
+        //gifPage = false;
         //gifTimer();
       });
     });
@@ -488,6 +496,12 @@ class MusicPageState extends State<MusicPlayerPage> {
     } else {
       return 0;
     }
+  }
+
+  void tryLoadingImage() async {
+    String imageUrl =
+        await FetchData.getSongImageUrl(audioPlayerManager.currentSong);
+    audioPlayerManager.currentSong.setImageUrl = imageUrl;
   }
 
   // void gifTimer() {

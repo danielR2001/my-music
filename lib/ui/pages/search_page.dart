@@ -94,15 +94,13 @@ class _SearchPageState extends State<SearchPage> {
                             if (txt != "") {
                               FetchData.searchForResults1(txt).then((results) {
                                 setState(() {
-                                  searchResults = results;
-                                  searchResultsPlaylist =
-                                      Playlist("Search Playlist");
-                                  searchResultsPlaylist.setSongs =
-                                      searchResults;
-                                  if (searchResults != null) {
+                                  if (results != null) {
+                                    searchResults = results;
+                                    searchResultsPlaylist =
+                                        Playlist("Search Playlist");
+                                    searchResultsPlaylist.setSongs =
+                                        searchResults;
                                     searchLength = searchResults.length;
-                                  } else {
-                                    searchLength = 0;
                                   }
                                 });
                               });
@@ -204,8 +202,8 @@ class _SearchPageState extends State<SearchPage> {
         Playlist temp = Playlist("Search Playlist");
         temp.setSongs = searchResultsPlaylist.getSongs;
         FocusScope.of(context).requestFocus(FocusNode());
-        String imageUrl = await FetchData.getSongImageUrl(song);
         if (song.getImageUrl.length == 0) {
+          String imageUrl = await FetchData.getSongImageUrl(song);
           song.setImageUrl = imageUrl;
         }
         audioPlayerManager.initSong(

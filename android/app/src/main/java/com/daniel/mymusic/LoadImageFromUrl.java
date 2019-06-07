@@ -1,6 +1,5 @@
 package com.daniel.mymusic;
 
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,9 +17,10 @@ public class LoadImageFromUrl extends AsyncTask<String, Void, Bitmap> {
     private String title;
     private String artist;
     private String imageUrl;
-    private  boolean isPlaying;
+    private boolean isPlaying;
 
-    public LoadImageFromUrl(final String title, final String artist, String imageUrl, final Context context, boolean isPlaying) {
+    public LoadImageFromUrl(final String title, final String artist, String imageUrl, final Context context,
+            boolean isPlaying) {
         super();
         this.context = context;
         this.title = title;
@@ -28,31 +28,35 @@ public class LoadImageFromUrl extends AsyncTask<String, Void, Bitmap> {
         this.imageUrl = imageUrl;
         this.isPlaying = isPlaying;
     }
+
     @Override
     protected Bitmap doInBackground(String... strings) {
-        try {
-            URL url = new URL(this.imageUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream in = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(in);
-            return myBitmap;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+        if (!this.imageUrl.equals("")) {
+            try {
+                URL url = new URL(this.imageUrl);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream in = connection.getInputStream();
+                Bitmap myBitmap = BitmapFactory.decodeStream(in);
+                return myBitmap;
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
 
-        } catch (IOException e) {
-            e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }
+
     @Override
     protected void onPostExecute(Bitmap result) {
         super.onPostExecute(result);
-        if(result!=null){
-            NotificationService.makeNotification(title, artist, result, context,isPlaying);
-        }else {
-            NotificationService.makeNotification(title, artist, null, context,isPlaying);
+        if (result != null) {
+            NotificationService.makeNotification(title, artist, result, context, isPlaying);
+        } else {
+            NotificationService.makeNotification(title, artist, null, context, isPlaying);
         }
     }
 }

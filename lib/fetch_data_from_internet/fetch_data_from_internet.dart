@@ -11,50 +11,50 @@ class FetchData {
 
   static Future<List<Song>> searchForResults1(String searchStr) async {
     searchStr = searchStr.replaceAll(" ", "-");
-    try{
-    return http
-        .get(
-          searchUrl1 + searchStr + "/",
-        )
-        .whenComplete(() => print('search completed'))
-        .then((http.Response response) async {
-      var document = parse(response.body);
-      if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
-        var elements = document.getElementsByClassName("playlist");
-        var html = elements[0].outerHtml;
-        html = html.replaceAll('\n', '');
-        html = html.replaceFirst('<ul class="playlist">', '');
-        var a = html.split("</li>");
-        return buildSearchResult1(a, searchUrl1 + searchStr + "/");
-      } else {
-        return await searchForResults2(searchStr);
-      }
-    });
-    }catch(e){
+    try {
+      return http
+          .get(
+            searchUrl1 + searchStr + "/",
+          )
+          .whenComplete(() => print('search completed'))
+          .then((http.Response response) async {
+        var document = parse(response.body);
+        if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
+          var elements = document.getElementsByClassName("playlist");
+          var html = elements[0].outerHtml;
+          html = html.replaceAll('\n', '');
+          html = html.replaceFirst('<ul class="playlist">', '');
+          var a = html.split("</li>");
+          return buildSearchResult1(a, searchUrl1 + searchStr + "/");
+        } else {
+          return await searchForResults2(searchStr);
+        }
+      });
+    } catch (e) {
       return await searchForResults2(searchStr);
     }
   }
 
   static Future<List<Song>> searchForResults2(String searchStr) async {
-    try{
-    return http
-        .get(
-          searchUrl2 + searchStr + "/",
-        )
-        .whenComplete(() => print('search completed'))
-        .then((http.Response response) {
-      var document = parse(response.body);
-      if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
-        var elements = document.getElementsByClassName("playlist");
-        var html = elements[0].outerHtml;
-        html = html.replaceAll('\n', '');
-        html = html.replaceFirst('<ul class="playlist">', '');
-        var a = html.split("</li>");
-        return buildSearchResult2(a, searchUrl2 + searchStr + "/");
-      }
-      return null;
-    });
-    }catch(e){
+    try {
+      return http
+          .get(
+            searchUrl2 + searchStr + "/",
+          )
+          .whenComplete(() => print('search completed'))
+          .then((http.Response response) {
+        var document = parse(response.body);
+        if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
+          var elements = document.getElementsByClassName("playlist");
+          var html = elements[0].outerHtml;
+          html = html.replaceAll('\n', '');
+          html = html.replaceFirst('<ul class="playlist">', '');
+          var a = html.split("</li>");
+          return buildSearchResult2(a, searchUrl2 + searchStr + "/");
+        }
+        return null;
+      });
+    } catch (e) {
       return null;
     }
   }
@@ -77,8 +77,8 @@ class FetchData {
           responseList = html.split("</li>");
           responseList.removeLast();
           return buildSong(responseList, song, true);
-        }else{
-        return null;
+        } else {
+          return null;
         }
       } else {
         return getSongPlayUrlSecondAttempt(song);
@@ -169,21 +169,21 @@ class FetchData {
         }
       }
     } else {
-        list.forEach((item) {
-          startPos = item.lastIndexOf('data-id="') + 'data-id="'.length;
-          endPos = item.lastIndexOf('" data-mp3=');
-          songId = item.substring(startPos, endPos);
-          if (songId == song.getSongId) {
-            strSong = item;
-          }
-        });
-
-        if (strSong != null) {
-          startPos = strSong.indexOf('data-mp3="') + 'data-mp3="'.length;
-          endPos = strSong.indexOf('" data-url_song=');
-          stream = 'https://muz.xn--41a.wiki' +
-              strSong.substring(startPos, endPos).replaceFirst("amp;", "");
+      list.forEach((item) {
+        startPos = item.lastIndexOf('data-id="') + 'data-id="'.length;
+        endPos = item.lastIndexOf('" data-mp3=');
+        songId = item.substring(startPos, endPos);
+        if (songId == song.getSongId) {
+          strSong = item;
         }
+      });
+
+      if (strSong != null) {
+        startPos = strSong.indexOf('data-mp3="') + 'data-mp3="'.length;
+        endPos = strSong.indexOf('" data-url_song=');
+        stream = 'https://muz.xn--41a.wiki' +
+            strSong.substring(startPos, endPos).replaceFirst("amp;", "");
+      }
     }
     return stream;
   }
@@ -212,24 +212,27 @@ class FetchData {
       if (artist.contains('amp;')) {
         artist = artist.replaceAll('amp;', '');
       }
-      artist =
-          artist.substring(artist.indexOf(">") + 1, artist.lastIndexOf("<"));
+      if (artist.lastIndexOf("<") > artist.indexOf(">") + 1) {
+        artist =
+            artist.substring(artist.indexOf(">") + 1, artist.lastIndexOf("<"));
 
-      songId = item.substring(
-          item.lastIndexOf('data-id="') + 'data-id="'.length,
-          item.lastIndexOf('" data-img='));
+        songId = item.substring(
+            item.lastIndexOf('data-id="') + 'data-id="'.length,
+            item.lastIndexOf('" data-img='));
 
-      streamUrl =
-          songTitle.replaceAll(" ", "-") + "-" + artist.replaceAll(" ", "-");
-      streamUrl = streamUrl.replaceAll(",", "");
-      streamUrl = streamUrl.replaceAll("&", "-");
-      if (streamUrl.allMatches(".*[a-z].*") == null) {
-        streamUrl = searchString;
+        streamUrl =
+            songTitle.replaceAll(" ", "-") + "-" + artist.replaceAll(" ", "-");
+        streamUrl = streamUrl.replaceAll(",", "");
+        streamUrl = streamUrl.replaceAll("&", "-");
+        if (streamUrl.allMatches(".*[a-z].*") == null) {
+          streamUrl = searchString;
+        }
+        // else if(streamUrl.contains("â")||streamUrl.contains("ä")||streamUrl.contains("à")||streamUrl.contains("å")||streamUrl.contains("Á")||streamUrl.contains("Â")||streamUrl.contains("Ã")||streamUrl.contains("À")||streamUrl.contains("")||streamUrl.contains("")||streamUrl.contains("")){
+        //   streamUrl.
+        // } TODO locate special chars
+        songs.add(
+            Song(songTitle, artist, songId, streamUrl + "/", imageUrl, ''));
       }
-      // else if(streamUrl.contains("â")||streamUrl.contains("ä")||streamUrl.contains("à")||streamUrl.contains("å")||streamUrl.contains("Á")||streamUrl.contains("Â")||streamUrl.contains("Ã")||streamUrl.contains("À")||streamUrl.contains("")||streamUrl.contains("")||streamUrl.contains("")){
-      //   streamUrl.
-      // } TODO locate special chars
-      songs.add(Song(songTitle, artist, songId, streamUrl + "/", imageUrl, ''));
     });
     return songs;
   }

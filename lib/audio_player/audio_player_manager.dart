@@ -24,7 +24,7 @@ class AudioPlayerManager {
 
   AudioPlayerManager() {
     advancedPlayer = AudioPlayer();
-    AudioPlayer.logEnabled = false;
+    AudioPlayer.logEnabled = true;
   }
   void initSong(
     Song song,
