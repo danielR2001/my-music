@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/constants/constants.dart';
 import 'package:myapp/ui/decorations/app_icon.dart';
 import 'sign_in_page.dart';
 import 'log_in_page.dart';
@@ -57,7 +58,7 @@ class WelcomePage extends StatelessWidget {
                         alignment: Alignment.center,
                         height: 60.0,
                         decoration: BoxDecoration(
-                          color: Colors.pink,
+                          color: Constants.pinkColor,
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(
@@ -87,7 +88,7 @@ class WelcomePage extends StatelessWidget {
                         alignment: Alignment.center,
                         height: 60.0,
                         decoration: BoxDecoration(
-                          color: Colors.pink,
+                          color: Constants.pinkColor,
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(

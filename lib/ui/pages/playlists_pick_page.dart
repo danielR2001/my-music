@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
+import 'package:myapp/constants/constants.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
@@ -80,7 +81,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                       height: 55,
                       width: 180,
                       decoration: BoxDecoration(
-                        color: Colors.pink,
+                        color: Constants.pinkColor,
                         borderRadius: BorderRadius.circular(40.0),
                       ),
                       child: Text(
@@ -322,7 +323,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                         alignment: Alignment.center,
                         height: 50.0,
                         decoration: BoxDecoration(
-                          color: Colors.pink,
+                          color: Constants.pinkColor,
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(
@@ -372,7 +373,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                         value: null,
                         strokeWidth: 3.0,
                         valueColor:
-                            new AlwaysStoppedAnimation<Color>(Colors.pink),
+                            new AlwaysStoppedAnimation<Color>(Constants.pinkColor),
                       ),
                     ),
                   ),

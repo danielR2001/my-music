@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/constants/constants.dart';
 import 'package:myapp/models/playlist.dart';
 
 class SortOptionsModalSheet extends StatelessWidget {
@@ -8,7 +9,7 @@ class SortOptionsModalSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topCenter,
-      color: Colors.grey[850],
+      color: Constants.lightGreyColor,
       height: 180,
       child: Column(
         children: <Widget>[

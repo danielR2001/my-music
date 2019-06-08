@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
+import 'package:myapp/constants/constants.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
@@ -69,8 +69,8 @@ class MusicPageState extends State<MusicPlayerPage> {
               BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color(0xff0f0e0e),
-                Colors.pink,
+                Constants.darkGreyColor,
+                Constants.pinkColor,
               ],
               begin: FractionalOffset.bottomCenter,
               stops: [0.6, 1.0],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/constants/constants.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/main.dart';
@@ -45,7 +46,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          color: Color(0xDE000000),
+          color: Constants.darkGreyColor,
         ),
         child: Theme(
           data: Theme.of(context).copyWith(accentColor: Colors.grey),
@@ -62,11 +63,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               ? BoxDecoration()
                               : BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.grey[850],
+                                  color: Constants.lightGreyColor,
                                 )
                           : BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.grey[850],
+                              color: Constants.lightGreyColor,
                             ),
                       child: IconButton(
                         icon: Icon(
@@ -89,11 +90,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
                             ? BoxDecoration()
                             : BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.grey[850],
+                                color: Constants.lightGreyColor,
                               )
                         : BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.grey[850],
+                            color: Constants.lightGreyColor,
                           ),
                     child: IconButton(
                       icon: Icon(
@@ -107,7 +108,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
                   ),
                 ),
                 automaticallyImplyLeading: false,
-                backgroundColor: Colors.grey[850],
+                backgroundColor: _scrollController.hasClients
+                    ? _scrollController.offset > 270 - kToolbarHeight
+                        ? Constants.lightGreyColor
+                        : Constants.darkGreyColor
+                    : Constants.darkGreyColor,
                 expandedHeight: 300,
                 pinned: true,
                 flexibleSpace: FlexibleSpaceBar(
@@ -117,35 +122,29 @@ class _PlaylistPageState extends State<PlaylistPage> {
                     style: TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(
-                            // bottomLeft
-                            offset: Offset(-0.4, -0.4),
-                            color: Colors.black),
-                        Shadow(
-                            // bottomRight
-                            offset: Offset(0.4, -0.4),
-                            color: Colors.black),
-                        Shadow(
-                            // topRight
-                            offset: Offset(0.4, 0.4),
-                            color: Colors.black),
-                        Shadow(
-                            // topLeft
-                            offset: Offset(-0.4, 0.4),
-                            color: Colors.black),
-                      ],
                     ),
                   ),
-                  background: imagePath != ""
-                      ? Image.network(
-                          imagePath,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.asset(
-                          'assets/images/downloaded_image.jpg',
-                          fit: BoxFit.cover,
-                        ),
+                  background: ShaderMask(
+                    shaderCallback: (rect) {
+                      return LinearGradient(
+                        begin: FractionalOffset.topCenter,
+                        stops: [0, 1],
+                        end: FractionalOffset.bottomCenter,
+                        colors: [Constants.darkGreyColor, Colors.transparent],
+                      ).createShader(
+                          Rect.fromLTRB(0, 0, rect.width, rect.height));
+                    },
+                    blendMode: BlendMode.dstIn,
+                    child: imagePath != ""
+                        ? Image.network(
+                            imagePath,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            'assets/images/downloaded_image.jpg',
+                            fit: BoxFit.cover,
+                          ),
+                  ),
                 ),
               ),
               SliverList(
@@ -164,7 +163,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30.0),
                               ),
-                              color: Colors.pink,
+                              color: Constants.pinkColor,
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
@@ -194,7 +193,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
                                   playlist,
                                   PlaylistMode.loop,
                                 );
-                                FetchData.getSongPlayUrlDefault(playlist.getSongs[0])
+                                FetchData.getSongPlayUrlDefault(
+                                        playlist.getSongs[0])
                                     .then((streamUrl) {
                                   audioPlayerManager.playSong(
                                     streamUrl,
@@ -214,7 +214,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30.0),
                               ),
-                              color: Colors.pink,
+                              color: Constants.pinkColor,
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
@@ -296,6 +296,79 @@ class _PlaylistPageState extends State<PlaylistPage> {
             artist = playlist.getSongs[index].getArtist;
           }
           return ListTile(
+            leading: Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                border: Border.all(
+                  color: Constants.lightGreyColor,
+                  width: 0.5,
+                ),
+                image: DecorationImage(
+                  image: playlist.getSongs[index].getImageUrl.length > 0
+                      ? NetworkImage(
+                          playlist.getSongs[index].getImageUrl,
+                        )
+                      : AssetImage('assets/images/default_song_pic.png'),
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+            title: Text(
+              title,
+              style: TextStyle(
+                color: audioPlayerManager.currentSong != null &&
+                        audioPlayerManager.currentPlaylist != null
+                    ? audioPlayerManager.loopPlaylist.getName ==
+                            playlist.getName
+                        ? audioPlayerManager.currentSong.getSongId ==
+                                playlist.getSongs[index].getSongId
+                            ? Constants.pinkColor
+                            : Colors.white
+                        : Colors.white
+                    : Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            subtitle: Text(
+              artist,
+              style: TextStyle(
+                color: audioPlayerManager.currentSong != null &&
+                        audioPlayerManager.currentPlaylist != null
+                    ? audioPlayerManager.loopPlaylist.getName ==
+                            playlist.getName
+                        ? audioPlayerManager.currentSong.getSongId ==
+                                playlist.getSongs[index].getSongId
+                            ? Constants.pinkColor
+                            : Colors.grey
+                        : Colors.grey
+                    : Colors.grey,
+                fontSize: 12,
+              ),
+            ),
+            trailing: IconButton(
+              icon: Icon(
+                Icons.more_vert,
+                color: audioPlayerManager.currentSong != null &&
+                        audioPlayerManager.currentPlaylist != null
+                    ? audioPlayerManager.loopPlaylist.getName ==
+                            playlist.getName
+                        ? audioPlayerManager.currentSong.getSongId ==
+                                playlist.getSongs[index].getSongId
+                            ? Constants.pinkColor
+                            : Colors.white
+                        : Colors.white
+                    : Colors.white,
+              ),
+              iconSize: 30,
+              onPressed: () {
+                setState(() {
+                  showSongOptions(playlist.getSongs[index], playlist);
+                });
+              },
+            ),
             onTap: () {
               if (audioPlayerManager.currentSong != null &&
                   audioPlayerManager.currentPlaylist != null) {
@@ -335,75 +408,6 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 });
               }
             },
-            leading: Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                image: DecorationImage(
-                  image: playlist.getSongs[index].getImageUrl.length > 0
-                      ? NetworkImage(
-                          playlist.getSongs[index].getImageUrl,
-                        )
-                      : AssetImage('assets/images/default_song_pic.png'),
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-            title: Text(
-              title,
-              style: TextStyle(
-                color: audioPlayerManager.currentSong != null &&
-                        audioPlayerManager.currentPlaylist != null
-                    ? audioPlayerManager.loopPlaylist.getName ==
-                            playlist.getName
-                        ? audioPlayerManager.currentSong.getSongId ==
-                                playlist.getSongs[index].getSongId
-                            ? Colors.pink
-                            : Colors.white
-                        : Colors.white
-                    : Colors.white,
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            subtitle: Text(
-              artist,
-              style: TextStyle(
-                color: audioPlayerManager.currentSong != null &&
-                        audioPlayerManager.currentPlaylist != null
-                    ? audioPlayerManager.loopPlaylist.getName ==
-                            playlist.getName
-                        ? audioPlayerManager.currentSong.getSongId ==
-                                playlist.getSongs[index].getSongId
-                            ? Colors.pink
-                            : Colors.grey
-                        : Colors.grey
-                    : Colors.grey,
-                fontSize: 12,
-              ),
-            ),
-            trailing: IconButton(
-              icon: Icon(
-                Icons.more_vert,
-                color: audioPlayerManager.currentSong != null &&
-                        audioPlayerManager.currentPlaylist != null
-                    ? audioPlayerManager.loopPlaylist.getName ==
-                            playlist.getName
-                        ? audioPlayerManager.currentSong.getSongId ==
-                                playlist.getSongs[index].getSongId
-                            ? Colors.pink
-                            : Colors.white
-                        : Colors.white
-                    : Colors.white,
-              ),
-              iconSize: 30,
-              onPressed: () {
-                setState(() {
-                  showSongOptions(playlist.getSongs[index], playlist);
-                });
-              },
-            ),
           );
         }),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
+import 'package:myapp/constants/constants.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
@@ -14,7 +15,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topCenter,
-      color: Colors.grey[850],
+      color: Constants.lightGreyColor,
       child: Column(
         children: <Widget>[
           Padding(
@@ -59,25 +60,45 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
   }
 
   Widget songItem(Song song, int pos, BuildContext context) {
+    String title;
+    String artist;
+    if (song.getTitle.length > 30) {
+      int pos = song.getTitle.lastIndexOf("", 30);
+      if (pos < 20) {
+        pos = 35;
+      }
+      title = song.getTitle.substring(0, pos) + "...";
+    } else {
+      title = song.getTitle;
+    }
+    if (song.getArtist.length > 35) {
+      int pos = song.getArtist.lastIndexOf("", 35);
+      if (pos < 20) {
+        pos = 35;
+      }
+      artist = song.getArtist.substring(0, pos) + "...";
+    } else {
+      artist = song.getArtist;
+    }
     return ListTile(
       leading: Text(
         "$pos",
         style: TextStyle(color: Colors.white, fontSize: 15),
       ),
       title: Text(
-        song.getTitle,
+        title,
         style: TextStyle(
           color: audioPlayerManager.currentSong.getSongId == song.getSongId
-              ? Colors.pink
+              ? Constants.pinkColor
               : Colors.white,
           fontSize: 15,
         ),
       ),
       subtitle: Text(
-        song.getArtist,
+        artist,
         style: TextStyle(
           color: audioPlayerManager.currentSong.getSongId == song.getSongId
-              ? Colors.pink
+              ? Constants.pinkColor
               : Colors.grey,
           fontSize: 12,
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/constants/constants.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/ui/pages/home_page.dart';
@@ -26,8 +27,8 @@ class _AccountPageState extends State<AccountPage> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xDE000000),
-                  Colors.pink,
+                  Constants.darkGreyColor,
+                  Constants.pinkColor,
                 ],
                 begin: FractionalOffset.bottomRight,
                 stops: [0.7, 1.0],

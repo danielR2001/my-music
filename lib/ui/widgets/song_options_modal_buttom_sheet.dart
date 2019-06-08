@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/constants/constants.dart';
+import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
+import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
+import 'package:myapp/ui/widgets/artists_pick_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
 import 'text_style.dart';
 
@@ -12,11 +16,13 @@ class SongOptionsModalSheet extends StatelessWidget {
   final Song song;
   final bool isMusicPlayerMenu;
   SongOptionsModalSheet(this.song, this.playlist, this.isMusicPlayerMenu);
+  List<String> artistsList;
+  List<Artist> artists = new List();
   @override
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topCenter,
-      color: Colors.grey[850],
+      color: Constants.lightGreyColor,
       child: ListView(
         children: <Widget>[
           Padding(
@@ -117,14 +123,21 @@ class SongOptionsModalSheet extends StatelessWidget {
                 size: 30,
               ),
               title: Text(
-                "View Artist",
+                "View Artists",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              onTap: () {},
+              onTap: () {
+                showLoadingBar(context);
+                artistsList = getArtists();
+                buildArtistsList().then((a) {
+                  Navigator.of(context, rootNavigator: true).pop('dialog');
+                  showArtists(context);
+                });
+              },
             ),
           ),
           Padding(
@@ -240,6 +253,76 @@ class SongOptionsModalSheet extends StatelessWidget {
       context: context,
       builder: (builder) {
         return QueueModalSheet();
+      },
+    );
+  }
+
+  void showArtists(BuildContext context) {
+    Navigator.pop(context);
+    showModalBottomSheet(
+      context: context,
+      builder: (builder) {
+        return ArtistsPickModalSheet(song, artists);
+      },
+    );
+  }
+
+  List<String> getArtists() {
+    if (song.getArtist.contains(", ") ||
+        song.getArtist.contains("&") ||
+        song.getArtist.contains("feat.")) {
+      return song.getArtist.split(RegExp(" feat. |\, |& |/"));
+    } else {
+      List<String> artist = new List();
+      artist.add(song.getArtist);
+      return artist;
+    }
+  }
+
+  Future<void> buildArtistsList() async {
+    for (int i = 0; i < artistsList.length; i++) {
+      artists.add(await builArtist(artistsList[i]));
+    }
+  }
+
+  Future<Artist> builArtist(String artistName) async {
+    return await FetchData.getArtistPageIdAndImageUrl(artistName);
+  }
+
+  void showLoadingBar(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          contentPadding: EdgeInsets.all(0.0),
+          backgroundColor: Colors.transparent,
+          children: <Widget>[
+            Container(
+              width: 60.0,
+              height: 60.0,
+              alignment: AlignmentDirectional.center,
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  new Center(
+                    child: new SizedBox(
+                      height: 50.0,
+                      width: 50.0,
+                      child: new CircularProgressIndicator(
+                        value: null,
+                        strokeWidth: 3.0,
+                        valueColor:
+                            new AlwaysStoppedAnimation<Color>(Constants.pinkColor),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        );
       },
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/ui/pages/welcome_page.dart';
@@ -11,8 +12,8 @@ class SettingsPage extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xEA000000),
-              Colors.pink,
+              Constants.darkGreyColor,
+              Constants.pinkColor,
             ],
             begin: FractionalOffset.bottomRight,
             stops: [0.7, 1.0],
@@ -22,7 +23,7 @@ class SettingsPage extends StatelessWidget {
         child: SafeArea(
           child: Center(
             child: FlatButton(
-              color: Colors.pink,
+              color: Constants.pinkColor,
               child: Text(
                 "Sign Out",
                 style: TextStyle(color: Colors.white),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
@@ -15,7 +16,7 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topCenter,
-      color: Colors.grey[850],
+      color: Constants.lightGreyColor,
       height: 180,
       child: Column(
         children: <Widget>[
@@ -116,7 +117,7 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
               fontSize: 22,
             ),
           ),
-          backgroundColor: Colors.grey[850],
+          backgroundColor: Constants.darkGreyColor,
           children: <Widget>[
             Form(
               key: formKey,
@@ -163,7 +164,7 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
                         alignment: Alignment.center,
                         height: 50.0,
                         decoration: BoxDecoration(
-                          color: Colors.pink,
+                          color: Constants.pinkColor,
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(

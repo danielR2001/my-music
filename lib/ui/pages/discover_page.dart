@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/constants/constants.dart';
 import 'package:myapp/models/playlist.dart';
 
 class DiscoverPage extends StatelessWidget {
@@ -58,8 +59,8 @@ class DiscoverPage extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xDE000000),
-                    Colors.pink,
+                    Constants.darkGreyColor,
+                    Constants.pinkColor,
                   ],
                   begin: FractionalOffset.bottomRight,
                   stops: [0.7, 1.0],
@@ -68,7 +69,9 @@ class DiscoverPage extends StatelessWidget {
               ),
               child: SafeArea(
                 child: Theme(
-                  data: Theme.of(context).copyWith(accentColor: Colors.grey),
+                  data: Theme.of(context).copyWith(
+                    accentColor: Colors.grey,
+                  ),
                   child: Column(
                     children: <Widget>[
                       Padding(
@@ -172,8 +175,8 @@ class DiscoverPage extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
                 border: Border.all(
-                  color: Colors.black,
-                  width: 0.2,
+                  color: Constants.lightGreyColor,
+                  width: 0.5,
                 ),
               ),
               child: Container(

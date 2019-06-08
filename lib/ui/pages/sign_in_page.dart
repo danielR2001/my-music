@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
@@ -27,7 +28,7 @@ class _State extends State<SignInPage> {
           gradient: LinearGradient(
             colors: [
               Color(0xE4000000),
-              Colors.pink,
+              Constants.pinkColor,
             ],
             begin: FractionalOffset.bottomRight,
             stops: [0.7, 1.0],
@@ -180,7 +181,7 @@ class _State extends State<SignInPage> {
                           color: Colors.white,
                           fontSize: 16,
                         ),
-                        cursorColor: Colors.pink,
+                        cursorColor: Constants.pinkColor,
                         decoration: InputDecoration(
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
@@ -189,7 +190,7 @@ class _State extends State<SignInPage> {
                           ),
                           labelText: "Email",
                           labelStyle: TextStyle(
-                            color: Colors.pink,
+                            color: Constants.pinkColor,
                             fontSize: 18,
                           ),
                         ),
@@ -208,7 +209,7 @@ class _State extends State<SignInPage> {
                           color: Colors.white,
                           fontSize: 16,
                         ),
-                        cursorColor: Colors.pink,
+                        cursorColor: Constants.pinkColor,
                         decoration: InputDecoration(
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
@@ -217,7 +218,7 @@ class _State extends State<SignInPage> {
                           ),
                           labelText: "Password",
                           labelStyle: TextStyle(
-                            color: Colors.pink,
+                            color: Constants.pinkColor,
                             fontSize: 18,
                           ),
                         ),
@@ -235,7 +236,7 @@ class _State extends State<SignInPage> {
                           color: Colors.white,
                           fontSize: 16,
                         ),
-                        cursorColor: Colors.pink,
+                        cursorColor: Constants.pinkColor,
                         decoration: InputDecoration(
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
@@ -244,7 +245,7 @@ class _State extends State<SignInPage> {
                           ),
                           labelText: "User name",
                           labelStyle: TextStyle(
-                            color: Colors.pink,
+                            color: Constants.pinkColor,
                             fontSize: 18,
                           ),
                         ),
@@ -323,7 +324,7 @@ class _State extends State<SignInPage> {
             alignment: Alignment.center,
             height: 60.0,
             decoration: BoxDecoration(
-              color: Colors.pink,
+              color: Constants.pinkColor,
               borderRadius: BorderRadius.circular(40.0),
             ),
             child: Text(
@@ -347,7 +348,7 @@ class _State extends State<SignInPage> {
             alignment: Alignment.center,
             height: 60.0,
             decoration: BoxDecoration(
-              color: Colors.pink,
+              color: Constants.pinkColor,
               borderRadius: BorderRadius.circular(40.0),
             ),
             child: Text(
@@ -417,7 +418,7 @@ class _State extends State<SignInPage> {
                         value: null,
                         strokeWidth: 3.0,
                         valueColor:
-                            new AlwaysStoppedAnimation<Color>(Colors.pink),
+                            new AlwaysStoppedAnimation<Color>(Constants.pinkColor),
                       ),
                     ),
                   ),

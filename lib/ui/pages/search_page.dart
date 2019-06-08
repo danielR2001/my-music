@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/constants/constants.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
@@ -82,7 +83,7 @@ class _SearchPageState extends State<SearchPage> {
                             color: Colors.white,
                             fontSize: 16,
                           ),
-                          cursorColor: Colors.pink,
+                          cursorColor: Constants.pinkColor,
                           decoration: InputDecoration.collapsed(
                             hintText: hintText,
                             hintStyle: TextStyle(
@@ -199,7 +200,7 @@ class _SearchPageState extends State<SearchPage> {
         },
       ),
       onTap: () async {
-        Playlist temp = Playlist("Search Playlist");
+        Playlist temp = Playlist(searchResultsPlaylist.getName);
         temp.setSongs = searchResultsPlaylist.getSongs;
         FocusScope.of(context).requestFocus(FocusNode());
         if (song.getImageUrl.length == 0) {

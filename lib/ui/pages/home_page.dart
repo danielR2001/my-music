@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/constants/constants.dart';
 import 'package:myapp/ui/widgets/buttom_navigation_bar.dart';
 import 'package:myapp/ui/widgets/sound_bar.dart';
 import 'package:myapp/ui/widgets/tab_navigator.dart';
@@ -58,7 +59,7 @@ class _HomePageState extends State<HomePage> {
         ]),
         bottomNavigationBar: Theme(
           data: Theme.of(context).copyWith(
-            canvasColor: Colors.grey[850],
+            canvasColor: Constants.lightGreyColor,
             textTheme: Theme.of(context).textTheme.copyWith(
                   caption: TextStyle(
                     color: Colors.grey,
@@ -184,7 +185,7 @@ class _HomePageState extends State<HomePage> {
       return GestureDetector(
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.grey[850],
+              color: Constants.lightGreyColor,
               border: Border(
                 bottom: BorderSide(color: Colors.black),
               ),

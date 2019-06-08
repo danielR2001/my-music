@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:html/dom.dart';
 import 'package:http/http.dart' as http;
+import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:html/parser.dart' show parse;
 
@@ -8,6 +10,9 @@ class FetchData {
   static final String searchUrl2 = 'https://muz.xn--41a.wiki/search/';
   static final String imageSearchUrl =
       'https://free-mp3-download.net/search.php?s=';
+  static final String artistIdUrl =
+      'https://www.bbc.co.uk/music/search.json?q=';
+  static final String artistInfoUrl = "https://www.bbc.co.uk/music/artists/";
 
   static Future<List<Song>> searchForResults1(String searchStr) async {
     searchStr = searchStr.replaceAll(" ", "-");
@@ -16,7 +21,7 @@ class FetchData {
           .get(
             searchUrl1 + searchStr + "/",
           )
-          .whenComplete(() => print('search completed'))
+          .whenComplete(() => print('Search For Results 1 search completed'))
           .then((http.Response response) async {
         var document = parse(response.body);
         if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
@@ -41,7 +46,7 @@ class FetchData {
           .get(
             searchUrl2 + searchStr + "/",
           )
-          .whenComplete(() => print('search completed'))
+          .whenComplete(() => print('Search For Results 2 search completed'))
           .then((http.Response response) {
         var document = parse(response.body);
         if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
@@ -76,7 +81,7 @@ class FetchData {
           html = html.replaceFirst('<ul class="playlist">', '');
           responseList = html.split("</li>");
           responseList.removeLast();
-          return buildSong(responseList, song, true);
+          return _buildSong(responseList, song, true);
         } else {
           return null;
         }
@@ -103,11 +108,11 @@ class FetchData {
         responseList = html.split("</li>");
         responseList.removeLast();
       }
-      return buildSong(responseList, song, false);
+      return _buildSong(responseList, song, false);
     });
   }
 
-  static String editSearchParams(String str, bool isTitle) {
+  static String _editSearchParams(String str, bool isTitle) {
     str = str.replaceAll(" ", "%20");
     str = str.replaceAll("&", "%26");
     if (str.contains("feat")) {
@@ -128,8 +133,8 @@ class FetchData {
   static Future<String> getSongImageUrl(Song song) async {
     String title = song.getTitle;
     String artist = song.getArtist;
-    title = editSearchParams(title, false);
-    artist = editSearchParams(artist, true);
+    title = _editSearchParams(title, false);
+    artist = _editSearchParams(artist, true);
     String searchParams = title + "%20" + artist;
     return http
         .get(imageSearchUrl + searchParams)
@@ -137,14 +142,14 @@ class FetchData {
         .then((http.Response response) {
       List<dynamic> list = jsonDecode(response.body)['data'];
       if (list.length > 0) {
-        return getImageUrlFromResponse(list[0]);
+        return _getImageUrlFromResponse(list[0]);
       } else {
         return '';
       }
     });
   }
 
-  static String buildSong(List<String> list, Song song, bool isDefault) {
+  static String _buildSong(List<String> list, Song song, bool isDefault) {
     int startPos;
     int endPos;
     String songId;
@@ -236,8 +241,8 @@ class FetchData {
         // ||streamUrl.contains("Ã")
         // ||streamUrl.contains("À")){
         //   //replace the special char with "a"
-        //  } 
-         //TODO locate special chars
+        //  }
+        //TODO locate special chars
         songs.add(
             Song(songTitle, artist, songId, streamUrl + "/", imageUrl, ''));
       }
@@ -287,8 +292,72 @@ class FetchData {
     return songs;
   }
 
-  static String getImageUrlFromResponse(Map songValues) {
+  static String _getImageUrlFromResponse(Map songValues) {
     Map album = songValues['album'];
     return album['cover_big'];
+  }
+
+  static Future<Artist> getArtistPageIdAndImageUrl(String artistName) async {
+    String name = artistName;
+    if (artistName.contains(" ")) {
+      name = name.replaceAll(" ", "+");
+    }
+    return http
+        .get(
+          artistIdUrl + name,
+        )
+        .whenComplete(() => print('Get Artist Info search completed'))
+        .then((http.Response response) {
+      List<dynamic> list = jsonDecode(response.body)['artists'];
+      if (list.length > 0) {
+        return Artist(artistName,
+            "https://ichef.bbci.co.uk/images/ic/160x160/" +
+                list[0]["image_id"],
+            id: list[0]["id"]);
+      } else {
+        return Artist(artistName,"https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png",info: "");
+      }
+    });
+  }
+
+  static Future<Artist> getArtistInfoPage(Artist artist) async {
+    return http
+        .get(
+          artistInfoUrl + artist.getId,
+        )
+        .whenComplete(() => print('Get Artist Info search completed'))
+        .then((http.Response response) {
+      Document document = parse(response.body);
+      return _buildArtist(document, artist);
+    });
+  }
+
+  static Artist _buildArtist(Document document, Artist artist) {
+    String info;
+    String imageUrl;
+    List infoElement;
+    List imageUrlElement;
+    imageUrlElement = document.getElementsByClassName("artist-image");
+    imageUrl = imageUrlElement[0].innerHtml;
+    imageUrl = imageUrl.substring(
+        imageUrl.indexOf('data-default-src="') + 'data-default-src="'.length,
+        imageUrl.indexOf('"> <source srcset='));
+    infoElement = document.getElementsByClassName("msc-artist-biography-text");
+    if (infoElement.length > 0) {
+      info = infoElement[0].innerHtml;
+      info = info.substring(3, info.length - 4);
+      info = info.replaceAll("</p><p>", "\n\n");
+      info = info.replaceAll("amp;", "");
+      info = info.replaceAll("Â&nbsp;â", " -");
+      info = info.replaceAll(RegExp("[^\\x00-\\x7F]"), "");
+    } else {
+      info = "";
+    }
+    if(imageUrl == "https://static.bbc.co.uk/music_clips/3.0.29/img/default_artist_images/pop1.jpg"){
+      imageUrl ="https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png";
+    }
+    artist.setInfo = info;
+    artist.setImageUrl = imageUrl;
+    return artist;
   }
 }
