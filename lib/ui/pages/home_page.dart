@@ -17,7 +17,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Icon musicPlayerIcon;
+  Icon musicPlayerIcon = Icon(
+    Icons.pause,
+    color: Colors.white,
+  );
   StreamSubscription<AudioPlayerState> stream;
   Expanded soundBar;
   TabItem currentTab = TabItem.discover;
@@ -92,10 +95,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   void initSong() {
-    checkSongStatus(audioPlayerManager.audioPlayer.state);
+    //checkSongStatus(audioPlayerManager.audioPlayer.state);
     stream = audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
-        checkSongStatus(state);
+        setState(() {
+          checkSongStatus(state);
+        });
       },
     );
   }
@@ -175,6 +180,8 @@ class _HomePageState extends State<HomePage> {
       changeIconState(true);
     } else if (state == AudioPlayerState.PAUSED) {
       changeIconState(false);
+    } else if (state == AudioPlayerState.STOPPED) {
+      changeIconState(true);
     } else if (state == null) {
       changeIconState(false);
     }

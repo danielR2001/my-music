@@ -86,6 +86,16 @@ class FirebaseDatabaseManager {
         .update({"name": newName});
   }
 
+    static void changePlaylistPrivacy(Playlist playlist) {
+    FirebaseDatabase.instance
+        .reference()
+        .child(_usersDir)
+        .child(_userPushId)
+        .child(_playlistsDir)
+        .child(playlist.getPushId)
+        .update({"isPublic": playlist.getIsPublic});
+  }
+
   static Song addSongToPlaylist(Playlist playlist, Song song) {
     var pushId = FirebaseDatabase.instance
         .reference()
@@ -119,7 +129,7 @@ class FirebaseDatabaseManager {
     playlistMap.forEach(
       (key, value) {
         tempMap = value["songs"];
-        tempPlaylist = Playlist(value["name"]);
+        tempPlaylist = Playlist(value["name"],isPublic: value["isPublic"]);
         tempPlaylist.setPushId = key;
         if (tempMap != null) {
           tempMap.forEach((key, value) {
@@ -163,6 +173,7 @@ class FirebaseDatabaseManager {
     pushId.set(song.toJson());
     return song;
   }
+  
   static void removeSongFromDownloadedPlaylist(Song song) {
     FirebaseDatabase.instance
         .reference()
@@ -174,6 +185,7 @@ class FirebaseDatabaseManager {
         .child(song.getPushId)
         .remove();
   }
+  
   static Playlist _buildDownloadedPlaylist(Map playlistMap) {
     Playlist playlist;
     Map valuesMap;

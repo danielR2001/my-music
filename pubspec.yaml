@@ -11,7 +11,7 @@ description: A new Flutter project.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.1
+version: 1.1.0
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -60,38 +60,12 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-   - assets/images/rock.png
-   - assets/images/rap.png
-   - assets/images/r&b.png
-   - assets/images/pop.png
-   - assets/images/jazz.png
-   - assets/images/hip_hop.png
-   - assets/images/electronic.png
-   - assets/images/dance_edm.png
-   - assets/images/country.png
-   - assets/images/classical.png
-   - assets/images/chill.png
-   - assets/images/blues.png
-   - assets/images/blues-512.png
-   - assets/images/chill-512.png
-   - assets/images/classic-512.png
-   - assets/images/country-512.png
-   - assets/images/electronic-512.png
-   - assets/images/hip-hop-512.png
-   - assets/images/dance_edm-512.png
-   - assets/images/electronic-512.png
-   - assets/images/hip-hop-512.png
-   - assets/images/jazz-512.png
-   - assets/images/pop-512.png
-   - assets/images/r&b-512.png
-   - assets/images/rap-512.png
-   - assets/images/rock-512.png
    - assets/images/sign_in_pic.png
    - assets/images/google_logo.png
    - assets/images/facebook_logo.png
    - assets/images/default_song_pic.png
    - assets/images/default_song_pic_small.png
-   - assets/images/downloaded_image.jpg
+   - assets/images/default_playlist_image.jpg
    #- assets/gifs/kygo_gif.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see

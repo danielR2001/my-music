@@ -147,7 +147,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                             fit: BoxFit.cover,
                           )
                         : Image.asset(
-                            'assets/images/downloaded_image.jpg',
+                            'assets/images/default_playlist_image.jpg',
                             fit: BoxFit.cover,
                           ),
                   ),

@@ -4,48 +4,6 @@ import 'package:myapp/models/playlist.dart';
 
 class DiscoverPage extends StatelessWidget {
   DiscoverPage({this.onPush});
-  final List<String> genres = [
-    "R&B/Soul",
-    "Rock",
-    "Chill",
-    "Classical",
-    "Pop",
-    "Rap",
-    "Jazz",
-    "Blues",
-    "Electronic",
-    "Hip Hop",
-    "Country",
-    "Dance/EDM"
-  ];
-  final List<String> genresUrls = [
-    "assets/images/r&b.png",
-    "assets/images/rock.png",
-    "assets/images/chill.png",
-    "assets/images/classical.png",
-    "assets/images/pop.png",
-    "assets/images/rap.png",
-    "assets/images/jazz.png",
-    "assets/images/blues.png",
-    "assets/images/electronic.png",
-    "assets/images/hip_hop.png",
-    "assets/images/country.png",
-    "assets/images/dance_edm.png",
-  ];
-  final List<String> genresIconUrls = [
-    'assets/images/r&b-512.png',
-    'assets/images/rock-512.png',
-    'assets/images/chill-512.png',
-    'assets/images/classic-512.png',
-    'assets/images/pop-512.png',
-    'assets/images/rap-512.png',
-    'assets/images/jazz-512.png',
-    'assets/images/blues-512.png',
-    'assets/images/electronic-512.png',
-    'assets/images/hip-hop-512.png',
-    'assets/images/country-512.png',
-    'assets/images/dance_edm-512.png',
-  ];
   final onPush;
   @override
   Widget build(BuildContext context) {
@@ -133,16 +91,16 @@ class DiscoverPage extends StatelessWidget {
                           ),
                         ]),
                       ),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: 6,
-                          itemBuilder: (BuildContext context, int index) {
-                            Padding padding = createGenres(index, context);
-                            index++;
-                            return padding;
-                          },
-                        ),
-                      ),
+                      // Expanded(
+                      //   child: ListView.builder(
+                      //     itemCount: 6,
+                      //     itemBuilder: (BuildContext context, int index) {
+                      //       Padding padding = createGenres(index, context);
+                      //       index++;
+                      //       return padding;
+                      //     },
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -202,42 +160,10 @@ class DiscoverPage extends StatelessWidget {
           ),
         ],
       ),
-      onTap: () => onPush(createMap(Playlist(genre))),
+      //onTap: () => onPush(createMap(Playlist(genre))),
     );
   }
 
-  Padding createGenres(int index, BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8.0,
-            ),
-            child: drawGenreWidget(
-              genresUrls[index * 2],
-              genresIconUrls[index * 2],
-              genres[index * 2],
-              context,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8.0,
-            ),
-            child: drawGenreWidget(
-              genresUrls[index * 2 + 1],
-              genresIconUrls[index * 2 + 1],
-              genres[index * 2 + 1],
-              context,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Map createMap(Playlist playlist) {
     Map<String, dynamic> playlistValues = Map();

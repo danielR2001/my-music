@@ -227,7 +227,7 @@ class _SearchPageState extends State<SearchPage> {
       builder: (builder) {
         return SongOptionsModalSheet(
           song,
-          null,
+          searchResultsPlaylist,
           false,
         );
       },

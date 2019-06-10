@@ -1,4 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/constants/constants.dart';
@@ -19,6 +21,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
   final Song song;
   _PlaylistPickPageState(this.song);
   String _playlistName;
+  bool _isPublic;
 
   final formKey = GlobalKey<FormState>();
 
@@ -224,33 +227,47 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      currentUser.getMyPlaylists.forEach((playlist) {
-        if (playlist.getName == _playlistName) {
-          nameExists = true;
-        }
-      });
-      if (!nameExists) {
-        Navigator.of(context, rootNavigator: true).pop('dialog');
-        showLoadingBar();
-        Playlist playlist = Playlist(_playlistName);
+      if (_playlistName != "Search Playlist") {
+        currentUser.getMyPlaylists.forEach((playlist) {
+          if (playlist.getName == _playlistName) {
+            nameExists = true;
+          }
+        });
+        if (!nameExists) {
+          Navigator.of(context, rootNavigator: true).pop('dialog');
+          showLoadingBar();
+          Playlist playlist = Playlist(_playlistName, isPublic: _isPublic);
 
-        if (song.getImageUrl.length == 0) {
-          String imageUrl = await FetchData.getSongImageUrl(song);
-          song.setImageUrl = imageUrl;
+          if (song.getImageUrl.length == 0) {
+            String imageUrl = await FetchData.getSongImageUrl(song);
+            song.setImageUrl = imageUrl;
+          }
+          FirebaseDatabaseManager.addPlaylist(playlist);
+          Song updatedsong =
+              FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
+          playlist.addNewSong(updatedsong);
+          currentUser.addNewPlaylist(playlist);
+          Navigator.of(context, rootNavigator: true).pop('dialog');
+          Navigator.pop(context);
+        } else {
+          scafKey.currentState.showSnackBar(
+            SnackBar(
+              duration: Duration(seconds: 5),
+              content: Text(
+                "Playlist With This Name Already Exists!",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          );
         }
-        FirebaseDatabaseManager.addPlaylist(playlist);
-        Song updatedsong =
-            FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
-        playlist.addNewSong(updatedsong);
-        currentUser.addNewPlaylist(playlist);
-        Navigator.of(context, rootNavigator: true).pop('dialog');
-        Navigator.pop(context);
       } else {
         scafKey.currentState.showSnackBar(
           SnackBar(
             duration: Duration(seconds: 5),
             content: Text(
-              "Playlist With This Name Already Exists!",
+              "Cant name playlist Search Playlist!",
               style: TextStyle(
                 color: Colors.white,
               ),
@@ -262,6 +279,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
   }
 
   void showNewPlaylistDialog() {
+    _isPublic = false;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -303,7 +321,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                           labelText: "Playlist name",
                           labelStyle: TextStyle(
                             color: Colors.grey,
-                            fontSize: 18,
+                            fontSize: 16,
                           ),
                         ),
                         validator: (value) => value.isEmpty
@@ -311,6 +329,32 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                             : null,
                         onSaved: (value) => _playlistName = value,
                       ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                            child: Text(
+                          "Set as public:",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        )),
+                        Switch(
+                          value: _isPublic,
+                          activeColor: Constants.pinkColor,
+                          dragStartBehavior: DragStartBehavior.down,
+                          onChanged: (value) {
+                            setState(() {
+                              _isPublic = value;
+                            });
+                          },
+                        ),
+                      ],
                     ),
                   ),
                   GestureDetector(
@@ -372,8 +416,8 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                       child: new CircularProgressIndicator(
                         value: null,
                         strokeWidth: 3.0,
-                        valueColor:
-                            new AlwaysStoppedAnimation<Color>(Constants.pinkColor),
+                        valueColor: new AlwaysStoppedAnimation<Color>(
+                            Constants.pinkColor),
                       ),
                     ),
                   ),

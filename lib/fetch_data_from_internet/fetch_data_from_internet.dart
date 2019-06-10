@@ -16,10 +16,11 @@ class FetchData {
 
   static Future<List<Song>> searchForResultsSite1(String searchStr) async {
     searchStr = searchStr.replaceAll(" ", "-");
+    var encoded = Uri.encodeFull(searchUrl1 + searchStr+"/");
     try {
       return http
           .get(
-            searchUrl1 + searchStr + "/",
+            encoded,
           )
           .whenComplete(() => print('Search For Results 1 search completed'))
           .then((http.Response response) async {
@@ -41,10 +42,11 @@ class FetchData {
   }
 
   static Future<List<Song>> searchForResultsSite2(String searchStr) async {
+    var encoded = Uri.encodeFull(searchUrl1 + searchStr+"/");
     try {
       return http
           .get(
-            searchUrl2 + searchStr + "/",
+            encoded,
           )
           .whenComplete(() => print('Search For Results 2 search completed'))
           .then((http.Response response) {
@@ -66,9 +68,10 @@ class FetchData {
 
   static Future<String> getSongPlayUrlDefault(Song song) async {
     var responseList;
+    var encoded = Uri.encodeFull(searchUrl1 + song.getSearchString);
     return http
         .get(
-          searchUrl1 + song.getSearchString,
+          encoded,
         )
         .whenComplete(() => print('song search completed'))
         .then((http.Response response) {
@@ -417,8 +420,9 @@ class FetchData {
         downloadUrl = strSong.substring(
             strSong.indexOf('data-mp3="') + 'data-mp3="'.length,
             strSong.indexOf('" data-url_song='));
-        downloadUrl =
-            downloadUrl.replaceFirst("/public/play", "/public/download").replaceAll("amp;", "");
+        downloadUrl = downloadUrl
+            .replaceFirst("/public/play", "/public/download")
+            .replaceAll("amp;", "");
         return downloadUrl;
       } else {
         return null;

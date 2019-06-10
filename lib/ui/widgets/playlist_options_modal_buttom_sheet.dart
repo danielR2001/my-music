@@ -8,18 +8,35 @@ import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/widgets/sort_options_modal_buttom_sheet.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 
-class PlaylistOptionsModalSheet extends StatelessWidget {
+class PlaylistOptionsModalSheet extends StatefulWidget {
   final Playlist playlist;
   final BuildContext playlistPageContext;
   PlaylistOptionsModalSheet(this.playlist, this.playlistPageContext);
+
+  @override
+  _PlaylistOptionsModalSheetState createState() =>
+      _PlaylistOptionsModalSheetState();
+}
+
+class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
   String _playlistNewName;
+  double widgetsCount = 5;
   final formKey = GlobalKey<FormState>();
+  @override
+  void initState() {
+    if(widget.playlist.getPushId ==
+        currentUser.getDownloadedSongsPlaylist.getPushId){
+          widgetsCount = 3;
+        }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topCenter,
       color: Constants.lightGreyColor,
-      height: 240,
+      height: 57*widgetsCount,
       child: Column(
         children: <Widget>[
           Padding(
@@ -64,26 +81,7 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: ListTile(
-              leading: Icon(
-                Icons.edit,
-                color: Colors.grey,
-                size: 30,
-              ),
-              title: Text(
-                "Rename playlist",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                ),
-              ),
-              onTap: () {
-                showRenamePlaylistDialog(context);
-              },
-            ),
-          ),
+          showRenamePlaylist(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: ListTile(
@@ -100,10 +98,11 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
                 ),
               ),
               onTap: () {
-                showPlaylistOptions(playlist, context);
+                showPlaylistOptions(widget.playlist, context);
               },
             ),
           ),
+          showPlaylistPrivacy(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: ListTile(
@@ -121,9 +120,9 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
               ),
               onTap: () {
                 Navigator.of(context, rootNavigator: true).pop('dialog');
-                Navigator.of(playlistPageContext).pop();
-                FirebaseDatabaseManager.removePlaylist(playlist);
-                currentUser.removePlaylist(playlist);
+                Navigator.of(widget.playlistPageContext).pop();
+                FirebaseDatabaseManager.removePlaylist(widget.playlist);
+                currentUser.removePlaylist(widget.playlist);
                 if (audioPlayerManager.currentPlaylist.getName ==
                     audioPlayerManager.currentPlaylist.getName) {
                   audioPlayerManager.loopPlaylist = null;
@@ -238,12 +237,12 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      FirebaseDatabaseManager.renamePlaylist(playlist, _playlistNewName);
-      playlist.setName = _playlistNewName;
-      currentUser.updatePlaylist(playlist);
+      FirebaseDatabaseManager.renamePlaylist(widget.playlist, _playlistNewName);
+      widget.playlist.setName = _playlistNewName;
+      currentUser.updatePlaylist(widget.playlist);
       if (audioPlayerManager.currentPlaylist != null) {
         if (audioPlayerManager.currentPlaylist.getPushId ==
-            playlist.getPushId) {
+            widget.playlist.getPushId) {
           audioPlayerManager.currentPlaylist.setName = _playlistNewName;
         }
       }
@@ -252,12 +251,72 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
   }
 
   void downloadAll() {
-    playlist.getSongs.forEach((song) {
+    widget.playlist.getSongs.forEach((song) {
       ManageLocalSongs.checkIfFileExists(song).then((exists) {
         if (!exists) {
           ManageLocalSongs.downloadSong(song);
         }
       });
     });
+  }
+
+  Widget showPlaylistPrivacy() {
+    if (widget.playlist.getPushId !=
+        currentUser.getDownloadedSongsPlaylist.getPushId) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ListTile(
+          leading: Icon(
+            widget.playlist.getIsPublic ? Icons.public : Icons.lock,
+            color: Colors.grey,
+            size: 30,
+          ),
+          title: Text(
+            widget.playlist.getIsPublic ? "Public" : "Private",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+            ),
+          ),
+          onTap: () {
+            setState(() {
+              widget.playlist.setIsPublic = !widget.playlist.getIsPublic;
+            });
+            FirebaseDatabaseManager.changePlaylistPrivacy(widget.playlist);
+            currentUser.updatePlaylist(widget.playlist);
+          },
+        ),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget showRenamePlaylist() {
+    if (widget.playlist.getPushId !=
+        currentUser.getDownloadedSongsPlaylist.getPushId) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ListTile(
+          leading: Icon(
+            Icons.edit,
+            color: Colors.grey,
+            size: 30,
+          ),
+          title: Text(
+            "Rename playlist",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+            ),
+          ),
+          onTap: () {
+            showRenamePlaylistDialog(context);
+          },
+        ),
+      );
+    } else {
+      return Container();
+    }
   }
 }
