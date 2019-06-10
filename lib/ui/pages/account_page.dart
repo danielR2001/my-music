@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_image/network.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
@@ -173,7 +174,7 @@ class _AccountPageState extends State<AccountPage> {
               fit: BoxFit.fill,
               image: playlist.getSongs.length>0
                   ? playlist.getSongs[0].getImageUrl != ""
-                      ? NetworkImage(
+                      ? NetworkImageWithRetry(
                           playlist.getSongs[0].getImageUrl,
                         )
                       : AssetImage('assets/images/default_song_pic.png')

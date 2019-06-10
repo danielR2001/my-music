@@ -10,6 +10,7 @@ import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'dart:math';
+import 'package:flutter_image/network.dart';
 
 class PlaylistPage extends StatefulWidget {
   final Playlist playlist;
@@ -138,15 +139,16 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           Rect.fromLTRB(0, 0, rect.width, rect.height));
                     },
                     blendMode: BlendMode.dstIn,
-                    child: imagePath != ""
-                        ? Image.network(
-                            imagePath,
-                            fit: BoxFit.cover,
-                          )
-                        : Image.asset(
-                            'assets/images/default_playlist_image.jpg',
-                            fit: BoxFit.cover,
-                          ),
+                    child: Image(
+                      image: imagePath != ""
+                          ? NetworkImageWithRetry(
+                              imagePath,
+                            )
+                          : AssetImage(
+                              'assets/images/default_playlist_image.jpg',
+                            ),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
@@ -300,7 +302,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 ),
                 image: DecorationImage(
                   image: playlist.getSongs[index].getImageUrl.length > 0
-                      ? NetworkImage(
+                      ? NetworkImageWithRetry(
                           playlist.getSongs[index].getImageUrl,
                         )
                       : AssetImage('assets/images/default_song_pic.png'),

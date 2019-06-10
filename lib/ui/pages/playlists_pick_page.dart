@@ -171,7 +171,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     });
     if (!songAlreadyExistsInPlaylist) {
       showLoadingBar();
-      if (playlist.getName == audioPlayerManager.currentPlaylist.getName) {
+      if (audioPlayerManager.currentPlaylist!=null? playlist.getName == audioPlayerManager.currentPlaylist.getName:false) {
         if (audioPlayerManager.playlistMode == PlaylistMode.shuffle) {
           if (song.getImageUrl.length == 0) {
             String imageUrl = await FetchData.getSongImageUrl(song);
@@ -199,6 +199,10 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           Navigator.pop(context);
         }
       } else {
+        if (song.getImageUrl.length == 0) {
+          String imageUrl = await FetchData.getSongImageUrl(song);
+          song.setImageUrl = imageUrl;
+        }
         updatedsong = FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
         playlist.addNewSong(updatedsong);
         currentUser.updatePlaylist(playlist);

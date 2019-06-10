@@ -16,7 +16,7 @@ class FetchData {
 
   static Future<List<Song>> searchForResultsSite1(String searchStr) async {
     searchStr = searchStr.replaceAll(" ", "-");
-    var encoded = Uri.encodeFull(searchUrl1 + searchStr+"/");
+    var encoded = Uri.encodeFull(searchUrl1 + searchStr + "/");
     try {
       return http
           .get(
@@ -42,7 +42,7 @@ class FetchData {
   }
 
   static Future<List<Song>> searchForResultsSite2(String searchStr) async {
-    var encoded = Uri.encodeFull(searchUrl1 + searchStr+"/");
+    var encoded = Uri.encodeFull(searchUrl1 + searchStr + "/");
     try {
       return http
           .get(
@@ -116,13 +116,11 @@ class FetchData {
   }
 
   static String _editSearchParams(String str, bool isTitle) {
-    str = str.replaceAll(" ", "%20");
-    str = str.replaceAll("&", "%26");
     if (str.contains("feat")) {
       int pos = str.indexOf("feat");
       str = str.substring(0, pos);
     }
-    if (str.contains(",") && isTitle) {
+    if (str.contains(",")) {
       int pos = str.indexOf(",");
       str = str.substring(0, pos);
     }
@@ -130,23 +128,38 @@ class FetchData {
       int pos = str.indexOf("'");
       str = str.substring(0, pos);
     }
-    if (RegExp(r"^[a-zA-Z]").hasMatch(str)) {
-      print("");
+    if (!RegExp("r^[a-zA-Z]").hasMatch(str)) {
+      if (str.contains("(")) {
+        str = str.substring(str.indexOf("(")+1, str.indexOf(")"));
+      }else{
+        //remove english letters
+      }
+    } else {
+      if (str.contains(" (")) {
+        str = str.substring(0, str.indexOf(" ("));
+      }
     }
-    if (str.contains("%20(")) {
-      str = str.substring(0, str.indexOf("%20("));
+    if (str.contains(" [")) {
+      str = str.substring(0, str.indexOf(" ["));
     }
-    if (str.contains("%20[")) {
-      str = str.substring(0, str.indexOf("%20["));
+    if (isTitle) {
+      str = str.replaceAll("&", "%26");
+    } else {
+      if (str.contains("&")) {
+        int pos = str.indexOf("&");
+        str = str.substring(0, pos);
+      }
     }
+    str = str.replaceAll(" ", "%20");
+
     return str;
   }
 
   static Future<String> getSongImageUrl(Song song) async {
     String title = song.getTitle;
     String artist = song.getArtist;
-    title = _editSearchParams(title, false);
-    artist = _editSearchParams(artist, true);
+    title = _editSearchParams(title, true);
+    artist = _editSearchParams(artist, false);
     String searchParams = title + "%20" + artist;
     return http
         .get(imageSearchUrl + searchParams)

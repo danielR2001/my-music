@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image/network.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
@@ -167,7 +168,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                             image: audioPlayerManager
                                         .currentSong.getImageUrl.length >
                                     0
-                                ? NetworkImage(
+                                ? NetworkImageWithRetry(
                                     audioPlayerManager.currentSong.getImageUrl,
                                   )
                                 : AssetImage(
