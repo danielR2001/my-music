@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
+import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
@@ -9,7 +10,9 @@ import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
+import 'package:myapp/update_state/state_refresher.dart';
 import 'dart:math';
+import 'package:provider/provider.dart';
 
 class PlaylistPage extends StatefulWidget {
   final Playlist playlist;
@@ -43,7 +46,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return //ChangeNotifierProvider(
+        //builder: (context)=> StateRefresher(),
+        // child:
+        Scaffold(
       body: Container(
         decoration: BoxDecoration(
           color: Constants.darkGreyColor,
@@ -193,13 +199,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                                   playlist,
                                   PlaylistMode.loop,
                                 );
-                                FetchData.getSongPlayUrlDefault(
-                                        playlist.getSongs[0])
-                                    .then((streamUrl) {
-                                  audioPlayerManager.playSong(
-                                    streamUrl,
-                                  );
-                                });
+                                audioPlayerManager.playSong();
                               },
                             ),
                           ),
@@ -246,13 +246,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
                                   playlist,
                                   PlaylistMode.shuffle,
                                 );
-                                FetchData.getSongPlayUrlDefault(
-                                        playlist.getSongs[randomNum])
-                                    .then((streamUrl) {
-                                  audioPlayerManager.playSong(
-                                    streamUrl,
-                                  );
-                                });
+
+                                audioPlayerManager.playSong();
                               },
                             ),
                           ),
@@ -267,6 +262,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
           ),
         ),
       ),
+      // ),
     );
   }
 
@@ -348,27 +344,46 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 fontSize: 12,
               ),
             ),
-            trailing: IconButton(
-              icon: Icon(
-                Icons.more_vert,
-                color: audioPlayerManager.currentSong != null &&
-                        audioPlayerManager.currentPlaylist != null
-                    ? audioPlayerManager.loopPlaylist.getName ==
-                            playlist.getName
-                        ? audioPlayerManager.currentSong.getSongId ==
-                                playlist.getSongs[index].getSongId
-                            ? Constants.pinkColor
-                            : Colors.white
-                        : Colors.white
-                    : Colors.white,
-              ),
-              iconSize: 30,
-              onPressed: () {
-                setState(() {
-                  showSongOptions(playlist.getSongs[index], playlist);
-                });
-              },
-            ),
+            trailing: ManageLocalSongs.downloading &&
+                    ManageLocalSongs.isSongDownloading(playlist.getSongs[index])
+                ? //SizedBox(
+                // height: 30,
+                //   width: 30,
+                // child:
+                Padding(
+                    padding: EdgeInsets.only(right: 6),
+                    child: //Consumer<StateRefresher>(
+                        //  builder:(context,stateRefresher,_)=>
+                        CircularProgressIndicator(
+                      //value: stateRefresher.getDownloadedPos.toDouble()/
+                      //         stateRefresher.getDownloadedTotal,
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(Constants.pinkColor),
+                      strokeWidth: 4.0,
+                    ),
+                    //   )
+                  )
+                : IconButton(
+                    icon: Icon(
+                      Icons.more_vert,
+                      color: audioPlayerManager.currentSong != null &&
+                              audioPlayerManager.currentPlaylist != null
+                          ? audioPlayerManager.loopPlaylist.getName ==
+                                  playlist.getName
+                              ? audioPlayerManager.currentSong.getSongId ==
+                                      playlist.getSongs[index].getSongId
+                                  ? Constants.pinkColor
+                                  : Colors.white
+                              : Colors.white
+                          : Colors.white,
+                    ),
+                    iconSize: 30,
+                    onPressed: () {
+                      setState(() {
+                        showSongOptions(playlist.getSongs[index], playlist);
+                      });
+                    },
+                  ),
             onTap: () {
               if (audioPlayerManager.currentSong != null &&
                   audioPlayerManager.currentPlaylist != null) {
@@ -387,12 +402,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
                     playlist,
                     PlaylistMode.loop,
                   );
-                  FetchData.getSongPlayUrlDefault(playlist.getSongs[index])
-                      .then((streamUrl) {
-                    audioPlayerManager.playSong(
-                      streamUrl,
-                    );
-                  });
+
+                  audioPlayerManager.playSong();
                 }
               } else {
                 audioPlayerManager.initSong(
@@ -400,12 +411,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
                   playlist,
                   PlaylistMode.loop,
                 );
-                FetchData.getSongPlayUrlDefault(playlist.getSongs[index])
-                    .then((streamUrl) {
-                  audioPlayerManager.playSong(
-                    streamUrl,
-                  );
-                });
+
+                audioPlayerManager.playSong();
               }
             },
           );

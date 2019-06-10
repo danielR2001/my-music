@@ -92,8 +92,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void initSong() {
-    checkSongStatus(audioPlayerManager.advancedPlayer.state);
-    stream = audioPlayerManager.advancedPlayer.onPlayerStateChanged.listen(
+    checkSongStatus(audioPlayerManager.audioPlayer.state);
+    stream = audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
         checkSongStatus(state);
       },
@@ -229,7 +229,7 @@ class _HomePageState extends State<HomePage> {
                     iconSize: 30,
                     onPressed: () {
                       if (audioPlayerManager.isLoaded) {
-                        audioPlayerManager.advancedPlayer.state ==
+                        audioPlayerManager.audioPlayer.state ==
                                 AudioPlayerState.PLAYING
                             ? audioPlayerManager.pauseSong()
                             : audioPlayerManager.resumeSong();

@@ -3,6 +3,7 @@ import 'package:myapp/constants/constants.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
+import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
@@ -10,6 +11,7 @@ import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/artists_pick_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
 import 'text_style.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SongOptionsModalSheet extends StatelessWidget {
   final Playlist playlist;
@@ -68,25 +70,7 @@ class SongOptionsModalSheet extends StatelessWidget {
             ),
           ),
           showRemoveFromPlaylist(context),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: ListTile(
-              leading: Icon(
-                Icons.save_alt,
-                color: Colors.grey,
-                size: 30,
-              ),
-              title: Text(
-                "Download",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              onTap: () {},
-            ),
-          ),
+          showDownloadSong(context),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: ListTile(
@@ -140,32 +124,15 @@ class SongOptionsModalSheet extends StatelessWidget {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: ListTile(
-              leading: Icon(
-                Icons.share,
-                color: Colors.grey,
-                size: 30,
-              ),
-              title: Text(
-                "Share",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              onTap: () {},
-            ),
-          ),
         ],
       ),
     );
   }
 
   Widget showRemoveFromPlaylist(BuildContext context) {
-    if (playlist != null) {
+    if (playlist != null &&
+        playlist.getPushId !=
+            currentUser.getDownloadedSongsPlaylist.getPushId) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ListTile(
@@ -302,19 +269,19 @@ class SongOptionsModalSheet extends StatelessWidget {
               width: 60.0,
               height: 60.0,
               alignment: AlignmentDirectional.center,
-              child: new Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  new Center(
-                    child: new SizedBox(
+                  Center(
+                    child: SizedBox(
                       height: 50.0,
                       width: 50.0,
-                      child: new CircularProgressIndicator(
+                      child: CircularProgressIndicator(
                         value: null,
                         strokeWidth: 3.0,
                         valueColor:
-                            new AlwaysStoppedAnimation<Color>(Constants.pinkColor),
+                            AlwaysStoppedAnimation<Color>(Constants.pinkColor),
                       ),
                     ),
                   ),
@@ -325,5 +292,155 @@ class SongOptionsModalSheet extends StatelessWidget {
         );
       },
     );
+  }
+
+  Widget showDownloadSong(BuildContext context) {
+    if (playlist.getPushId !=
+        currentUser.getDownloadedSongsPlaylist.getPushId) {
+      if (!currentUser.songExistsInDownloadedPlaylist(song) &&
+          !ManageLocalSongs.isSongDownloading(song)) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: ListTile(
+            leading: Icon(
+              Icons.save_alt,
+              color: Colors.grey,
+              size: 30,
+            ),
+            title: Text(
+              "Download",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onTap: () {
+              ManageLocalSongs.checkIfFileExists(song).then((exists) {
+                if (!exists) {
+                  Fluttertoast.showToast(
+                    msg: "Download started",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIos: 1,
+                    backgroundColor: Constants.pinkColor,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                  ManageLocalSongs.downloadSong(song);
+                  Navigator.pop(context);
+                } else {
+                  Fluttertoast.showToast(
+                    msg: "Song is already exists!",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIos: 1,
+                    backgroundColor: Constants.pinkColor,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                }
+              });
+            },
+          ),
+        );
+      } else {
+        if (ManageLocalSongs.isSongDownloading(song)) {
+          return Container();
+        } else {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: ListTile(
+              leading: Icon(
+                Icons.undo,
+                color: Colors.grey,
+                size: 30,
+              ),
+              title: Text(
+                "UnDownload",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              onTap: () {
+                ManageLocalSongs.checkIfFileExists(song).then((exists) {
+                  if (exists) {
+                    ManageLocalSongs.unDownloadSong(song);
+                    Fluttertoast.showToast(
+                      msg: "song Undownloaded",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIos: 1,
+                      backgroundColor: Constants.pinkColor,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                  } else {
+                    Fluttertoast.showToast(
+                      msg: "oops song is already undownloaded",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIos: 1,
+                      backgroundColor: Constants.pinkColor,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                  }
+                });
+                Navigator.pop(context);
+              },
+            ),
+          );
+        }
+      }
+    } else {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ListTile(
+          leading: Icon(
+            Icons.undo,
+            color: Colors.grey,
+            size: 30,
+          ),
+          title: Text(
+            "UnDownload",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () {
+            ManageLocalSongs.checkIfFileExists(song).then((exists) {
+              if (exists) {
+                ManageLocalSongs.unDownloadSong(song);
+                Fluttertoast.showToast(
+                  msg: "song Undownloaded",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIos: 1,
+                  backgroundColor: Constants.pinkColor,
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+              } else {
+                Fluttertoast.showToast(
+                  msg: "oops song is already undownloaded",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIos: 1,
+                  backgroundColor: Constants.pinkColor,
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+              }
+            });
+            Navigator.pop(context);
+          },
+        ),
+      );
+    }
   }
 }

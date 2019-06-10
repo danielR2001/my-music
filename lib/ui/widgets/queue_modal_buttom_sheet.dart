@@ -117,11 +117,11 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
             audioPlayerManager.currentPlaylist,
             audioPlayerManager.playlistMode,
           );
-          FetchData.getSongPlayUrlDefault(song).then((streamUrl) {
+
             audioPlayerManager.playSong(
-              streamUrl,
+            
             );
-          });
+          
           Navigator.pop(context);
         }
       },

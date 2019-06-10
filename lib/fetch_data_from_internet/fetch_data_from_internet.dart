@@ -14,7 +14,7 @@ class FetchData {
       'https://www.bbc.co.uk/music/search.json?q=';
   static final String artistInfoUrl = "https://www.bbc.co.uk/music/artists/";
 
-  static Future<List<Song>> searchForResults1(String searchStr) async {
+  static Future<List<Song>> searchForResultsSite1(String searchStr) async {
     searchStr = searchStr.replaceAll(" ", "-");
     try {
       return http
@@ -32,15 +32,15 @@ class FetchData {
           var a = html.split("</li>");
           return buildSearchResult1(a, searchUrl1 + searchStr + "/");
         } else {
-          return await searchForResults2(searchStr);
+          return await searchForResultsSite2(searchStr);
         }
       });
     } catch (e) {
-      return await searchForResults2(searchStr);
+      return await searchForResultsSite2(searchStr);
     }
   }
 
-  static Future<List<Song>> searchForResults2(String searchStr) async {
+  static Future<List<Song>> searchForResultsSite2(String searchStr) async {
     try {
       return http
           .get(
@@ -81,7 +81,7 @@ class FetchData {
           html = html.replaceFirst('<ul class="playlist">', '');
           responseList = html.split("</li>");
           responseList.removeLast();
-          return _buildSong(responseList, song, true);
+          return _buildStreamUrl(responseList, song, true);
         } else {
           return null;
         }
@@ -108,7 +108,7 @@ class FetchData {
         responseList = html.split("</li>");
         responseList.removeLast();
       }
-      return _buildSong(responseList, song, false);
+      return _buildStreamUrl(responseList, song, false);
     });
   }
 
@@ -126,6 +126,15 @@ class FetchData {
     if (str.contains("'")) {
       int pos = str.indexOf("'");
       str = str.substring(0, pos);
+    }
+    if (RegExp(r"^[a-zA-Z]").hasMatch(str)) {
+      print("");
+    }
+    if (str.contains("%20(")) {
+      str = str.substring(0, str.indexOf("%20("));
+    }
+    if (str.contains("%20[")) {
+      str = str.substring(0, str.indexOf("%20["));
     }
     return str;
   }
@@ -149,45 +158,46 @@ class FetchData {
     });
   }
 
-  static String _buildSong(List<String> list, Song song, bool isDefault) {
-    int startPos;
-    int endPos;
+  static String _buildStreamUrl(List<String> list, Song song, bool isDefault) {
     String songId;
     String strSong;
     String stream;
     if (isDefault) {
       if (list != null) {
         list.forEach((item) {
-          startPos = item.lastIndexOf('data-id="') + 'data-id="'.length;
-          endPos = item.lastIndexOf('" data-img=');
-          songId = item.substring(startPos, endPos);
+          songId = item.substring(
+              item.lastIndexOf('data-id="') + 'data-id="'.length,
+              item.lastIndexOf('" data-img='));
           if (songId == song.getSongId) {
             strSong = item;
           }
         });
 
         if (strSong != null) {
-          startPos = strSong.indexOf('data-mp3="') + 'data-mp3="'.length;
-          endPos = strSong.indexOf('" data-url_song=');
           stream = 'https://ru-music.com' +
-              strSong.substring(startPos, endPos).replaceFirst("amp;", "");
+              strSong
+                  .substring(
+                      strSong.indexOf('data-mp3="') + 'data-mp3="'.length,
+                      strSong.indexOf('" data-url_song='))
+                  .replaceFirst("amp;", "");
         }
       }
     } else {
       list.forEach((item) {
-        startPos = item.lastIndexOf('data-id="') + 'data-id="'.length;
-        endPos = item.lastIndexOf('" data-mp3=');
-        songId = item.substring(startPos, endPos);
+        songId = item.substring(
+            item.lastIndexOf('data-id="') + 'data-id="'.length,
+            item.lastIndexOf('" data-mp3='));
         if (songId == song.getSongId) {
           strSong = item;
         }
       });
 
       if (strSong != null) {
-        startPos = strSong.indexOf('data-mp3="') + 'data-mp3="'.length;
-        endPos = strSong.indexOf('" data-url_song=');
         stream = 'https://muz.xn--41a.wiki' +
-            strSong.substring(startPos, endPos).replaceFirst("amp;", "");
+            strSong
+                .substring(strSong.indexOf('data-mp3="') + 'data-mp3="'.length,
+                    strSong.indexOf('" data-url_song='))
+                .replaceFirst("amp;", "");
       }
     }
     return stream;
@@ -311,11 +321,12 @@ class FetchData {
       List<dynamic> list = jsonDecode(response.body)['artists'];
       if (list.length > 0) {
         return Artist(artistName,
-            "https://ichef.bbci.co.uk/images/ic/160x160/" +
-                list[0]["image_id"],
+            "https://ichef.bbci.co.uk/images/ic/160x160/" + list[0]["image_id"],
             id: list[0]["id"]);
       } else {
-        return Artist(artistName,"https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png",info: "");
+        return Artist(artistName,
+            "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png",
+            info: "");
       }
     });
   }
@@ -350,14 +361,70 @@ class FetchData {
       info = info.replaceAll("amp;", "");
       info = info.replaceAll("Â&nbsp;â", " -");
       info = info.replaceAll(RegExp("[^\\x00-\\x7F]"), "");
+      info = info.replaceAll(";", "");
     } else {
       info = "";
     }
-    if(imageUrl == "https://static.bbc.co.uk/music_clips/3.0.29/img/default_artist_images/pop1.jpg"){
-      imageUrl ="https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png";
+    if (imageUrl ==
+        "https://static.bbc.co.uk/music_clips/3.0.29/img/default_artist_images/pop1.jpg") {
+      imageUrl = "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png";
     }
     artist.setInfo = info;
     artist.setImageUrl = imageUrl;
     return artist;
+  }
+
+  static Future<String> getDownloadUrl(Song song) async {
+    try {
+      return http
+          .get(
+            searchUrl2 + song.getSearchString + "/",
+          )
+          .whenComplete(() => print('Search For Results 2 search completed'))
+          .then((http.Response response) {
+        var document = parse(response.body);
+        if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
+          var elements = document.getElementsByClassName("playlist");
+          var html = elements[0].outerHtml;
+          html = html.replaceAll('\n', '');
+          html = html.replaceFirst('<ul class="playlist">', '');
+          var a = html.split("</li>");
+          a.removeLast();
+          return _buildDownloadUrl(a, song);
+        }
+        return null;
+      });
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static String _buildDownloadUrl(List<String> list, Song song) {
+    String songId;
+    String strSong;
+    String downloadUrl;
+    if (list != null) {
+      list.forEach((item) {
+        songId = item.substring(
+            item.lastIndexOf('data-id="') + 'data-id="'.length,
+            item.lastIndexOf('" data-mp3='));
+        if (songId == song.getSongId) {
+          strSong = item;
+        }
+      });
+
+      if (strSong != null) {
+        downloadUrl = strSong.substring(
+            strSong.indexOf('data-mp3="') + 'data-mp3="'.length,
+            strSong.indexOf('" data-url_song='));
+        downloadUrl =
+            downloadUrl.replaceFirst("/public/play", "/public/download").replaceAll("amp;", "");
+        return downloadUrl;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
   }
 }

@@ -93,7 +93,8 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                           onChanged: (txt) {
                             if (txt != "") {
-                              FetchData.searchForResults1(txt).then((results) {
+                              FetchData.searchForResultsSite1(txt)
+                                  .then((results) {
                                 setState(() {
                                   if (results != null) {
                                     searchResults = results;
@@ -108,7 +109,8 @@ class _SearchPageState extends State<SearchPage> {
                             }
                           },
                           onSubmitted: (txt) =>
-                              FetchData.searchForResults1(txt).then((results) {
+                              FetchData.searchForResultsSite1(txt)
+                                  .then((results) {
                                 setState(() {
                                   if (results != null) {
                                     searchResults = results;
@@ -195,6 +197,7 @@ class _SearchPageState extends State<SearchPage> {
       trailing: IconButton(
         icon: Icon(Icons.more_vert),
         color: Colors.white,
+        iconSize: 30,
         onPressed: () {
           showMoreOptions(song);
         },
@@ -212,11 +215,8 @@ class _SearchPageState extends State<SearchPage> {
           temp,
           PlaylistMode.loop,
         );
-        FetchData.getSongPlayUrlDefault(
-          song,
-        ).then((streamUrl) {
-          audioPlayerManager.playSong(streamUrl);
-        });
+
+        audioPlayerManager.playSong();
       },
     );
   }

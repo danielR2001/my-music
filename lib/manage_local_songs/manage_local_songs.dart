@@ -1,31 +1,86 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
+import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
+import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/main.dart';
+import 'package:myapp/models/playlist.dart';
+import 'package:myapp/models/song.dart';
+import 'package:myapp/update_state/state_refresher.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 
 class ManageLocalSongs {
-  static String songID;
-  static final String downloadUrl =
-      'https://free-mp3-download.net/dl.php?i=$songID&c=12457&f=mp3&h=';
-  static int downloadProg;
-  static int downloadTotal;
   static bool downloading = false;
   static Dio dio = Dio();
+  static final String startingUrl = "https://muz.xn--41a.wiki";
+  static List<Song> currentDownloading = List();
+  static Directory externalDir;
+  static Directory fullDir;
 
-  // static Future<void> cacheSong(Song song) async {
-  //   try {
-  //     songID = song.getSongId;
-  //     var dir = await getApplicationDocumentsDirectory();
-  //     await dio.download(downloadUrl,
-  //         "${dir.path}/${song.getTitle}-${song.getArtist.getName}.mp3",
-  //         onReceiveProgress: (prog, total) {
-  //       downloading = true;
-  //       downloadProg = prog;
-  //       downloadTotal = total;
-  //       print("prog: $prog , total: $total");
-  //     }).whenComplete(() {
-  //       downloading = false;
-  //       print("download completed!");
-  //     });
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
+  static Future<bool> checkIfFileExists(Song song) async {
+    externalDir = await getExternalStorageDirectory();
+    fullDir = await new Directory(
+            '${externalDir.path}/Android/data/com.daniel.mymusic/downloaded')
+        .create(recursive: true);
+    File file = File("${fullDir.path}/${song.getSongId}.mp3");
+    return file.exists();
+  }
+
+  static Future<void> downloadSong(Song song) async {
+    //final stateRefresher = Provider.of<StateRefresher>(context);
+    currentDownloading.add(song);
+    FetchData.getDownloadUrl(song).then((downloadUrl) async {
+      if (downloadUrl != null) {
+        try {
+          await dio.download(startingUrl + downloadUrl,
+              "${fullDir.path}/${song.getSongId}.mp3",
+              onReceiveProgress: (prog, total) {
+            downloading = true;
+            //stateRefresher.setDownloadedProg = prog;
+            //stateRefresher.setDownloadedTotal = total;
+            print("prog: $prog , total: $total");
+          }).whenComplete(() {
+            currentDownloading.remove(song);
+            downloading = false;
+            song = FirebaseDatabaseManager.addSongToDownloadedPlaylist(song);
+            currentUser.addSongToDownloadedPlaylist(song);
+            print("download completed!");
+          });
+        } catch (e) {
+          print(e);
+          downloading = false;
+          currentDownloading.remove(song);
+        }
+      } else {
+        downloading = false;
+        currentDownloading.remove(song);
+      }
+    });
+  }
+
+  static Future<void> unDownloadSong(Song song) async {
+    //final stateRefresher = Provider.of<StateRefresher>(context);
+    try {
+      File file = File("${fullDir.path}/${song.getSongId}.mp3");
+      file.delete().whenComplete(() {
+        FirebaseDatabaseManager.removeSongFromDownloadedPlaylist(song);
+        currentUser.removeSongToDownloadedPlaylist(song);
+        print("unDownload completed!");
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  static bool isSongDownloading(Song song) {
+    bool exists = false;
+    currentDownloading.forEach((downloadingSong) {
+      if (downloadingSong.getSongId == song.getSongId) {
+        exists = true;
+      }
+    });
+    return exists;
+  }
 }

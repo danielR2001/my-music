@@ -30,11 +30,11 @@ class _ArtistPageState extends State<ArtistPage> {
     // FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
     _scrollController = ScrollController()..addListener(() => setState(() {}));
     topHitsPlaylist = Playlist(artist.getName + " Top Hits");
-    FetchData.searchForResults1(artist.getName).then((results) {
+    FetchData.searchForResultsSite1(artist.getName).then((results) {
       setState(() {
         if (results != null) {
-          results.forEach((song){
-            if(song.getArtist.contains(artist.getName)){
+          results.forEach((song) {
+            if (song.getArtist.contains(artist.getName)) {
               topHitsPlaylist.addNewSong(song);
             }
           });
@@ -244,12 +244,8 @@ class _ArtistPageState extends State<ArtistPage> {
                 topHitsPlaylist,
                 PlaylistMode.loop,
               );
-              FetchData.getSongPlayUrlDefault(topHitsPlaylist.getSongs[index])
-                  .then((streamUrl) {
-                audioPlayerManager.playSong(
-                  streamUrl,
-                );
-              });
+              audioPlayerManager.playSong();
+
               Navigator.push(
                 homePageContext,
                 MaterialPageRoute(

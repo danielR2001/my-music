@@ -1,7 +1,13 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:myapp/Constants/constants.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
+import 'package:myapp/main.dart';
+import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/notifications/music_control_notification.dart';
@@ -12,18 +18,21 @@ enum PlaylistMode {
 }
 
 class AudioPlayerManager {
-  AudioPlayer advancedPlayer;
+  AudioPlayer audioPlayer;
   Song currentSong;
   Playlist currentPlaylist;
   Playlist shuffledPlaylist;
   Playlist loopPlaylist;
-  StreamSubscription<void> _onCompleteStream;
-  StreamSubscription<void> _onDurationStream;
+  StreamSubscription<void> _audioPlayerOnCompleteStream;
+  StreamSubscription<void> _audioPlayerOnDurationChangedStream;
+  StreamSubscription<void> _audioPlayerOnPositionChangedStream;
   PlaylistMode playlistMode;
+  Duration songDuration;
+  Duration songPosition;
   bool isLoaded = false;
 
   AudioPlayerManager() {
-    advancedPlayer = AudioPlayer();
+    audioPlayer = AudioPlayer();
     AudioPlayer.logEnabled = true;
   }
   Future initSong(
@@ -55,48 +64,96 @@ class AudioPlayerManager {
         song.getTitle, song.getArtist, song.getImageUrl, true);
   }
 
-  void playSong(String streamUrl) {
-    if (streamUrl != null) {
-      advancedPlayer.play(streamUrl);
+  void playSong() {
+    ManageLocalSongs.checkIfFileExists(currentSong).then((exists) {
+      if (exists&&currentUser.songExistsInDownloadedPlaylist(currentSong)) {
+        audioPlayer.play(
+            "${ManageLocalSongs.fullDir.path}/${currentSong.getSongId}.mp3");
+        Fluttertoast.showToast(
+          msg: "Local",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIos: 1,
+          backgroundColor: Constants.pinkColor,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      } else {
+        FetchData.getSongPlayUrlDefault(currentSong).then((streamUrl) {
+          if (streamUrl != null) {
+            audioPlayer.play(streamUrl);
+            Fluttertoast.showToast(
+              msg: "Network",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIos: 1,
+              backgroundColor: Constants.pinkColor,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+          } else {
+            Fluttertoast.showToast(
+              msg: "oops something went wrong :(",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIos: 10,
+              backgroundColor: Constants.pinkColor,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+          }
+        });
+      }
       listenForDurationChanged();
+      listenForPositionChanged();
       listenIfCompleted();
-    }
+    });
   }
 
   void listenForDurationChanged() {
-    _onDurationStream = advancedPlayer.onDurationChanged.listen((duration) {
+    _audioPlayerOnDurationChangedStream =
+        audioPlayer.onDurationChanged.listen((duration) {
       isLoaded = true;
+      songDuration = duration;
+    });
+  }
+
+  void listenForPositionChanged() {
+    _audioPlayerOnPositionChangedStream =
+        audioPlayer.onAudioPositionChanged.listen((duration) {
+      songPosition = duration;
     });
   }
 
   void resumeSong() {
-    advancedPlayer.resume();
+    audioPlayer.resume();
     MusicControlNotification.makeNotification(currentSong.getTitle,
         currentSong.getArtist, currentSong.getImageUrl, true);
   }
 
   void pauseSong() {
-    advancedPlayer.pause();
+    audioPlayer.pause();
     MusicControlNotification.makeNotification(currentSong.getTitle,
         currentSong.getArtist, currentSong.getImageUrl, false);
   }
 
   void closeSong() {
-    advancedPlayer.stop();
+    audioPlayer.stop();
     isLoaded = false;
     releaseSong();
-    if (_onCompleteStream != null) {
-      _onCompleteStream.cancel();
-      _onDurationStream.cancel();
+    if (_audioPlayerOnCompleteStream != null) {
+      _audioPlayerOnCompleteStream.cancel();
+      _audioPlayerOnDurationChangedStream.cancel();
+      _audioPlayerOnPositionChangedStream.cancel();
     }
   }
 
   void releaseSong() {
-    advancedPlayer.release();
+    audioPlayer.release();
   }
 
   void seekTime(Duration duration) {
-    advancedPlayer.seek(duration);
+    audioPlayer.seek(duration);
   }
 
   Song getNextSong(Playlist playlist, Song song) {
@@ -120,7 +177,7 @@ class AudioPlayerManager {
   }
 
   void listenIfCompleted() {
-    _onCompleteStream = advancedPlayer.onPlayerCompletion.listen((a) {
+    _audioPlayerOnCompleteStream = audioPlayer.onPlayerCompletion.listen((a) {
       if (currentPlaylist != null) {
         Song nextSong = getNextSong(currentPlaylist, currentSong);
         initSong(
@@ -128,22 +185,15 @@ class AudioPlayerManager {
           currentPlaylist,
           playlistMode,
         );
-        FetchData.getSongPlayUrlDefault(nextSong).then((streamUrl) {
-          playSong(
-            streamUrl,
-          );
-        });
+
+        playSong();
       } else {
         initSong(
           currentSong,
           currentPlaylist,
           playlistMode,
         );
-        FetchData.getSongPlayUrlDefault(currentSong).then((streamUrl) {
-          playSong(
-            streamUrl,
-          );
-        });
+        playSong();
       }
     });
   }
@@ -158,13 +208,8 @@ class AudioPlayerManager {
           currentPlaylist,
           playlistMode,
         );
-        FetchData.getSongPlayUrlDefault(
-                currentPlaylist.getSongs[currentPlaylist.getSongs.length - 1])
-            .then((streamUrl) {
-          playSong(
-            streamUrl,
-          );
-        });
+
+        playSong();
       } else {
         Song previousSong = currentPlaylist.getSongs[0];
         currentPlaylist.getSongs.forEach((song) {
@@ -182,11 +227,8 @@ class AudioPlayerManager {
           currentPlaylist,
           playlistMode,
         );
-        FetchData.getSongPlayUrlDefault(correctPreviousSong).then((streamUrl) {
-          playSong(
-            streamUrl,
-          );
-        });
+
+        playSong();
       }
     }
   }
@@ -212,11 +254,8 @@ class AudioPlayerManager {
         currentPlaylist,
         playlistMode,
       );
-      FetchData.getSongPlayUrlDefault(nextSong).then((streamUrl) {
-        playSong(
-          streamUrl,
-        );
-      });
+
+      playSong();
     }
   }
 

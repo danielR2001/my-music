@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/widgets/sort_options_modal_buttom_sheet.dart';
+import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 
 class PlaylistOptionsModalSheet extends StatelessWidget {
   final Playlist playlist;
   final BuildContext playlistPageContext;
-  PlaylistOptionsModalSheet(this.playlist,this.playlistPageContext);
+  PlaylistOptionsModalSheet(this.playlist, this.playlistPageContext);
   String _playlistNewName;
   final formKey = GlobalKey<FormState>();
   @override
@@ -17,9 +19,51 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
     return Container(
       alignment: Alignment.topCenter,
       color: Constants.lightGreyColor,
-      height: 180,
+      height: 240,
       child: Column(
         children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: ListTile(
+              leading: Icon(
+                Icons.save_alt,
+                color: Colors.grey,
+                size: 30,
+              ),
+              title: Text(
+                "Download All",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                ),
+              ),
+              onTap: () {
+                downloadAll();
+                Navigator.pop(context);
+                Fluttertoast.showToast(
+                  msg: "Started downloading all songs",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIos: 1,
+                  backgroundColor: Constants.pinkColor,
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+                Future.delayed(
+                    Duration(seconds: 2),
+                    () => Fluttertoast.showToast(
+                          msg:
+                              "Don't worry! downloading songs that aren't downloaded yet :D",
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIos: 1,
+                          backgroundColor: Constants.pinkColor,
+                          textColor: Colors.white,
+                          fontSize: 16.0,
+                        ));
+              },
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: ListTile(
@@ -36,7 +80,7 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
                 ),
               ),
               onTap: () {
-                showNewPlaylistDialog(context);
+                showRenamePlaylistDialog(context);
               },
             ),
           ),
@@ -80,7 +124,8 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
                 Navigator.of(playlistPageContext).pop();
                 FirebaseDatabaseManager.removePlaylist(playlist);
                 currentUser.removePlaylist(playlist);
-                if(audioPlayerManager.currentPlaylist.getName == audioPlayerManager.currentPlaylist.getName){
+                if (audioPlayerManager.currentPlaylist.getName ==
+                    audioPlayerManager.currentPlaylist.getName) {
                   audioPlayerManager.loopPlaylist = null;
                   audioPlayerManager.shuffledPlaylist = null;
                   audioPlayerManager.currentPlaylist = null;
@@ -105,7 +150,7 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
     );
   }
 
-  void showNewPlaylistDialog(BuildContext context) {
+  void showRenamePlaylistDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -117,7 +162,7 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
               fontSize: 22,
             ),
           ),
-          backgroundColor: Constants.darkGreyColor,
+          backgroundColor: Constants.lightGreyColor,
           children: <Widget>[
             Form(
               key: formKey,
@@ -204,5 +249,15 @@ class PlaylistOptionsModalSheet extends StatelessWidget {
       }
       Navigator.of(context, rootNavigator: true).pop('dialog');
     }
+  }
+
+  void downloadAll() {
+    playlist.getSongs.forEach((song) {
+      ManageLocalSongs.checkIfFileExists(song).then((exists) {
+        if (!exists) {
+          ManageLocalSongs.downloadSong(song);
+        }
+      });
+    });
   }
 }

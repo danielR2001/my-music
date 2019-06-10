@@ -14,8 +14,6 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  // int playlistLength =
-  //    currentUser.getMyPlaylists != null ? currentUser.getMyPlaylists.length : 0;
   bool openPlaylists = true;
   @override
   Widget build(BuildContext context) {
@@ -112,7 +110,7 @@ class _AccountPageState extends State<AccountPage> {
                       color: Colors.white,
                     ),
                     onTap: () =>
-                        widget.onPush(createMap(Playlist("Downloaded"))),
+                        widget.onPush(createMap(currentUser.getDownloadedSongsPlaylist)),
                   ),
                   SizedBox(
                     height: 20,

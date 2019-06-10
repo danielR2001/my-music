@@ -373,6 +373,8 @@ class _State extends State<SignInPage> {
             currentUser = User(_userName, user.uid);
             FirebaseDatabaseManager.saveUser();
             Navigator.of(context, rootNavigator: true).pop('dialog');
+            FirebaseDatabaseManager.addDownloadedPlaylist(
+                currentUser.getDownloadedSongsPlaylist);
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -417,8 +419,8 @@ class _State extends State<SignInPage> {
                       child: new CircularProgressIndicator(
                         value: null,
                         strokeWidth: 3.0,
-                        valueColor:
-                            new AlwaysStoppedAnimation<Color>(Constants.pinkColor),
+                        valueColor: new AlwaysStoppedAnimation<Color>(
+                            Constants.pinkColor),
                       ),
                     ),
                   ),

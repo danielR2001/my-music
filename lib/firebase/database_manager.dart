@@ -8,6 +8,7 @@ class FirebaseDatabaseManager {
   static final String _usersDir = "users";
   static final String _playlistsDir = "playlists";
   static final String _songsDir = "songs";
+  static final String _downloadedDir = "downloaded";
   static String _userPushId;
 
   static void saveUser() {
@@ -20,6 +21,7 @@ class FirebaseDatabaseManager {
     List<User> users = List();
     List<String> keys = List();
     List<Map> playlists = List();
+    List<Map> downloaded = new List();
     int i = 0;
     var snapshot =
         await FirebaseDatabase.instance.reference().child(_usersDir).once();
@@ -28,6 +30,7 @@ class FirebaseDatabaseManager {
       (key, values) {
         keys.add(key);
         playlists.add(values["playlists"]);
+        downloaded.add(values["downloaded"]);
         User user = User(values["userName"], values["firebaseUId"]);
         users.add(user);
       },
@@ -38,8 +41,10 @@ class FirebaseDatabaseManager {
         if (user.getFirebaseUId == currentUserId) {
           _userPushId = keys[i];
           currentUser = user;
+          currentUser.setDownloadedSongs =
+              _buildDownloadedPlaylist(downloaded[i]);
           if (playlists[i] != null) {
-            currentUser.setMyPlaylists = buildPlaylist(playlists[i]);
+            currentUser.setMyPlaylists = _buildPlaylists(playlists[i]);
           }
           print("user synced successfuly");
           return;
@@ -107,7 +112,7 @@ class FirebaseDatabaseManager {
         .remove();
   }
 
-  static List<Playlist> buildPlaylist(Map playlistMap) {
+  static List<Playlist> _buildPlaylists(Map playlistMap) {
     List<Playlist> playlists = List();
     Playlist tempPlaylist;
     Map tempMap;
@@ -131,5 +136,65 @@ class FirebaseDatabaseManager {
       },
     );
     return playlists;
+  }
+
+  static Playlist addDownloadedPlaylist(Playlist playlist) {
+    var pushId = FirebaseDatabase.instance
+        .reference()
+        .child(_usersDir)
+        .child(_userPushId)
+        .child(_downloadedDir)
+        .push();
+    playlist.setPushId = pushId.key;
+    pushId.set(playlist.toJson());
+    return playlist;
+  }
+
+  static Song addSongToDownloadedPlaylist(Song song) {
+    var pushId = FirebaseDatabase.instance
+        .reference()
+        .child(_usersDir)
+        .child(_userPushId)
+        .child(_downloadedDir)
+        .child(currentUser.getDownloadedSongsPlaylist.getPushId)
+        .child(_songsDir)
+        .push();
+    song.setPushId = pushId.key;
+    pushId.set(song.toJson());
+    return song;
+  }
+  static void removeSongFromDownloadedPlaylist(Song song) {
+    FirebaseDatabase.instance
+        .reference()
+        .child(_usersDir)
+        .child(_userPushId)
+        .child(_downloadedDir)
+        .child(currentUser.getDownloadedSongsPlaylist.getPushId)
+        .child(_songsDir)
+        .child(song.getPushId)
+        .remove();
+  }
+  static Playlist _buildDownloadedPlaylist(Map playlistMap) {
+    Playlist playlist;
+    Map valuesMap;
+    Map tempMap;
+    var keys = playlistMap.keys;
+    valuesMap = playlistMap[keys.first];
+    tempMap = valuesMap["songs"];
+    playlist = Playlist(valuesMap["name"]);
+    playlist.setPushId = keys.first;
+    if (tempMap != null) {
+      tempMap.forEach((key, value) {
+        playlist.addNewSong(Song(
+            value['title'],
+            value['artist'],
+            value['songId'],
+            value['searchString'],
+            value['imageUrl'],
+            value['pushId']));
+      });
+    }
+
+    return playlist;
   }
 }

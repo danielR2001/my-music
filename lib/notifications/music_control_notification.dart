@@ -40,7 +40,7 @@ class MusicControlNotification {
   static Future<dynamic> myUtilsHandler(MethodCall methodCall) async {
     switch (methodCall.method) {
       case 'playOrPause':
-        audioPlayerManager.advancedPlayer.state == AudioPlayerState.PLAYING
+        audioPlayerManager.audioPlayer.state == AudioPlayerState.PLAYING
             ? audioPlayerManager.pauseSong()
             : audioPlayerManager.resumeSong();
         break;

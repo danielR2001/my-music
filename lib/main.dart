@@ -6,10 +6,12 @@ import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/ui/pages/root_page.dart';
 import 'package:myapp/models/user.dart';
+import 'package:simple_permissions/simple_permissions.dart';
 
 void main() => runApp(MyApp());
 AudioPlayerManager audioPlayerManager;
 User currentUser;
+PermissionStatus permissionResult;
 
 class MyApp extends StatelessWidget with PortraitModeMixin {
   @override
@@ -31,5 +33,8 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
     FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
     audioPlayerManager = AudioPlayerManager(); //init song status
     MusicControlNotification.startService();
+
+    permissionResult = await SimplePermissions.requestPermission(
+        Permission.WriteExternalStorage);
   }
 }
