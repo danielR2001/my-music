@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:myapp/main.dart';
+import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/user.dart';
@@ -86,7 +89,7 @@ class FirebaseDatabaseManager {
         .update({"name": newName});
   }
 
-    static void changePlaylistPrivacy(Playlist playlist) {
+  static void changePlaylistPrivacy(Playlist playlist) {
     FirebaseDatabase.instance
         .reference()
         .child(_usersDir)
@@ -129,7 +132,7 @@ class FirebaseDatabaseManager {
     playlistMap.forEach(
       (key, value) {
         tempMap = value["songs"];
-        tempPlaylist = Playlist(value["name"],isPublic: value["isPublic"]);
+        tempPlaylist = Playlist(value["name"], isPublic: value["isPublic"]);
         tempPlaylist.setPushId = key;
         if (tempMap != null) {
           tempMap.forEach((key, value) {
@@ -173,7 +176,7 @@ class FirebaseDatabaseManager {
     pushId.set(song.toJson());
     return song;
   }
-  
+
   static void removeSongFromDownloadedPlaylist(Song song) {
     FirebaseDatabase.instance
         .reference()
@@ -185,7 +188,7 @@ class FirebaseDatabaseManager {
         .child(song.getPushId)
         .remove();
   }
-  
+
   static Playlist _buildDownloadedPlaylist(Map playlistMap) {
     Playlist playlist;
     Map valuesMap;
@@ -197,13 +200,15 @@ class FirebaseDatabaseManager {
     playlist.setPushId = keys.first;
     if (tempMap != null) {
       tempMap.forEach((key, value) {
-        playlist.addNewSong(Song(
-            value['title'],
-            value['artist'],
-            value['songId'],
-            value['searchString'],
-            value['imageUrl'],
-            value['pushId']));
+        Song temp = Song(value['title'], value['artist'], value['songId'],
+            value['searchString'], value['imageUrl'], value['pushId']);
+        ManageLocalSongs.checkIfFileExists(temp).then((exists) {
+          if (!exists) {
+            FirebaseDatabaseManager.removeSongFromDownloadedPlaylist(temp);
+          } else {
+            playlist.addNewSong(temp);
+          }
+        });
       });
     }
 

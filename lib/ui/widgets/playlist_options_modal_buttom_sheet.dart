@@ -70,7 +70,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                     Duration(seconds: 2),
                     () => Fluttertoast.showToast(
                           msg:
-                              "Don't worry! downloading songs that aren't downloaded yet :D",
+                              "Don't worry! downloading only songs that aren't downloaded yet :D",
                           toastLength: Toast.LENGTH_LONG,
                           gravity: ToastGravity.BOTTOM,
                           timeInSecForIos: 1,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/constants/constants.dart';
-import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 

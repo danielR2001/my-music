@@ -163,6 +163,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
 
   void selectedPlaylist(Playlist playlist) async {
     bool songAlreadyExistsInPlaylist = false;
+    Song updatedsong;
     playlist.getSongs.forEach((playlistSong) {
       if (playlistSong.getSongId == song.getSongId) {
         songAlreadyExistsInPlaylist = true;
@@ -170,29 +171,37 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     });
     if (!songAlreadyExistsInPlaylist) {
       showLoadingBar();
-      if (audioPlayerManager.playlistMode == PlaylistMode.shuffle) {
-        if (song.getImageUrl.length == 0) {
-          String imageUrl = await FetchData.getSongImageUrl(song);
-          song.setImageUrl = imageUrl;
+      if (playlist.getName == audioPlayerManager.currentPlaylist.getName) {
+        if (audioPlayerManager.playlistMode == PlaylistMode.shuffle) {
+          if (song.getImageUrl.length == 0) {
+            String imageUrl = await FetchData.getSongImageUrl(song);
+            song.setImageUrl = imageUrl;
+          }
+          updatedsong =
+              FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
+          playlist.addNewSong(updatedsong);
+          currentUser.updatePlaylist(playlist);
+          audioPlayerManager.loopPlaylist = playlist;
+          audioPlayerManager.setCurrentPlaylist();
+          Navigator.of(context, rootNavigator: true).pop('dialog');
+          Navigator.pop(context);
+        } else {
+          if (song.getImageUrl.length == 0) {
+            String imageUrl = await FetchData.getSongImageUrl(song);
+            song.setImageUrl = imageUrl;
+          }
+          updatedsong =
+              FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
+          playlist.addNewSong(updatedsong);
+          currentUser.updatePlaylist(playlist);
+          audioPlayerManager.loopPlaylist = playlist;
+          Navigator.of(context, rootNavigator: true).pop('dialog');
+          Navigator.pop(context);
         }
-        Song updatedsong =
-            FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
-        playlist.addNewSong(updatedsong);
-        currentUser.updatePlaylist(playlist);
-        audioPlayerManager.loopPlaylist = playlist;
-        audioPlayerManager.setCurrentPlaylist();
-        Navigator.of(context, rootNavigator: true).pop('dialog');
-        Navigator.pop(context);
       } else {
-        if (song.getImageUrl.length == 0) {
-          String imageUrl = await FetchData.getSongImageUrl(song);
-          song.setImageUrl = imageUrl;
-        }
-        Song updatedsong =
-            FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
+        updatedsong = FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
         playlist.addNewSong(updatedsong);
         currentUser.updatePlaylist(playlist);
-        audioPlayerManager.loopPlaylist = playlist;
         Navigator.of(context, rootNavigator: true).pop('dialog');
         Navigator.pop(context);
       }

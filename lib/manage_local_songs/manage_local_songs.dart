@@ -1,15 +1,10 @@
 import 'dart:io';
-
 import 'package:dio/dio.dart';
-import 'package:flutter/widgets.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
-import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/update_state/state_refresher.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
 
 class ManageLocalSongs {
   static bool downloading = false;

@@ -59,8 +59,17 @@ class SettingsPage extends StatelessWidget {
                   ),
                 ),
                 Expanded(
+                  child: Text(
+                    "1.1.0",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 17,
+                    ),
+                  ),
+                ),
+                Expanded(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       FlatButton(
                         color: Constants.pinkColor,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/constants/constants.dart';
-import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/main.dart';
@@ -10,9 +9,7 @@ import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
-import 'package:myapp/update_state/state_refresher.dart';
 import 'dart:math';
-import 'package:provider/provider.dart';
 
 class PlaylistPage extends StatefulWidget {
   final Playlist playlist;
@@ -272,10 +269,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
         List.generate(playlist.getSongs.length, (int index) {
           String title;
           String artist;
-          if (playlist.getSongs[index].getTitle.length > 30) {
-            int pos = playlist.getSongs[index].getTitle.lastIndexOf("", 30);
+          if (playlist.getSongs[index].getTitle.length > 28) {
+            int pos = playlist.getSongs[index].getTitle.lastIndexOf("", 28);
             if (pos < 20) {
-              pos = 35;
+              pos = 28;
             }
             title = playlist.getSongs[index].getTitle.substring(0, pos) + "...";
           } else {
