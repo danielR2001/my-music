@@ -44,8 +44,10 @@ class FirebaseDatabaseManager {
         if (user.getFirebaseUId == currentUserId) {
           _userPushId = keys[i];
           currentUser = user;
-          currentUser.setDownloadedSongs =
-              _buildDownloadedPlaylist(downloaded[i]);
+          if (downloaded[i] != null) {
+            currentUser.setDownloadedSongs =
+                _buildDownloadedPlaylist(downloaded[i]);
+          }
           if (playlists[i] != null) {
             currentUser.setMyPlaylists = _buildPlaylists(playlists[i]);
           }

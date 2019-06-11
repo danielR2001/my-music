@@ -39,6 +39,7 @@ class AudioPlayerManager {
     Playlist playlist,
     PlaylistMode playlistMode,
   ) async {
+    currentSong = song;
     closeSong();
     this.playlistMode = playlistMode;
     if (playlist != null) {
@@ -54,7 +55,6 @@ class AudioPlayerManager {
       shuffledPlaylist = null;
       currentPlaylist = null;
     }
-    currentSong = song;
     if (currentSong.getImageUrl == "") {
       String imageUrl = await FetchData.getSongImageUrl(currentSong);
       currentSong.setImageUrl = imageUrl;
@@ -65,7 +65,7 @@ class AudioPlayerManager {
 
   void playSong() {
     ManageLocalSongs.checkIfFileExists(currentSong).then((exists) {
-      if (exists&&currentUser.songExistsInDownloadedPlaylist(currentSong)) {
+      if (exists && currentUser.songExistsInDownloadedPlaylist(currentSong)) {
         audioPlayer.play(
             "${ManageLocalSongs.fullDir.path}/${currentSong.getSongId}.mp3");
         Fluttertoast.showToast(
@@ -100,6 +100,13 @@ class AudioPlayerManager {
               textColor: Colors.white,
               fontSize: 16.0,
             );
+            Song nextSong = getNextSong(currentPlaylist, currentSong);
+            initSong(
+              nextSong,
+              currentPlaylist,
+              playlistMode,
+            );
+            playSong();
           }
         });
       }

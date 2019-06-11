@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/firebase/database_manager.dart' as prefix0;
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/user.dart';
@@ -353,7 +354,7 @@ class _State extends State<SignInPage> {
               borderRadius: BorderRadius.circular(40.0),
             ),
             child: Text(
-              "Verified",
+              "Verify",
               style: TextStyle(
                 fontSize: 20.0,
                 color: Colors.white,
@@ -374,14 +375,16 @@ class _State extends State<SignInPage> {
             currentUser = User(_userName, user.uid);
             FirebaseDatabaseManager.saveUser();
             Navigator.of(context, rootNavigator: true).pop('dialog');
-            FirebaseDatabaseManager.addDownloadedPlaylist(
-                Playlist("Downloaded"));
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomePage(),
-              ),
-            );
+            FirebaseDatabaseManager.syncUser(user.uid).then((a) {
+              FirebaseDatabaseManager.addDownloadedPlaylist(
+                  Playlist("Downloaded"));
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomePage(),
+                ),
+              );
+            });
           });
         } else {
           Navigator.of(context, rootNavigator: true).pop('dialog');
