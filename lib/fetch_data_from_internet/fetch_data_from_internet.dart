@@ -329,16 +329,11 @@ class FetchData {
           item.lastIndexOf('data-id="') + 'data-id="'.length,
           item.lastIndexOf('" data-mp3='));
 
-      streamUrl =
-          songTitle.replaceAll(" ", "-") + "-" + artist.replaceAll(" ", "-");
-      streamUrl = streamUrl.replaceAll(",", "");
-      streamUrl = streamUrl.replaceAll("&", "-");
-      if (streamUrl.allMatches(".*[a-z].*") == null) {
-        streamUrl = searchString;
-      }
-      // else if(streamUrl.contains("â")||streamUrl.contains("ä")||streamUrl.contains("à")||streamUrl.contains("å")||streamUrl.contains("Á")||streamUrl.contains("Â")||streamUrl.contains("Ã")||streamUrl.contains("À")||streamUrl.contains("")||streamUrl.contains("")||streamUrl.contains("")){
-      //   streamUrl.
-      // } TODO locate special chars
+        String tempTitle = songTitle;
+        tempTitle = _editSearchParams(tempTitle, true);
+        String tempArtist = artist;
+        tempArtist = _editSearchParams(tempArtist, false);
+        streamUrl = tempTitle + " " + tempArtist;
       songs.add(Song(songTitle, artist, songId, streamUrl + "/", imageUrl, ''));
     });
     return songs;

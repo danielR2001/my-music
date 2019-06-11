@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
-import 'package:myapp/firebase/database_manager.dart' as prefix0;
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/user.dart';
