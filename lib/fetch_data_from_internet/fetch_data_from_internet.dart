@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:html/dom.dart';
 import 'package:http/http.dart' as http;
+import 'package:myapp/communicate_with_native/remove_accent_chars.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:html/parser.dart' show parse;
+import 'package:unorm_dart/unorm_dart.dart' as unorm;
 
 class FetchData {
   static final String searchUrl1 = 'https://ru-music.com/search/';
@@ -67,12 +69,15 @@ class FetchData {
   }
 
   static Future<String> getSongPlayUrlDefault(Song song) async {
+    String title = song.getTitle;
+    String artist = song.getArtist;
+    title = await _editSearchParams(title, true, true);
+    artist = await _editSearchParams(artist, false, true);
+    String searchParams = title + "%-" + artist;
     var responseList;
-    var encoded = Uri.encodeFull(searchUrl1 + song.getSearchString);
+    //var encoded = Uri.encodeFull(searchUrl1 + song.getSearchString);
     return http
-        .get(
-          encoded,
-        )
+        .get(searchUrl1 + searchParams)
         .whenComplete(() => print('song search completed'))
         .then((http.Response response) {
       var document = parse(response.body);
@@ -115,7 +120,12 @@ class FetchData {
     });
   }
 
-  static String _editSearchParams(String str, bool isTitle) {
+  static Future<String> _editSearchParams(
+      String str, bool isTitle, bool isSongUrlEdit) async {
+    str = str.trimRight();
+    if (!RegExp(r'^[a-zA-Zא-תа-я\$!?&\()\[\] ]+$').hasMatch(str)) {
+      str = await UnaccentString.unaccent(str);
+    }
     if (str.contains("feat")) {
       int pos = str.indexOf("feat");
       str = str.substring(0, pos);
@@ -128,21 +138,21 @@ class FetchData {
       int pos = str.indexOf("'");
       str = str.substring(0, pos);
     }
-    if (!RegExp("r^[a-zA-Z]").hasMatch(str)) {
+    if (!RegExp(r'^[a-zA-Z\$!?&\()\[\] ]+$').hasMatch(str)) {
       if (str.contains("(")) {
-        str = str.substring(str.indexOf("(")+1, str.indexOf(")"));
-      }else{
+        str = str.substring(str.indexOf("(") + 1, str.indexOf(")"));
+      } else {
         //remove english letters
       }
     } else {
-      if (str.contains(" (")) {
-        str = str.substring(0, str.indexOf(" ("));
+      if (str.contains("(")) {
+        str = str.substring(0, str.indexOf("("));
       }
     }
-    if (str.contains(" [")) {
-      str = str.substring(0, str.indexOf(" ["));
+    if (str.contains("[")) {
+      str = str.substring(0, str.indexOf("["));
     }
-    if (isTitle) {
+    if (isTitle && !isSongUrlEdit) {
       str = str.replaceAll("&", "%26");
     } else {
       if (str.contains("&")) {
@@ -150,7 +160,9 @@ class FetchData {
         str = str.substring(0, pos);
       }
     }
-    str = str.replaceAll(" ", "%20");
+    if (!isSongUrlEdit) {
+      str = str.replaceAll(" ", "%20");
+    }
 
     return str;
   }
@@ -158,8 +170,8 @@ class FetchData {
   static Future<String> getSongImageUrl(Song song) async {
     String title = song.getTitle;
     String artist = song.getArtist;
-    title = _editSearchParams(title, true);
-    artist = _editSearchParams(artist, false);
+    title = await _editSearchParams(title, true, false);
+    artist = await _editSearchParams(artist, false, false);
     String searchParams = title + "%20" + artist;
     return http
         .get(imageSearchUrl + searchParams)

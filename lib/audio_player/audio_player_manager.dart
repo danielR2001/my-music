@@ -9,7 +9,7 @@ import 'package:myapp/main.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/notifications/music_control_notification.dart';
+import 'package:myapp/communicate_with_native/music_control_notification.dart';
 
 enum PlaylistMode {
   shuffle,

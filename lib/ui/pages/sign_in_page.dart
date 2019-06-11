@@ -3,6 +3,7 @@ import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
+import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/user.dart';
 import 'home_page.dart';
 
@@ -374,7 +375,7 @@ class _State extends State<SignInPage> {
             FirebaseDatabaseManager.saveUser();
             Navigator.of(context, rootNavigator: true).pop('dialog');
             FirebaseDatabaseManager.addDownloadedPlaylist(
-                currentUser.getDownloadedSongsPlaylist);
+                Playlist("Downloaded"));
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(

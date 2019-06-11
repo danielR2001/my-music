@@ -13,6 +13,7 @@ import android.util.Log;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import java.text.Normalizer;
 
 public class MainActivity extends FlutterActivity {
   private static final String CHANNEL = "flutter.native/helper";
@@ -37,11 +38,18 @@ public class MainActivity extends FlutterActivity {
         } else if (call.method.equals("startService")) {
           StartService();
           result.success(true);
+        }else if(call.method.equals("unaccent")){
+          String str = call.argument("string");
+          result.success(unaccent(str));
         }
       }
     });
   }
-
+  private String unaccent(String src) {
+		return Normalizer
+				.normalize(src, Normalizer.Form.NFD)
+				.replaceAll("[^\\p{ASCII}]", "");
+	} 
   private void StartService() {
     Intent serviceIntent = new Intent(getApplicationContext(), NotificationService.class);
     serviceIntent.setAction(Constants.STARTFOREGROUND_ACTION);
