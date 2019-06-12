@@ -1,6 +1,6 @@
-# myapp
+# My Music
 
-A new Flutter project.
+Flutter based music app.
 
 ## Getting Started
 
