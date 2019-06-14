@@ -1,10 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/constants/constants.dart';
+import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
+import 'package:myapp/models/user.dart';
+import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 
-class DiscoverPage extends StatelessWidget {
+class DiscoverPage extends StatefulWidget {
   DiscoverPage({this.onPush});
   final onPush;
+
+  @override
+  _DiscoverPageState createState() => _DiscoverPageState(onPush);
+}
+
+class _DiscoverPageState extends State<DiscoverPage> {
+  final onPush;
+  _DiscoverPageState(this.onPush);
+  @override
+  void initState() {
+    syncAllPublicPlaylists();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Navigator(
@@ -84,23 +102,46 @@ class DiscoverPage extends StatelessWidget {
                                 ),
                                 elevation: 6.0,
                                 onPressed: () {
-                                  onPush();
+                                  widget.onPush();
                                 },
                               ),
                             ),
                           ),
                         ]),
                       ),
-                      // Expanded(
-                      //   child: ListView.builder(
-                      //     itemCount: 6,
-                      //     itemBuilder: (BuildContext context, int index) {
-                      //       Padding padding = createGenres(index, context);
-                      //       index++;
-                      //       return padding;
-                      //     },
-                      //   ),
-                      // ),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: publicPlaylists.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            Padding row;
+                            Expanded padding1;
+                            Expanded padding2;
+                            if ((index + 1) % 2 != 0) {
+                              padding1 = drawPlaylists(
+                                  publicPlaylists[index], context);
+                              padding2 = index + 1 != publicPlaylists.length
+                                  ? drawPlaylists(
+                                      publicPlaylists[index + 1], context)
+                                  : Expanded(child: Container());
+                              row = Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 20),
+                                  child: Row(
+                                    children: <Widget>[
+                                      padding1,
+                                      SizedBox(
+                                        width: 20,
+                                      ),
+                                      padding2
+                                    ],
+                                  ));
+                              return row;
+                            } else {
+                              return Container();
+                            }
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -112,58 +153,60 @@ class DiscoverPage extends StatelessWidget {
     );
   }
 
-  GestureDetector drawGenreWidget(
-    String imagePath,
-    String iconPath,
-    String genre,
-    BuildContext context,
-  ) {
-    return GestureDetector(
-      child: Column(
-        children: <Widget>[
-          Container(
-              alignment: Alignment.center,
-              width: 180.0,
-              height: 120.0,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  colorFilter: ColorFilter.mode(
-                      Colors.black.withOpacity(0.3), BlendMode.dstATop),
-                  image: ExactAssetImage(imagePath),
-                  fit: BoxFit.cover,
-                ),
-                border: Border.all(
-                  color: Constants.lightGreyColor,
-                  width: 0.5,
-                ),
-              ),
-              child: Container(
-                alignment: Alignment.center,
-                width: 60.0,
-                height: 60.0,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: ExactAssetImage(iconPath),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              )),
-          Padding(
-            padding: const EdgeInsets.only(top: 5),
-            child: Text(
-              genre,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20.0,
-              ),
-            ),
-          ),
-        ],
-      ),
-      //onTap: () => onPush(createMap(Playlist(genre))),
-    );
+  Future syncAllPublicPlaylists() async {
+    List<Playlist> temp = await FirebaseDatabaseManager.buildPublicPlaylists();
+    setState(() {
+      publicPlaylists = temp;
+    });
   }
 
+  Expanded drawPlaylists(Playlist playlist, BuildContext context) {
+    String name = playlist.getName;
+    if (playlist.getName.length > 15) {
+      int pos = playlist.getName.lastIndexOf("", 15);
+      if (pos < 5) {
+        pos = 15;
+      }
+      name = playlist.getName.substring(0, pos) + "...";
+    } else {
+      name = playlist.getName;
+    }
+    return Expanded(
+      child: GestureDetector(
+        child: Container(
+          alignment: Alignment.center,
+          height: 120.0,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              colorFilter: ColorFilter.mode(
+                  Colors.black.withOpacity(0.3), BlendMode.dstATop),
+              image: playlist.getSongs.length >0
+                  ? NetworkImage(playlist.getSongs[0].getImageUrl)
+                  : AssetImage("assets/images/default_playlist_image.jpg"),
+              fit: BoxFit.cover,
+            ),
+            border: Border.all(
+              color: Constants.lightGreyColor,
+              width: 0.5,
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                name,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16.0,
+                ),
+              ),
+            ],
+          ),
+        ),
+        onTap: () => onPush(playlistValues: createMap(playlist)),
+      ),
+    );
+  }
 
   Map createMap(Playlist playlist) {
     Map<String, dynamic> playlistValues = Map();
@@ -174,8 +217,10 @@ class DiscoverPage extends StatelessWidget {
           : "";
     } else {
       playlistValues['playlist'] = playlist;
-      playlistValues['imageUrl'] = "assets/images/downloaded_image.jpg";
+      playlistValues['imageUrl'] = "";
     }
+    playlistValues['playlistCreator'] = User(playlist.getCreator, null, false);
+    playlistValues['playlistModalSheetMode'] = PlaylistModalSheetMode.public;
     return playlistValues;
   }
 }

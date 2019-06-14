@@ -96,7 +96,7 @@ class SongOptionsModalSheet extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PlaylistPickPage(song),
+                    builder: (context) => PlaylistPickPage(song:song,songs: null,),
                   ),
                 );
               },

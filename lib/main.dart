@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/communicate_with_native/music_control_notification.dart';
+import 'package:myapp/models/playlist.dart';
 import 'package:myapp/ui/decorations/portrait_mode_mixin.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
@@ -8,10 +9,10 @@ import 'package:myapp/ui/pages/root_page.dart';
 import 'package:myapp/models/user.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-
 void main() => runApp(MyApp());
 AudioPlayerManager audioPlayerManager;
 User currentUser;
+List<Playlist> publicPlaylists;
 
 class MyApp extends StatelessWidget with PortraitModeMixin {
   @override
@@ -33,7 +34,9 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
     FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
     audioPlayerManager = AudioPlayerManager(); //init song status
     MusicControlNotification.startService(context);
-    
-    Map<PermissionGroup, PermissionStatus> permissions = await PermissionHandler().requestPermissions([PermissionGroup.storage]);
+
+    Map<PermissionGroup, PermissionStatus> permissions =
+        await PermissionHandler().requestPermissions([PermissionGroup.storage]);
+    publicPlaylists = new List();
   }
 }

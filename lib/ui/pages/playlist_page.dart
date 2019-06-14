@@ -11,25 +11,23 @@ import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'dart:math';
-
+import 'package:auto_size_text/auto_size_text.dart';
+  
 
 class PlaylistPage extends StatefulWidget {
   final Playlist playlist;
   final String imagePath;
   final User playlistCreator;
-
-  PlaylistPage({this.playlist, this.imagePath, this.playlistCreator});
+  final PlaylistModalSheetMode playlistModalSheetMode;
+  PlaylistPage({this.playlist, this.imagePath, this.playlistCreator,this.playlistModalSheetMode});
 
   @override
   _PlaylistPageState createState() =>
-      _PlaylistPageState(playlist, imagePath, playlistCreator);
+      _PlaylistPageState();
 }
 
 class _PlaylistPageState extends State<PlaylistPage> {
-  final Playlist playlist;
-  final String imagePath;
-  final User playlistCreator;
-  _PlaylistPageState(this.playlist, this.imagePath, this.playlistCreator);
+
   ImageProvider imageProvider;
   Color iconColor = Colors.white;
   ScrollController _scrollController;
@@ -79,7 +77,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                         ),
                         iconSize: 30,
                         onPressed: () {
-                          showPlaylistOptions(playlist);
+                          showPlaylistOptions(widget.playlist);
                         },
                       ),
                     ),
@@ -123,25 +121,28 @@ class _PlaylistPageState extends State<PlaylistPage> {
                   titlePadding: EdgeInsets.only(),
                   title: Container(
                     height: 50,
+                    width: 200,
                     child: Column(
                       children: <Widget>[
-                        Text(
-                          playlist.getName,
+                        AutoSizeText(
+                          widget.playlist.getName,
                           style: TextStyle(
                             fontSize: 20.0,
                             fontWeight: FontWeight.bold,
                           ),
+                          maxLines: 1,
                         ),
                         SizedBox(
                           height: 2,
                         ),
-                        Text(
-                          playlistCreator.getName,
+                        AutoSizeText(
+                          "by: "+ widget.playlistCreator.getName,
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 12.0,
                             fontWeight: FontWeight.bold,
                           ),
+                          maxLines: 1
                         ),
                       ],
                     ),
@@ -158,9 +159,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
                     },
                     blendMode: BlendMode.dstIn,
                     child: Image(
-                      image: imagePath != ""
+                      image: widget.imagePath != ""
                           ? NetworkImage(
-                              imagePath,
+                              widget.imagePath,
                             )
                           : AssetImage(
                               'assets/images/default_playlist_image.jpg',
@@ -212,8 +213,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               elevation: 6.0,
                               onPressed: () {
                                 audioPlayerManager.initSong(
-                                  playlist.getSongs[0],
-                                  playlist,
+                                  widget.playlist.getSongs[0],
+                                  widget.playlist,
                                   PlaylistMode.loop,
                                 );
                                 audioPlayerManager.playSong();
@@ -257,10 +258,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               onPressed: () {
                                 var rnd = Random();
                                 int randomNum =
-                                    rnd.nextInt(playlist.getSongs.length);
+                                    rnd.nextInt(widget.playlist.getSongs.length);
                                 audioPlayerManager.initSong(
-                                  playlist.getSongs[randomNum],
-                                  playlist,
+                                  widget.playlist.getSongs[randomNum],
+                                  widget.playlist,
                                   PlaylistMode.shuffle,
                                 );
 
@@ -274,7 +275,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                   ],
                 ),
               ),
-              makeSliverList(playlist, context)
+              makeSliverList(widget.playlist, context)
             ],
           ),
         ),
@@ -432,6 +433,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
         return PlaylistOptionsModalSheet(
           currentPlaylist,
           context,
+          widget.playlistModalSheetMode
         );
       },
     );
@@ -484,5 +486,4 @@ class _PlaylistPageState extends State<PlaylistPage> {
       ),
     );
   }
-
 }

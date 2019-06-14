@@ -138,7 +138,7 @@ class FirebaseDatabaseManager {
     playlistMap.forEach(
       (key, value) {
         tempMap = value["songs"];
-        tempPlaylist = Playlist(value["name"], isPublic: value["isPublic"]);
+        tempPlaylist = Playlist(value["name"],creator:value['creator'], isPublic: value["isPublic"]);
         tempPlaylist.setPushId = key;
         if (tempMap != null) {
           tempMap.forEach((key, value) {
@@ -150,7 +150,7 @@ class FirebaseDatabaseManager {
                 value['searchString'],
                 value['imageUrl'],
                 value['pushId'],
-                dateAdded:value['dateAdded'],
+                dateAdded: value['dateAdded'],
               ),
             );
           });
@@ -217,7 +217,7 @@ class FirebaseDatabaseManager {
           value['searchString'],
           value['imageUrl'],
           value['pushId'],
-          dateAdded:value['dateAdded'],
+          dateAdded: value['dateAdded'],
         );
         ManageLocalSongs.checkIfFileExists(temp).then((exists) {
           if (!exists) {
@@ -240,4 +240,41 @@ class FirebaseDatabaseManager {
         .update({"signedIn": signedIn});
   }
 
+  static Future<List<Playlist>> buildPublicPlaylists() async {
+    List<User> users = List();
+    List<Map> playlists = List();
+    List<Playlist> publicPlaylists = List();
+    User tempUser;
+    int i = 0;
+    var snapshot =
+        await FirebaseDatabase.instance.reference().child(_usersDir).once();
+    Map<dynamic, dynamic> values = snapshot.value;
+    values.forEach(
+      (key, values) {
+        playlists.add(values["playlists"]);
+        User user =
+            User(values["userName"], values["firebaseUId"], values['signedIn']);
+        users.add(user);
+      },
+    );
+
+    users.forEach(
+      (user) {
+        tempUser = user;
+        if (playlists[i] != null) {
+          tempUser.setMyPlaylists = _buildPlaylists(playlists[i]);
+        }
+
+        i++;
+      },
+    );
+    users.forEach((user) {
+      user.getPlaylists.forEach((playlist) {
+        if (playlist.getIsPublic) {
+          publicPlaylists.add(playlist);
+        }
+      });
+    });
+    return publicPlaylists;
+  }
 }

@@ -23,14 +23,12 @@ class MusicPageState extends State<MusicPlayerPage> {
   StreamSubscription<Duration> durStream;
   StreamSubscription<void> completionStream;
   double thumbRadius = 0;
-  //bool gifPage = false;
+  
 
   @override
   void initState() {
     super.initState();
     initSong();
-    //gifTimer();
-    //tryLoadingImage();
   }
 
   @override

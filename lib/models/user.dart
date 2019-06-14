@@ -15,12 +15,12 @@ class User {
     _downloadedSongsPlaylist = Playlist("Downloaded");
     _signedIn = signedIn;
   }
-
+  
   String get getName => _name;
 
   String get getFirebaseUId => _firebaseUId;
 
-  List<Playlist> get getMyPlaylists => _myPlaylists;
+  List<Playlist> get getPlaylists => _myPlaylists;
 
   Playlist get getDownloadedSongsPlaylist => _downloadedSongsPlaylist;
 

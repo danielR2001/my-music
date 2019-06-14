@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
@@ -11,20 +12,17 @@ import 'package:myapp/models/song.dart';
 import 'package:myapp/models/playlist.dart';
 
 class PlaylistPickPage extends StatefulWidget {
-  final Song song;
-  PlaylistPickPage(this.song);
+  final song;
+  final List<Song> songs;
+  PlaylistPickPage({this.song, this.songs});
   @override
-  _PlaylistPickPageState createState() => _PlaylistPickPageState(song);
+  _PlaylistPickPageState createState() => _PlaylistPickPageState();
 }
 
 class _PlaylistPickPageState extends State<PlaylistPickPage> {
-  final Song song;
-  _PlaylistPickPageState(this.song);
   String _playlistName;
   bool _isPublic;
-
   final formKey = GlobalKey<FormState>();
-
   final scafKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -108,12 +106,11 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                       data: Theme.of(context)
                           .copyWith(accentColor: Colors.transparent),
                       child: ListView.builder(
-                        itemCount: currentUser.getMyPlaylists != null
-                            ? currentUser.getMyPlaylists.length
+                        itemCount: currentUser.getPlaylists != null
+                            ? currentUser.getPlaylists.length
                             : 0,
                         itemBuilder: (BuildContext context, int index) {
-                          return userPlaylists(
-                              currentUser.getMyPlaylists[index]);
+                          return userPlaylists(currentUser.getPlaylists[index]);
                         },
                       ),
                     ),
@@ -147,13 +144,33 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           ),
         ),
         onTap: () {
-          selectedPlaylist(playlist);
+          //showLoadingBar();
+          if (widget.song != null) {
+            addSongToPlaylist(playlist, widget.song).then((a) {
+              //Navigator.of(context, rootNavigator: true).pop('dialog');
+              Navigator.pop(context);
+            });
+          } else {
+            addAllSongToPlaylist(playlist).then((a) {
+              //Navigator.of(context, rootNavigator: true).pop('dialog');
+              Navigator.pop(context);
+            });
+            Fluttertoast.showToast(
+              msg: "Don't worry! adding only songs that aren't added yet :D",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIos: 1,
+              backgroundColor: Constants.pinkColor,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+          }
         },
       ),
     );
   }
 
-  void selectedPlaylist(Playlist playlist) async {
+  Future<void> addSongToPlaylist(Playlist playlist, Song song) async {
     bool songAlreadyExistsInPlaylist = false;
     Song updatedsong;
     playlist.getSongs.forEach((playlistSong) {
@@ -162,15 +179,14 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
       }
     });
     if (!songAlreadyExistsInPlaylist) {
-      showLoadingBar();
+      if (song.getImageUrl.length == 0) {
+        String imageUrl = await FetchData.getSongImageUrl(song);
+        song.setImageUrl = imageUrl;
+      }
       if (audioPlayerManager.currentPlaylist != null
           ? playlist.getName == audioPlayerManager.currentPlaylist.getName
           : false) {
         if (audioPlayerManager.playlistMode == PlaylistMode.shuffle) {
-          if (song.getImageUrl.length == 0) {
-            String imageUrl = await FetchData.getSongImageUrl(song);
-            song.setImageUrl = imageUrl;
-          }
           updatedsong = song;
           updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
           updatedsong =
@@ -179,13 +195,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           currentUser.updatePlaylist(playlist);
           audioPlayerManager.loopPlaylist = playlist;
           audioPlayerManager.setCurrentPlaylist();
-          Navigator.of(context, rootNavigator: true).pop('dialog');
-          Navigator.pop(context);
         } else {
-          if (song.getImageUrl.length == 0) {
-            String imageUrl = await FetchData.getSongImageUrl(song);
-            song.setImageUrl = imageUrl;
-          }
           updatedsong = song;
           updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
           updatedsong =
@@ -193,44 +203,39 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           playlist.addNewSong(updatedsong);
           currentUser.updatePlaylist(playlist);
           audioPlayerManager.loopPlaylist = playlist;
-          Navigator.of(context, rootNavigator: true).pop('dialog');
-          Navigator.pop(context);
         }
       } else {
-        if (song.getImageUrl.length == 0) {
-          String imageUrl = await FetchData.getSongImageUrl(song);
-          song.setImageUrl = imageUrl;
-        }
         updatedsong = song;
         updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
         updatedsong = FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
         playlist.addNewSong(updatedsong);
         currentUser.updatePlaylist(playlist);
-        Navigator.of(context, rootNavigator: true).pop('dialog');
-        Navigator.pop(context);
       }
     } else {
-      scafKey.currentState.showSnackBar(
-        SnackBar(
-          duration: Duration(seconds: 5),
-          content: Text(
-            "This Song Is Already In Playlist Exists!",
-            style: TextStyle(
-              color: Colors.white,
+      if (widget.song != null) {
+        scafKey.currentState.showSnackBar(
+          SnackBar(
+            duration: Duration(seconds: 5),
+            content: Text(
+              "This widget.song Is Already In Playlist Exists!",
+              style: TextStyle(
+                color: Colors.white,
+              ),
             ),
           ),
-        ),
-      );
+        );
+      }
     }
   }
 
   Future createNewPlatlist() async {
     bool nameExists = false;
     final form = formKey.currentState;
+    Song updatedsong;
     if (form.validate()) {
       form.save();
       if (_playlistName != "Search Playlist") {
-        currentUser.getMyPlaylists.forEach((playlist) {
+        currentUser.getPlaylists.forEach((playlist) {
           if (playlist.getName == _playlistName) {
             nameExists = true;
           }
@@ -238,17 +243,38 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         if (!nameExists) {
           Navigator.of(context, rootNavigator: true).pop('dialog');
           showLoadingBar();
-          Playlist playlist = Playlist(_playlistName, isPublic: _isPublic);
-
-          if (song.getImageUrl.length == 0) {
-            String imageUrl = await FetchData.getSongImageUrl(song);
-            song.setImageUrl = imageUrl;
+          Playlist playlist = Playlist(_playlistName,
+              creator: currentUser.getName, isPublic: _isPublic);
+          if (playlist.getIsPublic) {
+            publicPlaylists.add(playlist);
           }
           FirebaseDatabaseManager.addPlaylist(playlist);
-          Song updatedsong =
-              FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
-          playlist.addNewSong(updatedsong);
-          currentUser.addNewPlaylist(playlist);
+          if (widget.song != null) {
+            if (widget.song.getImageUrl.length == 0) {
+              String imageUrl = await FetchData.getSongImageUrl(widget.song);
+              widget.song.setImageUrl = imageUrl;
+            }
+            updatedsong = FirebaseDatabaseManager.addSongToPlaylist(
+                playlist, widget.song);
+            playlist.addNewSong(updatedsong);
+            currentUser.addNewPlaylist(playlist);
+          } else {
+            widget.songs.forEach((song) {
+              if (song.getImageUrl.length == 0) {
+                FetchData.getSongImageUrl(song).then((imageUrl) {
+                  song.setImageUrl = imageUrl;
+                  updatedsong =
+                      FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
+                  playlist.addNewSong(updatedsong);
+                });
+              } else {
+                updatedsong =
+                    FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
+                playlist.addNewSong(updatedsong);
+              }
+            });
+            currentUser.addNewPlaylist(playlist);
+          }
           Navigator.of(context, rootNavigator: true).pop('dialog');
           Navigator.pop(context);
         } else {
@@ -307,9 +333,6 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                         hintColor: Colors.white,
                       ),
                       child: TextFormField(
-                        inputFormatters: [
-                          LengthLimitingTextInputFormatter(18),
-                        ],
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -478,5 +501,11 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         size: 40,
       ),
     );
+  }
+
+  Future<void> addAllSongToPlaylist(Playlist playlist) async {
+    widget.songs.forEach((song) {
+      addSongToPlaylist(playlist, song);
+    });
   }
 }

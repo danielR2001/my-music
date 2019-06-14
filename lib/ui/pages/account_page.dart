@@ -5,6 +5,7 @@ import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/settings_page.dart';
+import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 
 class AccountPage extends StatefulWidget {
   AccountPage({this.onPush});
@@ -170,7 +171,7 @@ class _AccountPageState extends State<AccountPage> {
                 : drawDefaultSongImage()
             : drawDefaultSongImage(),
         title: Text(
-          playlist.getName,
+          cutPlaylistName(playlist),
           style: TextStyle(
             fontSize: 20,
             color: Colors.white,
@@ -197,6 +198,7 @@ class _AccountPageState extends State<AccountPage> {
       playlistValues['imageUrl'] = "";
     }
     playlistValues['playlistCreator'] = currentUser;
+    playlistValues['playlistModalSheetMode'] = playlist.getPushId != currentUser.getDownloadedSongsPlaylist.getPushId?PlaylistModalSheetMode.regular:PlaylistModalSheetMode.download;
     return playlistValues;
   }
 
@@ -206,11 +208,11 @@ class _AccountPageState extends State<AccountPage> {
         child: Theme(
           data: Theme.of(context).copyWith(accentColor: Colors.grey),
           child: ListView.builder(
-            itemCount: currentUser.getMyPlaylists != null
-                ? currentUser.getMyPlaylists.length
+            itemCount: currentUser.getPlaylists != null
+                ? currentUser.getPlaylists.length
                 : 0,
             itemBuilder: (BuildContext context, int index) {
-              return userPlaylists(currentUser.getMyPlaylists[index], context);
+              return userPlaylists(currentUser.getPlaylists[index], context);
             },
           ),
         ),
@@ -262,5 +264,19 @@ class _AccountPageState extends State<AccountPage> {
         size: 40,
       ),
     );
+  }
+
+  String cutPlaylistName(Playlist playlist) {
+    String name;
+    if (playlist.getName.length > 18) {
+      int pos = playlist.getName.lastIndexOf("", 18);
+      if (pos < 10) {
+        pos = 18;
+      }
+      name = playlist.getName.substring(0, pos) + "...";
+    } else {
+      name = playlist.getName;
+    }
+    return name;
   }
 }

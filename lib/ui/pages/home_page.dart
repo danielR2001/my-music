@@ -5,7 +5,7 @@ import 'package:myapp/constants/constants.dart';
 import 'package:myapp/ui/decorations/page_change_animation.dart';
 import 'package:myapp/ui/widgets/buttom_navigation_bar.dart';
 import 'package:myapp/ui/widgets/sound_bar.dart';
-import 'package:myapp/ui/widgets/tab_navigator.dart';
+import 'package:myapp/tab_navigation/tab_navigator.dart';
 import 'music_player_page.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/ui/widgets/text_style.dart';

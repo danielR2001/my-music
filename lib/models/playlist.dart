@@ -9,6 +9,7 @@ class Playlist {
   SortType _sortedType;
   String _pushId;
   bool _isPublic;
+  String _creator;
 
   String get getName => _name;
 
@@ -21,6 +22,8 @@ class Playlist {
   SortType get getSortedType => _sortedType;
 
   List<Song> get getSortedSongs => _sortedSongs;
+  
+  String get getCreator => _creator;
 
   set setName(String value) => _name = value;
 
@@ -34,20 +37,24 @@ class Playlist {
 
   set setSortedSongs(List<Song> value) => _sortedSongs = value;
 
+  set setCreator(String value) => _creator = value;
+
   addNewSong(Song song) => _songs.add(song);
 
   removeSong(Song song) => _songs.remove(song);
 
-  Playlist(String name,{bool isPublic}) {
+  Playlist(String name,{bool isPublic,String creator}) {
     _name = name;
     _isPublic = isPublic;
     _songs = List<Song>();
+    _creator = creator;
   }
 
   toJson() {
     return {
       'name': _name,
       'isPublic': _isPublic,
+      'creator' : _creator,
     };
   }
 }
