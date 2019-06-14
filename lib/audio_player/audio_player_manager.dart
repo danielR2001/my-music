@@ -34,11 +34,7 @@ class AudioPlayerManager {
     audioPlayer = AudioPlayer();
     AudioPlayer.logEnabled = true;
   }
-  void initSong(
-    Song song,
-    Playlist playlist,
-    PlaylistMode playlistMode,
-  ) async {
+  void initSong(Song song, Playlist playlist, PlaylistMode playlistMode) async {
     currentSong = song;
     closeSong();
     this.playlistMode = playlistMode;
@@ -116,21 +112,6 @@ class AudioPlayerManager {
     });
   }
 
-  void listenForDurationChanged() {
-    _audioPlayerOnDurationChangedStream =
-        audioPlayer.onDurationChanged.listen((duration) {
-      isLoaded = true;
-      songDuration = duration;
-    });
-  }
-
-  void listenForPositionChanged() {
-    _audioPlayerOnPositionChangedStream =
-        audioPlayer.onAudioPositionChanged.listen((duration) {
-      songPosition = duration;
-    });
-  }
-
   void resumeSong(bool calledFromNative) {
     audioPlayer.resume();
     if (!calledFromNative) {
@@ -166,24 +147,19 @@ class AudioPlayerManager {
     audioPlayer.seek(duration);
   }
 
-  Song getNextSong(Playlist playlist, Song song) {
-    bool foundSong = false;
-    Song nextSong;
-    playlist.getSongs.forEach(
-      (songFromPlaylist) {
-        if (foundSong) {
-          nextSong = songFromPlaylist;
-          foundSong = false;
-        }
-        if (songFromPlaylist.getSongId == song.getSongId) {
-          foundSong = true;
-        }
-      },
-    );
-    if (foundSong && nextSong == null) {
-      nextSong = playlist.getSongs[0];
-    }
-    return nextSong;
+  void listenForDurationChanged() {
+    _audioPlayerOnDurationChangedStream =
+        audioPlayer.onDurationChanged.listen((duration) {
+      isLoaded = true;
+      songDuration = duration;
+    });
+  }
+
+  void listenForPositionChanged() {
+    _audioPlayerOnPositionChangedStream =
+        audioPlayer.onAudioPositionChanged.listen((duration) {
+      songPosition = duration;
+    });
   }
 
   void listenIfCompleted() {
@@ -206,6 +182,26 @@ class AudioPlayerManager {
         playSong();
       }
     });
+  }
+
+  Song getNextSong(Playlist playlist, Song song) {
+    bool foundSong = false;
+    Song nextSong;
+    playlist.getSongs.forEach(
+      (songFromPlaylist) {
+        if (foundSong) {
+          nextSong = songFromPlaylist;
+          foundSong = false;
+        }
+        if (songFromPlaylist.getSongId == song.getSongId) {
+          foundSong = true;
+        }
+      },
+    );
+    if (foundSong && nextSong == null) {
+      nextSong = playlist.getSongs[0];
+    }
+    return nextSong;
   }
 
   void playPreviousSong() {
@@ -301,9 +297,8 @@ class AudioPlayerManager {
     if (playlistMode == PlaylistMode.loop) {
       currentPlaylist = loopPlaylist;
     } else {
-      if (shuffledPlaylist == null) {
-        createShuffledPlaylist();
-      }
+      createShuffledPlaylist();
+
       currentPlaylist = shuffledPlaylist;
     }
   }

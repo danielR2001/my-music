@@ -17,15 +17,14 @@ class ManageLocalSongs {
   static Future<bool> checkIfFileExists(Song song) async {
     externalDir = await getExternalStorageDirectory();
     fullDir = await new Directory(
-            '${externalDir.path}/Android/data/com.daniel.mymusic/downloaded')
+            '${externalDir.path}/Android/data/com.daniel.mymusic/downloaded/${currentUser.getName}')
         .create(recursive: true);
     File file = File("${fullDir.path}/${song.getSongId}.mp3");
-    
+
     return file.exists();
   }
 
   static Future<void> downloadSong(Song song) async {
-    //final stateRefresher = Provider.of<StateRefresher>(context);
     currentDownloading.add(song);
     FetchData.getDownloadUrlPage1(song).then((downloadUrl) async {
       if (downloadUrl != null) {
@@ -34,8 +33,6 @@ class ManageLocalSongs {
               "${fullDir.path}/${song.getSongId}.mp3",
               onReceiveProgress: (prog, total) {
             downloading = true;
-            //stateRefresher.setDownloadedProg = prog;
-            //stateRefresher.setDownloadedTotal = total;
             print("prog: $prog , total: $total");
           }).whenComplete(() {
             currentDownloading.remove(song);
@@ -57,7 +54,6 @@ class ManageLocalSongs {
   }
 
   static Future<void> unDownloadSong(Song song) async {
-    //final stateRefresher = Provider.of<StateRefresher>(context);
     try {
       File file = File("${fullDir.path}/${song.getSongId}.mp3");
       file.delete().whenComplete(() {
@@ -79,4 +75,31 @@ class ManageLocalSongs {
     });
     return exists;
   }
+
+  // static void syncDownloaded() async {
+  //   externalDir = await getExternalStorageDirectory();
+  //   fullDir = await new Directory(
+  //           '${externalDir.path}/Android/data/com.daniel.mymusic/downloaded/${currentUser.getName}')
+  //       .create(recursive: true);
+  //   List<File> files = List();
+  //   try {
+  //     var dirList = fullDir.list();
+  //     await for (FileSystemEntity f in dirList) {
+  //       if (f is File) {
+  //         files.add(f);
+  //       }
+  //     }
+  //   } catch (e) {
+  //     print(e.toString());
+  //   }
+  //   List<Song> updatedDownloadedList = List();
+  //   files.forEach((file){
+  //     currentUser.getDownloadedSongsPlaylist.getSongs.forEach((song){
+  //       String songId = file.path.substring(file.path.lastIndexOf("/"),file.path.length-1);
+  //       if(song.getSongId == songId){
+  //         updatedDownloadedList.add(song);
+  //       }
+  //     });
+  //   });
+  // }
 }
