@@ -30,11 +30,16 @@ class _ArtistPageState extends State<ArtistPage> {
     // FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
     _scrollController = ScrollController()..addListener(() => setState(() {}));
     topHitsPlaylist = Playlist(artist.getName + " Top Hits");
-    FetchData.searchForResultsSite1(artist.getName).then((results) {
+    FetchData.searchForResultsSitePage1(artist.getName).then((results) {
       setState(() {
         if (results != null) {
           results.forEach((song) {
-            if (song.getArtist.contains(artist.getName)) {
+            if (song.getArtist
+                    .toLowerCase()
+                    .contains(artist.getName.toLowerCase()) ||
+                song.getTitle
+                    .toLowerCase()
+                    .contains(artist.getName.toLowerCase())) {
               topHitsPlaylist.addNewSong(song);
             }
           });

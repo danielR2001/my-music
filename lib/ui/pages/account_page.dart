@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_image/network.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
+import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/settings_page.dart';
 
@@ -110,8 +110,8 @@ class _AccountPageState extends State<AccountPage> {
                       Icons.keyboard_arrow_right,
                       color: Colors.white,
                     ),
-                    onTap: () =>
-                        widget.onPush(createMap(currentUser.getDownloadedSongsPlaylist)),
+                    onTap: () => widget.onPush(
+                        createMap(currentUser.getDownloadedSongsPlaylist)),
                   ),
                   SizedBox(
                     height: 20,
@@ -164,24 +164,11 @@ class _AccountPageState extends State<AccountPage> {
         bottom: 10,
       ),
       child: ListTile(
-        leading: Container(
-          width: 60.0,
-          height: 60.0,
-          decoration: BoxDecoration(
-            color: Colors.black,
-            shape: BoxShape.rectangle,
-            image: DecorationImage(
-              fit: BoxFit.fill,
-              image: playlist.getSongs.length>0
-                  ? playlist.getSongs[0].getImageUrl != ""
-                      ? NetworkImageWithRetry(
-                          playlist.getSongs[0].getImageUrl,
-                        )
-                      : AssetImage('assets/images/default_song_pic.png')
-                  : AssetImage('assets/images/default_song_pic.png'),
-            ),
-          ),
-        ),
+        leading: playlist.getSongs.length > 0
+            ? playlist.getSongs[0].getImageUrl.length > 0
+                ? drawSongImage(playlist.getSongs[0])
+                : drawDefaultSongImage()
+            : drawDefaultSongImage(),
         title: Text(
           playlist.getName,
           style: TextStyle(
@@ -209,6 +196,7 @@ class _AccountPageState extends State<AccountPage> {
       playlistValues['playlist'] = playlist;
       playlistValues['imageUrl'] = "";
     }
+    playlistValues['playlistCreator'] = currentUser;
     return playlistValues;
   }
 
@@ -230,5 +218,49 @@ class _AccountPageState extends State<AccountPage> {
     } else {
       return Container();
     }
+  }
+
+  Widget drawSongImage(Song song) {
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        color: Constants.lightGreyColor,
+        shape: BoxShape.rectangle,
+        image: DecorationImage(
+          fit: BoxFit.fill,
+          image: NetworkImage(
+            song.getImageUrl,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget drawDefaultSongImage() {
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Constants.lightGreyColor,
+            Constants.darkGreyColor,
+          ],
+          begin: FractionalOffset.bottomLeft,
+          stops: [0.3, 0.8],
+          end: FractionalOffset.topRight,
+        ),
+        border: Border.all(
+          color: Constants.lightGreyColor,
+          width: 0.4,
+        ),
+      ),
+      child: Icon(
+        Icons.music_note,
+        color: Constants.pinkColor,
+        size: 40,
+      ),
+    );
   }
 }

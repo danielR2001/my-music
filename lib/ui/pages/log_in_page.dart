@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/main.dart';
 import 'home_page.dart';
 
 class LogInPage extends StatefulWidget {
@@ -270,13 +271,26 @@ class _State extends State<LogInPage> {
       form.save();
       FirebaseAuthentication.logInWithEmail(_email, _password).then((user) {
         if (user != null) {
-          FirebaseDatabaseManager.syncUser(user.uid).then((a) {
-            Navigator.of(context, rootNavigator: true).pop('dialog');
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomePage(),
-                ));
+          FirebaseDatabaseManager.syncUser(user.uid,false).then((user) {
+            if (user != null) {
+              FirebaseDatabaseManager.changeUserSignInState(true);
+              user.setSignedIn = true;
+              currentUser = user;
+              Navigator.of(context, rootNavigator: true).pop('dialog');
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(),
+                  ));
+            } else {
+              Navigator.of(context, rootNavigator: true).pop('dialog');
+              key.currentState.showSnackBar(
+                SnackBar(
+                  duration: Duration(seconds: 5),
+                  content: Text("You are already signed in this account with other device!"),
+                ),
+              );
+            }
           });
         } else {
           Navigator.of(context, rootNavigator: true).pop('dialog');
@@ -295,7 +309,7 @@ class _State extends State<LogInPage> {
     return RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
   }
 
-    void showLoadingBar() {
+  void showLoadingBar() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -319,8 +333,8 @@ class _State extends State<LogInPage> {
                       child: new CircularProgressIndicator(
                         value: null,
                         strokeWidth: 3.0,
-                        valueColor:
-                            new AlwaysStoppedAnimation<Color>(Constants.pinkColor),
+                        valueColor: new AlwaysStoppedAnimation<Color>(
+                            Constants.pinkColor),
                       ),
                     ),
                   ),

@@ -371,10 +371,10 @@ class _State extends State<SignInPage> {
       (isEmailVerified) {
         if (isEmailVerified) {
           FirebaseAuthentication.currentUser().then((user) {
-            currentUser = User(_userName, user.uid);
+            currentUser = User(_userName, user.uid,true);
             FirebaseDatabaseManager.saveUser();
             Navigator.of(context, rootNavigator: true).pop('dialog');
-            FirebaseDatabaseManager.syncUser(user.uid).then((a) {
+            FirebaseDatabaseManager.syncUser(user.uid,false).then((a) {
               FirebaseDatabaseManager.addDownloadedPlaylist(
                   Playlist("Downloaded"));
               Navigator.pushReplacement(

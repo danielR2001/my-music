@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/constants/constants.dart';
-import 'package:myapp/ui/decorations/app_icon.dart';
 import 'sign_in_page.dart';
 import 'log_in_page.dart';
 
@@ -21,10 +20,15 @@ class WelcomePage extends StatelessWidget {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(
-                top: 120.0,
+                top: 70.0,
                 bottom: 25,
               ),
-              child: AppIcon(),
+              child: Container(
+                height: 60,
+                width: 60,
+                  child: Image(
+                image: AssetImage("assets/images/app_logo.png"),
+              )),
             ),
             Text(
               "My Music",
@@ -36,7 +40,7 @@ class WelcomePage extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.only(
-                top: 100,
+                top: 200,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,

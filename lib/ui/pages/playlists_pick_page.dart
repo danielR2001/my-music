@@ -134,19 +134,11 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: ListTile(
-        leading: Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            color: Colors.black,
-            image: DecorationImage(
-              image: playlist.getSongs.length > 0
-                  ? songImage(playlist.getSongs[0])
-                  : AssetImage('assets/images/default_song_pic.png'),
-              fit: BoxFit.fill,
-            ),
-          ),
-        ),
+        leading: playlist.getSongs.length > 0
+            ? playlist.getSongs[0].getImageUrl.length > 0
+                ? drawSongImage(playlist.getSongs[0])
+                : drawDefaultSongImage()
+            : drawDefaultSongImage(),
         title: Text(
           playlist.getName,
           style: TextStyle(
@@ -171,12 +163,16 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     });
     if (!songAlreadyExistsInPlaylist) {
       showLoadingBar();
-      if (audioPlayerManager.currentPlaylist!=null? playlist.getName == audioPlayerManager.currentPlaylist.getName:false) {
+      if (audioPlayerManager.currentPlaylist != null
+          ? playlist.getName == audioPlayerManager.currentPlaylist.getName
+          : false) {
         if (audioPlayerManager.playlistMode == PlaylistMode.shuffle) {
           if (song.getImageUrl.length == 0) {
             String imageUrl = await FetchData.getSongImageUrl(song);
             song.setImageUrl = imageUrl;
           }
+          updatedsong = song;
+          updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
           updatedsong =
               FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
           playlist.addNewSong(updatedsong);
@@ -190,6 +186,8 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
             String imageUrl = await FetchData.getSongImageUrl(song);
             song.setImageUrl = imageUrl;
           }
+          updatedsong = song;
+          updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
           updatedsong =
               FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
           playlist.addNewSong(updatedsong);
@@ -203,6 +201,8 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           String imageUrl = await FetchData.getSongImageUrl(song);
           song.setImageUrl = imageUrl;
         }
+        updatedsong = song;
+        updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
         updatedsong = FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
         playlist.addNewSong(updatedsong);
         currentUser.updatePlaylist(playlist);
@@ -221,17 +221,6 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           ),
         ),
       );
-    }
-  }
-
-  ImageProvider songImage(Song song) {
-    //TODO remove this method!
-    if (song.getImageUrl.length > 0) {
-      return NetworkImage(
-        song.getImageUrl,
-      );
-    } else {
-      return AssetImage('assets/images/default_song_pic.png');
     }
   }
 
@@ -440,6 +429,54 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           ],
         );
       },
+    );
+  }
+
+  Widget drawSongImage(Song song) {
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        color: Constants.lightGreyColor,
+        shape: BoxShape.rectangle,
+        border: Border.all(
+          color: Constants.lightGreyColor,
+          width: 0.4,
+        ),
+        image: DecorationImage(
+          fit: BoxFit.fill,
+          image: NetworkImage(
+            song.getImageUrl,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget drawDefaultSongImage() {
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Constants.lightGreyColor,
+            Constants.darkGreyColor,
+          ],
+          begin: FractionalOffset.bottomLeft,
+          stops: [0.3, 0.8],
+          end: FractionalOffset.topRight,
+        ),
+        border: Border.all(
+          color: Constants.darkGreyColor,
+          width: 0.3,
+        ),
+      ),
+      child: Icon(
+        Icons.music_note,
+        color: Constants.pinkColor,
+        size: 40,
+      ),
     );
   }
 }

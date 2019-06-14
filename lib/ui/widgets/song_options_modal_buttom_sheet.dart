@@ -29,7 +29,7 @@ class SongOptionsModalSheet extends StatelessWidget {
           ? playlist != null
               ? playlist.getName != "Search Playlist" ? 400 : 350
               : 290
-          : playlist.getName != "Search Playlist" ?350:290,
+          : playlist.getName != "Search Playlist" ? 350 : 290,
       child: ListView(
         children: <Widget>[
           Padding(
@@ -349,7 +349,7 @@ class SongOptionsModalSheet extends StatelessWidget {
           ),
         ),
         onTap: () {
-          ManageLocalSongs.checkIfFileExists(song).then((exists) {
+          ManageLocalSongs.checkIfFileExists(song).then((exists) async {
             if (!exists) {
               Fluttertoast.showToast(
                 msg: "Download started",
@@ -360,6 +360,10 @@ class SongOptionsModalSheet extends StatelessWidget {
                 textColor: Colors.white,
                 fontSize: 16.0,
               );
+              if (song.getImageUrl == "") {
+                String imageUrl = await FetchData.getSongImageUrl(song);
+                song.setImageUrl = imageUrl;
+              }
               ManageLocalSongs.downloadSong(song);
               Navigator.pop(context);
             } else {
@@ -400,6 +404,7 @@ class SongOptionsModalSheet extends StatelessWidget {
           ManageLocalSongs.checkIfFileExists(song).then((exists) {
             if (exists) {
               ManageLocalSongs.unDownloadSong(song);
+              currentUser.removeSongToDownloadedPlaylist(song);
               Fluttertoast.showToast(
                 msg: "song Undownloaded",
                 toastLength: Toast.LENGTH_SHORT,

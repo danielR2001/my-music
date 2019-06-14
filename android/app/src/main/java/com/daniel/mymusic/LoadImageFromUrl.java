@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-
+import android.util.Log;
 public class LoadImageFromUrl extends AsyncTask<String, Void, Bitmap> {
 
     private Context context;
@@ -31,6 +31,7 @@ public class LoadImageFromUrl extends AsyncTask<String, Void, Bitmap> {
 
     @Override
     protected Bitmap doInBackground(String... strings) {
+        Log.d("load Image Thread","loading image...");
         if (!this.imageUrl.equals("")) {
             try {
                 URL url = new URL(this.imageUrl);
@@ -54,9 +55,9 @@ public class LoadImageFromUrl extends AsyncTask<String, Void, Bitmap> {
     protected void onPostExecute(Bitmap result) {
         super.onPostExecute(result);
         if (result != null) {
-            NotificationService.makeNotification(title, artist, result, context, isPlaying);
+            NotificationService.makeNotification(title, artist, result, context, isPlaying,imageUrl);
         } else {
-            NotificationService.makeNotification(title, artist, null, context, isPlaying);
+            NotificationService.makeNotification(title, artist, null, context, isPlaying,imageUrl);
         }
     }
 }

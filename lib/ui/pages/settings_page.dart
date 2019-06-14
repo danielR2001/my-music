@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/authentication.dart';
+import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/ui/pages/welcome_page.dart';
 
@@ -78,8 +79,10 @@ class SettingsPage extends StatelessWidget {
                           style: TextStyle(color: Colors.white),
                         ),
                         onPressed: () {
+                          FirebaseDatabaseManager.changeUserSignInState(false);
                           FirebaseAuthentication.signOut().then((user) {
                             audioPlayerManager.closeSong();
+                            currentUser = null;
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(

@@ -117,10 +117,8 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
             audioPlayerManager.playlistMode,
           );
 
-            audioPlayerManager.playSong(
-            
-            );
-          
+          audioPlayerManager.playSong();
+
           Navigator.pop(context);
         }
       },

@@ -16,7 +16,7 @@ User currentUser;
 class MyApp extends StatelessWidget with PortraitModeMixin {
   @override
   Widget build(BuildContext context) {
-    init();
+    init(context);
     super.build(context);
     return MaterialApp(
       title: 'My Music',
@@ -28,11 +28,11 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
     );
   }
 
-  void init() async {
+  void init(BuildContext context) async {
     FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
     FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
     audioPlayerManager = AudioPlayerManager(); //init song status
-    MusicControlNotification.startService();
+    MusicControlNotification.startService(context);
     
     Map<PermissionGroup, PermissionStatus> permissions = await PermissionHandler().requestPermissions([PermissionGroup.storage]);
   }

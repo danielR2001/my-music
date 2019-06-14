@@ -18,11 +18,13 @@ class FirebaseDatabaseManager {
         );
   }
 
-  static Future<void> syncUser(String currentUserId) async {
+  static Future<User> syncUser(
+      String currentUserId, bool alreadySignedIn) async {
     List<User> users = List();
     List<String> keys = List();
     List<Map> playlists = List();
     List<Map> downloaded = new List();
+    User tempUser;
     int i = 0;
     var snapshot =
         await FirebaseDatabase.instance.reference().child(_usersDir).once();
@@ -32,7 +34,8 @@ class FirebaseDatabaseManager {
         keys.add(key);
         playlists.add(values["playlists"]);
         downloaded.add(values["downloaded"]);
-        User user = User(values["userName"], values["firebaseUId"]);
+        User user =
+            User(values["userName"], values["firebaseUId"], values['signedIn']);
         users.add(user);
       },
     );
@@ -40,21 +43,24 @@ class FirebaseDatabaseManager {
     users.forEach(
       (user) {
         if (user.getFirebaseUId == currentUserId) {
-          _userPushId = keys[i];
-          currentUser = user;
-          if (downloaded[i] != null) {
-            currentUser.setDownloadedSongs =
-                _buildDownloadedPlaylist(downloaded[i]);
+          if (!user.getSignedIn || alreadySignedIn) {
+            _userPushId = keys[i];
+            tempUser = user;
+            if (downloaded[i] != null) {
+              tempUser.setDownloadedSongs =
+                  _buildDownloadedPlaylist(downloaded[i]);
+            }
+            if (playlists[i] != null) {
+              tempUser.setMyPlaylists = _buildPlaylists(playlists[i]);
+            }
+            print("user synced successfuly");
+            return;
           }
-          if (playlists[i] != null) {
-            currentUser.setMyPlaylists = _buildPlaylists(playlists[i]);
-          }
-          print("user synced successfuly");
-          return;
         }
         i++;
       },
     );
+    return tempUser;
   }
 
   static Playlist addPlaylist(Playlist playlist) {
@@ -136,13 +142,17 @@ class FirebaseDatabaseManager {
         tempPlaylist.setPushId = key;
         if (tempMap != null) {
           tempMap.forEach((key, value) {
-            tempPlaylist.addNewSong(Song(
+            tempPlaylist.addNewSong(
+              Song(
                 value['title'],
                 value['artist'],
                 value['songId'],
                 value['searchString'],
                 value['imageUrl'],
-                value['pushId']));
+                value['pushId'],
+                dateAdded:value['dateAdded'],
+              ),
+            );
           });
         }
         playlists.add(tempPlaylist);
@@ -200,8 +210,15 @@ class FirebaseDatabaseManager {
     playlist.setPushId = keys.first;
     if (tempMap != null) {
       tempMap.forEach((key, value) {
-        Song temp = Song(value['title'], value['artist'], value['songId'],
-            value['searchString'], value['imageUrl'], value['pushId']);
+        Song temp = Song(
+          value['title'],
+          value['artist'],
+          value['songId'],
+          value['searchString'],
+          value['imageUrl'],
+          value['pushId'],
+          dateAdded:value['dateAdded'],
+        );
         ManageLocalSongs.checkIfFileExists(temp).then((exists) {
           if (!exists) {
             FirebaseDatabaseManager.removeSongFromDownloadedPlaylist(temp);
@@ -214,4 +231,13 @@ class FirebaseDatabaseManager {
 
     return playlist;
   }
+
+  static void changeUserSignInState(bool signedIn) {
+    FirebaseDatabase.instance
+        .reference()
+        .child(_usersDir)
+        .child(_userPushId)
+        .update({"signedIn": signedIn});
+  }
+
 }

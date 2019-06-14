@@ -20,13 +20,14 @@ class ManageLocalSongs {
             '${externalDir.path}/Android/data/com.daniel.mymusic/downloaded')
         .create(recursive: true);
     File file = File("${fullDir.path}/${song.getSongId}.mp3");
+    
     return file.exists();
   }
 
   static Future<void> downloadSong(Song song) async {
     //final stateRefresher = Provider.of<StateRefresher>(context);
     currentDownloading.add(song);
-    FetchData.getDownloadUrl(song).then((downloadUrl) async {
+    FetchData.getDownloadUrlPage1(song).then((downloadUrl) async {
       if (downloadUrl != null) {
         try {
           await dio.download(startingUrl + downloadUrl,

@@ -34,7 +34,7 @@ class AudioPlayerManager {
     audioPlayer = AudioPlayer();
     AudioPlayer.logEnabled = true;
   }
-  Future initSong(
+  void initSong(
     Song song,
     Playlist playlist,
     PlaylistMode playlistMode,
@@ -78,7 +78,7 @@ class AudioPlayerManager {
           fontSize: 16.0,
         );
       } else {
-        FetchData.getSongPlayUrlDefault(currentSong).then((streamUrl) {
+        FetchData.getSongPlayUrlPage1(currentSong).then((streamUrl) {
           if (streamUrl != null) {
             audioPlayer.play(streamUrl);
             Fluttertoast.showToast(
@@ -131,16 +131,20 @@ class AudioPlayerManager {
     });
   }
 
-  void resumeSong() {
+  void resumeSong(bool calledFromNative) {
     audioPlayer.resume();
-    MusicControlNotification.makeNotification(currentSong.getTitle,
-        currentSong.getArtist, currentSong.getImageUrl, true);
+    if (!calledFromNative) {
+      MusicControlNotification.makeNotification(currentSong.getTitle,
+          currentSong.getArtist, currentSong.getImageUrl, true);
+    }
   }
 
-  void pauseSong() {
+  void pauseSong(bool calledFromNative) {
     audioPlayer.pause();
-    MusicControlNotification.makeNotification(currentSong.getTitle,
-        currentSong.getArtist, currentSong.getImageUrl, false);
+    if (!calledFromNative) {
+      MusicControlNotification.makeNotification(currentSong.getTitle,
+          currentSong.getArtist, currentSong.getImageUrl, false);
+    }
   }
 
   void closeSong() {

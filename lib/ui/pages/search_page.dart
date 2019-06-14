@@ -93,7 +93,7 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                           onChanged: (txt) {
                             if (txt != "") {
-                              FetchData.searchForResultsSite1(txt)
+                              FetchData.searchForResultsSitePage1(txt)
                                   .then((results) {
                                 setState(() {
                                   if (results != null) {
@@ -109,7 +109,7 @@ class _SearchPageState extends State<SearchPage> {
                             }
                           },
                           onSubmitted: (txt) =>
-                              FetchData.searchForResultsSite1(txt)
+                              FetchData.searchForResultsSitePage1(txt)
                                   .then((results) {
                                 setState(() {
                                   if (results != null) {

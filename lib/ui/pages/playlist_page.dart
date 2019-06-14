@@ -5,49 +5,48 @@ import 'package:myapp/models/playlist.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
+import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'dart:math';
-import 'package:flutter_image/network.dart';
+
 
 class PlaylistPage extends StatefulWidget {
   final Playlist playlist;
   final String imagePath;
+  final User playlistCreator;
 
-  PlaylistPage({this.playlist, this.imagePath});
+  PlaylistPage({this.playlist, this.imagePath, this.playlistCreator});
 
   @override
-  _PlaylistPageState createState() => _PlaylistPageState(playlist, imagePath);
+  _PlaylistPageState createState() =>
+      _PlaylistPageState(playlist, imagePath, playlistCreator);
 }
 
 class _PlaylistPageState extends State<PlaylistPage> {
   final Playlist playlist;
   final String imagePath;
-  _PlaylistPageState(this.playlist, this.imagePath);
+  final User playlistCreator;
+  _PlaylistPageState(this.playlist, this.imagePath, this.playlistCreator);
   ImageProvider imageProvider;
   Color iconColor = Colors.white;
   ScrollController _scrollController;
   @override
   void initState() {
-    // FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
     _scrollController = ScrollController()..addListener(() => setState(() {}));
     super.initState();
   }
 
   @override
   void dispose() {
-    //FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return //ChangeNotifierProvider(
-        //builder: (context)=> StateRefresher(),
-        // child:
-        Scaffold(
+    return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           color: Constants.darkGreyColor,
@@ -121,11 +120,30 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 pinned: true,
                 flexibleSpace: FlexibleSpaceBar(
                   centerTitle: true,
-                  title: Text(
-                    playlist.getName,
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
+                  titlePadding: EdgeInsets.only(),
+                  title: Container(
+                    height: 50,
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          playlist.getName,
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 2,
+                        ),
+                        Text(
+                          playlistCreator.getName,
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   background: ShaderMask(
@@ -141,7 +159,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                     blendMode: BlendMode.dstIn,
                     child: Image(
                       image: imagePath != ""
-                          ? NetworkImageWithRetry(
+                          ? NetworkImage(
                               imagePath,
                             )
                           : AssetImage(
@@ -261,7 +279,6 @@ class _PlaylistPageState extends State<PlaylistPage> {
           ),
         ),
       ),
-      // ),
     );
   }
 
@@ -291,25 +308,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
             artist = playlist.getSongs[index].getArtist;
           }
           return ListTile(
-            leading: Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border.all(
-                  color: Constants.lightGreyColor,
-                  width: 0.5,
-                ),
-                image: DecorationImage(
-                  image: playlist.getSongs[index].getImageUrl.length > 0
-                      ? NetworkImageWithRetry(
-                          playlist.getSongs[index].getImageUrl,
-                        )
-                      : AssetImage('assets/images/default_song_pic.png'),
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
+            leading: playlist.getSongs[index].getImageUrl.length > 0
+                ? drawSongImage(playlist.getSongs[index])
+                : drawDefaultSongImage(),
             title: Text(
               title,
               style: TextStyle(
@@ -345,22 +346,13 @@ class _PlaylistPageState extends State<PlaylistPage> {
             ),
             trailing: ManageLocalSongs.downloading &&
                     ManageLocalSongs.isSongDownloading(playlist.getSongs[index])
-                ? //SizedBox(
-                // height: 30,
-                //   width: 30,
-                // child:
-                Padding(
+                ? Padding(
                     padding: EdgeInsets.only(right: 6),
-                    child: //Consumer<StateRefresher>(
-                        //  builder:(context,stateRefresher,_)=>
-                        CircularProgressIndicator(
-                      //value: stateRefresher.getDownloadedPos.toDouble()/
-                      //         stateRefresher.getDownloadedTotal,
+                    child: CircularProgressIndicator(
                       valueColor:
                           AlwaysStoppedAnimation<Color>(Constants.pinkColor),
                       strokeWidth: 4.0,
                     ),
-                    //   )
                   )
                 : IconButton(
                     icon: Icon(
@@ -444,4 +436,53 @@ class _PlaylistPageState extends State<PlaylistPage> {
       },
     );
   }
+
+  Widget drawSongImage(Song song) {
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        color: Constants.lightGreyColor,
+        shape: BoxShape.rectangle,
+        border: Border.all(
+          color: Constants.lightGreyColor,
+          width: 0.4,
+        ),
+        image: DecorationImage(
+          fit: BoxFit.fill,
+          image: NetworkImage(
+            song.getImageUrl,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget drawDefaultSongImage() {
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Constants.lightGreyColor,
+            Constants.darkGreyColor,
+          ],
+          begin: FractionalOffset.bottomLeft,
+          stops: [0.3, 0.8],
+          end: FractionalOffset.topRight,
+        ),
+        border: Border.all(
+          color: Constants.lightGreyColor,
+          width: 0.4,
+        ),
+      ),
+      child: Icon(
+        Icons.music_note,
+        color: Constants.pinkColor,
+        size: 40,
+      ),
+    );
+  }
+
 }

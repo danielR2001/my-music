@@ -50,6 +50,7 @@ class TabNavigator extends StatelessWidget {
                   playlistValues != null ? playlistValues['playlist'] : null,
               imagePath:
                   playlistValues != null ? playlistValues['imageUrl'] : "",
+              playlistCreator: playlistValues != null ? playlistValues['playlistCreator'] : null,
             ),
       };
     }

@@ -1,7 +1,7 @@
 name: myapp
 description: A new Flutter project.
 
-version: 1.1.0
+version: 1.2.0
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -26,7 +26,6 @@ dependencies:
   provider: ^3.0.0
   fluttertoast: ^3.1.0
   cupertino_icons: ^0.1.2
-  flutter_image: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -49,6 +48,7 @@ flutter:
    - assets/images/default_song_pic.png
    - assets/images/default_song_pic_small.png
    - assets/images/default_playlist_image.jpg
+   - assets/images/app_logo.png
    #- assets/gifs/kygo_gif.gif
 
   fonts:

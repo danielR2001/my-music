@@ -1,8 +1,12 @@
+import 'package:myapp/ui/widgets/sort_options_modal_buttom_sheet.dart';
+
 import 'song.dart';
 
 class Playlist {
   String _name;
   List<Song> _songs;
+  List<Song> _sortedSongs;
+  SortType _sortedType;
   String _pushId;
   bool _isPublic;
 
@@ -14,6 +18,10 @@ class Playlist {
 
   bool get getIsPublic => _isPublic;
 
+  SortType get getSortedType => _sortedType;
+
+  List<Song> get getSortedSongs => _sortedSongs;
+
   set setName(String value) => _name = value;
 
   set setSongs(List<Song> value) => _songs = value;
@@ -21,6 +29,10 @@ class Playlist {
   set setPushId(String value) => _pushId = value;
 
   set setIsPublic(bool value) => _isPublic = value;
+
+  set setSortedType(SortType value) => _sortedType = value;
+
+  set setSortedSongs(List<Song> value) => _sortedSongs = value;
 
   addNewSong(Song song) => _songs.add(song);
 

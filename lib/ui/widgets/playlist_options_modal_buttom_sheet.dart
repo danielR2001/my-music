@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/database_manager.dart';
@@ -7,6 +8,7 @@ import 'package:myapp/models/playlist.dart';
 import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/widgets/sort_options_modal_buttom_sheet.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
+
 
 class PlaylistOptionsModalSheet extends StatefulWidget {
   final Playlist playlist;
@@ -20,14 +22,14 @@ class PlaylistOptionsModalSheet extends StatefulWidget {
 
 class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
   String _playlistNewName;
-  double widgetsCount = 5;
+  double widgetsCount = 6;
   final formKey = GlobalKey<FormState>();
   @override
   void initState() {
-    if(widget.playlist.getPushId ==
-        currentUser.getDownloadedSongsPlaylist.getPushId){
-          widgetsCount = 3;
-        }
+    if (widget.playlist.getPushId ==
+        currentUser.getDownloadedSongsPlaylist.getPushId) {
+      widgetsCount = 2;
+    }
     super.initState();
   }
 
@@ -36,29 +38,30 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     return Container(
       alignment: Alignment.topCenter,
       color: Constants.lightGreyColor,
-      height: 57*widgetsCount,
+      height: 57 * widgetsCount,
       child: Column(
         children: <Widget>[
+          showDownloadAll(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: ListTile(
               leading: Icon(
-                Icons.save_alt,
+                Icons.delete_sweep,
                 color: Colors.grey,
                 size: 30,
               ),
               title: Text(
-                "Download All",
+                "UnDownload All",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 15,
                 ),
               ),
               onTap: () {
-                downloadAll();
+                unDownloadAll();
                 Navigator.pop(context);
                 Fluttertoast.showToast(
-                  msg: "Started downloading all songs",
+                  msg: "unDownloaded all songs!",
                   toastLength: Toast.LENGTH_SHORT,
                   gravity: ToastGravity.BOTTOM,
                   timeInSecForIos: 1,
@@ -70,7 +73,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                     Duration(seconds: 2),
                     () => Fluttertoast.showToast(
                           msg:
-                              "Don't worry! downloading only songs that aren't downloaded yet :D",
+                              "Don't worry! unDownloading only songs that aren downloaded yet :D",
                           toastLength: Toast.LENGTH_LONG,
                           gravity: ToastGravity.BOTTOM,
                           timeInSecForIos: 1,
@@ -103,35 +106,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
             ),
           ),
           showPlaylistPrivacy(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: ListTile(
-              leading: Icon(
-                Icons.delete,
-                color: Colors.grey,
-                size: 30,
-              ),
-              title: Text(
-                "Delete",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                ),
-              ),
-              onTap: () {
-                Navigator.of(context, rootNavigator: true).pop('dialog');
-                Navigator.of(widget.playlistPageContext).pop();
-                FirebaseDatabaseManager.removePlaylist(widget.playlist);
-                currentUser.removePlaylist(widget.playlist);
-                if (audioPlayerManager.currentPlaylist.getName ==
-                    audioPlayerManager.currentPlaylist.getName) {
-                  audioPlayerManager.loopPlaylist = null;
-                  audioPlayerManager.shuffledPlaylist = null;
-                  audioPlayerManager.currentPlaylist = null;
-                }
-              },
-            ),
-          ),
+          showDelete(),
         ],
       ),
     );
@@ -175,6 +150,9 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                         hintColor: Colors.white,
                       ),
                       child: TextFormField(
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(18),
+                        ],
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -319,4 +297,103 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
       return Container();
     }
   }
+
+  Widget showDownloadAll() {
+    if (widget.playlist.getPushId !=
+        currentUser.getDownloadedSongsPlaylist.getPushId) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ListTile(
+          leading: Icon(
+            Icons.save_alt,
+            color: Colors.grey,
+            size: 30,
+          ),
+          title: Text(
+            "Download All",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+            ),
+          ),
+          onTap: () {
+            downloadAll();
+            Navigator.pop(context);
+            Fluttertoast.showToast(
+              msg: "Started downloading all songs",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIos: 1,
+              backgroundColor: Constants.pinkColor,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+            Future.delayed(
+                Duration(seconds: 2),
+                () => Fluttertoast.showToast(
+                      msg:
+                          "Don't worry! downloading only songs that aren't downloaded yet :D",
+                      toastLength: Toast.LENGTH_LONG,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIos: 1,
+                      backgroundColor: Constants.pinkColor,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    ));
+          },
+        ),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  void unDownloadAll() {
+    widget.playlist.getSongs.forEach((song) {
+      ManageLocalSongs.checkIfFileExists(song).then((exists) {
+        if (exists) {
+          ManageLocalSongs.unDownloadSong(song);
+          currentUser.removeSongToDownloadedPlaylist(song);
+        }
+      });
+    });
+  }
+
+  Widget showDelete() {
+    if (widget.playlist.getPushId !=
+        currentUser.getDownloadedSongsPlaylist.getPushId) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ListTile(
+          leading: Icon(
+            Icons.delete,
+            color: Colors.grey,
+            size: 30,
+          ),
+          title: Text(
+            "Delete",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+            ),
+          ),
+          onTap: () {
+            Navigator.of(context, rootNavigator: true).pop('dialog');
+            Navigator.of(widget.playlistPageContext).pop();
+            FirebaseDatabaseManager.removePlaylist(widget.playlist);
+            currentUser.removePlaylist(widget.playlist);
+            if (audioPlayerManager.currentPlaylist.getName ==
+                audioPlayerManager.currentPlaylist.getName) {
+              audioPlayerManager.loopPlaylist = null;
+              audioPlayerManager.shuffledPlaylist = null;
+              audioPlayerManager.currentPlaylist = null;
+            }
+          },
+        ),
+      );
+    } else {
+      return Container();
+    }
+  }
+
 }

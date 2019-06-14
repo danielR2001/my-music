@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image/network.dart';
+
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
@@ -22,6 +22,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   StreamSubscription<Duration> posStream;
   StreamSubscription<Duration> durStream;
   StreamSubscription<void> completionStream;
+  double thumbRadius = 0;
   //bool gifPage = false;
 
   @override
@@ -45,29 +46,9 @@ class MusicPageState extends State<MusicPlayerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: GestureDetector(
-        onTap: () {
-          // if (gifPage) {
-          //   setState(() {
-          //     gifPage = false;
-          //     //gifTimer();
-          //   });
-          // } else {
-          //   setState(() {
-          //     gifPage = true;
-          //   });
-          // }
-        },
+        onTap: () {},
         child: Container(
-          decoration: //gifPage
-              // ? BoxDecoration(
-              //     image: DecorationImage(
-              //         image: AssetImage(
-              //           "assets/images/downloaded_image.jpg",
-              //         ),
-              //         fit: BoxFit.none),
-              //   )
-              // :
-              BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
                 Constants.darkGreyColor,
@@ -80,9 +61,6 @@ class MusicPageState extends State<MusicPlayerPage> {
           ),
           child: Column(
             children: <Widget>[
-              // gifPage
-              //     ? Container()
-              //     :
               Padding(
                 padding: const EdgeInsets.only(top: 40, left: 15, right: 15),
                 child: Row(
@@ -109,6 +87,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                                   color: Colors.white,
                                   fontSize: 13,
                                 ),
+                              ),
+                              SizedBox(
+                                height: 5,
                               ),
                               Text(
                                 audioPlayerManager.currentPlaylist != null
@@ -137,54 +118,11 @@ class MusicPageState extends State<MusicPlayerPage> {
                   ],
                 ),
               ),
-              // gifPage
-              //     ? Expanded(
-              //         child: Container(
-              //         width: 270,
-              //         height: 270,
-              //       ))
-              //     :
-              Expanded(
-                child: Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        width: 270,
-                        height: 270,
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          border: Border.all(
-                            color: Colors.black,
-                            width: 0.2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey[850],
-                              blurRadius: 5.0,
-                            ),
-                          ],
-                          image: DecorationImage(
-                            image: audioPlayerManager
-                                        .currentSong.getImageUrl.length >
-                                    0
-                                ? NetworkImageWithRetry(
-                                    audioPlayerManager.currentSong.getImageUrl,
-                                  )
-                                : AssetImage(
-                                    'assets/images/default_song_pic.png',
-                                  ),
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              // gifPage
-              //     ? Container()
-              //     :
+              audioPlayerManager.currentSong != null
+                  ? audioPlayerManager.currentSong.getImageUrl.length > 0
+                      ? drawSongImage()
+                      : drawDefaultSongImage()
+                  : drawDefaultSongImage(),
               Column(
                 children: <Widget>[
                   TextDecoration(
@@ -203,10 +141,17 @@ class MusicPageState extends State<MusicPlayerPage> {
                   ),
                 ],
               ),
-              // gifPage
-              //     ? Container()
-              //     :
-              Slider(
+              SliderTheme(
+                data: SliderThemeData(
+                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: thumbRadius),
+                  trackHeight: 3,
+                  disabledThumbColor: Colors.black,
+                  thumbColor: Constants.pinkColor,
+                  inactiveTrackColor: Constants.lightGreyColor,
+                  activeTrackColor: Constants.pinkColor,
+                  overlayColor: Colors.transparent,
+                ),
+                child: Slider(
                   value: _position != null && _duration != null
                       ? _position.inSeconds <= _duration.inSeconds
                           ? _position.inSeconds.toDouble()
@@ -220,19 +165,27 @@ class MusicPageState extends State<MusicPlayerPage> {
                       : audioPlayerManager.songDuration != null
                           ? audioPlayerManager.songDuration.inSeconds.toDouble()
                           : 0.0,
-                  inactiveColor: Colors.grey[700],
-                  activeColor: Colors.white,
+                  onChangeStart: (double value) {
+                    setState(() {
+                      thumbRadius = 4;
+                    });
+                  },
                   onChanged: (double value) {
                     setState(() {
                       value = value;
                       _position = Duration(seconds: value.toInt());
-                      audioPlayerManager.songPosition = Duration(seconds: value.toInt());
+                      audioPlayerManager.songPosition =
+                          Duration(seconds: value.toInt());
                       seekToSecond(value.toInt());
                     });
-                  }),
-              // gifPage
-              //     ? Container()
-              //     :
+                  },
+                  onChangeEnd: (double value) {
+                    setState(() {
+                      thumbRadius = 0;
+                    });
+                  },
+                ),
+              ),
               Container(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -299,14 +252,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                           onPressed: () {
                             if (audioPlayerManager.isLoaded) {
                               setState(() {
-                                //gifPage = false;
-                                //gifTimer();
-                                if (audioPlayerManager.currentPlaylist !=
-                                    null) {
-                                  _position = Duration(seconds: 0);
-                                }
+                                _position = Duration(seconds: 0);
+                                _duration = _duration;
                               });
-
                               audioPlayerManager.playPreviousSong();
                             }
                           },
@@ -320,8 +268,8 @@ class MusicPageState extends State<MusicPlayerPage> {
                             if (audioPlayerManager.isLoaded) {
                               audioPlayerManager.audioPlayer.state ==
                                       AudioPlayerState.PLAYING
-                                  ? audioPlayerManager.pauseSong()
-                                  : audioPlayerManager.resumeSong();
+                                  ? audioPlayerManager.pauseSong(false)
+                                  : audioPlayerManager.resumeSong(false);
                             }
                           },
                         ),
@@ -336,14 +284,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                           onPressed: () {
                             if (audioPlayerManager.isLoaded) {
                               setState(() {
-                                //gifPage = false;
-                                //gifTimer();
-                                if (audioPlayerManager.currentPlaylist !=
-                                    null) {
-                                  _position = Duration(seconds: 0);
-                                }
+                                _position = Duration(seconds: 0);
+                                _duration = _duration;
                               });
-
                               audioPlayerManager.playNextSong();
                             }
                           },
@@ -353,9 +296,6 @@ class MusicPageState extends State<MusicPlayerPage> {
                   ],
                 ),
               ),
-              // gifPage
-              //     ? Container()
-              //     :
               Container(
                 child: Padding(
                   padding: EdgeInsets.only(
@@ -485,8 +425,6 @@ class MusicPageState extends State<MusicPlayerPage> {
         audioPlayerManager.audioPlayer.onPlayerCompletion.listen((a) {
       setState(() {
         _position = Duration(seconds: 0);
-        //gifPage = false;
-        //gifTimer();
       });
     });
     changePlaylistModeIconState();
@@ -511,11 +449,75 @@ class MusicPageState extends State<MusicPlayerPage> {
     }
   }
 
-  // void gifTimer() {
-  //   var a =Future.delayed(const Duration(seconds: 20), () {
-  //     setState(() {
-  //       gifPage = true;
-  //     });
-  //   });
-  // }
+  Widget drawDefaultSongImage() {
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            width: 260,
+            height: 260,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Constants.lightGreyColor,
+                  Constants.darkGreyColor,
+                ],
+                begin: FractionalOffset.bottomLeft,
+                stops: [0.3, 0.8],
+                end: FractionalOffset.topRight,
+              ),
+              border: Border.all(
+                color: Colors.black,
+                width: 0.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey[850],
+                  blurRadius: 5.0,
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.music_note,
+              color: Constants.pinkColor,
+              size: 120,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget drawSongImage() {
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            width: 260,
+            height: 260,
+            decoration: BoxDecoration(
+                color: Constants.lightGreyColor,
+                border: Border.all(
+                  color: Colors.black,
+                  width: 0.2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey[850],
+                    blurRadius: 5.0,
+                  ),
+                ],
+                image: DecorationImage(
+                  image: NetworkImage(
+                    audioPlayerManager.currentSong.getImageUrl,
+                  ),
+                  fit: BoxFit.contain,
+                )),
+          ),
+        ],
+      ),
+    );
+  }
 }

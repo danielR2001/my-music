@@ -27,6 +27,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import android.graphics.BitmapFactory;
+import java.util.concurrent.TimeUnit;
+import android.util.Log;
 
 public class NotificationService extends Service {
     public static Intent playIntent;
@@ -50,6 +52,7 @@ public class NotificationService extends Service {
     public static String artist;
     public static boolean isPlaying;
     public static Bitmap imageBitmap;
+    public static String imageUrl;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -57,7 +60,19 @@ public class NotificationService extends Service {
             initIntents();
             isPlaying = true;
         } else if (intent.getAction().equals(Constants.MAIN_ACTION)) {
+            // MainActivity.channel.invokeMethod("openMusicplayerPage", null, new Result() {
+            //     @Override
+            //     public void success(Object o) {
+            //     }
 
+            //     @Override
+            //     public void error(String s, String s1, Object o) {
+            //     }
+
+            //     @Override
+            //     public void notImplemented() {
+            //     }
+            // });
         } else if (intent.getAction().equals(Constants.PREV_ACTION)) {
             MainActivity.channel.invokeMethod("prevSong", null, new Result() {
                 @Override
@@ -74,7 +89,7 @@ public class NotificationService extends Service {
             });
         } else if (intent.getAction().equals(Constants.PLAY_ACTION)) {
             isPlaying = !isPlaying;
-            makeNotification(title, artist, imageBitmap, getApplicationContext(), isPlaying);
+            makeNotification(title, artist, imageBitmap, getApplicationContext(), isPlaying, imageUrl);
             MainActivity.channel.invokeMethod("playOrPause", null, new Result() {
                 @Override
                 public void success(Object o) {
@@ -109,7 +124,7 @@ public class NotificationService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        makeNotification(title, artist, imageBitmap, getApplicationContext(), false);
+        makeNotification(title, artist, imageBitmap, getApplicationContext(), false, imageUrl);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.cancel(0);
     }
@@ -123,19 +138,35 @@ public class NotificationService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    public static void makeNotification(String t, String a, Bitmap b, Context context, boolean iP) {
+    public static void makeNotification(String t, String a, Bitmap b, Context context, boolean iP, String iU) {
         title = t;
         artist = a;
         imageBitmap = b;
         isPlaying = iP;
+        imageUrl = iU;
         if (isPlaying) {
             index = 0;
         } else {
             index = 1;
         }
-        if (imageBitmap == null) {
+        if (imageBitmap == null && imageUrl.equals("")) {
             imageBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.app_logo_square);
+        } else if (imageBitmap == null && !imageUrl.equals("")) {
+            imageBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.app_logo_square);
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        TimeUnit.SECONDS.sleep(5);
+                        new LoadImageFromUrl(title, artist, imageUrl, context, isPlaying).execute();
+                        this.interrupt();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
         }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CreateNotificationChannel(context);
             notificationManagerForOreo = NotificationManagerCompat.from(context);
@@ -146,7 +177,7 @@ public class NotificationService extends Service {
                     .addAction(R.drawable.ic_skip_next, "", pnextIntent).setTimeoutAfter(1800000)
                     .setStyle(
                             new androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0, 1, 2))
-                    .setDeleteIntent(pdeleteIntent).build();
+                    .setDeleteIntent(pdeleteIntent).setContentIntent(pendingIntent).build();
 
         } else {
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -155,7 +186,7 @@ public class NotificationService extends Service {
                     .setShowWhen(false).setColor(context.getResources().getColor(R.color.pink))
                     .addAction(R.drawable.ic_skip_previous, "", pprevIntent).addAction(iconInts[index], "", pplayIntent)
                     .addAction(R.drawable.ic_skip_next, "", pnextIntent).setTimeoutAfter(1800000)
-                    .setDeleteIntent(pdeleteIntent).build();
+                    .setDeleteIntent(pdeleteIntent).setContentIntent(pendingIntent).build();
         }
         if (iP) {
             notification.flags |= Notification.FLAG_ONGOING_EVENT;
@@ -163,7 +194,6 @@ public class NotificationService extends Service {
             notification.flags |= Notification.FLAG_AUTO_CANCEL;
         }
         notificationManager.notify(notificationId, notification);
-        notification.contentIntent = pendingIntent;
     }
 
     private static void CreateNotificationChannel(Context context) {
@@ -179,9 +209,8 @@ public class NotificationService extends Service {
 
     private void initIntents() {
         notificationIntent = new Intent(this, MainActivity.class);
-        notificationIntent.setAction(Constants.MAIN_ACTION);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        //notificationIntent.setAction(Constants.MAIN_ACTION);
+        pendingIntent = PendingIntent.getActivity(this, 1, notificationIntent, 0);
 
         playIntent = new Intent(this, NotificationService.class);
         playIntent.setAction(Constants.PLAY_ACTION);

@@ -6,12 +6,14 @@ class User {
   String _firebaseUId;
   List<Playlist> _myPlaylists;
   Playlist _downloadedSongsPlaylist;
+  bool _signedIn;
 
-  User(String name, String firebaseUId) {
+  User(String name, String firebaseUId,bool signedIn) {
     _name = name;
     _firebaseUId = firebaseUId;
     _myPlaylists = List<Playlist>();
     _downloadedSongsPlaylist = Playlist("Downloaded");
+    _signedIn = signedIn;
   }
 
   String get getName => _name;
@@ -21,6 +23,8 @@ class User {
   List<Playlist> get getMyPlaylists => _myPlaylists;
 
   Playlist get getDownloadedSongsPlaylist => _downloadedSongsPlaylist;
+
+  bool get getSignedIn => _signedIn;
 
   set setName(String value) => _name = value;
 
@@ -33,6 +37,8 @@ class User {
   set setMyPlaylists(List<Playlist> value) => _myPlaylists = value;
 
   set setDownloadedSongs(Playlist value) => _downloadedSongsPlaylist = value;
+
+  set setSignedIn(bool value) => _signedIn = value;
 
   addSongToDownloadedPlaylist(Song value) =>
       _downloadedSongsPlaylist.getSongs.add(value);
@@ -54,6 +60,7 @@ class User {
     return {
       'userName': _name,
       'firebaseUId': _firebaseUId,
+      'signedIn': _signedIn,
     };
   }
 
