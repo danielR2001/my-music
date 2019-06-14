@@ -7,7 +7,6 @@ import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/ui/pages/root_page.dart';
 import 'package:myapp/models/user.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 void main() => runApp(MyApp());
 AudioPlayerManager audioPlayerManager;
@@ -35,8 +34,8 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
     audioPlayerManager = AudioPlayerManager(); //init song status
     MusicControlNotification.startService(context);
 
-    Map<PermissionGroup, PermissionStatus> permissions =
-        await PermissionHandler().requestPermissions([PermissionGroup.storage]);
+    // Map<PermissionGroup, PermissionStatus> permissions =
+    //     await PermissionHandler().requestPermissions([PermissionGroup.storage]);
     publicPlaylists = new List();
   }
 }

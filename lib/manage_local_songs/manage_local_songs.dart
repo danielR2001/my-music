@@ -5,6 +5,7 @@ import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ManageLocalSongs {
   static bool downloading = false;
@@ -14,14 +15,24 @@ class ManageLocalSongs {
   static Directory externalDir;
   static Directory fullDir;
 
-  static Future<bool> checkIfFileExists(Song song) async {
-    externalDir = await getExternalStorageDirectory();
-    fullDir = await new Directory(
-            '${externalDir.path}/Android/data/com.daniel.mymusic/downloaded/${currentUser.getName}')
-        .create(recursive: true);
-    File file = File("${fullDir.path}/${song.getSongId}.mp3");
 
-    return file.exists();
+  static Future<bool> checkIfStoragePermissionGranted() async {
+        Map<PermissionGroup, PermissionStatus> permissions =
+        await PermissionHandler()
+            .requestPermissions([PermissionGroup.storage]);
+    if(permissions[PermissionGroup.storage] == PermissionStatus.granted){
+      return true;
+    }else{
+      return false;
+    }
+  }
+  static Future<bool> checkIfFileExists(Song song) async {
+      externalDir = await getExternalStorageDirectory();
+      fullDir = await new Directory(
+              '${externalDir.path}/Android/data/com.daniel.mymusic/downloaded/${currentUser.getName}')
+          .create(recursive: true);
+      File file = File("${fullDir.path}/${song.getSongId}.mp3");
+      return file.exists();
   }
 
   static Future<void> downloadSong(Song song) async {

@@ -3,22 +3,19 @@ import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
-import 'package:myapp/ui/pages/root_page.dart';
+import 'package:myapp/models/playlist.dart';
+import 'package:myapp/models/user.dart';
 import 'home_page.dart';
+import 'root_page.dart';
 
-class LogInPage extends StatefulWidget {
+class SignUpPage extends StatefulWidget {
   @override
-  _State createState() => _State();
+  _SignUpPageState createState() => _SignUpPageState();
 }
 
-class _State extends State<LogInPage> {
+class _SignUpPageState extends State<SignUpPage> {
   final formKey = GlobalKey<FormState>();
-  static final key = GlobalKey<ScaffoldState>();
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
+  final key = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +71,7 @@ class _State extends State<LogInPage> {
                   bottom: 20,
                 ),
                 child: Text(
-                  "Welcome Back!",
+                  "Hello! Let`s sign up",
                   style: TextStyle(
                     fontSize: 25.0,
                     color: Colors.white,
@@ -94,7 +91,7 @@ class _State extends State<LogInPage> {
                   ),
                   child: ListTile(
                     leading: Text(
-                      "Log In With FaceBook",
+                      "Sign up With FaceBook",
                       style: TextStyle(
                         fontSize: 20.0,
                         color: Colors.white,
@@ -128,7 +125,7 @@ class _State extends State<LogInPage> {
                   ),
                   child: ListTile(
                     leading: Text(
-                      "Log In With Google",
+                      "Sign up With Google",
                       style: TextStyle(
                         fontSize: 20.0,
                         color: Colors.grey[700],
@@ -209,12 +206,12 @@ class _State extends State<LogInPage> {
                               fontSize: 18,
                             ),
                           ),
+                          onFieldSubmitted: (value) => print(value),
+                          initialValue: signUpEmail != null ? signUpEmail : "",
                           keyboardType: TextInputType.emailAddress,
-                          initialValue:
-                              loginInEmail != null ? loginInEmail : "",
                           validator: (value) =>
                               value.isEmpty ? 'Email can\'t be empty' : null,
-                          onSaved: (value) => loginInEmail = value,
+                          onSaved: (value) => signUpEmail = value,
                         ),
                       ),
                       Theme(
@@ -241,37 +238,42 @@ class _State extends State<LogInPage> {
                             ),
                           ),
                           initialValue:
-                              loginInPassword != null ? loginInPassword : "",
+                              signUpPassword != null ? signUpPassword : "",
                           validator: (value) =>
                               value.isEmpty ? 'Password can\'t be empty' : null,
-                          onSaved: (value) => loginInPassword = value,
+                          onSaved: (value) => signUpPassword = value,
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 20),
-                        child: GestureDetector(
-                          onTap: () {
-                            FocusScope.of(context).requestFocus(FocusNode());
-                            signInWithEmailAndPass();
-                          },
-                          child: Container(
-                            alignment: Alignment.center,
-                            height: 60.0,
-                            decoration: BoxDecoration(
-                              color: Constants.pinkColor,
-                              borderRadius: BorderRadius.circular(40.0),
-                            ),
-                            child: Text(
-                              "Log In",
-                              style: TextStyle(
-                                fontSize: 20.0,
+                      Theme(
+                        data: ThemeData(
+                          hintColor: Colors.white,
+                        ),
+                        child: TextFormField(
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                          cursorColor: Constants.pinkColor,
+                          decoration: InputDecoration(
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
                                 color: Colors.white,
                               ),
                             ),
+                            labelText: "User name",
+                            labelStyle: TextStyle(
+                              color: Constants.pinkColor,
+                              fontSize: 18,
+                            ),
                           ),
+                          initialValue: userName != null ? userName : "",
+                          validator: (value) => value.isEmpty
+                              ? 'User name can\'t be empty'
+                              : null,
+                          onSaved: (value) => userName = value,
                         ),
                       ),
+                      signInButtonOrVerify()
                     ],
                   ),
                 ),
@@ -284,60 +286,157 @@ class _State extends State<LogInPage> {
   }
 
   void signInWithEmailAndPass() {
-    showLoadingBar();
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      FirebaseAuthentication.logInWithEmail(loginInEmail, loginInPassword).then((user) {
-        if (user != null) {
-          FirebaseDatabaseManager.syncUser(user.uid, false).then((user) {
-            if (user != null && user.getName != "") {
-              FirebaseDatabaseManager.changeUserSignInState(true);
-              user.setSignedIn = true;
-              currentUser = user;
+      if (signUpPassword.length >= 6 && checkForValidEmail(signUpEmail)) {
+        showLoadingBar();
+        FirebaseAuthentication.signInWithEmail(signUpEmail, signUpPassword)
+            .then(
+          (user) {
+            if (user != null) {
+              setState(() {
+                signIn = false;
+              });
               Navigator.of(context, rootNavigator: true).pop('dialog');
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomePage(),
-                  ));
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return SimpleDialog(
+                    title: Text(
+                      "Hii " + userName + "!",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Text(
+                          "Email verification was sent to you. Verify your email and then comeback and click the continue button to complete the sign up.",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ],
+                    backgroundColor: Colors.grey[850],
+                  );
+                },
+              );
             } else {
-              if (user == null) {
-                Navigator.of(context, rootNavigator: true).pop('dialog');
-                key.currentState.showSnackBar(
-                  SnackBar(
-                    duration: Duration(seconds: 10),
-                    content: Text(
-                        "You didn't verify your email account! So go verify your email and then click the continue button in the sign up page."),
-                  ),
-                );
-              } else {
-                Navigator.of(context, rootNavigator: true).pop('dialog');
-                key.currentState.showSnackBar(
-                  SnackBar(
-                    duration: Duration(seconds: 5),
-                    content: Text(
-                        "You are already signed in this account with other device!"),
-                  ),
-                );
-              }
+              Navigator.of(context, rootNavigator: true).pop('dialog');
+              key.currentState.showSnackBar(
+                SnackBar(
+                  duration: Duration(seconds: 5),
+                  content: Text("This email is already in use!"),
+                ),
+              );
             }
+          },
+        );
+      } else {
+        key.currentState.showSnackBar(
+          SnackBar(
+            duration: Duration(seconds: 5),
+            content: Text(
+                "Email is not valid! Or password is shorter than 6 symbols"),
+          ),
+        );
+      }
+    }
+  }
+
+  bool checkForValidEmail(String email) {
+    return RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
+  }
+
+  Padding signInButtonOrVerify() {
+    if (signIn) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).requestFocus(FocusNode());
+            signInWithEmailAndPass();
+          },
+          child: Container(
+            alignment: Alignment.center,
+            height: 60.0,
+            decoration: BoxDecoration(
+              color: Constants.pinkColor,
+              borderRadius: BorderRadius.circular(40.0),
+            ),
+            child: Text(
+              "Sign Up",
+              style: TextStyle(
+                fontSize: 20.0,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+        child: GestureDetector(
+          onTap: () {
+            tryToSignIn();
+          },
+          child: Container(
+            alignment: Alignment.center,
+            height: 60.0,
+            decoration: BoxDecoration(
+              color: Constants.pinkColor,
+              borderRadius: BorderRadius.circular(40.0),
+            ),
+            child: Text(
+              "Continue",
+              style: TextStyle(
+                fontSize: 20.0,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  void tryToSignIn() {
+    showLoadingBar();
+    FirebaseAuthentication.userReload().then(
+      (isEmailVerified) {
+        if (isEmailVerified) {
+          FirebaseAuthentication.currentUser().then((user) {
+            currentUser = User(userName, user.uid, true);
+            FirebaseDatabaseManager.saveUser();
+            Navigator.of(context, rootNavigator: true).pop('dialog');
+            FirebaseDatabaseManager.syncUser(user.uid, false).then((a) {
+              FirebaseDatabaseManager.addDownloadedPlaylist(
+                  Playlist("Downloaded"));
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomePage(),
+                ),
+              );
+            });
           });
         } else {
           Navigator.of(context, rootNavigator: true).pop('dialog');
           key.currentState.showSnackBar(
             SnackBar(
               duration: Duration(seconds: 5),
-              content: Text("Email or password is incorrect!"),
+              content: Text("Email isn't verified!"),
             ),
           );
         }
-      });
-    }
-  }
-
-  bool checkForValidEmail(String email) {
-    return RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
+      },
+    );
   }
 
   void showLoadingBar() {

@@ -13,9 +13,11 @@ class FirebaseDatabaseManager {
   static String _userPushId;
 
   static void saveUser() {
-    FirebaseDatabase.instance.reference().child(_usersDir).push().set(
-          currentUser.toJson(),
-        );
+    var pushId = FirebaseDatabase.instance.reference().child(_usersDir).push();
+    pushId.set(
+      currentUser.toJson(),
+    );
+    _userPushId = pushId.key;
   }
 
   static Future<User> syncUser(
@@ -54,7 +56,8 @@ class FirebaseDatabaseManager {
               tempUser.setMyPlaylists = _buildPlaylists(playlists[i]);
             }
             print("user synced successfuly");
-            return;
+          } else{
+            tempUser = User("","",false);
           }
         }
         i++;
@@ -138,7 +141,8 @@ class FirebaseDatabaseManager {
     playlistMap.forEach(
       (key, value) {
         tempMap = value["songs"];
-        tempPlaylist = Playlist(value["name"],creator:value['creator'], isPublic: value["isPublic"]);
+        tempPlaylist = Playlist(value["name"],
+            creator: value['creator'], isPublic: value["isPublic"]);
         tempPlaylist.setPushId = key;
         if (tempMap != null) {
           tempMap.forEach((key, value) {

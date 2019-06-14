@@ -1,7 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/constants/constants.dart';
@@ -143,18 +142,16 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
             fontSize: 18,
           ),
         ),
-        onTap: () {
-          //showLoadingBar();
+        onTap: ()  {
           if (widget.song != null) {
-            addSongToPlaylist(playlist, widget.song).then((a) {
-              //Navigator.of(context, rootNavigator: true).pop('dialog');
-              Navigator.pop(context);
-            });
+            addSongToPlaylist(playlist, widget.song);
+            Navigator.of(context, rootNavigator: true).pop('dialog');
+            Navigator.pop(context);
           } else {
-            addAllSongToPlaylist(playlist).then((a) {
-              //Navigator.of(context, rootNavigator: true).pop('dialog');
-              Navigator.pop(context);
-            });
+             addAllSongToPlaylist(playlist);
+            Navigator.of(context, rootNavigator: true).pop('dialog');
+            Navigator.pop(context);
+
             Fluttertoast.showToast(
               msg: "Don't worry! adding only songs that aren't added yet :D",
               toastLength: Toast.LENGTH_LONG,

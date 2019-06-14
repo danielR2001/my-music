@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
+
 import 'welcome_page.dart';
 import 'home_page.dart';
 
@@ -10,6 +11,12 @@ class RootPage extends StatefulWidget {
   _RootPageState createState() => _RootPageState();
 }
 
+String signUpEmail;
+String signUpPassword;
+String userName;
+bool signIn = true;
+String loginInEmail;
+String loginInPassword;
 enum AuthStatus {
   notSignedIn,
   signedIn,
@@ -23,15 +30,24 @@ class _RootPageState extends State<RootPage> {
     FirebaseAuthentication.currentUser().then(
       (user) {
         if (user != null) {
-          FirebaseDatabaseManager.syncUser(user.uid,true).then(
+          FirebaseDatabaseManager.syncUser(user.uid, true).then(
             (user) {
-              currentUser = user;
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomePage(),
-                ),
-              );
+              if (user != null&&user.getName!="") {
+                currentUser = user;
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(),
+                  ),
+                );
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WelcomePage(),
+                  ),
+                );
+              }
             },
           );
         } else {

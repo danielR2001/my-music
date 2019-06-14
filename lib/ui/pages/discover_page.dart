@@ -179,7 +179,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
           decoration: BoxDecoration(
             image: DecorationImage(
               colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.3), BlendMode.dstATop),
+                  Colors.black.withOpacity(0.5), BlendMode.dstATop),
               image: playlist.getSongs.length >0
                   ? NetworkImage(playlist.getSongs[0].getImageUrl)
                   : AssetImage("assets/images/default_playlist_image.jpg"),

@@ -96,7 +96,10 @@ class SongOptionsModalSheet extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PlaylistPickPage(song:song,songs: null,),
+                    builder: (context) => PlaylistPickPage(
+                          song: song,
+                          songs: null,
+                        ),
                   ),
                 );
               },
@@ -211,7 +214,7 @@ class SongOptionsModalSheet extends StatelessWidget {
             ),
           ),
           onTap: () {
-            showMoreOptions(context);
+            showQueueModalBottomSheet(context);
           },
         ),
       );
@@ -220,7 +223,7 @@ class SongOptionsModalSheet extends StatelessWidget {
     }
   }
 
-  void showMoreOptions(BuildContext context) {
+  void showQueueModalBottomSheet(BuildContext context) {
     Navigator.pop(context);
     showModalBottomSheet(
       context: context,
@@ -349,26 +352,41 @@ class SongOptionsModalSheet extends StatelessWidget {
           ),
         ),
         onTap: () {
-          ManageLocalSongs.checkIfFileExists(song).then((exists) async {
-            if (!exists) {
-              Fluttertoast.showToast(
-                msg: "Download started",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIos: 1,
-                backgroundColor: Constants.pinkColor,
-                textColor: Colors.white,
-                fontSize: 16.0,
-              );
-              if (song.getImageUrl == "") {
-                String imageUrl = await FetchData.getSongImageUrl(song);
-                song.setImageUrl = imageUrl;
-              }
-              ManageLocalSongs.downloadSong(song);
-              Navigator.pop(context);
+          ManageLocalSongs.checkIfStoragePermissionGranted()
+              .then((permissonGranted) {
+            if (permissonGranted) {
+              ManageLocalSongs.checkIfFileExists(song).then((exists) async {
+                if (!exists) {
+                  Fluttertoast.showToast(
+                    msg: "Download started",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIos: 1,
+                    backgroundColor: Constants.pinkColor,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                  if (song.getImageUrl == "") {
+                    String imageUrl = await FetchData.getSongImageUrl(song);
+                    song.setImageUrl = imageUrl;
+                  }
+                  ManageLocalSongs.downloadSong(song);
+                  Navigator.pop(context);
+                } else {
+                  Fluttertoast.showToast(
+                    msg: "Song is already exists!",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIos: 1,
+                    backgroundColor: Constants.pinkColor,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                }
+              });
             } else {
               Fluttertoast.showToast(
-                msg: "Song is already exists!",
+                msg: "You need to enable access to storage!",
                 toastLength: Toast.LENGTH_SHORT,
                 gravity: ToastGravity.BOTTOM,
                 timeInSecForIos: 1,

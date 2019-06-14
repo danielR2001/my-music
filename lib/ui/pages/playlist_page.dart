@@ -136,7 +136,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           height: 2,
                         ),
                         AutoSizeText(
-                          "by: "+ widget.playlistCreator.getName,
+                          widget.playlist.getPushId !=currentUser.getDownloadedSongsPlaylist.getPushId?"by: "+ widget.playlistCreator.getName:"",
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 12.0,

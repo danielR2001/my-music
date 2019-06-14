@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/constants/constants.dart';
-import 'sign_in_page.dart';
+import 'sign_up_page.dart';
 import 'log_in_page.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -85,7 +85,7 @@ class WelcomePage extends StatelessWidget {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SignInPage(),
+                              builder: (context) => SignUpPage(),
                             ));
                       },
                       child: Container(
@@ -96,7 +96,7 @@ class WelcomePage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(
-                          "Sign In",
+                          "Sign Up",
                           style: TextStyle(
                             fontSize: 20.0,
                             color: Colors.white,
