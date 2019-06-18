@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> {
     Icons.pause,
     color: Colors.white,
   );
-  StreamSubscription<AudioPlayerState> stream;
+  StreamSubscription<AudioPlayerState> stateStream;
   Expanded soundBar;
   TabItem currentTab = TabItem.discover;
   Map<TabItem, GlobalKey<NavigatorState>> navigatorKeys = {
@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    stream.cancel();
+    stateStream.cancel();
     super.dispose();
   }
 
@@ -96,8 +96,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void initSong() {
-    //checkSongStatus(audioPlayerManager.audioPlayer.state);
-    stream = audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
+    stateStream = audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
         setState(() {
           checkSongStatus(state);
@@ -182,7 +181,7 @@ class _HomePageState extends State<HomePage> {
     } else if (state == AudioPlayerState.PAUSED) {
       changeIconState(false);
     } else if (state == AudioPlayerState.STOPPED) {
-      changeIconState(true);
+      changeIconState(false);
     } else if (state == null) {
       changeIconState(false);
     }
@@ -240,7 +239,10 @@ class _HomePageState extends State<HomePage> {
                         audioPlayerManager.audioPlayer.state ==
                                 AudioPlayerState.PLAYING
                             ? audioPlayerManager.pauseSong(false)
-                            : audioPlayerManager.resumeSong(false);
+                            : audioPlayerManager.audioPlayer.state ==
+                                    AudioPlayerState.PAUSED
+                                ? audioPlayerManager.resumeSong(false)
+                                : playSong();
                       }
                     },
                   ),
@@ -259,5 +261,15 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     }
+  }
+
+  void playSong() {
+    audioPlayerManager.initSong(
+      audioPlayerManager.currentSong,
+      audioPlayerManager.currentPlaylist,
+      audioPlayerManager.playlistMode,
+    );
+
+    audioPlayerManager.playSong();
   }
 }

@@ -3,6 +3,7 @@ import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
+import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/ui/pages/root_page.dart';
 import 'home_page.dart';
 
@@ -288,13 +289,20 @@ class _State extends State<LogInPage> {
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      FirebaseAuthentication.logInWithEmail(loginInEmail, loginInPassword).then((user) {
+      FirebaseAuthentication.logInWithEmail(loginInEmail, loginInPassword)
+          .then((user) {
         if (user != null) {
           FirebaseDatabaseManager.syncUser(user.uid, false).then((user) {
             if (user != null && user.getName != "") {
               FirebaseDatabaseManager.changeUserSignInState(true);
               user.setSignedIn = true;
               currentUser = user;
+              ManageLocalSongs.checkIfStoragePermissionGranted()
+                  .then((permissionGranted) {
+                ManageLocalSongs.initDirs().then((a){
+                  ManageLocalSongs.syncDownloaded();
+                });
+              });
               Navigator.of(context, rootNavigator: true).pop('dialog');
               Navigator.pushReplacement(
                   context,

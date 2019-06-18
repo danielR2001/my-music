@@ -59,20 +59,6 @@ public class NotificationService extends Service {
         if (intent.getAction().equals(Constants.STARTFOREGROUND_ACTION)) {
             initIntents();
             isPlaying = true;
-        } else if (intent.getAction().equals(Constants.MAIN_ACTION)) {
-            // MainActivity.channel.invokeMethod("openMusicplayerPage", null, new Result() {
-            //     @Override
-            //     public void success(Object o) {
-            //     }
-
-            //     @Override
-            //     public void error(String s, String s1, Object o) {
-            //     }
-
-            //     @Override
-            //     public void notImplemented() {
-            //     }
-            // });
         } else if (intent.getAction().equals(Constants.PREV_ACTION)) {
             MainActivity.channel.invokeMethod("prevSong", null, new Result() {
                 @Override
@@ -153,18 +139,6 @@ public class NotificationService extends Service {
             imageBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.app_logo_square);
         } else if (imageBitmap == null && !imageUrl.equals("")) {
             imageBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.app_logo_square);
-            new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        TimeUnit.SECONDS.sleep(5);
-                        new LoadImageFromUrl(title, artist, imageUrl, context, isPlaying).execute();
-                        this.interrupt();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }.start();
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -194,6 +168,7 @@ public class NotificationService extends Service {
             notification.flags |= Notification.FLAG_AUTO_CANCEL;
         }
         notificationManager.notify(notificationId, notification);
+
     }
 
     private static void CreateNotificationChannel(Context context) {
@@ -209,7 +184,7 @@ public class NotificationService extends Service {
 
     private void initIntents() {
         notificationIntent = new Intent(this, MainActivity.class);
-        //notificationIntent.setAction(Constants.MAIN_ACTION);
+        // notificationIntent.setAction(Constants.MAIN_ACTION);
         pendingIntent = PendingIntent.getActivity(this, 1, notificationIntent, 0);
 
         playIntent = new Intent(this, NotificationService.class);
@@ -245,4 +220,5 @@ public class NotificationService extends Service {
 
         }
     }
+
 }

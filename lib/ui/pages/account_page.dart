@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/main.dart';
@@ -170,12 +171,13 @@ class _AccountPageState extends State<AccountPage> {
                 ? drawSongImage(playlist.getSongs[0])
                 : drawDefaultSongImage()
             : drawDefaultSongImage(),
-        title: Text(
+        title: AutoSizeText(
           cutPlaylistName(playlist),
           style: TextStyle(
             fontSize: 20,
             color: Colors.white,
           ),
+          maxLines: 1,
         ),
         trailing: Icon(
           Icons.keyboard_arrow_right,
@@ -198,7 +200,10 @@ class _AccountPageState extends State<AccountPage> {
       playlistValues['imageUrl'] = "";
     }
     playlistValues['playlistCreator'] = currentUser;
-    playlistValues['playlistModalSheetMode'] = playlist.getPushId != currentUser.getDownloadedSongsPlaylist.getPushId?PlaylistModalSheetMode.regular:PlaylistModalSheetMode.download;
+    playlistValues['playlistModalSheetMode'] =
+        playlist.getPushId != currentUser.getDownloadedSongsPlaylist.getPushId
+            ? PlaylistModalSheetMode.regular
+            : PlaylistModalSheetMode.download;
     return playlistValues;
   }
 
@@ -208,8 +213,10 @@ class _AccountPageState extends State<AccountPage> {
         child: Theme(
           data: Theme.of(context).copyWith(accentColor: Colors.grey),
           child: ListView.builder(
-            itemCount: currentUser.getPlaylists != null
-                ? currentUser.getPlaylists.length
+            itemCount: currentUser != null
+                ? currentUser.getPlaylists != null
+                    ? currentUser.getPlaylists.length
+                    : 0
                 : 0,
             itemBuilder: (BuildContext context, int index) {
               return userPlaylists(currentUser.getPlaylists[index], context);

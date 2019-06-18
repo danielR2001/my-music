@@ -13,23 +13,38 @@ import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
 import 'text_style.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+enum SongModalSheetMode {
+  regular,
+  download_public_search_artist,
+}
+
 class SongOptionsModalSheet extends StatelessWidget {
   final Playlist playlist;
   final Song song;
   final bool isMusicPlayerMenu;
-  SongOptionsModalSheet(this.song, this.playlist, this.isMusicPlayerMenu);
+  final SongModalSheetMode songModalSheetMode;
+  SongOptionsModalSheet(this.song, this.playlist, this.isMusicPlayerMenu,
+      this.songModalSheetMode);
   List<String> artistsList;
   List<Artist> artists = new List();
+  double widgetsCount = 4;
   @override
   Widget build(BuildContext context) {
+    if (songModalSheetMode != null) {
+      if (songModalSheetMode ==
+          SongModalSheetMode.download_public_search_artist) {
+        widgetsCount = 3;
+      }
+    } else {
+      widgetsCount = 3;
+    }
+    if (isMusicPlayerMenu) {
+      widgetsCount++;
+    }
     return Container(
       alignment: Alignment.topCenter,
       color: Constants.lightGreyColor,
-      height: isMusicPlayerMenu
-          ? playlist != null
-              ? playlist.getName != "Search Playlist" ? 400 : 350
-              : 290
-          : playlist.getName != "Search Playlist" ? 350 : 290,
+      height: 120 + 57 * widgetsCount,
       child: ListView(
         children: <Widget>[
           Padding(
@@ -76,72 +91,18 @@ class SongOptionsModalSheet extends StatelessWidget {
           ),
           showRemoveFromPlaylist(context),
           showDownloadSong(context),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: ListTile(
-              leading: Icon(
-                Icons.playlist_add,
-                color: Colors.grey,
-                size: 30,
-              ),
-              title: Text(
-                "Add To Playlist",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PlaylistPickPage(
-                          song: song,
-                          songs: null,
-                        ),
-                  ),
-                );
-              },
-            ),
-          ),
+          showAddToPlaylist(context),
           showQueue(context),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: ListTile(
-              leading: Icon(
-                Icons.account_circle,
-                color: Colors.grey,
-                size: 30,
-              ),
-              title: Text(
-                "View Artists",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              onTap: () {
-                showLoadingBar(context);
-                artistsList = getArtists();
-                buildArtistsList().then((a) {
-                  Navigator.of(context, rootNavigator: true).pop('dialog');
-                  showArtists(context);
-                });
-              },
-            ),
-          ),
+          showViewArtist(context),
         ],
       ),
     );
   }
 
   Widget showRemoveFromPlaylist(BuildContext context) {
-    if (playlist != null &&
-        playlist.getPushId !=
-            currentUser.getDownloadedSongsPlaylist.getPushId &&
-        playlist.getName != "Search Playlist") {
+    if (!isMusicPlayerMenu &&
+        songModalSheetMode == SongModalSheetMode.regular &&
+        playlist != null) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: ListTile(
@@ -195,141 +156,15 @@ class SongOptionsModalSheet extends StatelessWidget {
     }
   }
 
-  Widget showQueue(BuildContext context) {
-    if (isMusicPlayerMenu && playlist != null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: ListTile(
-          leading: Icon(
-            Icons.queue_music,
-            color: Colors.grey,
-            size: 30,
-          ),
-          title: Text(
-            "View Queue",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          onTap: () {
-            showQueueModalBottomSheet(context);
-          },
-        ),
-      );
-    } else {
-      return Container();
-    }
-  }
-
-  void showQueueModalBottomSheet(BuildContext context) {
-    Navigator.pop(context);
-    showModalBottomSheet(
-      context: context,
-      builder: (builder) {
-        return QueueModalSheet();
-      },
-    );
-  }
-
-  void showArtists(BuildContext context) {
-    Navigator.pop(context);
-    showModalBottomSheet(
-      context: context,
-      builder: (builder) {
-        return ArtistsPickModalSheet(song, artists);
-      },
-    );
-  }
-
-  List<String> getArtists() {
-    if (song.getArtist.contains(", ") ||
-        song.getArtist.contains("&") ||
-        song.getArtist.contains("feat.")) {
-      return song.getArtist.split(RegExp(" feat. |\, |& |/"));
-    } else {
-      List<String> artist = new List();
-      artist.add(song.getArtist);
-      return artist;
-    }
-  }
-
-  Future<void> buildArtistsList() async {
-    for (int i = 0; i < artistsList.length; i++) {
-      artists.add(await builArtist(artistsList[i]));
-    }
-  }
-
-  Future<Artist> builArtist(String artistName) async {
-    return await FetchData.getArtistPageIdAndImageUrl(artistName);
-  }
-
-  void showLoadingBar(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          contentPadding: EdgeInsets.all(0.0),
-          backgroundColor: Colors.transparent,
-          children: <Widget>[
-            Container(
-              width: 60.0,
-              height: 60.0,
-              alignment: AlignmentDirectional.center,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Center(
-                    child: SizedBox(
-                      height: 50.0,
-                      width: 50.0,
-                      child: CircularProgressIndicator(
-                        value: null,
-                        strokeWidth: 3.0,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Constants.pinkColor),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        );
-      },
-    );
-  }
-
   Widget showDownloadSong(BuildContext context) {
-    if (playlist != null) {
-      if (playlist.getPushId !=
-          currentUser.getDownloadedSongsPlaylist.getPushId) {
-        if (!currentUser.songExistsInDownloadedPlaylist(song) &&
-            !ManageLocalSongs.isSongDownloading(song)) {
-          return downloadWidget(context);
-        } else {
-          if (ManageLocalSongs.isSongDownloading(song)) {
-            return Container();
-          } else {
-            return unDownloadWidget(context);
-          }
-        }
+    if (!currentUser.songExistsInDownloadedPlaylist(song) &&
+        !ManageLocalSongs.isSongDownloading(song)) {
+      return downloadWidget(context);
+    } else {
+      if (ManageLocalSongs.isSongDownloading(song)) {
+        return Container();
       } else {
         return unDownloadWidget(context);
-      }
-    } else {
-      if (!currentUser.songExistsInDownloadedPlaylist(song) &&
-          !ManageLocalSongs.isSongDownloading(song)) {
-        return downloadWidget(context);
-      } else {
-        if (ManageLocalSongs.isSongDownloading(song)) {
-          return Container();
-        } else {
-          return unDownloadWidget(context);
-        }
       }
     }
   }
@@ -367,7 +202,8 @@ class SongOptionsModalSheet extends StatelessWidget {
                     fontSize: 16.0,
                   );
                   if (song.getImageUrl == "") {
-                    String imageUrl = await FetchData.getSongImageUrl(song);
+                    String imageUrl =
+                        await FetchData.getSongImageUrl(song, false);
                     song.setImageUrl = imageUrl;
                   }
                   ManageLocalSongs.downloadSong(song);
@@ -447,6 +283,175 @@ class SongOptionsModalSheet extends StatelessWidget {
           Navigator.pop(context);
         },
       ),
+    );
+  }
+
+  Widget showAddToPlaylist(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: ListTile(
+        leading: Icon(
+          Icons.playlist_add,
+          color: Colors.grey,
+          size: 30,
+        ),
+        title: Text(
+          "Add To Playlist",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PlaylistPickPage(
+                    song: song,
+                    songs: null,
+                  ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget showQueue(BuildContext context) {
+    if (isMusicPlayerMenu && playlist != null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: ListTile(
+          leading: Icon(
+            Icons.queue_music,
+            color: Colors.grey,
+            size: 30,
+          ),
+          title: Text(
+            "View Queue",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () {
+            showQueueModalBottomSheet(context);
+          },
+        ),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget showViewArtist(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: ListTile(
+        leading: Icon(
+          Icons.account_circle,
+          color: Colors.grey,
+          size: 30,
+        ),
+        title: Text(
+          "View Artists",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onTap: () {
+          showLoadingBar(context);
+          artistsList = getArtists();
+          buildArtistsList().then((a) {
+            Navigator.of(context, rootNavigator: true).pop('dialog');
+            showArtists(context);
+          });
+        },
+      ),
+    );
+  }
+
+  void showQueueModalBottomSheet(BuildContext context) {
+    Navigator.pop(context);
+    showModalBottomSheet(
+      context: context,
+      builder: (builder) {
+        return QueueModalSheet();
+      },
+    );
+  }
+
+  void showArtists(BuildContext context) {
+    Navigator.pop(context);
+    showModalBottomSheet(
+      context: context,
+      builder: (builder) {
+        return ArtistsPickModalSheet(song, artists);
+      },
+    );
+  }
+
+  List<String> getArtists() {
+    if (song.getArtist.contains(", ") ||
+        song.getArtist.contains("&") ||
+        song.getArtist.contains("feat.")) {
+      return song.getArtist.split(RegExp(" feat. |\, |& |/"));
+    } else {
+      List<String> artist = new List();
+      artist.add(song.getArtist);
+      return artist;
+    }
+  }
+
+  Future<void> buildArtistsList() async {
+    for (int i = 0; i < artistsList.length; i++) {
+      artists.add(await builArtist(artistsList[i]));
+    }
+  }
+
+  Future<Artist> builArtist(String artistName) async {
+    return await FetchData.getArtistPageIdAndImageUrl(artistName);
+  }
+
+  void showLoadingBar(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          contentPadding: EdgeInsets.all(0.0),
+          backgroundColor: Colors.transparent,
+          children: <Widget>[
+            Container(
+              width: 60.0,
+              height: 60.0,
+              alignment: AlignmentDirectional.center,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Center(
+                    child: SizedBox(
+                      height: 50.0,
+                      width: 50.0,
+                      child: CircularProgressIndicator(
+                        value: null,
+                        strokeWidth: 3.0,
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Constants.pinkColor),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        );
+      },
     );
   }
 }

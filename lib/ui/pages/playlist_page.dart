@@ -12,22 +12,23 @@ import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'dart:math';
 import 'package:auto_size_text/auto_size_text.dart';
-  
 
 class PlaylistPage extends StatefulWidget {
   final Playlist playlist;
   final String imagePath;
   final User playlistCreator;
   final PlaylistModalSheetMode playlistModalSheetMode;
-  PlaylistPage({this.playlist, this.imagePath, this.playlistCreator,this.playlistModalSheetMode});
+  PlaylistPage(
+      {this.playlist,
+      this.imagePath,
+      this.playlistCreator,
+      this.playlistModalSheetMode});
 
   @override
-  _PlaylistPageState createState() =>
-      _PlaylistPageState();
+  _PlaylistPageState createState() => _PlaylistPageState();
 }
 
 class _PlaylistPageState extends State<PlaylistPage> {
-
   ImageProvider imageProvider;
   Color iconColor = Colors.white;
   ScrollController _scrollController;
@@ -136,14 +137,17 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           height: 2,
                         ),
                         AutoSizeText(
-                          widget.playlist.getPushId !=currentUser.getDownloadedSongsPlaylist.getPushId?"by: "+ widget.playlistCreator.getName:"",
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1
-                        ),
+                            widget.playlist.getPushId !=
+                                    currentUser
+                                        .getDownloadedSongsPlaylist.getPushId
+                                ? "by: " + widget.playlistCreator.getName
+                                : "",
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1),
                       ],
                     ),
                   ),
@@ -257,8 +261,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               elevation: 6.0,
                               onPressed: () {
                                 var rnd = Random();
-                                int randomNum =
-                                    rnd.nextInt(widget.playlist.getSongs.length);
+                                int randomNum = rnd
+                                    .nextInt(widget.playlist.getSongs.length);
                                 audioPlayerManager.initSong(
                                   widget.playlist.getSongs[randomNum],
                                   widget.playlist,
@@ -309,9 +313,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
             artist = playlist.getSongs[index].getArtist;
           }
           return ListTile(
-            leading: playlist.getSongs[index].getImageUrl.length > 0
-                ? drawSongImage(playlist.getSongs[index])
-                : drawDefaultSongImage(),
+            // leading: playlist.getSongs[index].getImageUrl.length > 0
+            //     ? drawSongImage(playlist.getSongs[index])
+            //     : drawDefaultSongImage(),
             title: Text(
               title,
               style: TextStyle(
@@ -414,6 +418,12 @@ class _PlaylistPageState extends State<PlaylistPage> {
   }
 
   void showSongOptions(Song song, Playlist currentPlaylist) {
+    SongModalSheetMode songModalSheetMode;
+    if (currentUser.getPlaylists.contains(currentPlaylist)) {
+      songModalSheetMode = SongModalSheetMode.regular;
+    } else {
+      songModalSheetMode = SongModalSheetMode.download_public_search_artist;
+    }
     showModalBottomSheet(
       context: homePageContext,
       builder: (builder) {
@@ -421,6 +431,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
           song,
           currentPlaylist,
           false,
+          songModalSheetMode,
         );
       },
     );
@@ -431,10 +442,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
       context: homePageContext,
       builder: (builder) {
         return PlaylistOptionsModalSheet(
-          currentPlaylist,
-          context,
-          widget.playlistModalSheetMode
-        );
+            currentPlaylist, context, widget.playlistModalSheetMode);
       },
     );
   }

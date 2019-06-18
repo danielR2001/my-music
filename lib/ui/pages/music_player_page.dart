@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-
+import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
+import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/text_style.dart';
 
@@ -23,11 +25,12 @@ class MusicPageState extends State<MusicPlayerPage> {
   StreamSubscription<Duration> durStream;
   StreamSubscription<void> completionStream;
   double thumbRadius = 0;
-  
+  ImageProvider imageProvider;
 
   @override
   void initState() {
     super.initState();
+    checkForIntenetConnetionForNetworkImage();
     initSong();
   }
 
@@ -111,27 +114,33 @@ class MusicPageState extends State<MusicPlayerPage> {
                           color: Colors.white,
                         ),
                         onPressed: () {
-                          showMoreOptions(context);
+                          if (audioPlayerManager.currentSong != null) {
+                            showMoreOptions(context);
+                          }
                         }),
                   ],
                 ),
               ),
-              audioPlayerManager.currentSong != null
-                  ? audioPlayerManager.currentSong.getImageUrl.length > 0
+              audioPlayerManager.currentSong.getImageUrl.length > 0
+                  ? imageProvider != null
                       ? drawSongImage()
                       : drawDefaultSongImage()
                   : drawDefaultSongImage(),
               Column(
                 children: <Widget>[
                   TextDecoration(
-                    audioPlayerManager.currentSong.getTitle,
+                    audioPlayerManager.currentSong != null
+                        ? audioPlayerManager.currentSong.getTitle
+                        : "",
                     25,
                     Colors.white,
                     20,
                     30,
                   ),
                   TextDecoration(
-                    audioPlayerManager.currentSong.getArtist,
+                    audioPlayerManager.currentSong != null
+                        ? audioPlayerManager.currentSong.getArtist
+                        : "",
                     14,
                     Colors.grey,
                     30,
@@ -141,7 +150,8 @@ class MusicPageState extends State<MusicPlayerPage> {
               ),
               SliderTheme(
                 data: SliderThemeData(
-                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: thumbRadius),
+                  thumbShape:
+                      RoundSliderThumbShape(enabledThumbRadius: thumbRadius),
                   trackHeight: 3,
                   disabledThumbColor: Colors.black,
                   thumbColor: Constants.pinkColor,
@@ -253,6 +263,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                                 _position = Duration(seconds: 0);
                                 _duration = _duration;
                               });
+                              imageProvider = null;
                               audioPlayerManager.playPreviousSong();
                             }
                           },
@@ -267,7 +278,10 @@ class MusicPageState extends State<MusicPlayerPage> {
                               audioPlayerManager.audioPlayer.state ==
                                       AudioPlayerState.PLAYING
                                   ? audioPlayerManager.pauseSong(false)
-                                  : audioPlayerManager.resumeSong(false);
+                                  : audioPlayerManager.audioPlayer.state ==
+                                          AudioPlayerState.PAUSED
+                                      ? audioPlayerManager.resumeSong(false)
+                                      : playSong();
                             }
                           },
                         ),
@@ -285,6 +299,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                                 _position = Duration(seconds: 0);
                                 _duration = _duration;
                               });
+                              imageProvider = null;
                               audioPlayerManager.playNextSong();
                             }
                           },
@@ -312,6 +327,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                                     PlaylistMode.shuffle
                                 : audioPlayerManager.playlistMode =
                                     PlaylistMode.loop;
+                            audioPlayerManager.shuffledPlaylist = null;
                             changePlaylistModeIconState();
                             audioPlayerManager.setCurrentPlaylist();
                           },
@@ -351,6 +367,7 @@ class MusicPageState extends State<MusicPlayerPage> {
           audioPlayerManager.currentSong,
           audioPlayerManager.currentPlaylist,
           true,
+          null,
         );
       },
     );
@@ -402,10 +419,14 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   void checkSongStatus(AudioPlayerState state) {
     if (state == AudioPlayerState.PLAYING) {
+      checkForIntenetConnetionForNetworkImage();
       changePlayingIconState(true);
     } else if (state == AudioPlayerState.PAUSED) {
       changePlayingIconState(false);
-    } else {
+    } else if (state == AudioPlayerState.STOPPED) {
+      setState(() {
+        _position = Duration(seconds: 0);
+      });
       changePlayingIconState(false);
     }
   }
@@ -422,6 +443,8 @@ class MusicPageState extends State<MusicPlayerPage> {
     completionStream =
         audioPlayerManager.audioPlayer.onPlayerCompletion.listen((a) {
       setState(() {
+        imageProvider = null;
+        checkForIntenetConnetionForNetworkImage();
         _position = Duration(seconds: 0);
       });
     });
@@ -440,10 +463,14 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   int checkSongLength() {
-    if (audioPlayerManager.songDuration.inMinutes < 59) {
-      return 2;
+    if (audioPlayerManager.songDuration != null) {
+      if (audioPlayerManager.songDuration.inMinutes < 59) {
+        return 2;
+      } else {
+        return 0;
+      }
     } else {
-      return 0;
+      return 2;
     }
   }
 
@@ -508,14 +535,45 @@ class MusicPageState extends State<MusicPlayerPage> {
                   ),
                 ],
                 image: DecorationImage(
-                  image: NetworkImage(
-                    audioPlayerManager.currentSong.getImageUrl,
-                  ),
+                  image: imageProvider,
                   fit: BoxFit.contain,
                 )),
           ),
         ],
       ),
     );
+  }
+
+  void checkForIntenetConnetionForNetworkImage() {
+    InternetConnectioCheck.check().then((available) {
+      ManageLocalSongs.checkIfFileExists(audioPlayerManager.currentSong)
+          .then((exists) {
+        if (exists) {
+          File file = File(
+              "${ManageLocalSongs.fullSongImageDir.path}/${audioPlayerManager.currentSong.getSongId}.png");
+          setState(() {
+            imageProvider = FileImage(file);
+          });
+        } else {
+          if (available) {
+            setState(() {
+              imageProvider = NetworkImage(
+                audioPlayerManager.currentSong.getImageUrl,
+              );
+            });
+          }
+        }
+      });
+    });
+  }
+
+  void playSong() {
+    checkForIntenetConnetionForNetworkImage();
+    audioPlayerManager.initSong(
+      audioPlayerManager.currentSong,
+      audioPlayerManager.currentPlaylist,
+      audioPlayerManager.playlistMode,
+    );
+    audioPlayerManager.playSong();
   }
 }

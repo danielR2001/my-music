@@ -32,5 +32,11 @@
             </intent-filter>
         </activity>
         <service android:name="com.daniel.mymusic.NotificationService" />
+
+        <receiver android:name=".InternetConnectionBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

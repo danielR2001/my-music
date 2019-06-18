@@ -39,6 +39,7 @@ class Song {
 
   String get getPushId => _pushId;
 
+
   int get getDateAdded => _dateAdded;
 
   set setTitle(String value) => _title = value;

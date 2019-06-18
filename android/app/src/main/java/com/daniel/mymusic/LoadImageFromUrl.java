@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import android.util.Log;
+import java.io.File;
 public class LoadImageFromUrl extends AsyncTask<String, Void, Bitmap> {
 
     private Context context;
@@ -18,34 +19,40 @@ public class LoadImageFromUrl extends AsyncTask<String, Void, Bitmap> {
     private String artist;
     private String imageUrl;
     private boolean isPlaying;
+    private String localPath;
 
     public LoadImageFromUrl(final String title, final String artist, String imageUrl, final Context context,
-            boolean isPlaying) {
+            boolean isPlaying, String localPath) {
         super();
         this.context = context;
         this.title = title;
         this.artist = artist;
         this.imageUrl = imageUrl;
         this.isPlaying = isPlaying;
+        this.localPath = localPath;
+
     }
 
     @Override
     protected Bitmap doInBackground(String... strings) {
-        Log.d("load Image Thread","loading image...");
-        if (!this.imageUrl.equals("")) {
-            try {
-                URL url = new URL(this.imageUrl);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setDoInput(true);
-                connection.connect();
-                InputStream in = connection.getInputStream();
-                Bitmap myBitmap = BitmapFactory.decodeStream(in);
-                return myBitmap;
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
+        Log.d("load Image Thread", "loading image...");
+        if (new File(localPath).exists()) {
+            return BitmapFactory.decodeFile(localPath);
+        } else {
+            if (!this.imageUrl.equals("")) {
+                try {
+                    URL url = new URL(this.imageUrl);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setDoInput(true);
+                    connection.connect();
+                    InputStream in = connection.getInputStream();
+                    return BitmapFactory.decodeStream(in);
+                } catch (MalformedURLException e) {
+                    Log.d("load Image Thread", "Failed loading image!!!");
 
-            } catch (IOException e) {
-                e.printStackTrace();
+                } catch (IOException e) {
+                    Log.d("load Image Thread", "Failed loading image!!!");
+                }
             }
         }
         return null;
@@ -55,9 +62,9 @@ public class LoadImageFromUrl extends AsyncTask<String, Void, Bitmap> {
     protected void onPostExecute(Bitmap result) {
         super.onPostExecute(result);
         if (result != null) {
-            NotificationService.makeNotification(title, artist, result, context, isPlaying,imageUrl);
+            NotificationService.makeNotification(title, artist, result, context, isPlaying, imageUrl);
         } else {
-            NotificationService.makeNotification(title, artist, null, context, isPlaying,imageUrl);
+            NotificationService.makeNotification(title, artist, null, context, isPlaying, imageUrl);
         }
     }
 }

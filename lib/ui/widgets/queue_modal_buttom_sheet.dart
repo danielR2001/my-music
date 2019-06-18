@@ -111,16 +111,14 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
       ),
       onTap: () {
         if (audioPlayerManager.currentSong.getSongId != song.getSongId) {
-          audioPlayerManager.initSong(
-            song,
-            audioPlayerManager.currentPlaylist,
-            audioPlayerManager.playlistMode,
-          );
-
-          audioPlayerManager.playSong();
-
-          Navigator.pop(context);
-        }
+                audioPlayerManager.initSong(
+                  song,
+                  audioPlayerManager.currentPlaylist,
+                  audioPlayerManager.playlistMode,
+                );
+                audioPlayerManager.playSong();
+                Navigator.pop(context);
+              }
       },
     );
   }

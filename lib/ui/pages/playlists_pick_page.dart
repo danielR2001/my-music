@@ -142,13 +142,13 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
             fontSize: 18,
           ),
         ),
-        onTap: ()  {
+        onTap: () {
           if (widget.song != null) {
             addSongToPlaylist(playlist, widget.song);
             Navigator.of(context, rootNavigator: true).pop('dialog');
             Navigator.pop(context);
           } else {
-             addAllSongToPlaylist(playlist);
+            addAllSongToPlaylist(playlist);
             Navigator.of(context, rootNavigator: true).pop('dialog');
             Navigator.pop(context);
 
@@ -167,7 +167,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     );
   }
 
-  Future<void> addSongToPlaylist(Playlist playlist, Song song) async {
+  Future<bool> addSongToPlaylist(Playlist playlist, Song song) async {
     bool songAlreadyExistsInPlaylist = false;
     Song updatedsong;
     playlist.getSongs.forEach((playlistSong) {
@@ -177,7 +177,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     });
     if (!songAlreadyExistsInPlaylist) {
       if (song.getImageUrl.length == 0) {
-        String imageUrl = await FetchData.getSongImageUrl(song);
+        String imageUrl = await FetchData.getSongImageUrl(song, false);
         song.setImageUrl = imageUrl;
       }
       if (audioPlayerManager.currentPlaylist != null
@@ -208,20 +208,20 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         playlist.addNewSong(updatedsong);
         currentUser.updatePlaylist(playlist);
       }
+      return true;
     } else {
-      if (widget.song != null) {
-        scafKey.currentState.showSnackBar(
-          SnackBar(
-            duration: Duration(seconds: 5),
-            content: Text(
-              "This widget.song Is Already In Playlist Exists!",
-              style: TextStyle(
-                color: Colors.white,
-              ),
+      scafKey.currentState.showSnackBar(
+        SnackBar(
+          duration: Duration(seconds: 5),
+          content: Text(
+            "This song Is Already In Playlist Exists!",
+            style: TextStyle(
+              color: Colors.white,
             ),
           ),
-        );
-      }
+        ),
+      );
+      return false;
     }
   }
 
@@ -248,7 +248,8 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           FirebaseDatabaseManager.addPlaylist(playlist);
           if (widget.song != null) {
             if (widget.song.getImageUrl.length == 0) {
-              String imageUrl = await FetchData.getSongImageUrl(widget.song);
+              String imageUrl =
+                  await FetchData.getSongImageUrl(widget.song, false);
               widget.song.setImageUrl = imageUrl;
             }
             updatedsong = FirebaseDatabaseManager.addSongToPlaylist(
@@ -258,7 +259,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           } else {
             widget.songs.forEach((song) {
               if (song.getImageUrl.length == 0) {
-                FetchData.getSongImageUrl(song).then((imageUrl) {
+                FetchData.getSongImageUrl(song, false).then((imageUrl) {
                   song.setImageUrl = imageUrl;
                   updatedsong =
                       FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
@@ -292,7 +293,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           SnackBar(
             duration: Duration(seconds: 5),
             content: Text(
-              "Cant name playlist Search Playlist!",
+              "Can't name playlist Search Playlist!",
               style: TextStyle(
                 color: Colors.white,
               ),

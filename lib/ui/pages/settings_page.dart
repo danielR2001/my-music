@@ -61,7 +61,7 @@ class SettingsPage extends StatelessWidget {
                 ),
                 Expanded(
                   child: Text(
-                    "1.1.0",
+                    "1.3.0",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 17,
@@ -79,15 +79,17 @@ class SettingsPage extends StatelessWidget {
                           style: TextStyle(color: Colors.white),
                         ),
                         onPressed: () {
-                          FirebaseDatabaseManager.changeUserSignInState(false);
-                          FirebaseAuthentication.signOut().then((user) {
-                            audioPlayerManager.closeSong();
-                            currentUser = null;
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => WelcomePage(),
-                                ));
+                          FirebaseDatabaseManager.changeUserSignInState(false)
+                              .then((a) {
+                            FirebaseAuthentication.signOut().then((a) {
+                              audioPlayerManager.closeSong();
+                              currentUser = null;
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => WelcomePage(),
+                                  ));
+                            });
                           });
                         },
                       ),

@@ -244,18 +244,18 @@ class _ArtistPageState extends State<ArtistPage> {
               },
             ),
             onTap: () {
-              audioPlayerManager.initSong(
-                topHitsPlaylist.getSongs[index],
-                topHitsPlaylist,
-                PlaylistMode.loop,
-              );
-              audioPlayerManager.playSong();
+                    audioPlayerManager.initSong(
+                      topHitsPlaylist.getSongs[index],
+                      topHitsPlaylist,
+                      PlaylistMode.loop,
+                    );
+                    audioPlayerManager.playSong();
 
-              Navigator.push(
-                homePageContext,
-                MaterialPageRoute(
-                    builder: (homePageContext) => MusicPlayerPage()),
-              );
+                    Navigator.push(
+                      homePageContext,
+                      MaterialPageRoute(
+                          builder: (homePageContext) => MusicPlayerPage()),
+                    );
             },
           );
         }),
@@ -271,6 +271,7 @@ class _ArtistPageState extends State<ArtistPage> {
           song,
           currentPlaylist,
           false,
+          SongModalSheetMode.download_public_search_artist,
         );
       },
     );

@@ -7,6 +7,7 @@ import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/ui/pages/root_page.dart';
 import 'package:myapp/models/user.dart';
+import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 
 void main() => runApp(MyApp());
 AudioPlayerManager audioPlayerManager;
@@ -31,11 +32,9 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
   void init(BuildContext context) async {
     FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
     FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
-    audioPlayerManager = AudioPlayerManager(); //init song status
-    MusicControlNotification.startService(context);
-
-    // Map<PermissionGroup, PermissionStatus> permissions =
-    //     await PermissionHandler().requestPermissions([PermissionGroup.storage]);
+    audioPlayerManager = AudioPlayerManager();
     publicPlaylists = new List();
+    MusicControlNotification.startService(context);
+    InternetConnectioCheck.activateReciever();
   }
 }

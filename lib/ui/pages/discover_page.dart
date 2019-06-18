@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/database_manager.dart';
@@ -173,35 +174,37 @@ class _DiscoverPageState extends State<DiscoverPage> {
     }
     return Expanded(
       child: GestureDetector(
-        child: Container(
-          alignment: Alignment.center,
-          height: 120.0,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.5), BlendMode.dstATop),
-              image: playlist.getSongs.length >0
-                  ? NetworkImage(playlist.getSongs[0].getImageUrl)
-                  : AssetImage("assets/images/default_playlist_image.jpg"),
-              fit: BoxFit.cover,
-            ),
-            border: Border.all(
-              color: Constants.lightGreyColor,
-              width: 0.5,
-            ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                name,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.0,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              alignment: Alignment.center,
+              height: 120.0,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  colorFilter: ColorFilter.mode(
+                      Colors.black.withOpacity(1.0), BlendMode.dstATop),
+                  image: playlist.getSongs.length > 0
+                      ? NetworkImage(playlist.getSongs[0].getImageUrl)
+                      : AssetImage("assets/images/default_playlist_image.jpg"),
+                  fit: BoxFit.cover,
+                ),
+                border: Border.all(
+                  color: Constants.lightGreyColor,
+                  width: 0.5,
                 ),
               ),
-            ],
-          ),
+            ),
+            SizedBox(height: 5,),
+            AutoSizeText(
+              name,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16.0,
+              ),
+              maxLines: 1,
+            ),
+          ],
         ),
         onTap: () => onPush(playlistValues: createMap(playlist)),
       ),

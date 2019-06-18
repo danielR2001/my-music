@@ -1,6 +1,5 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:myapp/main.dart';
-import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/user.dart';
@@ -56,8 +55,8 @@ class FirebaseDatabaseManager {
               tempUser.setMyPlaylists = _buildPlaylists(playlists[i]);
             }
             print("user synced successfuly");
-          } else{
-            tempUser = User("","",false);
+          } else {
+            tempUser = User("", "", false);
           }
         }
         i++;
@@ -146,17 +145,15 @@ class FirebaseDatabaseManager {
         tempPlaylist.setPushId = key;
         if (tempMap != null) {
           tempMap.forEach((key, value) {
-            tempPlaylist.addNewSong(
-              Song(
-                value['title'],
-                value['artist'],
-                value['songId'],
-                value['searchString'],
-                value['imageUrl'],
-                value['pushId'],
-                dateAdded: value['dateAdded'],
-              ),
-            );
+            tempPlaylist.addNewSong(Song(
+              value['title'],
+              value['artist'],
+              value['songId'],
+              value['searchString'],
+              value['imageUrl'],
+              value['pushId'],
+              dateAdded: value['dateAdded'],
+            ));
           });
         }
         playlists.add(tempPlaylist);
@@ -223,21 +220,15 @@ class FirebaseDatabaseManager {
           value['pushId'],
           dateAdded: value['dateAdded'],
         );
-        ManageLocalSongs.checkIfFileExists(temp).then((exists) {
-          if (!exists) {
-            FirebaseDatabaseManager.removeSongFromDownloadedPlaylist(temp);
-          } else {
-            playlist.addNewSong(temp);
-          }
-        });
+
+        playlist.addNewSong(temp);
       });
     }
-
     return playlist;
   }
 
-  static void changeUserSignInState(bool signedIn) {
-    FirebaseDatabase.instance
+  static Future<void> changeUserSignInState(bool signedIn) async {
+    await FirebaseDatabase.instance
         .reference()
         .child(_usersDir)
         .child(_userPushId)

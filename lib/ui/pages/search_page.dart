@@ -203,20 +203,15 @@ class _SearchPageState extends State<SearchPage> {
         },
       ),
       onTap: () async {
-        Playlist temp = Playlist(searchResultsPlaylist.getName);
-        temp.setSongs = searchResultsPlaylist.getSongs;
-        FocusScope.of(context).requestFocus(FocusNode());
-        if (song.getImageUrl.length == 0) {
-          String imageUrl = await FetchData.getSongImageUrl(song);
-          song.setImageUrl = imageUrl;
-        }
-        audioPlayerManager.initSong(
-          song,
-          temp,
-          PlaylistMode.loop,
-        );
-
-        audioPlayerManager.playSong();
+              Playlist temp = Playlist(searchResultsPlaylist.getName);
+              temp.setSongs = searchResultsPlaylist.getSongs;
+              FocusScope.of(context).requestFocus(FocusNode());
+              audioPlayerManager.initSong(
+                song,
+                temp,
+                PlaylistMode.loop,
+              );
+              audioPlayerManager.playSong();
       },
     );
   }
@@ -229,6 +224,7 @@ class _SearchPageState extends State<SearchPage> {
           song,
           searchResultsPlaylist,
           false,
+          SongModalSheetMode.download_public_search_artist,
         );
       },
     );

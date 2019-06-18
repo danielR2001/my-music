@@ -13,35 +13,44 @@ class ManageLocalSongs {
   static final String startingUrl = "https://muz.xn--41a.wiki";
   static List<Song> currentDownloading = List();
   static Directory externalDir;
-  static Directory fullDir;
+  static Directory fullSongDownloadDir;
+  static Directory fullSongImageDir;
 
+  static Future<void> initDirs() async {
+    externalDir = await getExternalStorageDirectory();
+    fullSongDownloadDir = await new Directory(
+            '${externalDir.path}/Android/data/com.daniel.mymusic/downloaded/${currentUser.getName}/songs')
+        .create(recursive: true);
+    fullSongImageDir = await new Directory(
+            '${externalDir.path}/Android/data/com.daniel.mymusic/downloaded/${currentUser.getName}/images')
+        .create(recursive: true);
+  }
 
   static Future<bool> checkIfStoragePermissionGranted() async {
-        Map<PermissionGroup, PermissionStatus> permissions =
-        await PermissionHandler()
-            .requestPermissions([PermissionGroup.storage]);
-    if(permissions[PermissionGroup.storage] == PermissionStatus.granted){
+    Map<PermissionGroup, PermissionStatus> permissions =
+        await PermissionHandler().requestPermissions([PermissionGroup.storage]);
+    if (permissions[PermissionGroup.storage] == PermissionStatus.granted) {
       return true;
-    }else{
+    } else {
       return false;
     }
   }
+
   static Future<bool> checkIfFileExists(Song song) async {
-      externalDir = await getExternalStorageDirectory();
-      fullDir = await new Directory(
-              '${externalDir.path}/Android/data/com.daniel.mymusic/downloaded/${currentUser.getName}')
-          .create(recursive: true);
-      File file = File("${fullDir.path}/${song.getSongId}.mp3");
-      return file.exists();
+    File file = File("${fullSongDownloadDir.path}/${song.getSongId}.mp3");
+    return file.exists();
   }
 
   static Future<void> downloadSong(Song song) async {
     currentDownloading.add(song);
+    if (song.getImageUrl != "") {
+      await _downloadSongImage(song);
+    }
     FetchData.getDownloadUrlPage1(song).then((downloadUrl) async {
       if (downloadUrl != null) {
         try {
           await dio.download(startingUrl + downloadUrl,
-              "${fullDir.path}/${song.getSongId}.mp3",
+              "${fullSongDownloadDir.path}/${song.getSongId}.mp3",
               onReceiveProgress: (prog, total) {
             downloading = true;
             print("prog: $prog , total: $total");
@@ -64,9 +73,23 @@ class ManageLocalSongs {
     });
   }
 
+  static Future<void> _downloadSongImage(Song song) async {
+    try {
+      await dio
+          .download(song.getImageUrl,
+              "${fullSongImageDir.path}/${song.getSongId}.png",
+              onReceiveProgress: (prog, total) {})
+          .whenComplete(() {
+        print("song image download completed!");
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
   static Future<void> unDownloadSong(Song song) async {
     try {
-      File file = File("${fullDir.path}/${song.getSongId}.mp3");
+      File file = File("${fullSongDownloadDir.path}/${song.getSongId}.mp3");
       file.delete().whenComplete(() {
         FirebaseDatabaseManager.removeSongFromDownloadedPlaylist(song);
         currentUser.removeSongToDownloadedPlaylist(song);
@@ -87,30 +110,28 @@ class ManageLocalSongs {
     return exists;
   }
 
-  // static void syncDownloaded() async {
-  //   externalDir = await getExternalStorageDirectory();
-  //   fullDir = await new Directory(
-  //           '${externalDir.path}/Android/data/com.daniel.mymusic/downloaded/${currentUser.getName}')
-  //       .create(recursive: true);
-  //   List<File> files = List();
-  //   try {
-  //     var dirList = fullDir.list();
-  //     await for (FileSystemEntity f in dirList) {
-  //       if (f is File) {
-  //         files.add(f);
-  //       }
-  //     }
-  //   } catch (e) {
-  //     print(e.toString());
-  //   }
-  //   List<Song> updatedDownloadedList = List();
-  //   files.forEach((file){
-  //     currentUser.getDownloadedSongsPlaylist.getSongs.forEach((song){
-  //       String songId = file.path.substring(file.path.lastIndexOf("/"),file.path.length-1);
-  //       if(song.getSongId == songId){
-  //         updatedDownloadedList.add(song);
-  //       }
-  //     });
-  //   });
-  // }
+  static void syncDownloaded() async {
+    List<File> files = List();
+    try {
+      var dirList = fullSongDownloadDir.list();
+      await for (FileSystemEntity f in dirList) {
+        if (f is File) {
+          files.add(f);
+        }
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+    List<Song> updatedDownloadedList = List();
+    files.forEach((file) {
+      currentUser.getDownloadedSongsPlaylist.getSongs.forEach((song) {
+        String songId = file.path
+            .substring(file.path.lastIndexOf("/") + 1, file.path.length - 4);
+        if (song.getSongId == songId) {
+          updatedDownloadedList.add(song);
+        }
+      });
+    });
+    currentUser.getDownloadedSongsPlaylist.setSongs = updatedDownloadedList;
+  }
 }
