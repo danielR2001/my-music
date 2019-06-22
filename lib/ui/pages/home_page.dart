@@ -2,13 +2,14 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/constants/constants.dart';
-import 'package:myapp/ui/decorations/page_change_animation.dart';
+import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/ui/widgets/buttom_navigation_bar.dart';
 import 'package:myapp/ui/widgets/sound_bar.dart';
 import 'package:myapp/tab_navigation/tab_navigator.dart';
 import 'music_player_page.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/ui/widgets/text_style.dart';
+import 'package:provider/provider.dart';
 
 BuildContext homePageContext;
 
@@ -51,34 +52,39 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     homePageContext = context;
-    return WillPopScope(
-      onWillPop: () async {
-        if (navigatorKeys[currentTab].currentState.canPop())
-          await navigatorKeys[currentTab].currentState.maybePop();
+    return ChangeNotifierProvider<PageNotifier>(
+      builder: (BuildContext context) {
+        return PageNotifier();
       },
-      child: Scaffold(
-        body: Stack(children: <Widget>[
-          buildOffstageNavigator(TabItem.discover),
-          buildOffstageNavigator(TabItem.account),
-        ]),
-        bottomNavigationBar: Theme(
-          data: Theme.of(context).copyWith(
-            canvasColor: Constants.lightGreyColor,
-            textTheme: Theme.of(context).textTheme.copyWith(
-                  caption: TextStyle(
-                    color: Colors.grey,
+      child: WillPopScope(
+        onWillPop: () async {
+          if (navigatorKeys[currentTab].currentState.canPop())
+            await navigatorKeys[currentTab].currentState.maybePop();
+        },
+        child: Scaffold(
+          body: Stack(children: <Widget>[
+            buildOffstageNavigator(TabItem.discover),
+            buildOffstageNavigator(TabItem.account),
+          ]),
+          bottomNavigationBar: Theme(
+            data: Theme.of(context).copyWith(
+              canvasColor: Constants.lightGreyColor,
+              textTheme: Theme.of(context).textTheme.copyWith(
+                    caption: TextStyle(
+                      color: Colors.grey,
+                    ),
                   ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                musicPlayerControl(),
+                BottomNavigation(
+                  currentTab: currentTab,
+                  onSelectTab: selectTab,
                 ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              musicPlayerControl(),
-              BottomNavigation(
-                currentTab: currentTab,
-                onSelectTab: selectTab,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -235,7 +241,9 @@ class _HomePageState extends State<HomePage> {
                     icon: musicPlayerIcon,
                     iconSize: 30,
                     onPressed: () {
-                      if (audioPlayerManager.isLoaded) {
+                      if (audioPlayerManager.isLoaded &&
+                          audioPlayerManager.songPosition !=
+                              Duration(milliseconds: 0)) {
                         audioPlayerManager.audioPlayer.state ==
                                 AudioPlayerState.PLAYING
                             ? audioPlayerManager.pauseSong(false)
@@ -252,7 +260,7 @@ class _HomePageState extends State<HomePage> {
           ),
           onTap: () => Navigator.push(
                 context,
-                MyCustomRouteAnimation(builder: (context) => MusicPlayerPage()),
+                MaterialPageRoute(builder: (context) => MusicPlayerPage()),
               ));
     } else {
       return GestureDetector(

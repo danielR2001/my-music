@@ -7,9 +7,12 @@ import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
+import 'package:myapp/page_notifier/page_notifier.dart';
+import 'package:myapp/ui/pages/account_page.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/artists_pick_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
+import 'package:provider/provider.dart';
 import 'text_style.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -25,11 +28,9 @@ class SongOptionsModalSheet extends StatelessWidget {
   final SongModalSheetMode songModalSheetMode;
   SongOptionsModalSheet(this.song, this.playlist, this.isMusicPlayerMenu,
       this.songModalSheetMode);
-  List<String> artistsList;
-  List<Artist> artists = new List();
-  double widgetsCount = 4;
   @override
   Widget build(BuildContext context) {
+    double widgetsCount = 4;
     if (songModalSheetMode != null) {
       if (songModalSheetMode ==
           SongModalSheetMode.download_public_search_artist) {
@@ -42,59 +43,67 @@ class SongOptionsModalSheet extends StatelessWidget {
       widgetsCount++;
     }
     return Container(
-      alignment: Alignment.topCenter,
-      color: Constants.lightGreyColor,
-      height: 120 + 57 * widgetsCount,
-      child: ListView(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    TextDecoration(
-                      song.getTitle,
-                      20,
-                      Colors.white,
-                      20,
-                      30,
-                    ),
-                    TextDecoration(
-                      song.getArtist,
-                      15,
-                      Colors.grey,
-                      40,
-                      30,
-                    ),
-                  ],
-                )
-              ],
+      color: Constants.darkGreyColor,
+      child: Container(
+        alignment: Alignment.topCenter,
+        height: 120 + 57 * widgetsCount,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(10.0),
+              topRight: const Radius.circular(10.0)),
+          color: Constants.lightGreyColor,
+        ),
+        child: ListView(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      TextDecoration(
+                        song.getTitle,
+                        20,
+                        Colors.white,
+                        20,
+                        30,
+                      ),
+                      TextDecoration(
+                        song.getArtist,
+                        15,
+                        Colors.grey,
+                        40,
+                        30,
+                      ),
+                    ],
+                  )
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.grey,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
-              ),
-              child: SizedBox(
-                height: 1,
+                child: SizedBox(
+                  height: 1,
+                ),
               ),
             ),
-          ),
-          showRemoveFromPlaylist(context),
-          showDownloadSong(context),
-          showAddToPlaylist(context),
-          showQueue(context),
-          showViewArtist(context),
-        ],
+            showRemoveFromPlaylist(context),
+            showDownloadSong(context),
+            showAddToPlaylist(context),
+            showQueue(context),
+            showViewArtist(context),
+          ],
+        ),
       ),
     );
   }
@@ -122,9 +131,8 @@ class SongOptionsModalSheet extends StatelessWidget {
           onTap: () {
             FirebaseDatabaseManager.removeSongFromPlaylist(playlist, song);
             playlist.removeSong(song);
-
+            Provider.of<PageNotifier>(accountPageContext).setCurrentPlaylistPagePlaylist = playlist;
             currentUser.updatePlaylist(playlist);
-
             if (audioPlayerManager.currentPlaylist != null) {
               if (audioPlayerManager.currentPlaylist.getName ==
                   playlist.getName) {
@@ -257,7 +265,7 @@ class SongOptionsModalSheet extends StatelessWidget {
         onTap: () {
           ManageLocalSongs.checkIfFileExists(song).then((exists) {
             if (exists) {
-              ManageLocalSongs.unDownloadSong(song);
+              ManageLocalSongs.deleteSongDirectory(song);
               currentUser.removeSongToDownloadedPlaylist(song);
               Fluttertoast.showToast(
                 msg: "song Undownloaded",
@@ -365,10 +373,9 @@ class SongOptionsModalSheet extends StatelessWidget {
         ),
         onTap: () {
           showLoadingBar(context);
-          artistsList = getArtists();
-          buildArtistsList().then((a) {
+          buildArtistsList(getArtists()).then((artists) {
             Navigator.of(context, rootNavigator: true).pop('dialog');
-            showArtists(context);
+            showArtists(context, artists);
           });
         },
       ),
@@ -385,7 +392,7 @@ class SongOptionsModalSheet extends StatelessWidget {
     );
   }
 
-  void showArtists(BuildContext context) {
+  void showArtists(BuildContext context, List<Artist> artists) {
     Navigator.pop(context);
     showModalBottomSheet(
       context: context,
@@ -407,10 +414,12 @@ class SongOptionsModalSheet extends StatelessWidget {
     }
   }
 
-  Future<void> buildArtistsList() async {
+  Future<List<Artist>> buildArtistsList(List<String> artistsList) async {
+    List<Artist> artists = List();
     for (int i = 0; i < artistsList.length; i++) {
       artists.add(await builArtist(artistsList[i]));
     }
+    return artists;
   }
 
   Future<Artist> builArtist(String artistName) async {

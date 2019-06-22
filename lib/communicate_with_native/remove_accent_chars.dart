@@ -1,12 +1,9 @@
 import 'package:flutter/services.dart';
 
-
 class UnaccentString {
-  static const platform = const MethodChannel('flutter.native/helper');
+  static const platform = const MethodChannel('flutter.native/unaccent');
 
-
-  static Future<String> unaccent(
-      String str) async {
+  static Future<String> unaccent(String str) async {
     String response;
     try {
       final String result = await platform.invokeMethod('unaccent', {

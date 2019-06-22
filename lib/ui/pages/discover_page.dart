@@ -126,7 +126,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                                   : Expanded(child: Container());
                               row = Padding(
                                   padding: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 20),
+                                      horizontal: 20, vertical: 5),
                                   child: Row(
                                     children: <Widget>[
                                       padding1,
@@ -155,9 +155,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
   }
 
   Future syncAllPublicPlaylists() async {
-    List<Playlist> temp = await FirebaseDatabaseManager.buildPublicPlaylists();
+    await FirebaseDatabaseManager.buildPublicPlaylists();
     setState(() {
-      publicPlaylists = temp;
     });
   }
 
@@ -174,40 +173,45 @@ class _DiscoverPageState extends State<DiscoverPage> {
     }
     return Expanded(
       child: GestureDetector(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              alignment: Alignment.center,
-              height: 120.0,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  colorFilter: ColorFilter.mode(
-                      Colors.black.withOpacity(1.0), BlendMode.dstATop),
-                  image: playlist.getSongs.length > 0
-                      ? NetworkImage(playlist.getSongs[0].getImageUrl)
-                      : AssetImage("assets/images/default_playlist_image.jpg"),
-                  fit: BoxFit.cover,
-                ),
-                border: Border.all(
-                  color: Constants.lightGreyColor,
-                  width: 0.5,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                alignment: Alignment.center,
+                height: 120.0,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    colorFilter: ColorFilter.mode(
+                        Colors.black.withOpacity(1.0), BlendMode.dstATop),
+                    image: playlist.getSongs.length > 0
+                        ? NetworkImage(playlist.getSongs[0].getImageUrl)
+                        : AssetImage(
+                            "assets/images/default_playlist_image.jpg"),
+                    fit: BoxFit.cover,
+                  ),
+                  border: Border.all(
+                    color: Constants.lightGreyColor,
+                    width: 0.5,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 5,),
-            AutoSizeText(
-              name,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16.0,
+              SizedBox(
+                height: 5,
               ),
-              maxLines: 1,
-            ),
-          ],
-        ),
-        onTap: () => onPush(playlistValues: createMap(playlist)),
-      ),
+              AutoSizeText(
+                name,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 17.0,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 1,
+              ),
+            ],
+          ),
+          onTap: () {
+            onPush(playlistValues: createMap(playlist));
+          }),
     );
   }
 

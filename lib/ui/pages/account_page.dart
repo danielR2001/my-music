@@ -4,9 +4,11 @@ import 'package:myapp/constants/constants.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
+import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/settings_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
+import 'package:provider/provider.dart';
 
 class AccountPage extends StatefulWidget {
   AccountPage({this.onPush});
@@ -16,10 +18,13 @@ class AccountPage extends StatefulWidget {
   _AccountPageState createState() => _AccountPageState();
 }
 
+BuildContext accountPageContext;
+
 class _AccountPageState extends State<AccountPage> {
   bool openPlaylists = true;
   @override
   Widget build(BuildContext context) {
+    accountPageContext = context;
     return Navigator(onGenerateRoute: (RouteSettings settings) {
       return MaterialPageRoute(
         settings: settings,
@@ -96,25 +101,29 @@ class _AccountPageState extends State<AccountPage> {
                     height: 20,
                   ),
                   ListTile(
-                    leading: Icon(
-                      Icons.save_alt,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                    title: Text(
-                      "Downloaded",
-                      style: TextStyle(
-                        fontSize: 20,
+                      leading: Icon(
+                        Icons.save_alt,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                      title: Text(
+                        "Downloaded",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                      trailing: Icon(
+                        Icons.keyboard_arrow_right,
                         color: Colors.white,
                       ),
-                    ),
-                    trailing: Icon(
-                      Icons.keyboard_arrow_right,
-                      color: Colors.white,
-                    ),
-                    onTap: () => widget.onPush(
-                        createMap(currentUser.getDownloadedSongsPlaylist)),
-                  ),
+                      onTap: () {
+                        Provider.of<PageNotifier>(context)
+                                .setCurrentPlaylistPagePlaylist =
+                            currentUser.getDownloadedSongsPlaylist;
+                        widget.onPush(
+                            createMap(currentUser.getDownloadedSongsPlaylist));
+                      }),
                   SizedBox(
                     height: 20,
                   ),
@@ -166,25 +175,28 @@ class _AccountPageState extends State<AccountPage> {
         bottom: 10,
       ),
       child: ListTile(
-        leading: playlist.getSongs.length > 0
-            ? playlist.getSongs[0].getImageUrl.length > 0
-                ? drawSongImage(playlist.getSongs[0])
-                : drawDefaultSongImage()
-            : drawDefaultSongImage(),
-        title: AutoSizeText(
-          cutPlaylistName(playlist),
-          style: TextStyle(
-            fontSize: 20,
+          leading: playlist.getSongs.length > 0
+              ? playlist.getSongs[0].getImageUrl.length > 0
+                  ? drawSongImage(playlist.getSongs[0])
+                  : drawDefaultSongImage()
+              : drawDefaultSongImage(),
+          title: AutoSizeText(
+            cutPlaylistName(playlist),
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.white,
+            ),
+            maxLines: 1,
+          ),
+          trailing: Icon(
+            Icons.keyboard_arrow_right,
             color: Colors.white,
           ),
-          maxLines: 1,
-        ),
-        trailing: Icon(
-          Icons.keyboard_arrow_right,
-          color: Colors.white,
-        ),
-        onTap: () => widget.onPush(createMap(playlist)),
-      ),
+          onTap: () {
+            Provider.of<PageNotifier>(context).setCurrentPlaylistPagePlaylist =
+                playlist;
+            widget.onPush(createMap(playlist));
+          }),
     );
   }
 

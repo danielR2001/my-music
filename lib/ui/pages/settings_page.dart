@@ -3,6 +3,7 @@ import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
+import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/ui/pages/welcome_page.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -61,7 +62,7 @@ class SettingsPage extends StatelessWidget {
                 ),
                 Expanded(
                   child: Text(
-                    "1.3.0",
+                    "1.3.2",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 17,
@@ -79,6 +80,98 @@ class SettingsPage extends StatelessWidget {
                           style: TextStyle(color: Colors.white),
                         ),
                         onPressed: () {
+                          showAlertDialog(context);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void showAlertDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text(
+            "Hii " + currentUser.getName + "!",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+          ),
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Text(
+                "If you will proceed with your action all your local songs will be erased.",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: GestureDetector(
+                      child: Container(
+                        alignment: Alignment.center,
+                        height: 50.0,
+                        width: 90,
+                        decoration: BoxDecoration(
+                          color: Constants.pinkColor,
+                          borderRadius: BorderRadius.circular(40.0),
+                        ),
+                        child: Text(
+                          "Cancel",
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context, rootNavigator: true)
+                            .pop('dialog');
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: GestureDetector(
+                      child: Container(
+                        alignment: Alignment.center,
+                        height: 50.0,
+                        width: 90,
+                        decoration: BoxDecoration(
+                          color: Constants.pinkColor,
+                          borderRadius: BorderRadius.circular(40.0),
+                        ),
+                        child: Text(
+                          "Got it",
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      onTap: () {
+                        publicPlaylists = List();
+                        FirebaseDatabaseManager.cancelStreams().then((a) {
+                          ManageLocalSongs.deleteDownloadedDirectory();
                           FirebaseDatabaseManager.changeUserSignInState(false)
                               .then((a) {
                             FirebaseAuthentication.signOut().then((a) {
@@ -91,16 +184,17 @@ class SettingsPage extends StatelessWidget {
                                   ));
                             });
                           });
-                        },
-                      ),
-                    ],
+                        });
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ),
-      ),
+          ],
+          backgroundColor: Colors.grey[850],
+        );
+      },
     );
   }
 }

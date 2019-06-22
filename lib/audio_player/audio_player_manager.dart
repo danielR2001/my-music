@@ -39,15 +39,35 @@ class AudioPlayerManager {
   void initSong(Song song, Playlist playlist, PlaylistMode playlistMode) {
     songPosition = Duration(seconds: 0);
     if (song.getImageUrl == "") {
-      InternetConnectioCheck.check().then((isNetworkAvailable) async {
+      InternetConnectioCheck.check().then((isNetworkAvailable) {
         if (isNetworkAvailable) {
-          String imageUrl = await FetchData.getSongImageUrl(song, false);
-          song.setImageUrl = imageUrl;
+          FetchData.getSongImageUrl(song, false).then((imageUrl) {
+            song.setImageUrl = imageUrl;
+            if (song.getTitle == currentSong.getTitle) {
+              currentSong = song;
+              MusicControlNotification.makeNotification(
+                  currentSong, true, false);
+            }
+          });
         }
       });
     }
+    InternetConnectioCheck.check().then((isNetworkAvailable) {
+      if (isNetworkAvailable) {
+        FetchData.getLyricsPageUrl(song).then((url) {
+          if (url != null) {
+            FetchData.getSongLyrics(url).then((lyrics) {
+              song.setLyrics = lyrics;
+              if (song.getTitle == currentSong.getTitle) {
+                currentSong = song;
+              }
+            });
+          }
+        });
+      }
+    });
+
     currentSong = song;
-    closeSong();
     this.playlistMode = playlistMode;
     if (playlist != null) {
       if (currentPlaylist != null) {
@@ -65,31 +85,45 @@ class AudioPlayerManager {
   }
 
   void playSong() {
-    ManageLocalSongs.checkIfFileExists(currentSong).then((exists) {
-      if (exists && currentUser.songExistsInDownloadedPlaylist(currentSong)) {
-        skippedCounter = 0;
-        MusicControlNotification.makeNotification(currentSong, true);
-        audioPlayer.play(
-            "${ManageLocalSongs.fullSongDownloadDir.path}/${currentSong.getSongId}.mp3");
-        Fluttertoast.showToast(
-          msg: "Playing from local",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIos: 1,
-          backgroundColor: Constants.pinkColor,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-      } else {
-        InternetConnectioCheck.check().then((isNetworkAvailable) {
-          if (isNetworkAvailable) {
-            FetchData.getSongPlayUrlPage1(currentSong).then((streamUrl) {
-              if (streamUrl != null) {
-                skippedCounter = 0;
-                MusicControlNotification.makeNotification(currentSong, true);
-                audioPlayer.play(streamUrl);
+    closeSong().then((a) {
+      isLoaded = false;
+      ManageLocalSongs.checkIfFileExists(currentSong).then((exists) async {
+        if (exists && currentUser.songExistsInDownloadedPlaylist(currentSong)) {
+          skippedCounter = 0;
+          MusicControlNotification.makeNotification(currentSong, true, false);
+          await audioPlayer.play(
+              "${ManageLocalSongs.fullSongDownloadDir.path}/${currentSong.getSongId}/${currentSong.getSongId}.mp3");
+          isLoaded = true;
+        } else {
+          InternetConnectioCheck.check().then((isNetworkAvailable) {
+            if (isNetworkAvailable) {
+              FetchData.getSongPlayUrlPage1(currentSong)
+                  .then((streamUrl) async {
+                if (streamUrl != null) {
+                  skippedCounter = 0;
+                  MusicControlNotification.makeNotification(
+                      currentSong, true, false);
+                  await audioPlayer.play(streamUrl);
+                  isLoaded = true;
+                } else {
+                  playNextSong();
+                  Fluttertoast.showToast(
+                    msg: "oops something went wrong :(",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIos: 10,
+                    backgroundColor: Constants.pinkColor,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                }
+              });
+            } else {
+              if (skippedCounter != currentPlaylist.getSongs.length) {
+                skippedCounter++;
+                playNextSong();
                 Fluttertoast.showToast(
-                  msg: "Playing from network",
+                  msg: "No Internet Connection",
                   toastLength: Toast.LENGTH_SHORT,
                   gravity: ToastGravity.BOTTOM,
                   timeInSecForIos: 1,
@@ -98,72 +132,45 @@ class AudioPlayerManager {
                   fontSize: 16.0,
                 );
               } else {
-                playNextSong();
-                Fluttertoast.showToast(
-                  msg: "oops something went wrong :(",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                  timeInSecForIos: 10,
-                  backgroundColor: Constants.pinkColor,
-                  textColor: Colors.white,
-                  fontSize: 16.0,
-                );
+                MusicControlNotification.makeNotification(
+                    currentSong, false, false);
+                skippedCounter = 0;
+                isLoaded = true;
+                songPosition = null;
               }
-            });
-          } else {
-            if (skippedCounter != currentPlaylist.getSongs.length) {
-              skippedCounter++;
-              playNextSong();
-              Fluttertoast.showToast(
-                msg: "No Internet Connection",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIos: 1,
-                backgroundColor: Constants.pinkColor,
-                textColor: Colors.white,
-                fontSize: 16.0,
-              );
-            } else {
-              MusicControlNotification.makeNotification(currentSong, false);
-              skippedCounter = 0;
-              isLoaded = true;
             }
-          }
-        });
-      }
-      listenForDurationChanged();
-      listenForPositionChanged();
-      listenIfCompleted();
+          });
+        }
+        listenForDurationChanged();
+        listenForPositionChanged();
+        listenIfCompleted();
+      });
     });
   }
 
   void resumeSong(bool calledFromNative) {
     audioPlayer.resume();
     if (!calledFromNative) {
-      MusicControlNotification.makeNotification(currentSong, true);
+      MusicControlNotification.makeNotification(currentSong, true, true);
     }
   }
 
   void pauseSong(bool calledFromNative) {
     audioPlayer.pause();
     if (!calledFromNative) {
-      MusicControlNotification.makeNotification(currentSong, false);
+      MusicControlNotification.makeNotification(currentSong, false, true);
     }
   }
 
-  void closeSong() {
-    audioPlayer.stop();
+  Future<void> closeSong() async {
+    await audioPlayer.stop();
+    await audioPlayer.release();
     isLoaded = false;
-    releaseSong();
     if (_audioPlayerOnCompleteStream != null) {
       _audioPlayerOnCompleteStream.cancel();
       _audioPlayerOnDurationChangedStream.cancel();
       _audioPlayerOnPositionChangedStream.cancel();
     }
-  }
-
-  void releaseSong() {
-    audioPlayer.release();
   }
 
   void seekTime(Duration duration) {
@@ -173,7 +180,6 @@ class AudioPlayerManager {
   void listenForDurationChanged() {
     _audioPlayerOnDurationChangedStream =
         audioPlayer.onDurationChanged.listen((duration) {
-      isLoaded = true;
       songDuration = duration;
     });
   }
@@ -181,6 +187,13 @@ class AudioPlayerManager {
   void listenForPositionChanged() {
     _audioPlayerOnPositionChangedStream =
         audioPlayer.onAudioPositionChanged.listen((duration) {
+      if (duration.inSeconds - songPosition.inSeconds == 1) {
+        if (audioPlayer.state == AudioPlayerState.PLAYING) {
+          MusicControlNotification.makeNotification(currentSong, true, true);
+        } else {
+          MusicControlNotification.makeNotification(currentSong, false, true);
+        }
+      }
       songPosition = duration;
     });
   }

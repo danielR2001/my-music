@@ -9,6 +9,7 @@ import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
+import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 
 class ArtistPage extends StatefulWidget {
   final Artist artist;
@@ -27,10 +28,9 @@ class _ArtistPageState extends State<ArtistPage> {
   _ArtistPageState(this.artist);
   @override
   void initState() {
-    // FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
     _scrollController = ScrollController()..addListener(() => setState(() {}));
     topHitsPlaylist = Playlist(artist.getName + " Top Hits");
-    FetchData.searchForResultsSitePage1(artist.getName).then((results) {
+    FetchData.getResultsSitePage1(artist.getName).then((results) {
       setState(() {
         if (results != null) {
           results.forEach((song) {
@@ -190,7 +190,7 @@ class _ArtistPageState extends State<ArtistPage> {
                 ? topHitsPlaylist.getSongs.length
                 : 20, (int index) {
           String title;
-          String artistStr;
+          String artist;
           if (topHitsPlaylist.getSongs[index].getTitle.length > 30) {
             int pos =
                 topHitsPlaylist.getSongs[index].getTitle.lastIndexOf("", 30);
@@ -208,54 +208,113 @@ class _ArtistPageState extends State<ArtistPage> {
             if (pos < 20) {
               pos = 35;
             }
-            artistStr =
+            artist =
                 topHitsPlaylist.getSongs[index].getArtist.substring(0, pos) +
                     "...";
           } else {
-            artistStr = topHitsPlaylist.getSongs[index].getArtist;
+            artist = topHitsPlaylist.getSongs[index].getArtist;
           }
           return ListTile(
+            // leading: topHitsPlaylist.getSongs[index].getImageUrl.length > 0
+            //     ? drawSongImage(topHitsPlaylist.getSongs[index])
+            //     : drawDefaultSongImage(),
             title: Text(
               title,
               style: TextStyle(
-                color: Colors.white,
+                color: audioPlayerManager.currentSong != null &&
+                        audioPlayerManager.currentPlaylist != null
+                    ? audioPlayerManager.loopPlaylist.getName ==
+                            topHitsPlaylist.getName
+                        ? audioPlayerManager.currentSong.getSongId ==
+                                topHitsPlaylist.getSongs[index].getSongId
+                            ? Constants.pinkColor
+                            : Colors.white
+                        : Colors.white
+                    : Colors.white,
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
             ),
             subtitle: Text(
-              artistStr,
+              artist,
               style: TextStyle(
-                color: Colors.grey,
+                color: audioPlayerManager.currentSong != null &&
+                        audioPlayerManager.currentPlaylist != null
+                    ? audioPlayerManager.loopPlaylist.getName ==
+                            topHitsPlaylist.getName
+                        ? audioPlayerManager.currentSong.getSongId ==
+                                topHitsPlaylist.getSongs[index].getSongId
+                            ? Constants.pinkColor
+                            : Colors.grey
+                        : Colors.grey
+                    : Colors.grey,
                 fontSize: 12,
               ),
             ),
-            trailing: IconButton(
-              icon: Icon(
-                Icons.more_vert,
-                color: Colors.white,
-              ),
-              iconSize: 30,
-              onPressed: () {
-                setState(() {
-                  showSongOptions(
-                      topHitsPlaylist.getSongs[index], topHitsPlaylist);
-                });
-              },
-            ),
+            trailing: ManageLocalSongs.isSongDownloading(
+                    topHitsPlaylist.getSongs[index])
+                ? Padding(
+                    padding: EdgeInsets.only(right: 6),
+                    child: CircularProgressIndicator(
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(Constants.pinkColor),
+                      strokeWidth: 4.0,
+                    ),
+                  )
+                : IconButton(
+                    icon: Icon(
+                      Icons.more_vert,
+                      color: audioPlayerManager.currentSong != null &&
+                              audioPlayerManager.currentPlaylist != null
+                          ? audioPlayerManager.loopPlaylist.getName ==
+                                  topHitsPlaylist.getName
+                              ? audioPlayerManager.currentSong.getSongId ==
+                                      topHitsPlaylist.getSongs[index].getSongId
+                                  ? Constants.pinkColor
+                                  : Colors.white
+                              : Colors.white
+                          : Colors.white,
+                    ),
+                    iconSize: 30,
+                    onPressed: () {
+                      setState(() {
+                        showSongOptions(
+                            topHitsPlaylist.getSongs[index], topHitsPlaylist);
+                      });
+                    },
+                  ),
             onTap: () {
-                    audioPlayerManager.initSong(
-                      topHitsPlaylist.getSongs[index],
-                      topHitsPlaylist,
-                      PlaylistMode.loop,
-                    );
-                    audioPlayerManager.playSong();
-
+              if (audioPlayerManager.isLoaded) {
+                if (audioPlayerManager.currentSong != null &&
+                    audioPlayerManager.currentPlaylist != null) {
+                  if (audioPlayerManager.currentSong.getSongId ==
+                          topHitsPlaylist.getSongs[index].getSongId &&
+                      audioPlayerManager.currentPlaylist.getName ==
+                          topHitsPlaylist.getName) {
                     Navigator.push(
                       homePageContext,
                       MaterialPageRoute(
                           builder: (homePageContext) => MusicPlayerPage()),
                     );
+                  } else {
+                    audioPlayerManager.initSong(
+                      topHitsPlaylist.getSongs[index],
+                      topHitsPlaylist,
+                      PlaylistMode.loop,
+                    );
+
+                    audioPlayerManager.playSong();
+                  }
+                } else {
+                  audioPlayerManager.initSong(
+                    topHitsPlaylist.getSongs[index],
+                    topHitsPlaylist,
+                    PlaylistMode.loop,
+                  );
+
+                  audioPlayerManager.playSong();
+                }
+              }
             },
           );
         }),

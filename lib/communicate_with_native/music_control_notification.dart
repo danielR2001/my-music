@@ -8,7 +8,7 @@ import 'package:myapp/ui/decorations/page_change_animation.dart';
 import 'package:myapp/ui/pages/music_player_page.dart';
 
 class MusicControlNotification {
-  static const platform = const MethodChannel('flutter.native/helper');
+  static const platform = const MethodChannel('flutter.native/notifications');
   static BuildContext context;
 
   static Future<bool> startService(BuildContext contxt) async {
@@ -25,17 +25,12 @@ class MusicControlNotification {
     return response;
   }
 
-  static Future<void> removeNotification() async {
-    try {
-      await platform.invokeMethod('removeNotification');
-    } on PlatformException catch (e) {
-      print("error invoking method from native: $e");
-    }
-  }
-
-  static Future<bool> makeNotification(Song song, bool isPlaying) async {
+  static Future<bool> makeNotification(
+      Song song, bool isPlaying, bool dontLoadImage) async {
     bool response;
-    String localPath = "${ManageLocalSongs.fullSongImageDir.path}/${song.getSongId}.png";
+    String localPath =
+        "${ManageLocalSongs.fullSongDownloadDir.path}/${song.getSongId}/${song.getSongId}.png";
+    print("making notification");
     try {
       final bool result = await platform.invokeMethod('makeNotification', {
         "title": song.getTitle,
@@ -43,6 +38,7 @@ class MusicControlNotification {
         "imageUrl": song.getImageUrl,
         "isPlaying": isPlaying,
         "localPath": localPath,
+        "dontLoadImage": dontLoadImage,
       });
       response = result;
     } on PlatformException catch (e) {
@@ -55,19 +51,24 @@ class MusicControlNotification {
   static Future<dynamic> myUtilsHandler(MethodCall methodCall) async {
     switch (methodCall.method) {
       case 'playOrPause':
-        audioPlayerManager.audioPlayer.state == AudioPlayerState.PLAYING
-            ? audioPlayerManager.pauseSong(false)
-            : audioPlayerManager.audioPlayer.state == AudioPlayerState.PAUSED
-                ? audioPlayerManager.resumeSong(false)
-                : _playSong();
+        if (audioPlayerManager.isLoaded &&
+            audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
+          audioPlayerManager.audioPlayer.state == AudioPlayerState.PLAYING
+              ? audioPlayerManager.pauseSong(false)
+              : audioPlayerManager.audioPlayer.state == AudioPlayerState.PAUSED
+                  ? audioPlayerManager.resumeSong(false)
+                  : _playSong();
+        }
         break;
       case 'nextSong':
-        if (audioPlayerManager.isLoaded) {
+        if (audioPlayerManager.isLoaded &&
+            audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
           audioPlayerManager.playNextSong();
         }
         break;
       case 'prevSong':
-        if (audioPlayerManager.isLoaded) {
+        if (audioPlayerManager.isLoaded &&
+            audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
           audioPlayerManager.playPreviousSong();
         }
         break;
@@ -78,7 +79,6 @@ class MusicControlNotification {
         );
         break;
       default:
-      // todo - throw not implemented
     }
   }
 

@@ -94,7 +94,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                       ),
                     ),
                     onTap: () {
-                      showNewPlaylistDialog();
+                      drawNewPlaylistDialog();
                     },
                   ),
                   SizedBox(
@@ -144,9 +144,12 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         ),
         onTap: () {
           if (widget.song != null) {
-            addSongToPlaylist(playlist, widget.song);
-            Navigator.of(context, rootNavigator: true).pop('dialog');
-            Navigator.pop(context);
+            addSongToPlaylist(playlist, widget.song).then((added) {
+              if (added) {
+                Navigator.of(context, rootNavigator: true).pop('dialog');
+                Navigator.pop(context);
+              }
+            });
           } else {
             addAllSongToPlaylist(playlist);
             Navigator.of(context, rootNavigator: true).pop('dialog');
@@ -225,7 +228,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     }
   }
 
-  Future createNewPlatlist() async {
+  Future<void> createNewPlatlist() async {
     bool nameExists = false;
     final form = formKey.currentState;
     Song updatedsong;
@@ -242,10 +245,10 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           showLoadingBar();
           Playlist playlist = Playlist(_playlistName,
               creator: currentUser.getName, isPublic: _isPublic);
+          playlist.setPushId = FirebaseDatabaseManager.addPlaylist(playlist);
           if (playlist.getIsPublic) {
-            publicPlaylists.add(playlist);
+            playlist = await FirebaseDatabaseManager.addPublicPlaylist(playlist);
           }
-          FirebaseDatabaseManager.addPlaylist(playlist);
           if (widget.song != null) {
             if (widget.song.getImageUrl.length == 0) {
               String imageUrl =
@@ -304,7 +307,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     }
   }
 
-  void showNewPlaylistDialog() {
+  void drawNewPlaylistDialog() {
     _isPublic = false;
     showDialog(
       context: context,

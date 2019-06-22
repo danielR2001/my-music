@@ -60,7 +60,7 @@ public class NotificationService extends Service {
             initIntents();
             isPlaying = true;
         } else if (intent.getAction().equals(Constants.PREV_ACTION)) {
-            MainActivity.channel.invokeMethod("prevSong", null, new Result() {
+            MainActivity.channel1.invokeMethod("prevSong", null, new Result() {
                 @Override
                 public void success(Object o) {
                 }
@@ -76,7 +76,7 @@ public class NotificationService extends Service {
         } else if (intent.getAction().equals(Constants.PLAY_ACTION)) {
             isPlaying = !isPlaying;
             makeNotification(title, artist, imageBitmap, getApplicationContext(), isPlaying, imageUrl);
-            MainActivity.channel.invokeMethod("playOrPause", null, new Result() {
+            MainActivity.channel1.invokeMethod("playOrPause", null, new Result() {
                 @Override
                 public void success(Object o) {
                 }
@@ -90,7 +90,7 @@ public class NotificationService extends Service {
                 }
             });
         } else if (intent.getAction().equals(Constants.NEXT_ACTION)) {
-            MainActivity.channel.invokeMethod("nextSong", null, new Result() {
+            MainActivity.channel1.invokeMethod("nextSong", null, new Result() {
                 @Override
                 public void success(Object o) {
                 }
@@ -151,7 +151,8 @@ public class NotificationService extends Service {
                     .addAction(R.drawable.ic_skip_next, "", pnextIntent).setTimeoutAfter(1800000)
                     .setStyle(
                             new androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0, 1, 2))
-                    .setDeleteIntent(pdeleteIntent).setContentIntent(pendingIntent).build();
+                    .setDeleteIntent(pdeleteIntent).setContentIntent(pendingIntent).setWhen(System.currentTimeMillis())
+                    .setPriority(Notification.PRIORITY_MAX).build();
 
         } else {
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -160,7 +161,8 @@ public class NotificationService extends Service {
                     .setShowWhen(false).setColor(context.getResources().getColor(R.color.pink))
                     .addAction(R.drawable.ic_skip_previous, "", pprevIntent).addAction(iconInts[index], "", pplayIntent)
                     .addAction(R.drawable.ic_skip_next, "", pnextIntent).setTimeoutAfter(1800000)
-                    .setDeleteIntent(pdeleteIntent).setContentIntent(pendingIntent).build();
+                    .setDeleteIntent(pdeleteIntent).setContentIntent(pendingIntent).setWhen(System.currentTimeMillis())
+                    .setPriority(Notification.PRIORITY_MAX).build();
         }
         if (iP) {
             notification.flags |= Notification.FLAG_ONGOING_EVENT;
@@ -173,18 +175,17 @@ public class NotificationService extends Service {
 
     private static void CreateNotificationChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "Playback",
+            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, "Playback",
                     NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setSound(null, null);
+                    notificationChannel.setSound(null, null);
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.createNotificationChannel(channel);
+            notificationManager.createNotificationChannel(notificationChannel);
 
         }
     }
 
     private void initIntents() {
         notificationIntent = new Intent(this, MainActivity.class);
-        // notificationIntent.setAction(Constants.MAIN_ACTION);
         pendingIntent = PendingIntent.getActivity(this, 1, notificationIntent, 0);
 
         playIntent = new Intent(this, NotificationService.class);

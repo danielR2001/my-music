@@ -3,7 +3,6 @@ import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
-import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/user.dart';
 import 'home_page.dart';
 import 'root_page.dart';
@@ -299,33 +298,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 signIn = false;
               });
               Navigator.of(context, rootNavigator: true).pop('dialog');
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return SimpleDialog(
-                    title: Text(
-                      "Hii " + userName + "!",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: Text(
-                          "Email verification was sent to you. Verify your email and then comeback and click the continue button to complete the sign up.",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ],
-                    backgroundColor: Colors.grey[850],
-                  );
-                },
-              );
+              showAlertDialog();
             } else {
               Navigator.of(context, rootNavigator: true).pop('dialog');
               key.currentState.showSnackBar(
@@ -416,8 +389,6 @@ class _SignUpPageState extends State<SignUpPage> {
             FirebaseDatabaseManager.saveUser();
             Navigator.of(context, rootNavigator: true).pop('dialog');
             FirebaseDatabaseManager.syncUser(user.uid, false).then((a) {
-              FirebaseDatabaseManager.addDownloadedPlaylist(
-                  Playlist("Downloaded"));
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -472,6 +443,36 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
             )
           ],
+        );
+      },
+    );
+  }
+
+  void showAlertDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text(
+            "Hii " + userName + "!",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+          ),
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: Text(
+                "Email verification was sent to you. Verify your email and then comeback and click the continue button to complete the sign up.",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
+          backgroundColor: Colors.grey[850],
         );
       },
     );

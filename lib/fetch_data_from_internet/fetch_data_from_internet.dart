@@ -14,16 +14,21 @@ class FetchData {
       'https://free-mp3-download.net/search.php?s=';
   static final String artistIdUrl =
       'https://www.bbc.co.uk/music/search.json?q=';
-  static final String artistInfoUrl = 'https://www.bbc.co.uk/music/artists/';
+  static final String artistInfoSearchUrl =
+      'https://www.bbc.co.uk/music/artists/';
+  static final String lyricsSearchUrl =
+      'https://genius.com/api/search/multi?q=';
 
-  static Future<List<Song>> searchForResultsSitePage1(String searchStr) async {
+  static Future<List<Song>> getResultsSitePage1(String searchStr) async {
     searchStr = await _prepareStringToSearch(searchStr);
+    searchStr = searchStr.replaceAll(" ", "-");
     var encoded = Uri.encodeFull(searchUrl + searchStr + "/");
     try {
       return http
           .get(
             encoded,
           )
+          .catchError((eror) => print("error getResultsSitePage1"))
           .whenComplete(() => print('Search For Results 1 search completed'))
           .then((http.Response response) async {
         var document = parse(response.body);
@@ -35,21 +40,22 @@ class FetchData {
           var a = html.split("</li>");
           return _buildSearchResult(a, searchUrl + searchStr + "/");
         } else {
-          return await searchForResultsSitePage2(searchStr);
+          return await getResultsSitePage2(searchStr);
         }
       });
     } catch (e) {
-      return await searchForResultsSitePage2(searchStr);
+      return await getResultsSitePage2(searchStr);
     }
   }
 
-  static Future<List<Song>> searchForResultsSitePage2(String searchStr) async {
+  static Future<List<Song>> getResultsSitePage2(String searchStr) async {
     var encoded = Uri.encodeFull(searchUrl + searchStr + "/2");
     try {
       return http
           .get(
             encoded,
           )
+          .catchError((eror) => print("error getResultsSitePage2"))
           .whenComplete(() => print('Search For Results 2 search completed'))
           .then((http.Response response) {
         var document = parse(response.body);
@@ -70,38 +76,40 @@ class FetchData {
 
   static Future<String> getSongPlayUrlPage1(Song song) async {
     var responseList;
-
     String searchStr = song.getSearchString;
     searchStr = await _prepareStringToSearch(searchStr);
+    searchStr = searchStr.replaceAll(" ", "-");
     var encoded = Uri.encodeFull(searchUrl + searchStr);
-    try{
-    return http
-        .get(encoded)
-        .whenComplete(() => print('song search completed'))
-        .then((http.Response response) {
-      var document = parse(response.body);
-      if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
-        var elements = document.getElementsByClassName("playlist");
-        if (elements.length > 0) {
-          var html = elements[0].outerHtml;
-          html = html.replaceAll('\n', '');
-          html = html.replaceFirst('<ul class="playlist">', '');
-          responseList = html.split("</li>");
-          responseList.removeLast();
-          String streamUrl = _buildStreamUrl(responseList, song);
-          if (streamUrl != null) {
-            return streamUrl;
-          } else {
-            return getSongPlayUrlPage2(searchStr, song);
-          }
-        } else {
-          return null;
-        }
-      } else {
-        return getSongPlayUrlPage2(searchStr, song);
-      }
-    });
-    }catch(e){
+    try {
+      return http
+          .get(encoded, headers: {"accept": "application/json"})
+          .catchError((eror) => print("error getSongPlayUrlPage1"))
+          .whenComplete(() => print('song search completed'))
+          .then((http.Response response) {
+            var document = parse(response.body);
+            if (!document.outerHtml
+                .contains("Ошибка 404 - страница не найдена")) {
+              var elements = document.getElementsByClassName("playlist");
+              if (elements.length > 0) {
+                var html = elements[0].outerHtml;
+                html = html.replaceAll('\n', '');
+                html = html.replaceFirst('<ul class="playlist">', '');
+                responseList = html.split("</li>");
+                responseList.removeLast();
+                String streamUrl = _buildStreamUrl(responseList, song);
+                if (streamUrl != null) {
+                  return streamUrl;
+                } else {
+                  return getSongPlayUrlPage2(searchStr, song);
+                }
+              } else {
+                return null;
+              }
+            } else {
+              return getSongPlayUrlPage2(searchStr, song);
+            }
+          });
+    } catch (e) {
       print(e);
       return null;
     }
@@ -110,42 +118,43 @@ class FetchData {
   static Future<String> getSongPlayUrlPage2(String searchStr, Song song) async {
     var responseList;
     var encoded = Uri.encodeFull(searchUrl + searchStr + "2");
-    try{
-    return http
-        .get(
-          encoded,
-        )
-        .whenComplete(() => print('song search completed'))
-        .then((http.Response response) {
-      var document = parse(response.body);
-      if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
-        var elements = document.getElementsByClassName("playlist");
-        if (elements.length > 0) {
-          var html = elements[0].outerHtml;
-          html = html.replaceAll('\n', '');
-          html = html.replaceFirst('<ul class="playlist">', '');
-          responseList = html.split("</li>");
-          responseList.removeLast();
-          String streamUrl = _buildStreamUrl(responseList, song);
-          if (streamUrl != null) {
-            return streamUrl;
+    try {
+      return http
+          .get(
+            encoded,
+          )
+          .catchError((eror) => print("error getSongPlayUrlPage2"))
+          .whenComplete(() => print('song search completed'))
+          .then((http.Response response) {
+        var document = parse(response.body);
+        if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
+          var elements = document.getElementsByClassName("playlist");
+          if (elements.length > 0) {
+            var html = elements[0].outerHtml;
+            html = html.replaceAll('\n', '');
+            html = html.replaceFirst('<ul class="playlist">', '');
+            responseList = html.split("</li>");
+            responseList.removeLast();
+            String streamUrl = _buildStreamUrl(responseList, song);
+            if (streamUrl != null) {
+              return streamUrl;
+            } else {
+              return null;
+            }
           } else {
             return null;
           }
         } else {
           return null;
         }
-      } else {
-        return null;
-      }
-    });
-    }catch(e){
+      });
+    } catch (e) {
       print(e);
       return null;
     }
   }
 
-  static Future<String> getSongImageUrl(Song song,bool secondTry) async {
+  static Future<String> getSongImageUrl(Song song, bool secondTry) async {
     String imageUrl;
     String tempTitle = song.getTitle;
     tempTitle = _editSearchParams(tempTitle, true, true);
@@ -156,15 +165,16 @@ class FetchData {
     try {
       return http
           .get(encoded)
+          .catchError((eror) => print("error getSongImageUrl"))
           .whenComplete(() => print('image search completed'))
           .then((http.Response response) {
         List<dynamic> list = jsonDecode(response.body)['data'];
         if (list.length > 0) {
           return _getImageUrlFromResponse(list[0]);
         } else {
-          if(!secondTry){
-          return getSongImageUrl(song,true);
-          }else{
+          if (!secondTry) {
+            return getSongImageUrl(song, true);
+          } else {
             return '';
           }
         }
@@ -180,25 +190,28 @@ class FetchData {
     if (artistName.contains(" ")) {
       name = name.replaceAll(" ", "+");
     }
-    try{
-    return http
-        .get(
-          artistIdUrl + name,
-        )
-        .whenComplete(() => print('Get Artist Info search completed'))
-        .then((http.Response response) {
-      List<dynamic> list = jsonDecode(response.body)['artists'];
-      if (list.length > 0) {
-        return Artist(artistName,
-            "https://ichef.bbci.co.uk/images/ic/160x160/" + list[0]["image_id"],
-            id: list[0]["id"]);
-      } else {
-        return Artist(artistName,
-            "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png",
-            info: "");
-      }
-    });
-    }catch(e){
+    try {
+      return http
+          .get(
+            artistIdUrl + name,
+          )
+          .catchError((eror) => print("error getArtistPageIdAndImageUrl"))
+          .whenComplete(() => print('Get Artist Info search completed'))
+          .then((http.Response response) {
+        List<dynamic> list = jsonDecode(response.body)['artists'];
+        if (list.length > 0) {
+          return Artist(
+              artistName,
+              "https://ichef.bbci.co.uk/images/ic/160x160/" +
+                  list[0]["image_id"],
+              id: list[0]["id"]);
+        } else {
+          return Artist(artistName,
+              "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png",
+              info: "");
+        }
+      });
+    } catch (e) {
       print(e);
       return null;
     }
@@ -207,8 +220,9 @@ class FetchData {
   static Future<Artist> getArtistInfoPage(Artist artist) async {
     return http
         .get(
-          artistInfoUrl + artist.getId,
+          artistInfoSearchUrl + artist.getId,
         )
+        .catchError((eror) => print("error getArtistInfoPage"))
         .whenComplete(() => print('Get Artist Info search completed'))
         .then((http.Response response) {
       Document document = parse(response.body);
@@ -219,11 +233,13 @@ class FetchData {
   static Future<String> getDownloadUrlPage1(Song song) async {
     String searchStr = song.getSearchString;
     searchStr = await _prepareStringToSearch(searchStr);
+    searchStr = searchStr.replaceAll(" ", "-");
     try {
       return http
           .get(
             searchUrl + song.getSearchString + "/",
           )
+          .catchError((eror) => print("error getDownloadUrlPage1"))
           .whenComplete(() => print('Search For Results 2 search completed'))
           .then((http.Response response) {
         var document = parse(response.body);
@@ -249,6 +265,7 @@ class FetchData {
           .get(
             searchUrl + searchStr + "/2",
           )
+          .catchError((eror) => print("error getDownloadUrlPage2"))
           .whenComplete(() => print('Search For Results 2 search completed'))
           .then((http.Response response) {
         var document = parse(response.body);
@@ -264,6 +281,50 @@ class FetchData {
         return null;
       });
     } catch (e) {
+      return null;
+    }
+  }
+
+  static Future<String> getLyricsPageUrl(Song song) async {
+    String searchStr = song.getSearchString;
+    searchStr = await _prepareStringToSearch(searchStr);
+    var encoded = Uri.encodeFull(lyricsSearchUrl + searchStr);
+    var list;
+    var sectionsMap;
+    var sectionsList;
+    var hitsList;
+    var resultsList;
+    try {
+      return http
+          .get(encoded)
+          .catchError((eror) => print("error getLyricsPageUrl"))
+          .whenComplete(() => print('song search completed'))
+          .then((http.Response response) {
+        list = jsonDecode(response.body)['response'];
+        sectionsList = list['sections'];
+        sectionsMap = sectionsList[1];
+        hitsList = sectionsMap['hits'];
+        resultsList = hitsList[0]['result'];
+        return resultsList['url'];
+      });
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  static Future<String> getSongLyrics(String url) async {
+    try {
+      return http
+          .get(url)
+          .catchError((eror) => print("error getSongLyrics"))
+          .whenComplete(() => print('song search completed'))
+          .then((http.Response response) {
+        Document document = parse(response.body);
+        return _buildLyrics(document);
+      });
+    } catch (e) {
+      print(e);
       return null;
     }
   }
@@ -336,7 +397,8 @@ class FetchData {
 
   static String _editSearchParams(String str, bool isTitle, bool isImageUrl) {
     if (isImageUrl) {
-      if (!RegExp(r"^[a-zA-Zа-яА-Яё0-9\$!?&\()\[\]'/$\. ]+$").hasMatch(str)&&isTitle) {
+      if (!RegExp(r"^[a-zA-Zа-яА-Яё0-9\$!?&\()\[\]'/$\. ]+$").hasMatch(str) &&
+          isTitle) {
         if (str.contains("(")) {
           str = str.substring(str.indexOf("(") + 1, str.indexOf(")"));
         }
@@ -448,7 +510,7 @@ class FetchData {
   }
 
   static Future<String> _prepareStringToSearch(String searchStr) async {
-    if(searchStr.contains("Ø")){
+    if (searchStr.contains("Ø")) {
       searchStr = searchStr.replaceAll("Ø", "o");
     }
     if (!RegExp(r'^[a-zA-Zא-תа-яА-Яё\$!?&\()\[\]/ ]+$').hasMatch(searchStr)) {
@@ -457,7 +519,45 @@ class FetchData {
     if (RegExp(r'^[a-zA-Zא-תа-яА-Яё\$!?&\()\[\]/  ]+$').hasMatch(searchStr)) {
       searchStr = searchStr.toLowerCase();
     }
-    searchStr = searchStr.replaceAll(" ", "-");
     return searchStr;
+  }
+
+  static String _buildLyrics(Document document) {
+    List songBody;
+    String lyrics;
+    songBody = document.getElementsByClassName("song_body-lyrics");
+    lyrics = songBody[0].innerHtml;
+    lyrics = lyrics.substring(
+        lyrics.indexOf("<!--sse-->") + "<!--sse-->".length,
+        lyrics.indexOf("<!--/sse-->"));
+    lyrics = lyrics.replaceAll("<br>", "\n");
+    lyrics = lyrics.replaceAll("<p>", "");
+    lyrics = lyrics.replaceAll("</p>", "");
+    lyrics = lyrics.trimLeft();
+    lyrics = lyrics.trimRight();
+    while (lyrics.contains("<a href=")) {
+      lyrics = lyrics.replaceAll(
+          lyrics.substring(
+              lyrics.indexOf('<a href='),
+              lyrics.indexOf('pending-editorial-actions-count="') +
+                  'pending-editorial-actions-count="'.length +
+                  3),
+          "");
+    }
+    lyrics = lyrics.replaceAll("</a>", "");
+    if (lyrics.contains("&nbsp;")) {
+      lyrics = lyrics.replaceAll("&nbsp;", "");
+    }
+    if (lyrics.contains("amp;")) {
+      lyrics = lyrics.replaceAll("amp;", "");
+    }
+    if (lyrics.contains("<i>")) {
+      lyrics = lyrics.replaceAll("<i>", "");
+      lyrics = lyrics.replaceAll("</i>", "");
+    }
+    if (lyrics.contains(">")) {
+      lyrics = lyrics.replaceAll(">", "");
+    }
+    return lyrics;
   }
 }

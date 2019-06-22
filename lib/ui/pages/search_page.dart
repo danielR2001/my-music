@@ -93,7 +93,7 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                           onChanged: (txt) {
                             if (txt != "") {
-                              FetchData.searchForResultsSitePage1(txt)
+                              FetchData.getResultsSitePage1(txt)
                                   .then((results) {
                                 setState(() {
                                   if (results != null) {
@@ -109,7 +109,7 @@ class _SearchPageState extends State<SearchPage> {
                             }
                           },
                           onSubmitted: (txt) =>
-                              FetchData.searchForResultsSitePage1(txt)
+                              FetchData.getResultsSitePage1(txt)
                                   .then((results) {
                                 setState(() {
                                   if (results != null) {
@@ -203,15 +203,18 @@ class _SearchPageState extends State<SearchPage> {
         },
       ),
       onTap: () async {
-              Playlist temp = Playlist(searchResultsPlaylist.getName);
-              temp.setSongs = searchResultsPlaylist.getSongs;
-              FocusScope.of(context).requestFocus(FocusNode());
-              audioPlayerManager.initSong(
-                song,
-                temp,
-                PlaylistMode.loop,
-              );
-              audioPlayerManager.playSong();
+        if (audioPlayerManager.isLoaded &&
+            audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
+          Playlist temp = Playlist(searchResultsPlaylist.getName);
+          temp.setSongs = searchResultsPlaylist.getSongs;
+          FocusScope.of(context).requestFocus(FocusNode());
+          audioPlayerManager.initSong(
+            song,
+            temp,
+            PlaylistMode.loop,
+          );
+          audioPlayerManager.playSong();
+        }
       },
     );
   }

@@ -6,12 +6,14 @@ import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/models/user.dart';
+import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'dart:math';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:provider/provider.dart';
 
 class PlaylistPage extends StatefulWidget {
   final Playlist playlist;
@@ -137,10 +139,12 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           height: 2,
                         ),
                         AutoSizeText(
-                            widget.playlist.getPushId !=
-                                    currentUser
-                                        .getDownloadedSongsPlaylist.getPushId
-                                ? "by: " + widget.playlistCreator.getName
+                            currentUser != null
+                                ? widget.playlist.getPushId !=
+                                        currentUser.getDownloadedSongsPlaylist
+                                            .getPushId
+                                    ? "by: " + widget.playlistCreator.getName
+                                    : ""
                                 : "",
                             style: TextStyle(
                               color: Colors.grey,
@@ -279,7 +283,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
                   ],
                 ),
               ),
-              makeSliverList(widget.playlist, context)
+              makeSliverList(widget.playlistModalSheetMode == PlaylistModalSheetMode.public?widget.playlist:
+                  Provider.of<PageNotifier>(context)
+                      .currentPlaylistPagePlaylist,
+                  context)
             ],
           ),
         ),
@@ -349,13 +356,22 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 fontSize: 12,
               ),
             ),
-            trailing: ManageLocalSongs.downloading &&
-                    ManageLocalSongs.isSongDownloading(playlist.getSongs[index])
+            trailing: ManageLocalSongs.isSongDownloading(
+                    playlist.getSongs[index]) &&widget.playlistModalSheetMode!=PlaylistModalSheetMode.public
                 ? Padding(
                     padding: EdgeInsets.only(right: 6),
                     child: CircularProgressIndicator(
+                      value: Provider.of<PageNotifier>(context)
+                              .downloadedProgresses[
+                                  playlist.getSongs[index].getSongId]
+                              .toDouble() /
+                          Provider.of<PageNotifier>(context)
+                              .downloadedTotals[
+                                  playlist.getSongs[index].getSongId]
+                              .toDouble(),
                       valueColor:
                           AlwaysStoppedAnimation<Color>(Constants.pinkColor),
+                      backgroundColor: Colors.pink[50],
                       strokeWidth: 4.0,
                     ),
                   )
@@ -381,17 +397,27 @@ class _PlaylistPageState extends State<PlaylistPage> {
                     },
                   ),
             onTap: () {
-              if (audioPlayerManager.currentSong != null &&
-                  audioPlayerManager.currentPlaylist != null) {
-                if (audioPlayerManager.currentSong.getSongId ==
-                        playlist.getSongs[index].getSongId &&
-                    audioPlayerManager.currentPlaylist.getName ==
-                        playlist.getName) {
-                  Navigator.push(
-                    homePageContext,
-                    MaterialPageRoute(
-                        builder: (homePageContext) => MusicPlayerPage()),
-                  );
+              if (audioPlayerManager.isLoaded) {
+                if (audioPlayerManager.currentSong != null &&
+                    audioPlayerManager.currentPlaylist != null) {
+                  if (audioPlayerManager.currentSong.getSongId ==
+                          playlist.getSongs[index].getSongId &&
+                      audioPlayerManager.currentPlaylist.getName ==
+                          playlist.getName) {
+                    Navigator.push(
+                      homePageContext,
+                      MaterialPageRoute(
+                          builder: (homePageContext) => MusicPlayerPage()),
+                    );
+                  } else {
+                    audioPlayerManager.initSong(
+                      playlist.getSongs[index],
+                      playlist,
+                      PlaylistMode.loop,
+                    );
+
+                    audioPlayerManager.playSong();
+                  }
                 } else {
                   audioPlayerManager.initSong(
                     playlist.getSongs[index],
@@ -401,14 +427,6 @@ class _PlaylistPageState extends State<PlaylistPage> {
 
                   audioPlayerManager.playSong();
                 }
-              } else {
-                audioPlayerManager.initSong(
-                  playlist.getSongs[index],
-                  playlist,
-                  PlaylistMode.loop,
-                );
-
-                audioPlayerManager.playSong();
               }
             },
           );
@@ -418,23 +436,25 @@ class _PlaylistPageState extends State<PlaylistPage> {
   }
 
   void showSongOptions(Song song, Playlist currentPlaylist) {
-    SongModalSheetMode songModalSheetMode;
-    if (currentUser.getPlaylists.contains(currentPlaylist)) {
-      songModalSheetMode = SongModalSheetMode.regular;
-    } else {
-      songModalSheetMode = SongModalSheetMode.download_public_search_artist;
+    if (currentUser != null) {
+      SongModalSheetMode songModalSheetMode;
+      if (currentUser.getPlaylists.contains(currentPlaylist)) {
+        songModalSheetMode = SongModalSheetMode.regular;
+      } else {
+        songModalSheetMode = SongModalSheetMode.download_public_search_artist;
+      }
+      showModalBottomSheet(
+        context: homePageContext,
+        builder: (builder) {
+          return SongOptionsModalSheet(
+            song,
+            currentPlaylist,
+            false,
+            songModalSheetMode,
+          );
+        },
+      );
     }
-    showModalBottomSheet(
-      context: homePageContext,
-      builder: (builder) {
-        return SongOptionsModalSheet(
-          song,
-          currentPlaylist,
-          false,
-          songModalSheetMode,
-        );
-      },
-    );
   }
 
   void showPlaylistOptions(Playlist currentPlaylist) {

@@ -22,17 +22,19 @@ import android.net.ConnectivityManager;
 import android.app.NotificationManager;
 
 public class MainActivity extends FlutterActivity {
-  private static final String CHANNEL = "flutter.native/helper";
-  private final String CHANNEL_ID = "channel";
-  public static MethodChannel channel;
-  private static LoadImageFromUrl loadImageFromUrl;
+  private static final String CHANNEL1 = "flutter.native/notifications";
+  private static final String CHANNEL2 = "flutter.native/internet";
+  private static final String CHANNEL3 = "flutter.native/unaccent";
+  public static MethodChannel channel1;
+  public static MethodChannel channel2;
+  public static MethodChannel channel3;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     GeneratedPluginRegistrant.registerWith(this);
-    channel = new MethodChannel(getFlutterView(), CHANNEL);
-    channel.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
+    channel1 = new MethodChannel(getFlutterView(), CHANNEL1);
+    channel1.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
       @Override
       public void onMethodCall(MethodCall call, MethodChannel.Result result) {
         if (call.method.equals("startService")) {
@@ -44,25 +46,36 @@ public class MainActivity extends FlutterActivity {
           String imageUrl = call.argument("imageUrl");
           boolean isPlaying = call.argument("isPlaying");
           String localPath = call.argument("localPath");
-          loadImageFromUrl = new LoadImageFromUrl(title, artist, imageUrl, getApplicationContext(), isPlaying,localPath);
-          loadImageFromUrl.execute();
+          boolean dontLoadImage = call.argument("dontLoadImage");
+          if (dontLoadImage) {
+            NotificationService.makeNotification(title, artist, NotificationService.imageBitmap,
+                getApplicationContext(), isPlaying, imageUrl);
+          } else {
+            new LoadImageFromUrl(title, artist, imageUrl, getApplicationContext(), isPlaying, localPath).execute();
+          }
           result.success(true);
-        } else if (call.method.equals("removeNotification")) {
-          NotificationManager mNotificationManager = (NotificationManager) getSystemService(
-              Context.NOTIFICATION_SERVICE);
-          mNotificationManager.cancel(0);
-        } else if (call.method.equals("unaccent")) {
-          String str = call.argument("string");
-          result.success(unaccent(str));
-        } else if (call.method.equals("internetConnectioActivateReceive")) {
+        }
+      }
+    });
+    channel2 = new MethodChannel(getFlutterView(), CHANNEL2);
+    channel2.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
+      @Override
+      public void onMethodCall(MethodCall call, MethodChannel.Result result) {
+        if (call.method.equals("ActivateInternetConnectionReceiver")) {
           BroadcastReceiver mNetworkReceiver = new InternetConnectionBroadcastReceiver();
           registerReceiver(mNetworkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        } else if (call.method.equals("internetConnectioCheck")) {
-          if (InternetConnectionBroadcastReceiver.networkAvailable) {
-            result.success(true);
-          } else {
-            result.success(false);
-          }
+        } else if (call.method.equals("internetConnectionCheck")) {
+          result.success(InternetConnectionBroadcastReceiver.networkAvailable);
+        }
+      }
+    });
+    channel3 = new MethodChannel(getFlutterView(), CHANNEL3);
+    channel3.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
+      @Override
+      public void onMethodCall(MethodCall call, MethodChannel.Result result) {
+        if (call.method.equals("unaccent")) {
+          String str = call.argument("string");
+          result.success(unaccent(str));
         }
       }
     });

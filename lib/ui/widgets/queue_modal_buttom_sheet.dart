@@ -102,23 +102,35 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
           fontSize: 12,
         ),
       ),
-      trailing: IconButton(
-        icon: Icon(
-          Icons.clear,
-          color: Colors.white,
-        ),
-        onPressed: () {},
-      ),
+      trailing: audioPlayerManager.currentSong.getSongId != song.getSongId
+          ? IconButton(
+              icon: Icon(
+                Icons.clear,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                setState(() {
+                  audioPlayerManager.currentPlaylist.removeSong(song);
+                });
+              },
+            )
+          : Container(
+              width: 0,
+              height: 0,
+            ),
       onTap: () {
         if (audioPlayerManager.currentSong.getSongId != song.getSongId) {
-                audioPlayerManager.initSong(
-                  song,
-                  audioPlayerManager.currentPlaylist,
-                  audioPlayerManager.playlistMode,
-                );
-                audioPlayerManager.playSong();
-                Navigator.pop(context);
-              }
+          if (audioPlayerManager.isLoaded &&
+              audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
+            audioPlayerManager.initSong(
+              song,
+              audioPlayerManager.currentPlaylist,
+              audioPlayerManager.playlistMode,
+            );
+            audioPlayerManager.playSong();
+            setState(() {});
+          }
+        }
       },
     );
   }

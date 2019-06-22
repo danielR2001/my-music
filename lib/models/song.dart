@@ -6,10 +6,11 @@ class Song {
   String _imageUrl;
   String _pushId;
   int _dateAdded;
+  String _lyrics;
 
-  Song(String songName, String artist, String songId, String searchString,
+  Song(String title, String artist, String songId, String searchString,
       String imageUrl, String pushId, {int dateAdded}) {
-    _title = songName;
+    _title = title;
     _artist = artist;
     _songId = songId;
     _searchString = searchString;
@@ -39,8 +40,9 @@ class Song {
 
   String get getPushId => _pushId;
 
-
   int get getDateAdded => _dateAdded;
+
+  String get getLyrics => _lyrics;
 
   set setTitle(String value) => _title = value;
 
@@ -55,6 +57,9 @@ class Song {
   set setPushId(String value) => _pushId = value;
 
   set setDateAdded(int value) => _dateAdded = value;
+
+  set setLyrics(String value) => _lyrics = value;
+
 
   toJson() {
     return {

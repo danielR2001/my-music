@@ -10,6 +10,7 @@ class Playlist {
   String _pushId;
   bool _isPublic;
   String _creator;
+  String _publicPlaylistPushId;
 
   String get getName => _name;
 
@@ -25,6 +26,8 @@ class Playlist {
   
   String get getCreator => _creator;
 
+  String get getPublicPlaylistPushId => _publicPlaylistPushId;
+
   set setName(String value) => _name = value;
 
   set setSongs(List<Song> value) => _songs = value;
@@ -38,6 +41,8 @@ class Playlist {
   set setSortedSongs(List<Song> value) => _sortedSongs = value;
 
   set setCreator(String value) => _creator = value;
+
+  set setPublicPlaylistPushId(String value) => _publicPlaylistPushId = value;
 
   addNewSong(Song song) => _songs.add(song);
 
