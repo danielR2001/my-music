@@ -24,7 +24,13 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topCenter,
-      color: Constants.lightGreyColor,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.transparent),
+        borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(20.0),
+            topRight: const Radius.circular(20.0)),
+        color: Constants.lightGreyColor,
+      ),
       height: (70 * artists.length).toDouble(),
       child: Column(
         children: <Widget>[

@@ -23,7 +23,8 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
       title: 'My Music',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        fontFamily: 'Roboto',
+        fontFamily: 'Montserrat',
+        canvasColor: Colors.transparent,
       ),
       home: RootPage(),
     );

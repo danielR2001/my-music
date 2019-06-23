@@ -49,7 +49,7 @@ class User {
   addSongToDownloadedPlaylist(Song value) =>
       _downloadedSongsPlaylist.getSongs.add(value);
 
-  removeSongToDownloadedPlaylist(Song value) =>
+  removeSongFromDownloadedPlaylist(Song value) =>
       _downloadedSongsPlaylist.getSongs.remove(value);
 
   bool songExistsInDownloadedPlaylist(Song song) {

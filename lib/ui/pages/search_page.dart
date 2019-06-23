@@ -185,6 +185,8 @@ class _SearchPageState extends State<SearchPage> {
         title,
         style: TextStyle(
           color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
         ),
       ),
       subtitle: Text(
@@ -192,6 +194,7 @@ class _SearchPageState extends State<SearchPage> {
         style: TextStyle(
           color: Colors.grey,
           fontSize: 12,
+          fontWeight: FontWeight.bold,
         ),
       ),
       trailing: IconButton(

@@ -109,8 +109,9 @@ class _AccountPageState extends State<AccountPage> {
                       title: Text(
                         "Downloaded",
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       trailing: Icon(
@@ -136,8 +137,9 @@ class _AccountPageState extends State<AccountPage> {
                     title: Text(
                       "My Playlists",
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     trailing: IconButton(
@@ -183,8 +185,9 @@ class _AccountPageState extends State<AccountPage> {
           title: AutoSizeText(
             cutPlaylistName(playlist),
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 18,
               color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
             maxLines: 1,
           ),

@@ -14,7 +14,13 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topCenter,
-      color: Constants.lightGreyColor,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.transparent),
+        borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(20.0),
+            topRight: const Radius.circular(20.0)),
+        color: Constants.lightGreyColor,
+      ),
       child: Column(
         children: <Widget>[
           Padding(
@@ -30,7 +36,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
               title: Text(
                 "Queue",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.grey,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -90,7 +96,8 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
           color: audioPlayerManager.currentSong.getSongId == song.getSongId
               ? Constants.pinkColor
               : Colors.white,
-          fontSize: 15,
+          fontSize: 14,
+          fontWeight: FontWeight.bold
         ),
       ),
       subtitle: Text(

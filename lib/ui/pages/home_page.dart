@@ -219,17 +219,19 @@ class _HomePageState extends State<HomePage> {
                         children: <Widget>[
                           TextDecoration(
                             audioPlayerManager.currentSong.getTitle,
-                            15,
+                            14,
                             Colors.white,
                             20,
                             20,
+                            true,
                           ),
                           TextDecoration(
                             audioPlayerManager.currentSong.getArtist,
-                            15,
+                            14,
                             Colors.grey,
                             30,
                             20,
+                            false
                           ),
                         ],
                       ),

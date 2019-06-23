@@ -82,33 +82,32 @@ class FetchData {
     var encoded = Uri.encodeFull(searchUrl + searchStr);
     try {
       return http
-          .get(encoded, headers: {"accept": "application/json"})
+          .get(encoded)
           .catchError((eror) => print("error getSongPlayUrlPage1"))
           .whenComplete(() => print('song search completed'))
           .then((http.Response response) {
-            var document = parse(response.body);
-            if (!document.outerHtml
-                .contains("Ошибка 404 - страница не найдена")) {
-              var elements = document.getElementsByClassName("playlist");
-              if (elements.length > 0) {
-                var html = elements[0].outerHtml;
-                html = html.replaceAll('\n', '');
-                html = html.replaceFirst('<ul class="playlist">', '');
-                responseList = html.split("</li>");
-                responseList.removeLast();
-                String streamUrl = _buildStreamUrl(responseList, song);
-                if (streamUrl != null) {
-                  return streamUrl;
-                } else {
-                  return getSongPlayUrlPage2(searchStr, song);
-                }
-              } else {
-                return null;
-              }
+        var document = parse(response.body);
+        if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
+          var elements = document.getElementsByClassName("playlist");
+          if (elements.length > 0) {
+            var html = elements[0].outerHtml;
+            html = html.replaceAll('\n', '');
+            html = html.replaceFirst('<ul class="playlist">', '');
+            responseList = html.split("</li>");
+            responseList.removeLast();
+            String streamUrl = _buildStreamUrl(responseList, song);
+            if (streamUrl != null) {
+              return streamUrl;
             } else {
               return getSongPlayUrlPage2(searchStr, song);
             }
-          });
+          } else {
+            return null;
+          }
+        } else {
+          return getSongPlayUrlPage2(searchStr, song);
+        }
+      });
     } catch (e) {
       print(e);
       return null;
@@ -304,8 +303,12 @@ class FetchData {
         sectionsList = list['sections'];
         sectionsMap = sectionsList[1];
         hitsList = sectionsMap['hits'];
-        resultsList = hitsList[0]['result'];
-        return resultsList['url'];
+        if (hitsList != null) {
+          resultsList = hitsList[0]['result'];
+          return resultsList['url'];
+        } else {
+          return null;
+        }
       });
     } catch (e) {
       print(e);
@@ -431,6 +434,10 @@ class FetchData {
         int pos = str.indexOf("vs.");
         str = str.substring(0, pos);
       }
+      if (str.contains("vs")) {
+        int pos = str.indexOf("vs");
+        str = str.substring(0, pos);
+      }
       if (str.contains(",")) {
         int pos = str.indexOf(",");
         str = str.substring(0, pos);
@@ -439,6 +446,43 @@ class FetchData {
         int pos = str.indexOf("&");
         str = str.substring(0, pos);
       }
+    } else {
+      if (str.contains("feat.")) {
+        str = str.replaceAll("feat.", "");
+      }
+      if (str.contains("ft.")) {
+        str = str.replaceAll("ft.", "");
+      }
+      if (str.contains("vs.")) {
+        str = str.replaceAll("vs.", "");
+      }
+      if (str.contains("vs")) {
+        str = str.replaceAll("vs", "");
+      }
+      if (str.contains(",")) {
+        str = str.replaceAll(",", "");
+      }
+      if (str.contains("&")) {
+        str = str.replaceAll("&", "");
+      }
+    }
+    if (str.contains(".")) {
+      str = str.replaceAll(" .", " ");
+    }
+    if (str.contains("?")) {
+      str = str.replaceAll("?", "");
+    }
+    if (str.contains("!")) {
+      str = str.replaceAll("!", "");
+    }
+    if (str.contains("-")) {
+      str = str.replaceAll("-", " ");
+    }
+    if (str.contains("   ")) {
+      str = str.replaceAll("   ", " ");
+    }
+    if (str.contains("  ")) {
+      str = str.replaceAll("  ", " ");
     }
     str = str.trimRight();
     return str;
@@ -513,10 +557,12 @@ class FetchData {
     if (searchStr.contains("Ø")) {
       searchStr = searchStr.replaceAll("Ø", "o");
     }
-    if (!RegExp(r'^[a-zA-Zא-תа-яА-Яё\$!?&\()\[\]/ ]+$').hasMatch(searchStr)) {
+    if (!RegExp(r'^[a-zA-Zא-תа-яА-Яё0-9\$!?&\()\[\]/,\-# ]+$')
+        .hasMatch(searchStr)) {
       searchStr = await UnaccentString.unaccent(searchStr);
     }
-    if (RegExp(r'^[a-zA-Zא-תа-яА-Яё\$!?&\()\[\]/  ]+$').hasMatch(searchStr)) {
+    if (RegExp(r'^[a-zA-Zא-תа-яА-Яё0-9\$!?&\()\[\]/,\-#  ]+$')
+        .hasMatch(searchStr)) {
       searchStr = searchStr.toLowerCase();
     }
     return searchStr;

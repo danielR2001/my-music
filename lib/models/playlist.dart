@@ -5,7 +5,6 @@ import 'song.dart';
 class Playlist {
   String _name;
   List<Song> _songs;
-  List<Song> _sortedSongs;
   SortType _sortedType;
   String _pushId;
   bool _isPublic;
@@ -21,8 +20,6 @@ class Playlist {
   bool get getIsPublic => _isPublic;
 
   SortType get getSortedType => _sortedType;
-
-  List<Song> get getSortedSongs => _sortedSongs;
   
   String get getCreator => _creator;
 
@@ -37,8 +34,6 @@ class Playlist {
   set setIsPublic(bool value) => _isPublic = value;
 
   set setSortedType(SortType value) => _sortedType = value;
-
-  set setSortedSongs(List<Song> value) => _sortedSongs = value;
 
   set setCreator(String value) => _creator = value;
 

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
@@ -130,7 +131,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                         AutoSizeText(
                           widget.playlist.getName,
                           style: TextStyle(
-                            fontSize: 20.0,
+                            fontSize: 16.0,
                             fontWeight: FontWeight.bold,
                           ),
                           maxLines: 1,
@@ -139,19 +140,15 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           height: 2,
                         ),
                         AutoSizeText(
-                            currentUser != null
-                                ? widget.playlist.getPushId !=
-                                        currentUser.getDownloadedSongsPlaylist
-                                            .getPushId
-                                    ? "by: " + widget.playlistCreator.getName
-                                    : ""
-                                : "",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1),
+                          currentUser != null
+                              ? "by: " + widget.playlistCreator.getName
+                              : "",
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 10.0,
+                          ),
+                          maxLines: 1,
+                        ),
                       ],
                     ),
                   ),
@@ -182,110 +179,15 @@ class _PlaylistPageState extends State<PlaylistPage> {
               SliverList(
                 delegate: SliverChildListDelegate(
                   [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Container(
-                            width: 150,
-                            height: 45,
-                            child: RaisedButton(
-                              splashColor: Colors.deepOrange,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                              ),
-                              color: Constants.pinkColor,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Expanded(
-                                    flex: 3,
-                                    child: Icon(
-                                      Icons.play_arrow,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 4,
-                                    child: Text(
-                                      "Play",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              elevation: 6.0,
-                              onPressed: () {
-                                audioPlayerManager.initSong(
-                                  widget.playlist.getSongs[0],
-                                  widget.playlist,
-                                  PlaylistMode.loop,
-                                );
-                                audioPlayerManager.playSong();
-                              },
-                            ),
-                          ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Container(
-                            width: 150,
-                            height: 45,
-                            child: RaisedButton(
-                              splashColor: Colors.deepOrange,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                              ),
-                              color: Constants.pinkColor,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Expanded(
-                                    child: Icon(
-                                      Icons.shuffle,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      "Shuffle",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              elevation: 6.0,
-                              onPressed: () {
-                                var rnd = Random();
-                                int randomNum = rnd
-                                    .nextInt(widget.playlist.getSongs.length);
-                                audioPlayerManager.initSong(
-                                  widget.playlist.getSongs[randomNum],
-                                  widget.playlist,
-                                  PlaylistMode.shuffle,
-                                );
-
-                                audioPlayerManager.playSong();
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    drawPlaylistButtons(),
                   ],
                 ),
               ),
-              makeSliverList(widget.playlistModalSheetMode == PlaylistModalSheetMode.public?widget.playlist:
-                  Provider.of<PageNotifier>(context)
-                      .currentPlaylistPagePlaylist,
+              makeSliverList(
+                  widget.playlistModalSheetMode == PlaylistModalSheetMode.public
+                      ? widget.playlist
+                      : Provider.of<PageNotifier>(context)
+                          .currentPlaylistPagePlaylist,
                   context)
             ],
           ),
@@ -320,9 +222,6 @@ class _PlaylistPageState extends State<PlaylistPage> {
             artist = playlist.getSongs[index].getArtist;
           }
           return ListTile(
-            // leading: playlist.getSongs[index].getImageUrl.length > 0
-            //     ? drawSongImage(playlist.getSongs[index])
-            //     : drawDefaultSongImage(),
             title: Text(
               title,
               style: TextStyle(
@@ -336,7 +235,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                             : Colors.white
                         : Colors.white
                     : Colors.white,
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -357,7 +256,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
               ),
             ),
             trailing: ManageLocalSongs.isSongDownloading(
-                    playlist.getSongs[index]) &&widget.playlistModalSheetMode!=PlaylistModalSheetMode.public
+                        playlist.getSongs[index]) &&
+                    widget.playlistModalSheetMode !=
+                        PlaylistModalSheetMode.public
                 ? Padding(
                     padding: EdgeInsets.only(right: 6),
                     child: CircularProgressIndicator(
@@ -511,6 +412,106 @@ class _PlaylistPageState extends State<PlaylistPage> {
         Icons.music_note,
         color: Constants.pinkColor,
         size: 40,
+      ),
+    );
+  }
+
+  Widget drawPlaylistButtons() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            width: 150,
+            height: 45,
+            child: RaisedButton(
+              splashColor: Colors.deepOrange,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              color: Constants.pinkColor,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                    child: Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      "Play all",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              elevation: 6.0,
+              onPressed: () {
+                audioPlayerManager.initSong(
+                  widget.playlist.getSongs[0],
+                  widget.playlist,
+                  PlaylistMode.loop,
+                );
+                audioPlayerManager.playSong();
+              },
+            ),
+          ),
+          SizedBox(
+            width: 20,
+          ),
+          Container(
+            width: 150,
+            height: 45,
+            child: RaisedButton(
+              splashColor: Colors.deepOrange,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              color: Constants.pinkColor,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                    child: Icon(
+                      CupertinoIcons.shuffle_medium,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      "Shuffle",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              elevation: 6.0,
+              onPressed: () {
+                var rnd = Random();
+                int randomNum = rnd.nextInt(widget.playlist.getSongs.length);
+                audioPlayerManager.initSong(
+                  widget.playlist.getSongs[randomNum],
+                  widget.playlist,
+                  PlaylistMode.shuffle,
+                );
+
+                audioPlayerManager.playSong();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/constants/constants.dart';
@@ -36,7 +37,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     if (widget.playlistMode == PlaylistModalSheetMode.download) {
       widgetsCount = 2;
     } else if (widget.playlistMode == PlaylistModalSheetMode.public) {
-      widgetsCount = 3;
+      widgetsCount = 2;
     }
     super.initState();
   }
@@ -45,8 +46,14 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topCenter,
-      color: Constants.lightGreyColor,
-      height: 52 * widgetsCount,
+      height: 53 * widgetsCount,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.transparent),
+        borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(20.0),
+            topRight: const Radius.circular(20.0)),
+        color: Constants.lightGreyColor,
+      ),
       child: Column(
         children: <Widget>[
           showDownloadAll(),
@@ -75,9 +82,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         title: Text(
           "Download all",
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-          ),
+              color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () {
           downloadAll();
@@ -124,9 +129,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         title: Text(
           "Add all to playlist",
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-          ),
+              color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () {
           Navigator.push(
@@ -157,9 +160,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         title: Text(
           "Undownload all",
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-          ),
+              color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () {
           if (ManageLocalSongs.currentDownloading.length == 0) {
@@ -217,9 +218,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         title: Text(
           "Rename playlist",
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-          ),
+              color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () {
           showRenamePlaylistDialog(context);
@@ -231,25 +230,27 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
   }
 
   Widget showSort() {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
-      dense: true,
-      leading: Icon(
-        Icons.sort,
-        color: Colors.grey,
-        size: 30,
-      ),
-      title: Text(
-        "Sort",
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 15,
+    if (widget.playlistMode != PlaylistModalSheetMode.public) {
+      return ListTile(
+        contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
+        dense: true,
+        leading: Icon(
+          Icons.sort,
+          color: Colors.grey,
+          size: 30,
         ),
-      ),
-      onTap: () {
-        showPlaylistOptions(widget.playlist, context);
-      },
-    );
+        title: Text(
+          "Sort",
+          style: TextStyle(
+              color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+        ),
+        onTap: () {
+          showPlaylistOptions(widget.playlist, context);
+        },
+      );
+    } else {
+      return Container();
+    }
   }
 
   Widget showPlaylistPrivacy() {
@@ -265,9 +266,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         title: Text(
           widget.playlist.getIsPublic ? "Public" : "Private",
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-          ),
+              color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () async {
           setState(() {
@@ -275,9 +274,11 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
           });
           Playlist temp = widget.playlist;
           if (widget.playlist.getIsPublic) {
-            temp = await FirebaseDatabaseManager.addPublicPlaylist(widget.playlist);
+            temp = await FirebaseDatabaseManager.addPublicPlaylist(
+                widget.playlist);
           } else {
-            FirebaseDatabaseManager.removeFromPublicPlaylist(widget.playlist);
+            FirebaseDatabaseManager.removeFromPublicPlaylist(
+                widget.playlist, false);
           }
           FirebaseDatabaseManager.changePlaylistPrivacy(temp);
           currentUser.updatePlaylist(temp);
@@ -294,16 +295,14 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
         dense: true,
         leading: Icon(
-          Icons.delete,
+          CupertinoIcons.delete_solid,
           color: Colors.grey,
           size: 30,
         ),
         title: Text(
           "Delete",
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 15,
-          ),
+              color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () {
           FirebaseDatabaseManager.removePlaylist(widget.playlist);
@@ -453,7 +452,12 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
       ManageLocalSongs.checkIfFileExists(song).then((exists) {
         if (exists) {
           ManageLocalSongs.deleteSongDirectory(song);
-          currentUser.removeSongToDownloadedPlaylist(song);
+          currentUser.removeSongFromDownloadedPlaylist(song);
+          if (song.getSongId == audioPlayerManager.currentSong.getSongId) {
+            audioPlayerManager.currentPlaylist = null;
+            audioPlayerManager.shuffledPlaylist = null;
+            audioPlayerManager.loopPlaylist = null;
+          }
         }
       });
     });

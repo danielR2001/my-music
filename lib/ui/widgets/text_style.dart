@@ -7,8 +7,9 @@ class TextDecoration extends StatelessWidget {
   final Color color;
   final int txtMaxLength;
   final double height;
+  final bool makeBold;
   TextDecoration(
-      this.txt, this.size, this.color, this.txtMaxLength, this.height);
+      this.txt, this.size, this.color, this.txtMaxLength, this.height,this.makeBold);
   @override
   Widget build(BuildContext context) {
     if (txt.length < txtMaxLength) {
@@ -21,6 +22,7 @@ class TextDecoration extends StatelessWidget {
           style: TextStyle(
             fontSize: size,
             color: color,
+            fontWeight: makeBold?FontWeight.bold:FontWeight.normal,
           ),
         ),
       );
@@ -34,6 +36,7 @@ class TextDecoration extends StatelessWidget {
           style: TextStyle(
             fontSize: size,
             color: color,
+            fontWeight: makeBold?FontWeight.bold:FontWeight.normal,
           ),
           blankSpace: 30.0,
           velocity: 30.0,

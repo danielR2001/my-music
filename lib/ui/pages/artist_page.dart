@@ -15,31 +15,30 @@ class ArtistPage extends StatefulWidget {
   final Artist artist;
   ArtistPage(this.artist);
   @override
-  _ArtistPageState createState() => _ArtistPageState(artist);
+  _ArtistPageState createState() => _ArtistPageState();
 }
 
 class _ArtistPageState extends State<ArtistPage> {
   ScrollController _scrollController;
   Color iconColor = Colors.white;
-  final Artist artist;
   int searchLength = 0;
   static List<Song> searchResults = List();
   Playlist topHitsPlaylist;
-  _ArtistPageState(this.artist);
+  _ArtistPageState();
   @override
   void initState() {
     _scrollController = ScrollController()..addListener(() => setState(() {}));
-    topHitsPlaylist = Playlist(artist.getName + " Top Hits");
-    FetchData.getResultsSitePage1(artist.getName).then((results) {
+    topHitsPlaylist = Playlist(widget.artist.getName + " Top Hits");
+    FetchData.getResultsSitePage1(widget.artist.getName).then((results) {
       setState(() {
         if (results != null) {
           results.forEach((song) {
             if (song.getArtist
                     .toLowerCase()
-                    .contains(artist.getName.toLowerCase()) ||
+                    .contains(widget.artist.getName.toLowerCase()) ||
                 song.getTitle
                     .toLowerCase()
-                    .contains(artist.getName.toLowerCase())) {
+                    .contains(widget.artist.getName.toLowerCase())) {
               topHitsPlaylist.addNewSong(song);
             }
           });
@@ -100,7 +99,7 @@ class _ArtistPageState extends State<ArtistPage> {
                 flexibleSpace: FlexibleSpaceBar(
                   centerTitle: true,
                   title: Text(
-                    artist.getName,
+                    widget.artist.getName,
                     style: TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold,
@@ -116,14 +115,14 @@ class _ArtistPageState extends State<ArtistPage> {
                           Rect.fromLTRB(0, 0, rect.width, rect.height));
                     },
                     blendMode: BlendMode.dstIn,
-                    child: artist.getImageUrl !=
+                    child: widget.artist.getImageUrl !=
                             "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png"
                         ? Image.network(
-                            artist.getImageUrl,
+                            widget.artist.getImageUrl,
                             fit: BoxFit.cover,
                           )
                         : Image.network(
-                            "https://static.bbc.co.uk/music_clips/3.0.29/img/default_artist_images/pop1.jpg",
+                            "https://www.collegeatlas.org/wp-content/uploads/2014/06/Top-Party-Schools-main-image.jpg",
                             fit: BoxFit.cover,
                           ),
                   ),
@@ -132,7 +131,7 @@ class _ArtistPageState extends State<ArtistPage> {
               SliverList(
                 delegate: SliverChildListDelegate(
                   [
-                    artist.getInfo != ""
+                    widget.artist.getInfo != ""
                         ? Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 10),
@@ -150,7 +149,7 @@ class _ArtistPageState extends State<ArtistPage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 5),
                       child: Text(
-                        artist.getInfo,
+                        widget.artist.getInfo,
                         style: TextStyle(
                           color: Colors.grey,
                           fontSize: 14,
@@ -174,7 +173,7 @@ class _ArtistPageState extends State<ArtistPage> {
                   ],
                 ),
               ),
-              makeSliverList(artist, context)
+              makeSliverList(widget.artist, context)
             ],
           ),
         ),
@@ -215,9 +214,6 @@ class _ArtistPageState extends State<ArtistPage> {
             artist = topHitsPlaylist.getSongs[index].getArtist;
           }
           return ListTile(
-            // leading: topHitsPlaylist.getSongs[index].getImageUrl.length > 0
-            //     ? drawSongImage(topHitsPlaylist.getSongs[index])
-            //     : drawDefaultSongImage(),
             title: Text(
               title,
               style: TextStyle(

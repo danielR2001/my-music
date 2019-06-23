@@ -5,6 +5,7 @@ import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/user.dart';
+import 'package:myapp/ui/widgets/sort_options_modal_buttom_sheet.dart';
 
 class FirebaseDatabaseManager {
   static final String _usersDir = "users";
@@ -86,6 +87,9 @@ class FirebaseDatabaseManager {
         .child(_playlistsDir)
         .child(playlist.getPushId)
         .remove();
+    if (playlist.getIsPublic) {
+      removeFromPublicPlaylist(playlist, true);
+    }
   }
 
   static void renamePlaylist(Playlist playlist, String newName) {
@@ -211,19 +215,22 @@ class FirebaseDatabaseManager {
     return temp;
   }
 
-  static Future<void> removeFromPublicPlaylist(Playlist playlist) async {
+  static Future<void> removeFromPublicPlaylist(
+      Playlist playlist, bool completeDelete) async {
     FirebaseDatabase.instance
         .reference()
         .child(_publicPlaylistsDir)
         .child(playlist.getPublicPlaylistPushId)
-        .remove();
-    FirebaseDatabase.instance
-        .reference()
-        .child(_usersDir)
-        .child(_userPushId)
-        .child(_playlistsDir)
-        .child(playlist.getPushId)
-        .update({"publicPlaylistPushId": ""});
+        .remove();  
+    if (!completeDelete) {
+      FirebaseDatabase.instance
+          .reference()
+          .child(_usersDir)
+          .child(_userPushId)
+          .child(_playlistsDir)
+          .child(playlist.getPushId)
+          .update({"publicPlaylistPushId": ""});
+    }
   }
 
   static Song _addSongToPublicPlaylist(Playlist playlist, Song song) {
@@ -309,6 +316,22 @@ class FirebaseDatabaseManager {
             ));
           });
         }
+        List<Song> sortedPlaylist = List();
+        List<int> datesList = List();
+        for (int i = 0; i < tempPlaylist.getSongs.length; i++) {
+          datesList.add(tempPlaylist.getSongs[i].getDateAdded);
+        }
+        datesList.sort();
+        datesList.forEach((date) {
+          for (int i = 0; i < tempPlaylist.getSongs.length; i++) {
+            if (tempPlaylist.getSongs[i].getDateAdded == date) {
+              sortedPlaylist.add(tempPlaylist.getSongs[i]);
+              break;
+            }
+          }
+        });
+        tempPlaylist.setSongs = sortedPlaylist;
+        tempPlaylist.setSortedType = SortType.recentlyAdded;
         playlists.add(tempPlaylist);
       },
     );

@@ -12,12 +12,12 @@ class DiscoverPage extends StatefulWidget {
   final onPush;
 
   @override
-  _DiscoverPageState createState() => _DiscoverPageState(onPush);
+  _DiscoverPageState createState() => _DiscoverPageState();
 }
 
 class _DiscoverPageState extends State<DiscoverPage> {
-  final onPush;
-  _DiscoverPageState(this.onPush);
+
+  _DiscoverPageState();
   @override
   void initState() {
     syncAllPublicPlaylists();
@@ -210,7 +210,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
             ],
           ),
           onTap: () {
-            onPush(playlistValues: createMap(playlist));
+            widget.onPush(playlistValues: createMap(playlist));
           }),
     );
   }

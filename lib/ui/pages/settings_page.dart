@@ -42,27 +42,23 @@ class SettingsPage extends StatelessWidget {
                         },
                       ),
                       Expanded(
-                        child: Container(),
-                        flex: 3,
-                      ),
-                      Text(
-                        "   Settings",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
+                        child: Text(
+                          "Settings",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
-                      Expanded(
-                        child: Container(),
-                        flex: 5,
-                      ),
+                      Container(width: 50,),
                     ],
                   ),
                 ),
                 Expanded(
                   child: Text(
-                    "1.3.2",
+                    "1.4.1",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 17,
@@ -104,6 +100,7 @@ class SettingsPage extends StatelessWidget {
             style: TextStyle(
               color: Colors.white,
               fontSize: 16,
+              fontWeight: FontWeight.bold
             ),
           ),
           children: <Widget>[
@@ -137,6 +134,7 @@ class SettingsPage extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16.0,
                             color: Colors.white,
+                            fontWeight: FontWeight.bold
                           ),
                         ),
                       ),
@@ -165,6 +163,7 @@ class SettingsPage extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16.0,
                             color: Colors.white,
+                            fontWeight: FontWeight.bold
                           ),
                         ),
                       ),

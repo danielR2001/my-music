@@ -214,6 +214,7 @@ class AudioPlayerManager {
   }
 
   void playPreviousSong() {
+    //TODO first time set pos 0 
     if (currentPlaylist != null) {
       int i = 0;
       Song correctPreviousSong;

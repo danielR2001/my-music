@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/constants/constants.dart';
@@ -65,65 +66,70 @@ class MusicPageState extends State<MusicPlayerPage> {
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.only(
-                  top: 10, bottom: 20, left: 10, right: 10),
+                  top: 10, bottom: 20),
               child: Column(
                 children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      IconButton(
-                        iconSize: 40,
-                        icon: Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.white,
-                        ),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      Expanded(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Column(
-                              children: <Widget>[
-                                Text(
-                                  audioPlayerManager.currentPlaylist != null
-                                      ? "Playing From:"
-                                      : "",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Text(
-                                  audioPlayerManager.currentPlaylist != null
-                                      ? audioPlayerManager
-                                          .currentPlaylist.getName
-                                      : "",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                          iconSize: 30,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      children: <Widget>[
+                        IconButton(
+                          iconSize: 40,
                           icon: Icon(
-                            Icons.more_vert,
+                            Icons.keyboard_arrow_down,
                             color: Colors.white,
                           ),
-                          onPressed: () {
-                            if (audioPlayerManager.currentSong != null) {
-                              showMoreOptions(context);
-                            }
-                          }),
-                    ],
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Column(
+                                children: <Widget>[
+                                  Text(
+                                    audioPlayerManager.currentPlaylist != null
+                                        ? "Playing From:"
+                                        : "",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Text(
+                                    audioPlayerManager.currentPlaylist != null
+                                        ? audioPlayerManager
+                                            .currentPlaylist.getName
+                                        : "",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                            iconSize: 30,
+                            icon: Icon(
+                              Icons.more_vert,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              if (audioPlayerManager.currentSong != null) {
+                                showMoreOptions(context);
+                              }
+                            }),
+                      ],
+                    ),
                   ),
                   Expanded(
                     child: Column(
@@ -149,10 +155,11 @@ class MusicPageState extends State<MusicPlayerPage> {
                         audioPlayerManager.currentSong != null
                             ? audioPlayerManager.currentSong.getTitle
                             : "",
-                        25,
+                        20,
                         Colors.white,
                         20,
                         30,
+                        true,
                       ),
                       TextDecoration(
                         audioPlayerManager.currentSong != null
@@ -162,6 +169,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                         Colors.grey,
                         30,
                         30,
+                        false,
                       ),
                     ],
                   ),
@@ -236,7 +244,8 @@ class MusicPageState extends State<MusicPlayerPage> {
                                       : "00:00",
                               textAlign: TextAlign.left,
                               style: TextStyle(
-                                color: Colors.grey[400],
+                                color: Colors.white,
+                                fontSize: 13
                               ),
                             ),
                           ),
@@ -253,7 +262,8 @@ class MusicPageState extends State<MusicPlayerPage> {
                                       : "00:00",
                               textAlign: TextAlign.right,
                               style: TextStyle(
-                                color: Colors.grey[400],
+                                color: Colors.white,
+                                fontSize: 13
                               ),
                             ),
                           ),
@@ -278,7 +288,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                               ),
                               onPressed: () {
                                 if (audioPlayerManager.currentPlaylist !=
-                                    null) {
+                                    null&&audioPlayerManager.currentPlaylist.getSongs.length>0) {
                                   if (audioPlayerManager.isLoaded &&
                                       audioPlayerManager.songPosition !=
                                           Duration(milliseconds: 0)) {
@@ -324,7 +334,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                               ),
                               onPressed: () {
                                 if (audioPlayerManager.currentPlaylist !=
-                                    null) {
+                                    null&&audioPlayerManager.currentPlaylist.getSongs.length>0) {
                                   if (audioPlayerManager.isLoaded &&
                                       audioPlayerManager.songPosition !=
                                           Duration(milliseconds: 0)) {
@@ -444,7 +454,8 @@ class MusicPageState extends State<MusicPlayerPage> {
       setState(
         () {
           playlistModeIcon = Icon(
-            Icons.shuffle,
+            CupertinoIcons.shuffle_medium,
+            //Icons.shuffle,
             color: Colors.white,
             size: 25,
           );
@@ -622,10 +633,10 @@ class MusicPageState extends State<MusicPlayerPage> {
               child: Text(
                 audioPlayerManager.currentSong.getLyrics != null
                     ? audioPlayerManager.currentSong.getLyrics
-                    : "We didn't find lyrics for this song",
+                    : "We couldn't find lyrics for this song.",
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 17,
+                  fontSize: 16,
                 ),
                 textAlign: TextAlign.center,
               ),
