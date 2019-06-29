@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/constants/constants.dart';
@@ -38,7 +37,8 @@ class SongOptionsModalSheet extends StatefulWidget {
 
 class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   ImageProvider imageProvider;
-
+  bool canceled = false;
+  bool loadingArtists = false;
   @override
   void initState() {
     super.initState();
@@ -73,7 +73,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
     }
     return Container(
       alignment: Alignment.topCenter,
-      height: 220 + 57 * widgetsCount,
+      height: 195 + 50 * widgetsCount,
       decoration: BoxDecoration(
         border: Border.all(color: Colors.transparent),
         borderRadius: BorderRadius.only(
@@ -84,11 +84,11 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
       child: Column(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.only(top: 5),
             child: drawSongImageWidget(),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 15),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -117,7 +117,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.only(bottom: 5),
             child: Container(
               height: 1,
               width: 350,
@@ -130,69 +130,72 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
               ),
             ),
           ),
-          showRemoveFromPlaylist(context),
-          showDownloadSong(context),
-          showAddToPlaylist(context),
-          showQueue(context),
-          showViewArtist(context),
+          drawRemoveFromPlaylist(context),
+          drawDownloadSong(context),
+          drawAddToPlaylist(context),
+          drawQueue(context),
+          drawViewArtist(context),
         ],
       ),
     );
   }
 
-  Widget showRemoveFromPlaylist(BuildContext context) {
+  Widget drawRemoveFromPlaylist(BuildContext context) {
     if (widget.songModalSheetMode == SongModalSheetMode.regular &&
         widget.playlist != null) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: ListTile(
-          leading: Icon(
-            Icons.remove_circle_outline,
-            color: Colors.grey,
-            size: 30,
-          ),
-          title: Text(
-            "Remove from playlist",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+        child: Container(
+          height: 50,
+          child: ListTile(
+            leading: Icon(
+              Icons.remove_circle_outline,
+              color: Colors.grey,
+              size: 30,
             ),
-          ),
-          onTap: () {
-            FirebaseDatabaseManager.removeSongFromPlaylist(
-                widget.playlist, widget.song);
-            widget.playlist.removeSong(widget.song);
-            Provider.of<PageNotifier>(accountPageContext)
-                .setCurrentPlaylistPagePlaylist = widget.playlist;
-            currentUser.updatePlaylist(widget.playlist);
-            if (audioPlayerManager.currentPlaylist != null) {
-              if (audioPlayerManager.currentPlaylist.getPushId ==
-                  widget.playlist.getPushId) {
-                if (widget.playlist.getSongs.length == 0) {
-                  audioPlayerManager.loopPlaylist = null;
-                  audioPlayerManager.shuffledPlaylist = null;
-                  audioPlayerManager.currentPlaylist = null;
-                } else {
-                  if (audioPlayerManager.currentSong.getSongId ==
-                      widget.song.getSongId) {
+            title: Text(
+              "Remove from playlist",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onTap: () {
+              FirebaseDatabaseManager.removeSongFromPlaylist(
+                  widget.playlist, widget.song);
+              widget.playlist.removeSong(widget.song);
+              Provider.of<PageNotifier>(accountPageContext)
+                  .setCurrentPlaylistPagePlaylist = widget.playlist;
+              currentUser.updatePlaylist(widget.playlist);
+              if (audioPlayerManager.currentPlaylist != null) {
+                if (audioPlayerManager.currentPlaylist.getPushId ==
+                    widget.playlist.getPushId) {
+                  if (widget.playlist.getSongs.length == 0) {
                     audioPlayerManager.loopPlaylist = null;
                     audioPlayerManager.shuffledPlaylist = null;
                     audioPlayerManager.currentPlaylist = null;
                   } else {
-                    audioPlayerManager.loopPlaylist = widget.playlist;
-                    audioPlayerManager.shuffledPlaylist = null;
-                    audioPlayerManager.setCurrentPlaylist();
+                    if (audioPlayerManager.currentSong.getSongId ==
+                        widget.song.getSongId) {
+                      audioPlayerManager.loopPlaylist = null;
+                      audioPlayerManager.shuffledPlaylist = null;
+                      audioPlayerManager.currentPlaylist = null;
+                    } else {
+                      audioPlayerManager.loopPlaylist = widget.playlist;
+                      audioPlayerManager.shuffledPlaylist = null;
+                      audioPlayerManager.setCurrentPlaylist();
+                    }
                   }
                 }
               }
-            }
-            if (widget.playlist.getSongs.length == 0) {
-              Navigator.pop(context);
-            } else {
-              Navigator.pop(context);
-            }
-          },
+              if (widget.playlist.getSongs.length == 0) {
+                Navigator.pop(context);
+              } else {
+                Navigator.pop(context);
+              }
+            },
+          ),
         ),
       );
     } else {
@@ -200,7 +203,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
     }
   }
 
-  Widget showDownloadSong(BuildContext context) {
+  Widget drawDownloadSong(BuildContext context) {
     if (!currentUser.songExistsInDownloadedPlaylist(widget.song) &&
         !ManageLocalSongs.isSongDownloading(widget.song)) {
       return downloadWidget(context);
@@ -216,67 +219,70 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   Widget downloadWidget(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListTile(
-        leading: Icon(
-          Icons.save_alt,
-          color: Colors.grey,
-          size: 30,
-        ),
-        title: Text(
-          "Download",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+      child: Container(
+        height: 50,
+        child: ListTile(
+          leading: Icon(
+            Icons.save_alt,
+            color: Colors.grey,
+            size: 30,
           ),
-        ),
-        onTap: () {
-          ManageLocalSongs.checkIfStoragePermissionGranted()
-              .then((permissonGranted) {
-            if (permissonGranted) {
-              ManageLocalSongs.checkIfFileExists(widget.song)
-                  .then((exists) async {
-                if (!exists) {
-                  Fluttertoast.showToast(
-                    msg: "Download started",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    timeInSecForIos: 1,
-                    backgroundColor: Constants.pinkColor,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
-                  if (widget.song.getImageUrl == "") {
-                    String imageUrl =
-                        await FetchData.getSongImageUrl(widget.song, false);
-                    widget.song.setImageUrl = imageUrl;
+          title: Text(
+            "Download",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () {
+            ManageLocalSongs.checkIfStoragePermissionGranted()
+                .then((permissonGranted) {
+              if (permissonGranted) {
+                ManageLocalSongs.checkIfFileExists(widget.song)
+                    .then((exists) async {
+                  if (!exists) {
+                    Fluttertoast.showToast(
+                      msg: "Download started",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIos: 1,
+                      backgroundColor: Constants.pinkColor,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                    if (widget.song.getImageUrl == "") {
+                      String imageUrl =
+                          await FetchData.getSongImageUrl(widget.song, false);
+                      widget.song.setImageUrl = imageUrl;
+                    }
+                    ManageLocalSongs.downloadSong(widget.song);
+                  } else {
+                    Fluttertoast.showToast(
+                      msg: "Song is already exists!",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIos: 1,
+                      backgroundColor: Constants.pinkColor,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
                   }
-                  ManageLocalSongs.downloadSong(widget.song);
-                } else {
-                  Fluttertoast.showToast(
-                    msg: "Song is already exists!",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    timeInSecForIos: 1,
-                    backgroundColor: Constants.pinkColor,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
-                }
-              });
-            } else {
-              Fluttertoast.showToast(
-                msg: "You need to enable access to storage!",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIos: 1,
-                backgroundColor: Constants.pinkColor,
-                textColor: Colors.white,
-                fontSize: 16.0,
-              );
-            }
-          });
-        },
+                });
+              } else {
+                Fluttertoast.showToast(
+                  msg: "You need to enable access to storage!",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIos: 1,
+                  backgroundColor: Constants.pinkColor,
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+              }
+            });
+          },
+        ),
       ),
     );
   }
@@ -284,114 +290,130 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   Widget unDownloadWidget(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListTile(
-        leading: Icon(
-          Icons.undo,
-          color: Colors.grey,
-          size: 30,
-        ),
-        title: Text(
-          "Undownload",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        onTap: () {
-          ManageLocalSongs.checkIfFileExists(widget.song).then((exists) {
-            if (exists) {
-              ManageLocalSongs.deleteSongDirectory(widget.song);
-              currentUser.removeSongFromDownloadedPlaylist(widget.song);
-              Provider.of<PageNotifier>(accountPageContext)
-                      .setCurrentPlaylistPagePlaylist =
-                  currentUser.getDownloadedSongsPlaylist;
-              if (widget.song.getSongId ==
-                  audioPlayerManager.currentSong.getSongId) {
-                audioPlayerManager.currentPlaylist = null;
-                audioPlayerManager.shuffledPlaylist = null;
-                audioPlayerManager.loopPlaylist = null;
-              }
-              Fluttertoast.showToast(
-                msg: "song Undownloaded",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIos: 1,
-                backgroundColor: Constants.pinkColor,
-                textColor: Colors.white,
-                fontSize: 16.0,
-              );
-            } else {
-              Fluttertoast.showToast(
-                msg: "oops song is already undownloaded",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIos: 1,
-                backgroundColor: Constants.pinkColor,
-                textColor: Colors.white,
-                fontSize: 16.0,
-              );
-            }
-          });
-          Navigator.pop(context);
-        },
-      ),
-    );
-  }
-
-  Widget showAddToPlaylist(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListTile(
-        leading: Icon(
-          Icons.playlist_add,
-          color: Colors.grey,
-          size: 30,
-        ),
-        title: Text(
-          "Add to playlist",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PlaylistPickPage(
-                    song: widget.song,
-                    songs: null,
-                  ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget showQueue(BuildContext context) {
-    if (widget.isMusicPlayerMenu && widget.playlist != null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Container(
+        height: 50,
         child: ListTile(
           leading: Icon(
-            Icons.queue_music,
+            Icons.undo,
             color: Colors.grey,
             size: 30,
           ),
           title: Text(
-            "View queue",
+            "Undownload",
             style: TextStyle(
               color: Colors.white,
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.bold,
             ),
           ),
           onTap: () {
-            showQueueModalBottomSheet(context);
+            ManageLocalSongs.checkIfFileExists(widget.song).then((exists) {
+              if (exists) {
+                ManageLocalSongs.deleteSongDirectory(widget.song);
+                currentUser.removeSongFromDownloadedPlaylist(widget.song);
+                if (Provider.of<PageNotifier>(accountPageContext)
+                        .currentPlaylistPagePlaylist
+                        .getName ==
+                    currentUser.getDownloadedSongsPlaylist.getName) {
+                  Provider.of<PageNotifier>(accountPageContext)
+                          .setCurrentPlaylistPagePlaylist =
+                      currentUser.getDownloadedSongsPlaylist;
+                }
+                if (widget.song.getSongId ==
+                        audioPlayerManager.currentSong.getSongId &&
+                    widget.playlist.getName ==
+                        currentUser.getDownloadedSongsPlaylist.getName) {
+                  audioPlayerManager.currentPlaylist = null;
+                  audioPlayerManager.shuffledPlaylist = null;
+                  audioPlayerManager.loopPlaylist = null;
+                }
+                Fluttertoast.showToast(
+                  msg: "song Undownloaded",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIos: 1,
+                  backgroundColor: Constants.pinkColor,
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+              } else {
+                Fluttertoast.showToast(
+                  msg: "oops song is already undownloaded",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  timeInSecForIos: 1,
+                  backgroundColor: Constants.pinkColor,
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+              }
+            });
+            Navigator.pop(context);
           },
+        ),
+      ),
+    );
+  }
+
+  Widget drawAddToPlaylist(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Container(
+        height: 50,
+        child: ListTile(
+          leading: Icon(
+            Icons.playlist_add,
+            color: Colors.grey,
+            size: 30,
+          ),
+          title: Text(
+            "Add to playlist",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PlaylistPickPage(
+                      song: widget.song,
+                      songs: null,
+                    ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget drawQueue(BuildContext context) {
+    if (widget.isMusicPlayerMenu && widget.playlist != null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Container(
+          height: 50,
+          child: ListTile(
+            leading: Icon(
+              Icons.queue_music,
+              color: Colors.grey,
+              size: 30,
+            ),
+            title: Text(
+              "View queue",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onTap: () {
+              showQueueModalBottomSheet(context);
+            },
+          ),
         ),
       );
     } else {
@@ -399,30 +421,37 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
     }
   }
 
-  Widget showViewArtist(BuildContext context) {
+  Widget drawViewArtist(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ListTile(
-        leading: Icon(
-          Icons.account_circle,
-          color: Colors.grey,
-          size: 30,
-        ),
-        title: Text(
-          "View artists",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+      child: Container(
+        height: 50,
+        child: ListTile(
+          leading: Icon(
+            Icons.account_circle,
+            color: Colors.grey,
+            size: 30,
           ),
+          title: Text(
+            "View artists",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () {
+            canceled = false;
+            showLoadingBar(context);
+            buildArtistsList(getArtists()).then((artists) {
+              if (!canceled) {
+                loadingArtists = true;
+                Navigator.of(context, rootNavigator: true).pop('dialog');
+                showArtists(context, artists);
+              }
+            });
+          },
         ),
-        onTap: () {
-          showLoadingBar(context);
-          buildArtistsList(getArtists()).then((artists) {
-            Navigator.of(context, rootNavigator: true).pop('dialog');
-            showArtists(context, artists);
-          });
-        },
       ),
     );
   }
@@ -490,11 +519,11 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                 children: <Widget>[
                   Center(
                     child: SizedBox(
-                      height: 50.0,
+                      height: 40.0,
                       width: 50.0,
                       child: CircularProgressIndicator(
                         value: null,
-                        strokeWidth: 3.0,
+                        strokeWidth: 2.0,
                         valueColor:
                             AlwaysStoppedAnimation<Color>(Constants.pinkColor),
                       ),
@@ -506,13 +535,18 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
           ],
         );
       },
-    );
+    ).then((a) {
+      if (!loadingArtists) {
+        canceled = true;
+        Navigator.of(context, rootNavigator: true).pop('dialog');
+      }
+    });
   }
 
   Widget drawSongImageWidget() {
     return Container(
-        width: 100,
-        height: 100,
+        width: 90,
+        height: 90,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [

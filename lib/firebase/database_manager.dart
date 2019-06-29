@@ -100,6 +100,13 @@ class FirebaseDatabaseManager {
         .child(_playlistsDir)
         .child(playlist.getPushId)
         .update({"name": newName});
+    if (playlist.getIsPublic) {
+      FirebaseDatabase.instance
+          .reference()
+          .child(_publicPlaylistsDir)
+          .child(playlist.getPublicPlaylistPushId)
+          .update({"name": newName});
+    }
   }
 
   static void changePlaylistPrivacy(Playlist playlist) {
@@ -123,9 +130,11 @@ class FirebaseDatabaseManager {
         .push();
     song.setPushId = pushId.key;
     pushId.set(song.toJson());
+
     if (playlist.getIsPublic) {
       song = _addSongToPublicPlaylist(playlist, song);
     }
+
     return song;
   }
 
@@ -190,7 +199,8 @@ class FirebaseDatabaseManager {
     }
   }
 
-  static Future<Playlist> addPublicPlaylist(Playlist playlist) async {
+  static Future<Playlist> addPublicPlaylist(
+      Playlist playlist, bool creatingNewPlaylist) async {
     Playlist temp = Playlist(playlist.getName,
         creator: playlist.getCreator, isPublic: true);
     temp.setPushId = playlist.getPushId;
@@ -199,6 +209,7 @@ class FirebaseDatabaseManager {
     var pushId =
         FirebaseDatabase.instance.reference().child(_publicPlaylistsDir).push();
     playlist.setPublicPlaylistPushId = pushId.key;
+    temp.setPublicPlaylistPushId = pushId.key;
     FirebaseDatabase.instance
         .reference()
         .child(_usersDir)
@@ -207,10 +218,12 @@ class FirebaseDatabaseManager {
         .child(playlist.getPushId)
         .update({"publicPlaylistPushId": pushId.key});
     await pushId.set(playlist.toJson());
-    playlist.getSongs.forEach((song) {
-      _addSongToPublicPlaylist(playlist, song);
-      temp.addNewSong(song);
-    });
+    if (!creatingNewPlaylist) {
+      playlist.getSongs.forEach((song) {
+        _addSongToPublicPlaylist(playlist, song);
+        temp.addNewSong(song);
+      });
+    }
 
     return temp;
   }
@@ -221,7 +234,7 @@ class FirebaseDatabaseManager {
         .reference()
         .child(_publicPlaylistsDir)
         .child(playlist.getPublicPlaylistPushId)
-        .remove();  
+        .remove();
     if (!completeDelete) {
       FirebaseDatabase.instance
           .reference()

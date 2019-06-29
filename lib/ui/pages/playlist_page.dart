@@ -141,8 +141,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
                         ),
                         AutoSizeText(
                           currentUser != null
-                              ? "by: " + widget.playlistCreator.getName
-                              : "",
+                              ? widget.playlistModalSheetMode != PlaylistModalSheetMode.download ?"by: " + widget.playlistCreator.getName
+                              : "":"",
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 10.0,
@@ -211,10 +211,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
           } else {
             title = playlist.getSongs[index].getTitle;
           }
-          if (playlist.getSongs[index].getArtist.length > 35) {
-            int pos = playlist.getSongs[index].getArtist.lastIndexOf("", 35);
-            if (pos < 20) {
-              pos = 35;
+          if (playlist.getSongs[index].getArtist.length > 40) {
+            int pos = playlist.getSongs[index].getArtist.lastIndexOf("", 40);
+            if (pos < 30) {
+              pos = 40;
             }
             artist =
                 playlist.getSongs[index].getArtist.substring(0, pos) + "...";

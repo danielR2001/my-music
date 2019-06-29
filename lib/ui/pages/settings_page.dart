@@ -58,7 +58,7 @@ class SettingsPage extends StatelessWidget {
                 ),
                 Expanded(
                   child: Text(
-                    "1.4.1",
+                    "1.4.3",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 17,
@@ -174,7 +174,7 @@ class SettingsPage extends StatelessWidget {
                           FirebaseDatabaseManager.changeUserSignInState(false)
                               .then((a) {
                             FirebaseAuthentication.signOut().then((a) {
-                              audioPlayerManager.closeSong();
+                              audioPlayerManager.closeSong(true);
                               currentUser = null;
                               Navigator.pushReplacement(
                                   context,

@@ -297,13 +297,13 @@ class FetchData {
       return http
           .get(encoded)
           .catchError((eror) => print("error getLyricsPageUrl"))
-          .whenComplete(() => print('song search completed'))
+          .whenComplete(() => print('lyrics page search completed'))
           .then((http.Response response) {
         list = jsonDecode(response.body)['response'];
         sectionsList = list['sections'];
         sectionsMap = sectionsList[1];
         hitsList = sectionsMap['hits'];
-        if (hitsList != null) {
+        if (hitsList.length>0) {
           resultsList = hitsList[0]['result'];
           return resultsList['url'];
         } else {
@@ -321,7 +321,7 @@ class FetchData {
       return http
           .get(url)
           .catchError((eror) => print("error getSongLyrics"))
-          .whenComplete(() => print('song search completed'))
+          .whenComplete(() => print('lyrics search completed'))
           .then((http.Response response) {
         Document document = parse(response.body);
         return _buildLyrics(document);

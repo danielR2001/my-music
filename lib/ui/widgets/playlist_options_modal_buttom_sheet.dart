@@ -275,7 +275,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
           Playlist temp = widget.playlist;
           if (widget.playlist.getIsPublic) {
             temp = await FirebaseDatabaseManager.addPublicPlaylist(
-                widget.playlist);
+                widget.playlist,false);
           } else {
             FirebaseDatabaseManager.removeFromPublicPlaylist(
                 widget.playlist, false);
@@ -345,7 +345,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
             "Rename Playlist",
             style: TextStyle(
               color: Colors.white,
-              fontSize: 22,
+              fontSize: 20,
             ),
           ),
           backgroundColor: Constants.lightGreyColor,
@@ -401,8 +401,9 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                         child: Text(
                           "Rename",
                           style: TextStyle(
-                            fontSize: 20.0,
+                            fontSize: 18.0,
                             color: Colors.white,
+                            fontWeight: FontWeight.bold
                           ),
                         ),
                       ),

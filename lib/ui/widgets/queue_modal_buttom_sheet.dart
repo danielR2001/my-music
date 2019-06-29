@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/constants/constants.dart';
@@ -29,9 +30,9 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
               leading: Icon(
                 audioPlayerManager.playlistMode == PlaylistMode.loop
                     ? Icons.repeat
-                    : Icons.shuffle,
+                    : CupertinoIcons.shuffle,
                 color: Colors.grey,
-                size: 30,
+                size: 25,
               ),
               title: Text(
                 "Queue",
@@ -67,19 +68,19 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
   Widget songItem(Song song, int pos, BuildContext context) {
     String title;
     String artist;
-    if (song.getTitle.length > 30) {
-      int pos = song.getTitle.lastIndexOf("", 30);
+    if (song.getTitle.length > 25) {
+      int pos = song.getTitle.lastIndexOf("", 25);
       if (pos < 20) {
-        pos = 35;
+        pos = 25;
       }
       title = song.getTitle.substring(0, pos) + "...";
     } else {
       title = song.getTitle;
     }
-    if (song.getArtist.length > 35) {
-      int pos = song.getArtist.lastIndexOf("", 35);
+    if (song.getArtist.length > 30) {
+      int pos = song.getArtist.lastIndexOf("", 30);
       if (pos < 20) {
-        pos = 35;
+        pos = 30;
       }
       artist = song.getArtist.substring(0, pos) + "...";
     } else {
@@ -88,7 +89,10 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
     return ListTile(
       leading: Text(
         "$pos",
-        style: TextStyle(color: Colors.white, fontSize: 15),
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+        ),
       ),
       title: Text(
         title,
@@ -97,7 +101,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
               ? Constants.pinkColor
               : Colors.white,
           fontSize: 14,
-          fontWeight: FontWeight.bold
+          fontWeight: FontWeight.bold,
         ),
       ),
       subtitle: Text(

@@ -162,10 +162,10 @@ class _SearchPageState extends State<SearchPage> {
   ListTile songSearchResult(Song song, BuildContext context) {
     String title;
     String artist;
-    if (song.getTitle.length > 32) {
-      int pos = song.getTitle.lastIndexOf("", 32);
-      if (pos < 25) {
-        pos = 30;
+    if (song.getTitle.length > 28) {
+      int pos = song.getTitle.lastIndexOf("", 28);
+      if (pos < 20) {
+        pos = 28;
       }
       title = song.getTitle.substring(0, pos) + "...";
     } else {
@@ -173,7 +173,7 @@ class _SearchPageState extends State<SearchPage> {
     }
     if (song.getArtist.length > 40) {
       int pos = song.getArtist.lastIndexOf("", 40);
-      if (pos < 25) {
+      if (pos < 30) {
         pos = 40;
       }
       artist = song.getArtist.substring(0, pos) + "...";

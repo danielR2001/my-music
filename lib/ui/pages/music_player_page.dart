@@ -65,8 +65,7 @@ class MusicPageState extends State<MusicPlayerPage> {
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(
-                  top: 10, bottom: 20),
+              padding: const EdgeInsets.only(top: 10, bottom: 20),
               child: Column(
                 children: <Widget>[
                   Padding(
@@ -136,8 +135,8 @@ class MusicPageState extends State<MusicPlayerPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Container(
-                          width: 320,
-                          height: 320,
+                          width: 300,
+                          height: 300,
                           child: FlipCard(
                             key: flipCardKey,
                             direction: FlipDirection.VERTICAL,
@@ -243,10 +242,8 @@ class MusicPageState extends State<MusicPlayerPage> {
                                           .substring(checkSongLength(), 7)
                                       : "00:00",
                               textAlign: TextAlign.left,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13
-                              ),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 13),
                             ),
                           ),
                           Expanded(
@@ -261,10 +258,8 @@ class MusicPageState extends State<MusicPlayerPage> {
                                           .substring(checkSongLength(), 7)
                                       : "00:00",
                               textAlign: TextAlign.right,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13
-                              ),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 13),
                             ),
                           ),
                         ],
@@ -288,7 +283,10 @@ class MusicPageState extends State<MusicPlayerPage> {
                               ),
                               onPressed: () {
                                 if (audioPlayerManager.currentPlaylist !=
-                                    null&&audioPlayerManager.currentPlaylist.getSongs.length>0) {
+                                        null &&
+                                    audioPlayerManager
+                                            .currentPlaylist.getSongs.length >
+                                        0) {
                                   if (audioPlayerManager.isLoaded &&
                                       audioPlayerManager.songPosition !=
                                           Duration(milliseconds: 0)) {
@@ -299,7 +297,10 @@ class MusicPageState extends State<MusicPlayerPage> {
                                     if (!flipCardKey.currentState.isFront) {
                                       flipCardKey.currentState.toggleCard();
                                     }
-                                    imageProvider = null;
+                                    if (audioPlayerManager.previousMode ==
+                                        PreviousMode.previous) {
+                                      imageProvider = null;
+                                    }
                                     audioPlayerManager.playPreviousSong();
                                   }
                                 }
@@ -334,7 +335,10 @@ class MusicPageState extends State<MusicPlayerPage> {
                               ),
                               onPressed: () {
                                 if (audioPlayerManager.currentPlaylist !=
-                                    null&&audioPlayerManager.currentPlaylist.getSongs.length>0) {
+                                        null &&
+                                    audioPlayerManager
+                                            .currentPlaylist.getSongs.length >
+                                        0) {
                                   if (audioPlayerManager.isLoaded &&
                                       audioPlayerManager.songPosition !=
                                           Duration(milliseconds: 0)) {
@@ -345,7 +349,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                                     if (!flipCardKey.currentState.isFront) {
                                       flipCardKey.currentState.toggleCard();
                                     }
+
                                     imageProvider = null;
+
                                     audioPlayerManager.playNextSong();
                                   }
                                 }
@@ -534,6 +540,7 @@ class MusicPageState extends State<MusicPlayerPage> {
           setState(() {
             imageProvider = FileImage(file);
           });
+          generateBackgroundColors();
         } else {
           if (available) {
             setState(() {
@@ -541,6 +548,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                 audioPlayerManager.currentSong.getImageUrl,
               );
             });
+            generateBackgroundColors();
           }
         }
       });
@@ -594,17 +602,6 @@ class MusicPageState extends State<MusicPlayerPage> {
         child: ListView(
           padding: EdgeInsets.only(top: 10),
           children: <Widget>[
-            // Padding(
-            //   padding: const EdgeInsets.only(bottom: 5),
-            //   child: Container(
-            //     width: 160,
-            //     height: 40,
-            //     child: Image(
-            //       image: AssetImage("assets/images/genius_logo.png"),
-            //       fit: BoxFit.contain,
-            //     ),
-            //   ),
-            // ),
             Padding(
               padding: const EdgeInsets.only(bottom: 15),
               child: Text(
@@ -681,5 +678,14 @@ class MusicPageState extends State<MusicPlayerPage> {
                 image: imageProvider,
                 fit: BoxFit.contain,
               ));
+  }
+
+  Future generateBackgroundColors() async {
+    // paletteGenerator = await PaletteGenerator.fromImageProvider(
+    //   imageProvider,
+    //   maximumColorCount: 20,
+    // );
+    // paletteGenerator.dominantColor;
+    print("");
   }
 }

@@ -109,7 +109,7 @@ class _AccountPageState extends State<AccountPage> {
                       title: Text(
                         "Downloaded",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 17,
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
@@ -137,7 +137,7 @@ class _AccountPageState extends State<AccountPage> {
                     title: Text(
                       "My Playlists",
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 17,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -185,7 +185,7 @@ class _AccountPageState extends State<AccountPage> {
           title: AutoSizeText(
             cutPlaylistName(playlist),
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 17,
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),

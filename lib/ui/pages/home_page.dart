@@ -52,11 +52,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     homePageContext = context;
-    return ChangeNotifierProvider<PageNotifier>(
-      builder: (BuildContext context) {
-        return PageNotifier();
-      },
-      child: WillPopScope(
+    return  WillPopScope(
         onWillPop: () async {
           if (navigatorKeys[currentTab].currentState.canPop())
             await navigatorKeys[currentTab].currentState.maybePop();
@@ -87,7 +83,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-      ),
     );
   }
 

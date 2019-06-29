@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:myapp/constants/constants.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/models/artist.dart';
+import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
+import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/ui/pages/artist_page.dart';
 import 'package:myapp/ui/pages/home_page.dart';
+import 'package:provider/provider.dart';
 
 class ArtistsPickModalSheet extends StatefulWidget {
   final Song song;
@@ -12,14 +15,12 @@ class ArtistsPickModalSheet extends StatefulWidget {
   ArtistsPickModalSheet(this.song, this.artists);
 
   @override
-  _ArtistsPickModalSheetState createState() =>
-      _ArtistsPickModalSheetState(song, artists);
+  _ArtistsPickModalSheetState createState() => _ArtistsPickModalSheetState();
 }
 
 class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
-  final Song song;
-  final List<Artist> artists;
-  _ArtistsPickModalSheetState(this.song, this.artists);
+  bool canceled = false;
+  bool loadingArtists = false;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -31,14 +32,14 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
             topRight: const Radius.circular(20.0)),
         color: Constants.lightGreyColor,
       ),
-      height: (70 * artists.length).toDouble(),
+      height: (70 * widget.artists.length).toDouble(),
       child: Column(
         children: <Widget>[
           Expanded(
             child: Theme(
               data: Theme.of(context).copyWith(accentColor: Colors.grey),
               child: ListView.builder(
-                itemCount: artists.length,
+                itemCount: widget.artists.length,
                 itemExtent: 70,
                 itemBuilder: (BuildContext context, int index) {
                   return artistListTile(index, context);
@@ -82,8 +83,8 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
                     width: 0.2,
                   ),
                   image: DecorationImage(
-                    image: artists[index].getImageUrl.length > 0
-                        ? NetworkImage(artists[index].getImageUrl)
+                    image: widget.artists[index].getImageUrl.length > 0
+                        ? NetworkImage(widget.artists[index].getImageUrl)
                         : NetworkImage(
                             'https://static.bbc.co.uk/music_clips/3.0.29/img/default_artist_images/pop1.jpg',
                           ),
@@ -95,32 +96,78 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
           ),
         ),
         title: Text(
-          artists[index].getName,
+          widget.artists[index].getName,
           style: TextStyle(
             color: Colors.white,
           ),
         ),
         onTap: () {
+          canceled = false;
+          List<Song> songs = List();
           showLoadingBar(context);
-          if (artists[index].getId != null) {
-            FetchData.getArtistInfoPage(artists[index]).then(
-              (artist) {
+          if (widget.artists[index].getId != null) {
+            FetchData.getArtistInfoPage(widget.artists[index]).then((artist) {
+              if (!canceled) {
+                FetchData.getResultsSitePage1(artist.getName).then((results) {
+                  if (!canceled) {
+                    if (results != null) {
+                      results.forEach((song) {
+                        if (song.getArtist
+                                .toLowerCase()
+                                .contains(artist.getName.toLowerCase()) ||
+                            song.getTitle
+                                .toLowerCase()
+                                .contains(artist.getName.toLowerCase())) {
+                          songs.add(song);
+                        }
+                      });
+                      Playlist temp = Playlist(artist.getName + " Top Hits");
+                      temp.setSongs = songs;
+                      Provider.of<PageNotifier>(context)
+                          .setCurrentPlaylistPagePlaylist = temp;
+                    }
+                    loadingArtists = true;
+                    Navigator.of(context, rootNavigator: true).pop('dialog');
+                    Navigator.push(
+                      homePageContext,
+                      MaterialPageRoute(
+                          builder: (context) => ArtistPage(artist)),
+                    );
+                  }
+                });
+              }
+            });
+          } else {
+            Provider.of<PageNotifier>(context).currentPlaylistPagePlaylist =
+                Playlist(widget.artists[index].getName + " Top Hits");
+            FetchData.getResultsSitePage1(widget.artists[index].getName)
+                .then((results) {
+              if (!canceled) {
+                if (results != null) {
+                  results.forEach((song) {
+                    if (song.getArtist.toLowerCase().contains(
+                            widget.artists[index].getName.toLowerCase()) ||
+                        song.getTitle.toLowerCase().contains(
+                            widget.artists[index].getName.toLowerCase())) {
+                      Provider.of<PageNotifier>(context)
+                          .currentPlaylistPagePlaylist
+                          .addNewSong(song);
+                    }
+                  });
+                  Provider.of<PageNotifier>(context)
+                      .currentPlaylistPagePlaylist
+                      .setSongs = results;
+                }
+                loadingArtists = true;
                 Navigator.of(context, rootNavigator: true).pop('dialog');
                 Navigator.push(
                   homePageContext,
                   MaterialPageRoute(
-                      builder: (context) => ArtistPage(artists[index])),
+                    builder: (context) => ArtistPage(widget.artists[index]),
+                  ),
                 );
-              },
-            );
-          } else {
-            Navigator.of(context, rootNavigator: true).pop('dialog');
-            Navigator.push(
-              homePageContext,
-              MaterialPageRoute(
-                builder: (context) => ArtistPage(artists[index]),
-              ),
-            );
+              }
+            });
           }
         },
       ),
@@ -162,6 +209,13 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
           ],
         );
       },
-    );
+    ).then((a) {
+      if (!loadingArtists) {
+        canceled = true;
+        Navigator.of(context, rootNavigator: true).pop('dialog');
+      } else {
+        loadingArtists = false;
+      }
+    });
   }
 }

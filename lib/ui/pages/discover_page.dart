@@ -61,7 +61,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 40,
+                            fontSize: 30,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -178,7 +178,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
             children: <Widget>[
               Container(
                 alignment: Alignment.center,
-                height: 120.0,
+                height: 180.0,
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     colorFilter: ColorFilter.mode(

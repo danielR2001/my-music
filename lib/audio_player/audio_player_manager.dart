@@ -16,6 +16,10 @@ enum PlaylistMode {
   shuffle,
   loop,
 }
+enum PreviousMode {
+  restart,
+  previous,
+}
 
 class AudioPlayerManager {
   AudioPlayer audioPlayer;
@@ -23,20 +27,29 @@ class AudioPlayerManager {
   Playlist currentPlaylist;
   Playlist shuffledPlaylist;
   Playlist loopPlaylist;
-  StreamSubscription<void> _audioPlayerOnCompleteStream;
-  StreamSubscription<void> _audioPlayerOnDurationChangedStream;
-  StreamSubscription<void> _audioPlayerOnPositionChangedStream;
   PlaylistMode playlistMode;
   Duration songDuration;
   Duration songPosition;
-  bool isLoaded = true;
-  int skippedCounter = 0;
+  bool isLoaded;
+  PreviousMode previousMode;
+
+  int _skippedCounter;
+  StreamSubscription<void> _audioPlayerOnCompleteStream;
+  StreamSubscription<void> _audioPlayerOnDurationChangedStream;
+  StreamSubscription<void> _audioPlayerOnPositionChangedStream;
 
   AudioPlayerManager() {
     audioPlayer = AudioPlayer();
+    previousMode = PreviousMode.restart;
+    isLoaded = true;
+    _skippedCounter = 0;
     AudioPlayer.logEnabled = true;
+    _listenForErrors();
+    audioPlayer.setReleaseMode(ReleaseMode.STOP);
   }
+
   void initSong(Song song, Playlist playlist, PlaylistMode playlistMode) {
+    previousMode = PreviousMode.restart;
     songPosition = Duration(seconds: 0);
     if (song.getImageUrl == "") {
       InternetConnectioCheck.check().then((isNetworkAvailable) {
@@ -71,7 +84,7 @@ class AudioPlayerManager {
     this.playlistMode = playlistMode;
     if (playlist != null) {
       if (currentPlaylist != null) {
-        if (currentPlaylist != playlist) {
+        if (currentPlaylist != playlist && loopPlaylist != playlist) {
           loopPlaylist = null;
           shuffledPlaylist = null;
         }
@@ -85,66 +98,64 @@ class AudioPlayerManager {
   }
 
   void playSong() {
-    closeSong().then((a) {
-      isLoaded = false;
-      ManageLocalSongs.checkIfFileExists(currentSong).then((exists) async {
-        if (exists && currentUser.songExistsInDownloadedPlaylist(currentSong)) {
-          skippedCounter = 0;
-          MusicControlNotification.makeNotification(currentSong, true, false);
-          await audioPlayer.play(
-              "${ManageLocalSongs.fullSongDownloadDir.path}/${currentSong.getSongId}/${currentSong.getSongId}.mp3");
-          isLoaded = true;
-        } else {
-          InternetConnectioCheck.check().then((isNetworkAvailable) {
-            if (isNetworkAvailable) {
-              FetchData.getSongPlayUrlPage1(currentSong)
-                  .then((streamUrl) async {
-                if (streamUrl != null) {
-                  skippedCounter = 0;
-                  MusicControlNotification.makeNotification(
-                      currentSong, true, false);
-                  await audioPlayer.play(streamUrl);
-                  isLoaded = true;
-                } else {
-                  playNextSong();
-                  Fluttertoast.showToast(
-                    msg: "oops something went wrong :(",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    timeInSecForIos: 10,
-                    backgroundColor: Constants.pinkColor,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
-                }
-              });
-            } else {
-              if (skippedCounter != currentPlaylist.getSongs.length) {
-                skippedCounter++;
+    closeSong(false);
+    isLoaded = false;
+    ManageLocalSongs.checkIfFileExists(currentSong).then((exists) async {
+      if (exists && currentUser.songExistsInDownloadedPlaylist(currentSong)) {
+        _skippedCounter = 0;
+        MusicControlNotification.makeNotification(currentSong, true, false);
+        await audioPlayer.play(
+            "${ManageLocalSongs.fullSongDownloadDir.path}/${currentSong.getSongId}/${currentSong.getSongId}.mp3");
+        isLoaded = true;
+      } else {
+        InternetConnectioCheck.check().then((isNetworkAvailable) {
+          if (isNetworkAvailable) {
+            FetchData.getSongPlayUrlPage1(currentSong).then((streamUrl) async {
+              if (streamUrl != null) {
+                _skippedCounter = 0;
+                MusicControlNotification.makeNotification(
+                    currentSong, true, false);
+                await audioPlayer.play(streamUrl);
+                isLoaded = true;
+              } else {
                 playNextSong();
                 Fluttertoast.showToast(
-                  msg: "No Internet Connection",
+                  msg: "oops something went wrong :(",
                   toastLength: Toast.LENGTH_SHORT,
                   gravity: ToastGravity.BOTTOM,
-                  timeInSecForIos: 1,
+                  timeInSecForIos: 10,
                   backgroundColor: Constants.pinkColor,
                   textColor: Colors.white,
                   fontSize: 16.0,
                 );
-              } else {
-                MusicControlNotification.makeNotification(
-                    currentSong, false, false);
-                skippedCounter = 0;
-                isLoaded = true;
-                songPosition = null;
               }
+            });
+          } else {
+            if (_skippedCounter != currentPlaylist.getSongs.length) {
+              _skippedCounter++;
+              playNextSong();
+              Fluttertoast.showToast(
+                msg: "No Internet Connection",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIos: 1,
+                backgroundColor: Constants.pinkColor,
+                textColor: Colors.white,
+                fontSize: 16.0,
+              );
+            } else {
+              MusicControlNotification.makeNotification(
+                  currentSong, false, false);
+              _skippedCounter = 0;
+              isLoaded = true;
+              songPosition = null;
             }
-          });
-        }
-        listenForDurationChanged();
-        listenForPositionChanged();
-        listenIfCompleted();
-      });
+          }
+        });
+      }
+      _listenForDurationChanged();
+      _listenForPositionChanged();
+      _listenIfCompleted();
     });
   }
 
@@ -162,9 +173,14 @@ class AudioPlayerManager {
     }
   }
 
-  Future<void> closeSong() async {
-    await audioPlayer.stop();
-    await audioPlayer.release();
+  void closeSong(bool completely) {
+    if(completely){
+      audioPlayer.release();
+      currentSong = null;
+      currentPlaylist = null;
+      loopPlaylist = null;
+      shuffledPlaylist = null;
+    }
     isLoaded = false;
     if (_audioPlayerOnCompleteStream != null) {
       _audioPlayerOnCompleteStream.cancel();
@@ -177,75 +193,44 @@ class AudioPlayerManager {
     audioPlayer.seek(duration);
   }
 
-  void listenForDurationChanged() {
-    _audioPlayerOnDurationChangedStream =
-        audioPlayer.onDurationChanged.listen((duration) {
-      songDuration = duration;
-    });
-  }
+  void playPreviousSong() {
+    if (previousMode == PreviousMode.previous) {
+      if (currentPlaylist != null) {
+        int i = 0;
+        Song correctPreviousSong;
+        if (currentSong.getSongId == currentPlaylist.getSongs[0].getSongId) {
+          initSong(
+            currentPlaylist.getSongs[currentPlaylist.getSongs.length - 1],
+            currentPlaylist,
+            playlistMode,
+          );
 
-  void listenForPositionChanged() {
-    _audioPlayerOnPositionChangedStream =
-        audioPlayer.onAudioPositionChanged.listen((duration) {
-      if (duration.inSeconds - songPosition.inSeconds == 1) {
-        if (audioPlayer.state == AudioPlayerState.PLAYING) {
-          MusicControlNotification.makeNotification(currentSong, true, true);
+          playSong();
         } else {
-          MusicControlNotification.makeNotification(currentSong, false, true);
+          Song previousSong = currentPlaylist.getSongs[0];
+          currentPlaylist.getSongs.forEach((song) {
+            if (i != 0) {
+              if (song.getSongId == currentSong.getSongId) {
+                correctPreviousSong = previousSong;
+              } else {
+                previousSong = song;
+              }
+            }
+            i++;
+          });
+          initSong(
+            correctPreviousSong,
+            currentPlaylist,
+            playlistMode,
+          );
+
+          playSong();
         }
       }
-      songPosition = duration;
-    });
-  }
-
-  void listenIfCompleted() {
-    _audioPlayerOnCompleteStream = audioPlayer.onPlayerCompletion.listen((a) {
-      if (currentPlaylist != null) {
-        playNextSong();
-      } else {
-        initSong(
-          currentSong,
-          currentPlaylist,
-          playlistMode,
-        );
-        playSong();
-      }
-    });
-  }
-
-  void playPreviousSong() {
-    //TODO first time set pos 0 
-    if (currentPlaylist != null) {
-      int i = 0;
-      Song correctPreviousSong;
-      if (currentSong.getSongId == currentPlaylist.getSongs[0].getSongId) {
-        initSong(
-          currentPlaylist.getSongs[currentPlaylist.getSongs.length - 1],
-          currentPlaylist,
-          playlistMode,
-        );
-
-        playSong();
-      } else {
-        Song previousSong = currentPlaylist.getSongs[0];
-        currentPlaylist.getSongs.forEach((song) {
-          if (i != 0) {
-            if (song.getSongId == currentSong.getSongId) {
-              correctPreviousSong = previousSong;
-            } else {
-              previousSong = song;
-            }
-          }
-          i++;
-        });
-        initSong(
-          correctPreviousSong,
-          currentPlaylist,
-          playlistMode,
-        );
-
-        playSong();
-      }
+    } else {
+      previousMode = PreviousMode.previous;
+      songPosition = Duration(seconds: 0);
+      audioPlayer.seek(songPosition);
     }
   }
 
@@ -275,9 +260,24 @@ class AudioPlayerManager {
     }
   }
 
-  void createShuffledPlaylist() {
+  void setCurrentPlaylist({Playlist playlist}) {
+    if (loopPlaylist == null) {
+      loopPlaylist = playlist;
+      audioPlayer.release();
+    }
+    if (playlistMode == PlaylistMode.loop) {
+      currentPlaylist = loopPlaylist;
+    } else {
+      if (shuffledPlaylist == null) {
+        _createShuffledPlaylist();
+      }
+      currentPlaylist = shuffledPlaylist;
+    }
+  }
+
+  void _createShuffledPlaylist() {
     List<Song> shuffledlist = List();
-    List<int> randomPosList = createRandomPosList();
+    List<int> randomPosList = _createRandomPosList();
     int pos = 0;
     while (shuffledlist.length != loopPlaylist.getSongs.length) {
       shuffledlist.add(loopPlaylist.getSongs[randomPosList[pos]]);
@@ -287,7 +287,7 @@ class AudioPlayerManager {
     shuffledPlaylist.setSongs = shuffledlist;
   }
 
-  List<int> createRandomPosList() {
+  List<int> _createRandomPosList() {
     List<int> randomPosList = List();
     var rnd = Random();
     int pos;
@@ -300,17 +300,58 @@ class AudioPlayerManager {
     return randomPosList;
   }
 
-  void setCurrentPlaylist({Playlist playlist}) {
-    if (loopPlaylist == null) {
-      loopPlaylist = playlist;
-    }
-    if (playlistMode == PlaylistMode.loop) {
-      currentPlaylist = loopPlaylist;
-    } else {
-      if (shuffledPlaylist == null) {
-        createShuffledPlaylist();
+  void _listenForDurationChanged() {
+    _audioPlayerOnDurationChangedStream =
+        audioPlayer.onDurationChanged.listen((duration) {
+      songDuration = duration;
+    });
+  }
+
+  void _listenForPositionChanged() {
+    _audioPlayerOnPositionChangedStream =
+        audioPlayer.onAudioPositionChanged.listen((duration) {
+      if (duration.inSeconds - songPosition.inSeconds == 1) {
+        songPosition = duration;
+        print(songPosition.inSeconds);
+        // if (songPosition.inSeconds % 5 == 0) {
+        //   if (audioPlayer.state == AudioPlayerState.PLAYING) {
+        //     MusicControlNotification.makeNotification(currentSong, true, true);
+        //   } else {
+        //     MusicControlNotification.makeNotification(currentSong, false, true);
+        //   }
+        // }
       }
-      currentPlaylist = shuffledPlaylist;
-    }
+    });
+  }
+
+  void _listenIfCompleted() {
+    _audioPlayerOnCompleteStream = audioPlayer.onPlayerCompletion.listen((a) {
+      if (currentPlaylist != null) {
+        playNextSong();
+      } else {
+        initSong(
+          currentSong,
+          currentPlaylist,
+          playlistMode,
+        );
+        playSong();
+      }
+    });
+  }
+
+  void _listenForErrors() {
+    audioPlayer.onPlayerError.listen((eror) {
+      closeSong(true);
+      Fluttertoast.showToast(
+        msg: "Media Player error occurred",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIos: 1,
+        backgroundColor: Constants.pinkColor,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      print("MediaPlayerError: $eror");
+    });
   }
 }

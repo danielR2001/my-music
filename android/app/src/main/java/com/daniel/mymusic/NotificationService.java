@@ -13,6 +13,8 @@ import android.os.IBinder;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import android.media.session.MediaSession;
+
 import android.util.Log;
 
 import io.flutter.plugin.common.MethodCall;
@@ -53,6 +55,7 @@ public class NotificationService extends Service {
     public static boolean isPlaying;
     public static Bitmap imageBitmap;
     public static String imageUrl;
+    //public static MediaSession.Token token;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -110,7 +113,6 @@ public class NotificationService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        makeNotification(title, artist, imageBitmap, getApplicationContext(), false, imageUrl);
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.cancel(0);
     }
@@ -148,11 +150,11 @@ public class NotificationService extends Service {
                     .setContentText(artist).setSmallIcon(R.drawable.app_logo_no_background).setLargeIcon(imageBitmap)
                     .setShowWhen(false).setColor(context.getResources().getColor(R.color.pink))
                     .addAction(R.drawable.ic_skip_previous, "", pprevIntent).addAction(iconInts[index], "", pplayIntent)
-                    .addAction(R.drawable.ic_skip_next, "", pnextIntent).setTimeoutAfter(1800000)
+                    .addAction(R.drawable.ic_skip_next, "", pnextIntent)
                     .setStyle(
-                            new androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0, 1, 2))
-                    .setDeleteIntent(pdeleteIntent).setContentIntent(pendingIntent).setWhen(System.currentTimeMillis())
-                    .setPriority(Notification.PRIORITY_MAX).build();
+                            new androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle().setShowActionsInCompactView(0, 1, 2))//.setMediaSession(token))
+                    .setDeleteIntent(pdeleteIntent).setContentIntent(pendingIntent).setTimeoutAfter(1800000).setWhen(System.currentTimeMillis())
+                    .setColorized(true).build();
 
         } else {
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -160,12 +162,13 @@ public class NotificationService extends Service {
                     .setSmallIcon(R.drawable.app_logo_no_background).setLargeIcon(imageBitmap).setSound(null)
                     .setShowWhen(false).setColor(context.getResources().getColor(R.color.pink))
                     .addAction(R.drawable.ic_skip_previous, "", pprevIntent).addAction(iconInts[index], "", pplayIntent)
-                    .addAction(R.drawable.ic_skip_next, "", pnextIntent).setTimeoutAfter(1800000)
-                    .setDeleteIntent(pdeleteIntent).setContentIntent(pendingIntent).setWhen(System.currentTimeMillis())
-                    .setPriority(Notification.PRIORITY_MAX).build();
+                    .addAction(R.drawable.ic_skip_next, "", pnextIntent)
+                    .setDeleteIntent(pdeleteIntent).setContentIntent(pendingIntent).setTimeoutAfter(1800000).setWhen(System.currentTimeMillis())
+                    .build();
         }
         if (iP) {
             notification.flags |= Notification.FLAG_ONGOING_EVENT;
+            notification.flags |= Notification.FLAG_AUTO_CANCEL;
         } else {
             notification.flags |= Notification.FLAG_AUTO_CANCEL;
         }
@@ -176,7 +179,7 @@ public class NotificationService extends Service {
     private static void CreateNotificationChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, "Playback",
-                    NotificationManager.IMPORTANCE_DEFAULT);
+                    NotificationManager.IMPORTANCE_MAX);
                     notificationChannel.setSound(null, null);
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(notificationChannel);

@@ -50,7 +50,7 @@ class User {
       _downloadedSongsPlaylist.getSongs.add(value);
 
   removeSongFromDownloadedPlaylist(Song value) =>
-      _downloadedSongsPlaylist.getSongs.remove(value);
+      _downloadedSongsPlaylist.getSongs.removeWhere((song)=>song.getSongId ==value.getSongId);
 
   bool songExistsInDownloadedPlaylist(Song song) {
     bool exists = false;

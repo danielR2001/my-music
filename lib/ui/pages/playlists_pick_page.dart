@@ -42,8 +42,6 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                   Padding(
                     padding: const EdgeInsets.only(top: 6, left: 4),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         IconButton(
                           icon: Icon(
@@ -55,20 +53,18 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                           },
                         ),
                         Expanded(
-                          child: Container(),
-                          flex: 3,
-                        ),
-                        Text(
-                          "Add to playlist",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
+                          child: Text(
+                            "Add to playlist",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                         ),
-                        Expanded(
-                          child: Container(),
-                          flex: 5,
+                        Container(
+                          width: 50,
                         ),
                       ],
                     ),
@@ -88,7 +84,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                       child: Text(
                         "New Playlist",
                         style: TextStyle(
-                          fontSize: 20.0,
+                          fontSize: 18.0,
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
@@ -140,13 +136,14 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           playlist.getName,
           style: TextStyle(
             color: Colors.white,
-            fontSize: 18,
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
           ),
         ),
         onTap: () {
           if (widget.song != null) {
             showLoadingBar(accountPageContext);
-            addSongToPlaylist(playlist, widget.song,false).then((added) {
+            addSongToPlaylist(playlist, widget.song, false).then((added) {
               if (added) {
                 Navigator.of(context, rootNavigator: true).pop('dialog');
                 Navigator.pop(context);
@@ -253,7 +250,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           playlist.setPushId = FirebaseDatabaseManager.addPlaylist(playlist);
           if (playlist.getIsPublic) {
             playlist =
-                await FirebaseDatabaseManager.addPublicPlaylist(playlist);
+                await FirebaseDatabaseManager.addPublicPlaylist(playlist,true);
           }
           if (widget.song != null) {
             if (widget.song.getImageUrl.length == 0) {
@@ -285,6 +282,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           Navigator.of(context, rootNavigator: true).pop('dialog');
           Navigator.pop(context);
         } else {
+          Navigator.of(context, rootNavigator: true).pop('dialog');
           scafKey.currentState.showSnackBar(
             SnackBar(
               duration: Duration(seconds: 5),
@@ -405,8 +403,9 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                         child: Text(
                           "Create",
                           style: TextStyle(
-                            fontSize: 20.0,
+                            fontSize: 18.0,
                             color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
