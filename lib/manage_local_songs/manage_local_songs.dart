@@ -4,7 +4,7 @@ import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/ui/pages/account_page.dart';
+import 'package:myapp/ui/pages/home_page.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -50,22 +50,22 @@ class ManageLocalSongs {
     FetchData.getDownloadUrlPage1(song).then((downloadUrl) async {
       if (downloadUrl != null) {
         currentDownloading.add(song);
-        Provider.of<PageNotifier>(accountPageContext).addDownloaded(song);
+        Provider.of<PageNotifier>(homePageContext).addDownloaded(song);
         try {
           await dio.download(startingUrl + downloadUrl,
               "${songDirectory.path}/${song.getSongId}.mp3",
               onReceiveProgress: (prog, total) {
-            if (Provider.of<PageNotifier>(accountPageContext)
+            if (Provider.of<PageNotifier>(homePageContext)
                     .downloadedTotals[song.getSongId] ==
                 1) {
-              Provider.of<PageNotifier>(accountPageContext)
+              Provider.of<PageNotifier>(homePageContext)
                   .updateDownloadedTotals(song, total);
             }
 
-            Provider.of<PageNotifier>(accountPageContext)
+            Provider.of<PageNotifier>(homePageContext)
                 .updateDownloadedProgsses(song, prog);
           }).whenComplete(() {
-            Provider.of<PageNotifier>(accountPageContext)
+            Provider.of<PageNotifier>(homePageContext)
                 .removeDownloaded(song);
             currentDownloading.remove(song);
 

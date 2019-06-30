@@ -9,7 +9,6 @@ import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/playlist.dart';
-import 'package:myapp/ui/pages/account_page.dart';
 
 class PlaylistPickPage extends StatefulWidget {
   final song;
@@ -142,7 +141,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         ),
         onTap: () {
           if (widget.song != null) {
-            showLoadingBar(accountPageContext);
+            showLoadingBar(context);
             addSongToPlaylist(playlist, widget.song, false).then((added) {
               if (added) {
                 Navigator.of(context, rootNavigator: true).pop('dialog');

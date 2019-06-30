@@ -2,7 +2,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/constants/constants.dart';
-import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
@@ -217,7 +216,7 @@ class _ArtistPageState extends State<ArtistPage> {
                         audioPlayerManager.currentPlaylist != null
                     ? audioPlayerManager.loopPlaylist.getName ==
                             playlist.getName
-                        ? audioPlayerManager.currentSong.getSongId ==
+                        ? Provider.of<PageNotifier>(context).currentSong.getSongId ==
                                 playlist.getSongs[index].getSongId
                             ? Constants.pinkColor
                             : Colors.grey

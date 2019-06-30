@@ -141,8 +141,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
                         ),
                         AutoSizeText(
                           currentUser != null
-                              ? widget.playlistModalSheetMode != PlaylistModalSheetMode.download ?"by: " + widget.playlistCreator.getName
-                              : "":"",
+                              ? widget.playlistModalSheetMode !=
+                                      PlaylistModalSheetMode.download
+                                  ? "by: " + widget.playlistCreator.getName
+                                  : ""
+                              : "",
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: 10.0,
@@ -187,7 +190,12 @@ class _PlaylistPageState extends State<PlaylistPage> {
                   widget.playlistModalSheetMode == PlaylistModalSheetMode.public
                       ? widget.playlist
                       : Provider.of<PageNotifier>(context)
-                          .currentPlaylistPagePlaylist,
+                                  .currentPlaylistPagePlaylist
+                                  .getPushId ==
+                              widget.playlist.getPushId
+                          ? Provider.of<PageNotifier>(context)
+                              .currentPlaylistPagePlaylist
+                          : widget.playlist,
                   context)
             ],
           ),
@@ -227,8 +235,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
               style: TextStyle(
                 color: audioPlayerManager.currentSong != null &&
                         audioPlayerManager.currentPlaylist != null
-                    ? audioPlayerManager.loopPlaylist.getName ==
-                            playlist.getName
+                    ? audioPlayerManager.loopPlaylist.getPushId ==
+                            playlist.getPushId
                         ? audioPlayerManager.currentSong.getSongId ==
                                 playlist.getSongs[index].getSongId
                             ? Constants.pinkColor
@@ -244,8 +252,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
               style: TextStyle(
                 color: audioPlayerManager.currentSong != null &&
                         audioPlayerManager.currentPlaylist != null
-                    ? audioPlayerManager.loopPlaylist.getName ==
-                            playlist.getName
+                    ? audioPlayerManager.loopPlaylist.getPushId ==
+                            playlist.getPushId
                         ? audioPlayerManager.currentSong.getSongId ==
                                 playlist.getSongs[index].getSongId
                             ? Constants.pinkColor
@@ -281,8 +289,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
                       Icons.more_vert,
                       color: audioPlayerManager.currentSong != null &&
                               audioPlayerManager.currentPlaylist != null
-                          ? audioPlayerManager.loopPlaylist.getName ==
-                                  playlist.getName
+                          ? audioPlayerManager.loopPlaylist.getPushId ==
+                                  playlist.getPushId
                               ? audioPlayerManager.currentSong.getSongId ==
                                       playlist.getSongs[index].getSongId
                                   ? Constants.pinkColor
@@ -303,8 +311,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
                     audioPlayerManager.currentPlaylist != null) {
                   if (audioPlayerManager.currentSong.getSongId ==
                           playlist.getSongs[index].getSongId &&
-                      audioPlayerManager.currentPlaylist.getName ==
-                          playlist.getName) {
+                      audioPlayerManager.currentPlaylist.getPushId ==
+                          playlist.getPushId) {
                     Navigator.push(
                       homePageContext,
                       MaterialPageRoute(

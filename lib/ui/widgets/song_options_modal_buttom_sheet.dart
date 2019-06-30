@@ -10,7 +10,7 @@ import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/ui/pages/account_page.dart';
+import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/artists_pick_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
@@ -165,7 +165,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
               FirebaseDatabaseManager.removeSongFromPlaylist(
                   widget.playlist, widget.song);
               widget.playlist.removeSong(widget.song);
-              Provider.of<PageNotifier>(accountPageContext)
+              Provider.of<PageNotifier>(homePageContext)
                   .setCurrentPlaylistPagePlaylist = widget.playlist;
               currentUser.updatePlaylist(widget.playlist);
               if (audioPlayerManager.currentPlaylist != null) {
@@ -242,6 +242,20 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                 ManageLocalSongs.checkIfFileExists(widget.song)
                     .then((exists) async {
                   if (!exists) {
+                    if (Provider.of<PageNotifier>(homePageContext)
+                            .currentPlaylistPagePlaylist
+                            .getName ==
+                        currentUser.getDownloadedSongsPlaylist.getName) {
+                      Provider.of<PageNotifier>(homePageContext)
+                              .setCurrentPlaylistPagePlaylist =
+                          currentUser.getDownloadedSongsPlaylist;
+                    }
+                    if (widget.song.getImageUrl == "") {
+                      String imageUrl =
+                          await FetchData.getSongImageUrl(widget.song, false);
+                      widget.song.setImageUrl = imageUrl;
+                    }
+                    ManageLocalSongs.downloadSong(widget.song);
                     Fluttertoast.showToast(
                       msg: "Download started",
                       toastLength: Toast.LENGTH_SHORT,
@@ -251,12 +265,6 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                       textColor: Colors.white,
                       fontSize: 16.0,
                     );
-                    if (widget.song.getImageUrl == "") {
-                      String imageUrl =
-                          await FetchData.getSongImageUrl(widget.song, false);
-                      widget.song.setImageUrl = imageUrl;
-                    }
-                    ManageLocalSongs.downloadSong(widget.song);
                   } else {
                     Fluttertoast.showToast(
                       msg: "Song is already exists!",
@@ -311,11 +319,11 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
               if (exists) {
                 ManageLocalSongs.deleteSongDirectory(widget.song);
                 currentUser.removeSongFromDownloadedPlaylist(widget.song);
-                if (Provider.of<PageNotifier>(accountPageContext)
+                if (Provider.of<PageNotifier>(homePageContext)
                         .currentPlaylistPagePlaylist
                         .getName ==
                     currentUser.getDownloadedSongsPlaylist.getName) {
-                  Provider.of<PageNotifier>(accountPageContext)
+                  Provider.of<PageNotifier>(homePageContext)
                           .setCurrentPlaylistPagePlaylist =
                       currentUser.getDownloadedSongsPlaylist;
                 }

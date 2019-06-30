@@ -11,6 +11,9 @@ import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/communicate_with_native/music_control_notification.dart';
+import 'package:myapp/page_notifier/page_notifier.dart';
+import 'package:myapp/ui/pages/home_page.dart';
+import 'package:provider/provider.dart';
 
 enum PlaylistMode {
   shuffle,
@@ -81,6 +84,7 @@ class AudioPlayerManager {
     });
 
     currentSong = song;
+    Provider.of<PageNotifier>(homePageContext).setCurrentSong = song;
     this.playlistMode = playlistMode;
     if (playlist != null) {
       if (currentPlaylist != null) {

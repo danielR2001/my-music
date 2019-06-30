@@ -33,14 +33,14 @@ class WelcomePage extends StatelessWidget {
             Text(
               "My Music",
               style: TextStyle(
-                fontSize: 40.0,
+                fontSize: 30.0,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(
-                top: 200,
+                top: 300,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -68,8 +68,9 @@ class WelcomePage extends StatelessWidget {
                         child: Text(
                           "Log In",
                           style: TextStyle(
-                            fontSize: 20.0,
+                            fontSize: 18.0,
                             color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -98,8 +99,9 @@ class WelcomePage extends StatelessWidget {
                         child: Text(
                           "Sign Up",
                           style: TextStyle(
-                            fontSize: 20.0,
+                            fontSize: 18.0,
                             color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),

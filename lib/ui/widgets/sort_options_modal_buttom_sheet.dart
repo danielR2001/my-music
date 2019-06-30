@@ -3,7 +3,7 @@ import 'package:myapp/constants/constants.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/ui/pages/account_page.dart';
+import 'package:myapp/ui/pages/home_page.dart';
 import 'package:provider/provider.dart';
 
 enum SortType {
@@ -64,11 +64,13 @@ class _SortOptionsModalSheetState extends State<SortOptionsModalSheet> {
                   ),
                 ),
                 onTap: () {
-                  widget.playlist.setSongs = sortList(SortType.title);
-                  widget.playlist.setSortedType = SortType.title;
-                  Provider.of<PageNotifier>(accountPageContext)
-                      .setCurrentPlaylistPagePlaylist = widget.playlist;
-                  setState(() {});
+                  if (widget.playlist.getSortedType != SortType.title) {
+                    widget.playlist.setSongs = sortList(SortType.title);
+                    widget.playlist.setSortedType = SortType.title;
+                    Provider.of<PageNotifier>(homePageContext)
+                        .setCurrentPlaylistPagePlaylist = widget.playlist;
+                    setState(() {});
+                  }
                 },
               ),
             ),
@@ -88,11 +90,13 @@ class _SortOptionsModalSheetState extends State<SortOptionsModalSheet> {
                   ),
                 ),
                 onTap: () {
-                  widget.playlist.setSongs = sortList(SortType.artist);
-                  widget.playlist.setSortedType = SortType.artist;
-                  Provider.of<PageNotifier>(accountPageContext)
-                      .setCurrentPlaylistPagePlaylist = widget.playlist;
-                  setState(() {});
+                  if (widget.playlist.getSortedType != SortType.artist) {
+                    widget.playlist.setSongs = sortList(SortType.artist);
+                    widget.playlist.setSortedType = SortType.artist;
+                    Provider.of<PageNotifier>(homePageContext)
+                        .setCurrentPlaylistPagePlaylist = widget.playlist;
+                    setState(() {});
+                  }
                 },
               ),
             ),
@@ -113,11 +117,13 @@ class _SortOptionsModalSheetState extends State<SortOptionsModalSheet> {
                   ),
                 ),
                 onTap: () {
-                  widget.playlist.setSongs = sortList(SortType.recentlyAdded);
-                  widget.playlist.setSortedType = SortType.recentlyAdded;
-                  Provider.of<PageNotifier>(accountPageContext)
-                      .setCurrentPlaylistPagePlaylist = widget.playlist;
-                  setState(() {});
+                  if (widget.playlist.getSortedType != SortType.recentlyAdded) {
+                    widget.playlist.setSongs = sortList(SortType.recentlyAdded);
+                    widget.playlist.setSortedType = SortType.recentlyAdded;
+                    Provider.of<PageNotifier>(homePageContext)
+                        .setCurrentPlaylistPagePlaylist = widget.playlist;
+                    setState(() {});
+                  }
                 },
               ),
             ),
@@ -130,47 +136,14 @@ class _SortOptionsModalSheetState extends State<SortOptionsModalSheet> {
   List<Song> sortList(SortType sortType) {
     List<Song> sortedPlaylist = List();
     if (sortType == SortType.recentlyAdded) {
-      List<int> datesList = List();
-      for (int i = 0; i < widget.playlist.getSongs.length; i++) {
-        datesList.add(widget.playlist.getSongs[i].getDateAdded);
-      }
-      datesList.sort();
-      datesList.forEach((date) {
-        for (int i = 0; i < widget.playlist.getSongs.length; i++) {
-          if (widget.playlist.getSongs[i].getDateAdded == date) {
-            sortedPlaylist.add(widget.playlist.getSongs[i]);
-            break;
-          }
-        }
-      });
+      sortedPlaylist = widget.playlist.getSongs;
+      sortedPlaylist.sort((a, b) => a.getDateAdded.compareTo(b.getDateAdded));
     } else if (sortType == SortType.title) {
-      List<String> titlesList = List();
-      for (int i = 0; i < widget.playlist.getSongs.length; i++) {
-        titlesList.add(widget.playlist.getSongs[i].getTitle);
-      }
-      titlesList.sort((a, b) => a[0].compareTo(b[0]));
-      titlesList.forEach((title) {
-        for (int i = 0; i < widget.playlist.getSongs.length; i++) {
-          if (widget.playlist.getSongs[i].getTitle == title) {
-            sortedPlaylist.add(widget.playlist.getSongs[i]);
-            break;
-          }
-        }
-      });
+      sortedPlaylist = widget.playlist.getSongs;
+      sortedPlaylist.sort((a, b) => a.getTitle.compareTo(b.getTitle));
     } else if (sortType == SortType.artist) {
-      List<String> artistsList = List();
-      for (int i = 0; i < widget.playlist.getSongs.length; i++) {
-        artistsList.add(widget.playlist.getSongs[i].getArtist);
-      }
-      artistsList.sort((a, b) => a[0].compareTo(b[0]));
-      artistsList.forEach((artist) {
-        for (int i = 0; i < widget.playlist.getSongs.length; i++) {
-          if (widget.playlist.getSongs[i].getArtist == artist) {
-            sortedPlaylist.add(widget.playlist.getSongs[i]);
-            break;
-          }
-        }
-      });
+      sortedPlaylist = widget.playlist.getSongs;
+      sortedPlaylist.sort((a, b) => a.getArtist.compareTo(b.getArtist));
     }
     return sortedPlaylist;
   }

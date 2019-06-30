@@ -97,7 +97,7 @@ class _State extends State<LogInPage> {
                     leading: Text(
                       "Log In With FaceBook",
                       style: TextStyle(
-                        fontSize: 20.0,
+                        fontSize: 18.0,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -131,7 +131,7 @@ class _State extends State<LogInPage> {
                     leading: Text(
                       "Log In With Google",
                       style: TextStyle(
-                        fontSize: 20.0,
+                        fontSize: 18.0,
                         color: Colors.grey[700],
                         fontWeight: FontWeight.bold,
                       ),
@@ -266,8 +266,9 @@ class _State extends State<LogInPage> {
                             child: Text(
                               "Log In",
                               style: TextStyle(
-                                fontSize: 20.0,
+                                fontSize: 18.0,
                                 color: Colors.white,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
@@ -320,6 +321,7 @@ class _State extends State<LogInPage> {
                   ),
                 );
               } else {
+                FirebaseAuthentication.signOut();
                 Navigator.of(context, rootNavigator: true).pop('dialog');
                 key.currentState.showSnackBar(
                   SnackBar(

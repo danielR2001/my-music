@@ -7,6 +7,7 @@ class PageNotifier with ChangeNotifier {
   Map<String, int> downloadedProgresses = Map();
   Map<String, int> downloadedTotals = Map();
   Playlist currentPlaylistPagePlaylist;
+  Song currentSong;
 
   void addDownloaded(Song song) {
     downloadedProgresses[song.getSongId] = 0;
@@ -32,6 +33,11 @@ class PageNotifier with ChangeNotifier {
 
   set setCurrentPlaylistPagePlaylist(Playlist value) {
     currentPlaylistPagePlaylist = value;
+    notifyListeners();
+  }
+
+    set setCurrentSong(Song value) {
+    currentSong = value;
     notifyListeners();
   }
 }

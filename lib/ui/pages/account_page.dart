@@ -18,13 +18,12 @@ class AccountPage extends StatefulWidget {
   _AccountPageState createState() => _AccountPageState();
 }
 
-BuildContext accountPageContext;
+
 
 class _AccountPageState extends State<AccountPage> {
   bool openPlaylists = true;
   @override
   Widget build(BuildContext context) {
-    accountPageContext = context;
     return Navigator(onGenerateRoute: (RouteSettings settings) {
       return MaterialPageRoute(
         settings: settings,

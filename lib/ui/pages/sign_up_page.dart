@@ -92,7 +92,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     leading: Text(
                       "Sign up With FaceBook",
                       style: TextStyle(
-                        fontSize: 20.0,
+                        fontSize: 18.0,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -126,7 +126,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     leading: Text(
                       "Sign up With Google",
                       style: TextStyle(
-                        fontSize: 20.0,
+                        fontSize: 18.0,
                         color: Colors.grey[700],
                         fontWeight: FontWeight.bold,
                       ),
@@ -345,8 +345,9 @@ class _SignUpPageState extends State<SignUpPage> {
             child: Text(
               "Sign Up",
               style: TextStyle(
-                fontSize: 20.0,
+                fontSize: 18.0,
                 color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -369,8 +370,9 @@ class _SignUpPageState extends State<SignUpPage> {
             child: Text(
               "Continue",
               style: TextStyle(
-                fontSize: 20.0,
+                fontSize: 18.0,
                 color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),

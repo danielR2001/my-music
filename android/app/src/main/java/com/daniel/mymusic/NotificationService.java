@@ -168,10 +168,7 @@ public class NotificationService extends Service {
         }
         if (iP) {
             notification.flags |= Notification.FLAG_ONGOING_EVENT;
-            notification.flags |= Notification.FLAG_AUTO_CANCEL;
-        } else {
-            notification.flags |= Notification.FLAG_AUTO_CANCEL;
-        }
+        } 
         notificationManager.notify(notificationId, notification);
 
     }
@@ -189,7 +186,7 @@ public class NotificationService extends Service {
 
     private void initIntents() {
         notificationIntent = new Intent(this, MainActivity.class);
-        pendingIntent = PendingIntent.getActivity(this, 1, notificationIntent, 0);
+        pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         playIntent = new Intent(this, NotificationService.class);
         playIntent.setAction(Constants.PLAY_ACTION);

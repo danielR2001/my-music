@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/communicate_with_native/internet_connection_check.dart';
@@ -99,7 +100,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                                   SizedBox(
                                     height: 5,
                                   ),
-                                  Text(
+                                  AutoSizeText(
                                     audioPlayerManager.currentPlaylist != null
                                         ? audioPlayerManager
                                             .currentPlaylist.getName
@@ -110,6 +111,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                                       fontSize: 15,
                                     ),
                                     textAlign: TextAlign.center,
+                                    maxLines: 1,
                                   ),
                                 ],
                               ),
