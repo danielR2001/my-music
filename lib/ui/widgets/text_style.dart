@@ -9,34 +9,39 @@ class TextDecoration extends StatelessWidget {
   final double height;
   final bool makeBold;
   TextDecoration(
-      this.txt, this.size, this.color, this.txtMaxLength, this.height,this.makeBold);
+      {this.txt,
+      this.size,
+      this.color,
+      this.txtMaxLength,
+      this.height,
+      this.makeBold});
   @override
   Widget build(BuildContext context) {
     if (txt.length < txtMaxLength) {
       return Container(
         width: 280,
         height: height,
-        child:  Text(
+        child: Text(
           txt,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: size,
             color: color,
-            fontWeight: makeBold?FontWeight.bold:FontWeight.normal,
+            fontWeight: makeBold ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       );
     } else {
-      return  Container(
+      return Container(
         width: 280,
         height: height,
-        child:  Marquee(
+        child: Marquee(
           text: txt,
           scrollAxis: Axis.horizontal,
           style: TextStyle(
             fontSize: size,
             color: color,
-            fontWeight: makeBold?FontWeight.bold:FontWeight.normal,
+            fontWeight: makeBold ? FontWeight.bold : FontWeight.normal,
           ),
           blankSpace: 30.0,
           velocity: 30.0,

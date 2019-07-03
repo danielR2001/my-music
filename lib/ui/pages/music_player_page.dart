@@ -11,7 +11,6 @@ import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
-import 'package:myapp/ui/widgets/text_style.dart';
 import 'package:flip_card/flip_card.dart';
 
 class MusicPlayerPage extends StatefulWidget {
@@ -150,29 +149,38 @@ class MusicPageState extends State<MusicPlayerPage> {
                       ],
                     ),
                   ),
-                  Column(
-                    children: <Widget>[
-                      TextDecoration(
-                        audioPlayerManager.currentSong != null
-                            ? audioPlayerManager.currentSong.getTitle
-                            : "",
-                        20,
-                        Colors.white,
-                        20,
-                        30,
-                        true,
-                      ),
-                      TextDecoration(
-                        audioPlayerManager.currentSong != null
-                            ? audioPlayerManager.currentSong.getArtist
-                            : "",
-                        14,
-                        Colors.grey,
-                        30,
-                        30,
-                        false,
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Column(
+                      children: <Widget>[
+                        AutoSizeText(
+                          audioPlayerManager.currentSong != null
+                              ? audioPlayerManager.currentSong.getTitle
+                              : "",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        AutoSizeText(
+                          audioPlayerManager.currentSong != null
+                              ? audioPlayerManager.currentSong.getArtist
+                              : "",
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14.0,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                        ),
+                      ],
+                    ),
                   ),
                   SliderTheme(
                     data: SliderThemeData(
@@ -322,8 +330,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                                           AudioPlayerState.PLAYING
                                       ? audioPlayerManager.pauseSong(
                                           calledFromNative: false)
-                                      : audioPlayerManager
-                                                  .audioPlayer.state ==
+                                      : audioPlayerManager.audioPlayer.state ==
                                               AudioPlayerState.PAUSED
                                           ? audioPlayerManager.resumeSong(
                                               calledFromNative: false)
@@ -515,8 +522,7 @@ class MusicPageState extends State<MusicPlayerPage> {
     });
     changePlaylistModeIconState();
     checkSongStatus(audioPlayerManager.audioPlayer.state);
-    stateStream =
-        audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
+    stateStream = audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
         checkSongStatus(state);
       },

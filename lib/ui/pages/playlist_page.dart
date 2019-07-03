@@ -136,7 +136,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           maxLines: 1,
                         ),
                         SizedBox(
-                          height: 2,
+                          height: 1,
                         ),
                         AutoSizeText(
                           currentUser != null
@@ -147,7 +147,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               : "",
                           style: TextStyle(
                             color: Colors.grey,
-                            fontSize: 10.0,
+                            fontSize: 12.0,
                           ),
                           maxLines: 1,
                         ),
@@ -209,19 +209,19 @@ class _PlaylistPageState extends State<PlaylistPage> {
         List.generate(playlist.getSongs.length, (int index) {
           String title;
           String artist;
-          if (playlist.getSongs[index].getTitle.length > 28) {
-            int pos = playlist.getSongs[index].getTitle.lastIndexOf("", 28);
-            if (pos < 20) {
-              pos = 28;
+          if (playlist.getSongs[index].getTitle.length > 35) {
+            int pos = playlist.getSongs[index].getTitle.lastIndexOf("", 35);
+            if (pos < 25) {
+              pos = 35;
             }
             title = playlist.getSongs[index].getTitle.substring(0, pos) + "...";
           } else {
             title = playlist.getSongs[index].getTitle;
           }
-          if (playlist.getSongs[index].getArtist.length > 40) {
-            int pos = playlist.getSongs[index].getArtist.lastIndexOf("", 40);
-            if (pos < 30) {
-              pos = 40;
+          if (playlist.getSongs[index].getArtist.length > 35) {
+            int pos = playlist.getSongs[index].getArtist.lastIndexOf("", 35);
+            if (pos < 25) {
+              pos = 35;
             }
             artist =
                 playlist.getSongs[index].getArtist.substring(0, pos) + "...";
@@ -260,7 +260,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                             : Colors.grey
                         : Colors.grey
                     : Colors.grey,
-                fontSize: 12,
+                fontSize: 13,
               ),
             ),
             trailing: ManageLocalSongs.isSongDownloading(

@@ -115,7 +115,8 @@ class _AccountPageState extends State<AccountPage> {
                         color: Colors.white,
                       ),
                       onTap: () {
-                        Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                        Provider.of<PageNotifier>(
+                                    GlobalVariables.homePageContext)
                                 .setCurrentPlaylistPagePlaylist =
                             currentUser.getDownloadedSongsPlaylist;
                         widget.onPush(
@@ -192,8 +193,8 @@ class _AccountPageState extends State<AccountPage> {
             color: Colors.white,
           ),
           onTap: () {
-            Provider.of<PageNotifier>(GlobalVariables.homePageContext).setCurrentPlaylistPagePlaylist =
-                playlist;
+            Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                .setCurrentPlaylistPagePlaylist = playlist;
             widget.onPush(createMap(playlist));
           }),
     );

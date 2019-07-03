@@ -15,7 +15,7 @@ dependencies:
   html: ^0.14.0+1
   audioplayers: ^0.13.0
   firebase_auth: ^0.11.1+7
-  marquee: ^1.1.0
+  marquee: ^1.2.0
   firebase_database: ^3.0.3
   dio: ^2.1.7 
   path_provider: ^1.1.0
@@ -42,7 +42,6 @@ flutter:
    - assets/images/facebook_logo.png
    - assets/images/default_playlist_image.jpg
    - assets/images/app_logo.png
-   #- assets/gifs/kygo_gif.gif
 
   fonts:
     - family: Montserrat

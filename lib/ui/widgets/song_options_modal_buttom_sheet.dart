@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
@@ -14,7 +15,6 @@ import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/artists_pick_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
 import 'package:provider/provider.dart';
-import 'text_style.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 enum SongModalSheetMode {
@@ -72,7 +72,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
     }
     return Container(
       alignment: Alignment.topCenter,
-      height: 195 + 50 * widgetsCount,
+      height: 190 + 50 * widgetsCount,
       decoration: BoxDecoration(
         border: Border.all(color: Colors.transparent),
         borderRadius: BorderRadius.only(
@@ -94,21 +94,24 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    TextDecoration(
+                    AutoSizeText(
                       widget.song.getTitle,
-                      18,
-                      Colors.white,
-                      20,
-                      30,
-                      true,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
                     ),
-                    TextDecoration(
+                    AutoSizeText(
                       widget.song.getArtist,
-                      16,
-                      Colors.grey,
-                      30,
-                      30,
-                      false,
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16.0,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
                     ),
                   ],
                 )
@@ -241,7 +244,8 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                 ManageLocalSongs.checkIfFileExists(widget.song)
                     .then((exists) async {
                   if (!exists) {
-                    if (Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                    if (Provider.of<PageNotifier>(
+                                GlobalVariables.homePageContext)
                             .currentPlaylistPagePlaylist
                             .getName ==
                         currentUser.getDownloadedSongsPlaylist.getName) {
@@ -387,9 +391,9 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
               context,
               MaterialPageRoute(
                 builder: (context) => PlaylistPickPage(
-                      song: widget.song,
-                      songs: null,
-                    ),
+                  song: widget.song,
+                  songs: null,
+                ),
               ),
             );
           },
@@ -532,8 +536,8 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                       child: CircularProgressIndicator(
                         value: null,
                         strokeWidth: 2.0,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(GlobalVariables.pinkColor),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            GlobalVariables.pinkColor),
                       ),
                     ),
                   ),

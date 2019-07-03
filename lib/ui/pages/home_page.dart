@@ -11,7 +11,6 @@ import 'music_player_page.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/ui/widgets/text_style.dart';
 
-
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -103,8 +102,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void initSong() {
-    stateStream =
-        audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
+    stateStream = audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
         setState(() {
           checkSongStatus(state);
@@ -174,20 +172,21 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           TextDecoration(
-                            audioPlayerManager.currentSong.getTitle,
-                            14,
-                            Colors.white,
-                            20,
-                            20,
-                            true,
+                            txt: audioPlayerManager.currentSong.getTitle,
+                            size: 14,
+                            color: Colors.white,
+                            txtMaxLength: 20,
+                            height: 20,
+                            makeBold: true,
                           ),
                           TextDecoration(
-                              audioPlayerManager.currentSong.getArtist,
-                              14,
-                              Colors.grey,
-                              30,
-                              20,
-                              false),
+                            txt: audioPlayerManager.currentSong.getArtist,
+                            size: 14,
+                            color: Colors.grey,
+                            txtMaxLength: 30,
+                            height: 20,
+                            makeBold: false,
+                          ),
                         ],
                       ),
                     ],

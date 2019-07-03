@@ -102,7 +102,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
           color: Provider.of<PageNotifier>(context).currentSong.getSongId ==
                   song.getSongId
               ? GlobalVariables.pinkColor
-              : Colors.grey,
+              : Colors.white,
           fontSize: 14,
           fontWeight: FontWeight.bold,
         ),
