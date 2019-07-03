@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/constants/constants.dart';
+import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/ui/pages/welcome_page.dart';
@@ -14,8 +15,8 @@ class SettingsPage extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Constants.darkGreyColor,
-              Constants.pinkColor,
+              GlobalVariables.darkGreyColor,
+              GlobalVariables.pinkColor,
             ],
             begin: FractionalOffset.bottomRight,
             stops: [0.7, 1.0],
@@ -58,7 +59,7 @@ class SettingsPage extends StatelessWidget {
                 ),
                 Expanded(
                   child: Text(
-                    "1.4.4",
+                    "1.5.0",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 17,
@@ -70,7 +71,7 @@ class SettingsPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
                       FlatButton(
-                        color: Constants.pinkColor,
+                        color: GlobalVariables.pinkColor,
                         child: Text(
                           "Sign Out",
                           style: TextStyle(color: Colors.white),
@@ -102,16 +103,18 @@ class SettingsPage extends StatelessWidget {
               fontSize: 16,
               fontWeight: FontWeight.bold
             ),
+            textAlign: TextAlign.center,
           ),
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 15),
               child: Text(
                 "If you will proceed with your action all your local songs will be erased.",
                 style: TextStyle(
                   color: Colors.grey,
                   fontSize: 16,
                 ),
+                textAlign: TextAlign.center,
               ),
             ),
             Padding(
@@ -126,7 +129,7 @@ class SettingsPage extends StatelessWidget {
                         height: 50.0,
                         width: 90,
                         decoration: BoxDecoration(
-                          color: Constants.pinkColor,
+                          color: GlobalVariables.pinkColor,
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(
@@ -155,7 +158,7 @@ class SettingsPage extends StatelessWidget {
                         height: 50.0,
                         width: 90,
                         decoration: BoxDecoration(
-                          color: Constants.pinkColor,
+                          color: GlobalVariables.pinkColor,
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(
@@ -174,7 +177,7 @@ class SettingsPage extends StatelessWidget {
                           FirebaseDatabaseManager.changeUserSignInState(false)
                               .then((a) {
                             FirebaseAuthentication.signOut().then((a) {
-                              audioPlayerManager.closeSong(true);
+                              audioPlayerManager.closeSong(closeSongMode: CloseSongMode.completely);
                               currentUser = null;
                               Navigator.pushReplacement(
                                   context,

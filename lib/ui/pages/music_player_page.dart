@@ -5,7 +5,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/communicate_with_native/internet_connection_check.dart';
-import 'package:myapp/constants/constants.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
@@ -56,8 +56,8 @@ class MusicPageState extends State<MusicPlayerPage> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Constants.darkGreyColor,
-                Constants.pinkColor,
+                GlobalVariables.darkGreyColor,
+                GlobalVariables.pinkColor,
               ],
               begin: FractionalOffset.bottomCenter,
               stops: [0.28, 1.0],
@@ -180,9 +180,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                           enabledThumbRadius: thumbRadius),
                       trackHeight: 3,
                       disabledThumbColor: Colors.black,
-                      thumbColor: Constants.pinkColor,
-                      inactiveTrackColor: Constants.lightGreyColor,
-                      activeTrackColor: Constants.pinkColor,
+                      thumbColor: GlobalVariables.pinkColor,
+                      inactiveTrackColor: GlobalVariables.lightGreyColor,
+                      activeTrackColor: GlobalVariables.pinkColor,
                       overlayColor: Colors.transparent,
                     ),
                     child: Slider(
@@ -303,7 +303,8 @@ class MusicPageState extends State<MusicPlayerPage> {
                                         PreviousMode.previous) {
                                       imageProvider = null;
                                     }
-                                    audioPlayerManager.playPreviousSong();
+
+                                    audioPlayerManager.playPreviousSong(false);
                                   }
                                 }
                               },
@@ -319,10 +320,13 @@ class MusicPageState extends State<MusicPlayerPage> {
                                         Duration(milliseconds: 0)) {
                                   audioPlayerManager.audioPlayer.state ==
                                           AudioPlayerState.PLAYING
-                                      ? audioPlayerManager.pauseSong(false)
-                                      : audioPlayerManager.audioPlayer.state ==
+                                      ? audioPlayerManager.pauseSong(
+                                          calledFromNative: false)
+                                      : audioPlayerManager
+                                                  .audioPlayer.state ==
                                               AudioPlayerState.PAUSED
-                                          ? audioPlayerManager.resumeSong(false)
+                                          ? audioPlayerManager.resumeSong(
+                                              calledFromNative: false)
                                           : playSong();
                                 }
                               },
@@ -353,7 +357,6 @@ class MusicPageState extends State<MusicPlayerPage> {
                                     }
 
                                     imageProvider = null;
-
                                     audioPlayerManager.playNextSong();
                                   }
                                 }
@@ -463,7 +466,6 @@ class MusicPageState extends State<MusicPlayerPage> {
         () {
           playlistModeIcon = Icon(
             CupertinoIcons.shuffle_medium,
-            //Icons.shuffle,
             color: Colors.white,
             size: 25,
           );
@@ -479,6 +481,11 @@ class MusicPageState extends State<MusicPlayerPage> {
     } else if (state == AudioPlayerState.PAUSED) {
       changePlayingIconState(false);
     } else if (state == AudioPlayerState.STOPPED) {
+      setState(() {
+        _position = Duration(seconds: 0);
+      });
+      changePlayingIconState(false);
+    } else if (state == AudioPlayerState.COMPLETED) {
       setState(() {
         _position = Duration(seconds: 0);
       });
@@ -508,7 +515,8 @@ class MusicPageState extends State<MusicPlayerPage> {
     });
     changePlaylistModeIconState();
     checkSongStatus(audioPlayerManager.audioPlayer.state);
-    stateStream = audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
+    stateStream =
+        audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
         checkSongStatus(state);
       },
@@ -517,7 +525,7 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   void seekToSecond(int second) {
     Duration duration = new Duration(seconds: second);
-    audioPlayerManager.seekTime(duration);
+    audioPlayerManager.seekTime(duration: duration);
   }
 
   int checkSongLength() {
@@ -533,7 +541,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   void checkForIntenetConnetionForNetworkImage() {
-    InternetConnectioCheck.check().then((available) {
+    InternetConnectionCheck.check().then((available) {
       ManageLocalSongs.checkIfFileExists(audioPlayerManager.currentSong)
           .then((exists) {
         if (exists) {
@@ -560,11 +568,10 @@ class MusicPageState extends State<MusicPlayerPage> {
   void playSong() {
     checkForIntenetConnetionForNetworkImage();
     audioPlayerManager.initSong(
-      audioPlayerManager.currentSong,
-      audioPlayerManager.currentPlaylist,
-      audioPlayerManager.playlistMode,
+      song: audioPlayerManager.currentSong,
+      playlist: audioPlayerManager.currentPlaylist,
+      playlistMode: audioPlayerManager.playlistMode,
     );
-    audioPlayerManager.playSong();
   }
 
   void showQueueModalBottomSheet(BuildContext context) {
@@ -581,8 +588,8 @@ class MusicPageState extends State<MusicPlayerPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Constants.lightGreyColor,
-            Constants.darkGreyColor,
+            GlobalVariables.lightGreyColor,
+            GlobalVariables.darkGreyColor,
           ],
           begin: FractionalOffset.bottomLeft,
           stops: [0.3, 0.8],
@@ -651,8 +658,8 @@ class MusicPageState extends State<MusicPlayerPage> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Constants.lightGreyColor,
-              Constants.darkGreyColor,
+              GlobalVariables.lightGreyColor,
+              GlobalVariables.darkGreyColor,
             ],
             begin: FractionalOffset.bottomLeft,
             stops: [0.3, 0.8],
@@ -673,7 +680,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                 imageProvider == null
             ? Icon(
                 Icons.music_note,
-                color: Constants.pinkColor,
+                color: GlobalVariables.pinkColor,
                 size: 120,
               )
             : Image(

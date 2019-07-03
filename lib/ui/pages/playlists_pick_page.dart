@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
-import 'package:myapp/constants/constants.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/playlist.dart';
@@ -77,7 +77,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                       height: 55,
                       width: 180,
                       decoration: BoxDecoration(
-                        color: Constants.pinkColor,
+                        color: GlobalVariables.pinkColor,
                         borderRadius: BorderRadius.circular(40.0),
                       ),
                       child: Text(
@@ -157,7 +157,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
               toastLength: Toast.LENGTH_LONG,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIos: 1,
-              backgroundColor: Constants.pinkColor,
+              backgroundColor: GlobalVariables.pinkColor,
               textColor: Colors.white,
               fontSize: 16.0,
             );
@@ -249,7 +249,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           playlist.setPushId = FirebaseDatabaseManager.addPlaylist(playlist);
           if (playlist.getIsPublic) {
             playlist =
-                await FirebaseDatabaseManager.addPublicPlaylist(playlist,true);
+                await FirebaseDatabaseManager.addPublicPlaylist(playlist, true);
           }
           if (widget.song != null) {
             if (widget.song.getImageUrl.length == 0) {
@@ -257,6 +257,8 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                   await FetchData.getSongImageUrl(widget.song, false);
               widget.song.setImageUrl = imageUrl;
             }
+            updatedsong = widget.song;
+            updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
             updatedsong = FirebaseDatabaseManager.addSongToPlaylist(
                 playlist, widget.song);
             playlist.addNewSong(updatedsong);
@@ -375,7 +377,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                         )),
                         Switch(
                           value: _isPublic,
-                          activeColor: Constants.pinkColor,
+                          activeColor: GlobalVariables.pinkColor,
                           dragStartBehavior: DragStartBehavior.down,
                           onChanged: (value) {
                             setState(() {
@@ -396,7 +398,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                         alignment: Alignment.center,
                         height: 50.0,
                         decoration: BoxDecoration(
-                          color: Constants.pinkColor,
+                          color: GlobalVariables.pinkColor,
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(
@@ -447,7 +449,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                         value: null,
                         strokeWidth: 3.0,
                         valueColor: new AlwaysStoppedAnimation<Color>(
-                            Constants.pinkColor),
+                            GlobalVariables.pinkColor),
                       ),
                     ),
                   ),
@@ -465,10 +467,10 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
       width: 60,
       height: 60,
       decoration: BoxDecoration(
-        color: Constants.lightGreyColor,
+        color: GlobalVariables.lightGreyColor,
         shape: BoxShape.rectangle,
         border: Border.all(
-          color: Constants.lightGreyColor,
+          color: GlobalVariables.lightGreyColor,
           width: 0.4,
         ),
         image: DecorationImage(
@@ -488,21 +490,21 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Constants.lightGreyColor,
-            Constants.darkGreyColor,
+            GlobalVariables.lightGreyColor,
+            GlobalVariables.darkGreyColor,
           ],
           begin: FractionalOffset.bottomLeft,
           stops: [0.3, 0.8],
           end: FractionalOffset.topRight,
         ),
         border: Border.all(
-          color: Constants.darkGreyColor,
+          color: GlobalVariables.darkGreyColor,
           width: 0.3,
         ),
       ),
       child: Icon(
         Icons.music_note,
-        color: Constants.pinkColor,
+        color: GlobalVariables.pinkColor,
         size: 40,
       ),
     );

@@ -7,8 +7,8 @@ import 'package:myapp/models/song.dart';
 import 'package:html/parser.dart' show parse;
 
 class FetchData {
-  //static final String searchUrl = 'https://ru-music.com/search/';
-  static final String searchUrl = 'https://music.xn--41a.ws/search/';
+  static final String searchUrl = 'https://mp3-tut.com/search?query=';
+  static final String siteUrl = 'https://mp3-tut.com';
   static final String playUrl = 'https://music.xn--41a.ws';
   static final String imageSearchUrl =
       'https://free-mp3-download.net/search.php?s=';
@@ -19,133 +19,52 @@ class FetchData {
   static final String lyricsSearchUrl =
       'https://genius.com/api/search/multi?q=';
 
-  static Future<List<Song>> getResultsSitePage1(String searchStr) async {
-    searchStr = await _prepareStringToSearch(searchStr);
-    searchStr = searchStr.replaceAll(" ", "-");
-    var encoded = Uri.encodeFull(searchUrl + searchStr + "/");
+  static Future<Map<String,List<Song>>> getSearchResults(String searchStr) async {
+    var responseList;
     try {
       return http
           .get(
-            encoded,
+            searchUrl + searchStr,
           )
           .catchError((eror) => print("error getResultsSitePage1"))
           .whenComplete(() => print('Search For Results 1 search completed'))
-          .then((http.Response response) async {
-        var document = parse(response.body);
-        if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
-          var elements = document.getElementsByClassName("playlist");
-          var html = elements[0].outerHtml;
-          html = html.replaceAll('\n', '');
-          html = html.replaceFirst('<ul class="playlist">', '');
-          var a = html.split("</li>");
-          return _buildSearchResult(a, searchUrl + searchStr + "/");
-        } else {
-          return await getResultsSitePage2(searchStr);
-        }
-      });
-    } catch (e) {
-      return await getResultsSitePage2(searchStr);
-    }
-  }
-
-  static Future<List<Song>> getResultsSitePage2(String searchStr) async {
-    var encoded = Uri.encodeFull(searchUrl + searchStr + "/2");
-    try {
-      return http
-          .get(
-            encoded,
-          )
-          .catchError((eror) => print("error getResultsSitePage2"))
-          .whenComplete(() => print('Search For Results 2 search completed'))
           .then((http.Response response) {
         var document = parse(response.body);
-        if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
-          var elements = document.getElementsByClassName("playlist");
-          var html = elements[0].outerHtml;
-          html = html.replaceAll('\n', '');
-          html = html.replaceFirst('<ul class="playlist">', '');
-          var a = html.split("</li>");
-          return _buildSearchResult(a, searchUrl + searchStr + "/");
-        }
-        return null;
+        var elements = document.getElementsByClassName("list-view");
+        var html = elements[0].outerHtml;
+        html = html.replaceAll('\n', '');
+        responseList = html.split('<div class="play-button-container">');
+        responseList.removeAt(0);
+        Map<String,List<Song>> resultsMap = Map();
+        resultsMap[searchStr] = _buildSearchResult(responseList, searchUrl + searchStr + "/");
+        return resultsMap;
       });
     } catch (e) {
       return null;
     }
   }
 
-  static Future<String> getSongPlayUrlPage1(Song song) async {
+  static Future<String> getSongPlayUrl(Song song) async {
     var responseList;
-    String searchStr = song.getSearchString;
-    searchStr = await _prepareStringToSearch(searchStr);
-    searchStr = searchStr.replaceAll(" ", "-");
-    var encoded = Uri.encodeFull(searchUrl + searchStr);
     try {
       return http
-          .get(encoded)
+          .get(siteUrl + song.getSearchString)
           .catchError((eror) => print("error getSongPlayUrlPage1"))
           .whenComplete(() => print('song search completed'))
-          .then((http.Response response) {
+          .then((http.Response response) async {
         var document = parse(response.body);
-        if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
-          var elements = document.getElementsByClassName("playlist");
-          if (elements.length > 0) {
-            var html = elements[0].outerHtml;
-            html = html.replaceAll('\n', '');
-            html = html.replaceFirst('<ul class="playlist">', '');
-            responseList = html.split("</li>");
-            responseList.removeLast();
-            String streamUrl = _buildStreamUrl(responseList, song);
-            if (streamUrl != null) {
-              return streamUrl;
-            } else {
-              return getSongPlayUrlPage2(searchStr, song);
-            }
-          } else {
-            return null;
+        var elements = document.getElementsByClassName("list-view");
+        var html = elements[0].outerHtml;
+        html = html.replaceAll('\n', '');
+        responseList = html.split('<div class="play-button-container">');
+        responseList.removeAt(0);
+        String streamUrl = _buildStreamUrl(responseList, song);
+        if (streamUrl != null) {
+          if (streamUrl.contains("amp;")) {
+            streamUrl = streamUrl.replaceAll("amp;", "");
           }
-        } else {
-          return getSongPlayUrlPage2(searchStr, song);
         }
-      });
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
-
-  static Future<String> getSongPlayUrlPage2(String searchStr, Song song) async {
-    var responseList;
-    var encoded = Uri.encodeFull(searchUrl + searchStr + "2");
-    try {
-      return http
-          .get(
-            encoded,
-          )
-          .catchError((eror) => print("error getSongPlayUrlPage2"))
-          .whenComplete(() => print('song search completed'))
-          .then((http.Response response) {
-        var document = parse(response.body);
-        if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
-          var elements = document.getElementsByClassName("playlist");
-          if (elements.length > 0) {
-            var html = elements[0].outerHtml;
-            html = html.replaceAll('\n', '');
-            html = html.replaceFirst('<ul class="playlist">', '');
-            responseList = html.split("</li>");
-            responseList.removeLast();
-            String streamUrl = _buildStreamUrl(responseList, song);
-            if (streamUrl != null) {
-              return streamUrl;
-            } else {
-              return null;
-            }
-          } else {
-            return null;
-          }
-        } else {
-          return null;
-        }
+        return streamUrl;
       });
     } catch (e) {
       print(e);
@@ -229,63 +148,10 @@ class FetchData {
     });
   }
 
-  static Future<String> getDownloadUrlPage1(Song song) async {
-    String searchStr = song.getSearchString;
-    searchStr = await _prepareStringToSearch(searchStr);
-    searchStr = searchStr.replaceAll(" ", "-");
-    try {
-      return http
-          .get(
-            searchUrl + song.getSearchString + "/",
-          )
-          .catchError((eror) => print("error getDownloadUrlPage1"))
-          .whenComplete(() => print('Search For Results 2 search completed'))
-          .then((http.Response response) {
-        var document = parse(response.body);
-        if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
-          var elements = document.getElementsByClassName("playlist");
-          var html = elements[0].outerHtml;
-          html = html.replaceAll('\n', '');
-          html = html.replaceFirst('<ul class="playlist">', '');
-          var a = html.split("</li>");
-          a.removeLast();
-          return _buildDownloadUrl(a, song);
-        }
-        return getDownloadUrlPage2(searchStr, song);
-      });
-    } catch (e) {
-      return getDownloadUrlPage2(searchStr, song);
-    }
-  }
-
-  static Future<String> getDownloadUrlPage2(String searchStr, Song song) async {
-    try {
-      return http
-          .get(
-            searchUrl + searchStr + "/2",
-          )
-          .catchError((eror) => print("error getDownloadUrlPage2"))
-          .whenComplete(() => print('Search For Results 2 search completed'))
-          .then((http.Response response) {
-        var document = parse(response.body);
-        if (!document.outerHtml.contains("Ошибка 404 - страница не найдена")) {
-          var elements = document.getElementsByClassName("playlist");
-          var html = elements[0].outerHtml;
-          html = html.replaceAll('\n', '');
-          html = html.replaceFirst('<ul class="playlist">', '');
-          var a = html.split("</li>");
-          a.removeLast();
-          return _buildDownloadUrl(a, song);
-        }
-        return null;
-      });
-    } catch (e) {
-      return null;
-    }
-  }
-
   static Future<String> getLyricsPageUrl(Song song) async {
-    String searchStr = song.getSearchString;
+    String title = _editSearchParams(song.getTitle, true, false);
+    String artist = _editSearchParams(song.getArtist, false, false);
+    String searchStr = title + " " + artist;
     searchStr = await _prepareStringToSearch(searchStr);
     var encoded = Uri.encodeFull(lyricsSearchUrl + searchStr);
     var list;
@@ -303,7 +169,7 @@ class FetchData {
         sectionsList = list['sections'];
         sectionsMap = sectionsList[1];
         hitsList = sectionsMap['hits'];
-        if (hitsList.length>0) {
+        if (hitsList.length > 0) {
           resultsList = hitsList[0]['result'];
           return resultsList['url'];
         } else {
@@ -328,36 +194,6 @@ class FetchData {
       });
     } catch (e) {
       print(e);
-      return null;
-    }
-  }
-
-  static String _buildDownloadUrl(List<String> list, Song song) {
-    String songId;
-    String strSong;
-    String downloadUrl;
-    if (list != null) {
-      list.forEach((item) {
-        songId = item.substring(
-            item.lastIndexOf('data-id="') + 'data-id="'.length,
-            item.lastIndexOf('" data-mp3='));
-        if (songId == song.getSongId) {
-          strSong = item;
-        }
-      });
-
-      if (strSong != null) {
-        downloadUrl = strSong.substring(
-            strSong.indexOf('data-mp3="') + 'data-mp3="'.length,
-            strSong.indexOf('" data-url_song='));
-        downloadUrl = downloadUrl
-            .replaceFirst("/public/play", "/public/download")
-            .replaceAll("amp;", "");
-        return downloadUrl;
-      } else {
-        return null;
-      }
-    } else {
       return null;
     }
   }
@@ -495,8 +331,9 @@ class FetchData {
     if (list != null) {
       for (int i = 0; i < list.length; i++) {
         songId = list[i].substring(
-            list[i].lastIndexOf('data-id="') + 'data-id="'.length,
-            list[i].lastIndexOf('" data-mp3='));
+            list[i].indexOf('https://mp3-tut.com/musictutplay?id=') +
+                'https://mp3-tut.com/musictutplay?id='.length,
+            list[i].indexOf('&amp;hash='));
         if (songId == song.getSongId) {
           strSong = list[i];
           break;
@@ -504,11 +341,9 @@ class FetchData {
       }
 
       if (strSong != null) {
-        stream = playUrl +
-            strSong
-                .substring(strSong.indexOf('data-mp3="') + 'data-mp3="'.length,
-                    strSong.indexOf('" data-url_song='))
-                .replaceFirst("amp;", "");
+        stream = strSong.substring(
+            strSong.indexOf('data-audiofile="') + 'data-audiofile="'.length,
+            strSong.indexOf('data-title='));
       }
     }
     return stream;
@@ -521,36 +356,43 @@ class FetchData {
     String songId;
     String streamUrl;
     List<Song> songs = List();
-    list.removeLast();
-    list.forEach((item) {
-      imageUrl = '';
+    if (list.length > 0) {
+      list.forEach((item) {
+        if (item.contains("amp;")) {
+          item = item.replaceAll("amp;", "");
+        }
+        imageUrl = '';
 
-      songTitle = item.substring(
-          item.lastIndexOf('<em>') + '<em>'.length, item.lastIndexOf('</em>'));
-      if (songTitle.contains('amp;')) {
-        songTitle = songTitle.replaceAll('amp;', '');
-      }
+        streamUrl = item.substring(
+            item.indexOf('<div class="title"><a href=') +
+                '<div class="title"><a href='.length,
+            item.indexOf('</a></div'));
+        streamUrl = streamUrl.replaceRange(
+            streamUrl.indexOf(">"), streamUrl.length, "");
+        streamUrl = streamUrl.replaceAll('"', "");
 
-      artist = item.substring(
-          item.lastIndexOf('<b>') + '<b>'.length, item.lastIndexOf('</b>'));
-      if (artist.contains('amp;')) {
-        artist = artist.replaceAll('amp;', '');
-      }
-      songId = item.substring(
-          item.lastIndexOf('data-id="') + 'data-id="'.length,
-          item.lastIndexOf('" data-mp3='));
+        artist = item.substring(
+            item.indexOf('<div class="title"><a href=') +
+                '<div class="title"><a href='.length,
+            item.indexOf('</a></div'));
+        item = item.replaceFirst('<div class="title">', "");
+        artist = artist.substring(artist.indexOf('>') + 1, artist.length);
 
-      String tempTitle = songTitle;
-      tempTitle = _editSearchParams(tempTitle, true, false);
-      String tempArtist = artist;
-      tempArtist = _editSearchParams(tempArtist, false, false);
-      streamUrl = tempTitle + " " + tempArtist;
-      if (!RegExp(r'^[א-ת\$!?&\()\[\] ]+$').hasMatch(streamUrl)) {
-        songs.add(
-            Song(songTitle, artist, songId, streamUrl + "/", imageUrl, ''));
-      }
-    });
-    return songs;
+        songTitle = item.substring(
+            item.indexOf('<div class="title">') + '<div class="title">'.length,
+            item.indexOf('</div>    </div>'));
+
+        songId = item.substring(
+            item.indexOf('https://mp3-tut.com/musictutplay?id=') +
+                'https://mp3-tut.com/musictutplay?id='.length,
+            item.indexOf('&hash='));
+
+        songs.add(Song(songTitle, artist, songId, streamUrl, imageUrl, ''));
+      });
+      return songs;
+    } else {
+      return null;
+    }
   }
 
   static Future<String> _prepareStringToSearch(String searchStr) async {

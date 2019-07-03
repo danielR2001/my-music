@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/constants/constants.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'sign_up_page.dart';
 import 'log_in_page.dart';
 
@@ -62,7 +62,7 @@ class WelcomePage extends StatelessWidget {
                         alignment: Alignment.center,
                         height: 60.0,
                         decoration: BoxDecoration(
-                          color: Constants.pinkColor,
+                          color: GlobalVariables.pinkColor,
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(
@@ -93,7 +93,7 @@ class WelcomePage extends StatelessWidget {
                         alignment: Alignment.center,
                         height: 60.0,
                         decoration: BoxDecoration(
-                          color: Constants.pinkColor,
+                          color: GlobalVariables.pinkColor,
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(

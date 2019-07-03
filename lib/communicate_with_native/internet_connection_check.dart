@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-class InternetConnectioCheck {
+class InternetConnectionCheck {
   static const platform = const MethodChannel('flutter.native/internet');
 
   static Future<void> activateReciever() async {

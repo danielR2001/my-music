@@ -1,13 +1,12 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
-import 'package:myapp/constants/constants.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
@@ -35,7 +34,7 @@ class _ArtistPageState extends State<ArtistPage> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          color: Constants.darkGreyColor,
+          color: GlobalVariables.darkGreyColor,
         ),
         child: Theme(
           data: Theme.of(context).copyWith(accentColor: Colors.grey),
@@ -51,11 +50,11 @@ class _ArtistPageState extends State<ArtistPage> {
                             ? BoxDecoration()
                             : BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Constants.lightGreyColor,
+                                color: GlobalVariables.lightGreyColor,
                               )
                         : BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Constants.lightGreyColor,
+                            color: GlobalVariables.lightGreyColor,
                           ),
                     child: IconButton(
                       icon: Icon(
@@ -71,9 +70,9 @@ class _ArtistPageState extends State<ArtistPage> {
                 automaticallyImplyLeading: false,
                 backgroundColor: _scrollController.hasClients
                     ? _scrollController.offset > 270 - kToolbarHeight
-                        ? Constants.lightGreyColor
-                        : Constants.darkGreyColor
-                    : Constants.darkGreyColor,
+                        ? GlobalVariables.lightGreyColor
+                        : GlobalVariables.darkGreyColor
+                    : GlobalVariables.darkGreyColor,
                 expandedHeight: 300,
                 pinned: true,
                 flexibleSpace: FlexibleSpaceBar(
@@ -91,7 +90,7 @@ class _ArtistPageState extends State<ArtistPage> {
                       return LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Constants.darkGreyColor, Colors.transparent],
+                        colors: [GlobalVariables.darkGreyColor, Colors.transparent],
                       ).createShader(
                           Rect.fromLTRB(0, 0, rect.width, rect.height));
                     },
@@ -201,7 +200,7 @@ class _ArtistPageState extends State<ArtistPage> {
                             playlist.getName
                         ? audioPlayerManager.currentSong.getSongId ==
                                 playlist.getSongs[index].getSongId
-                            ? Constants.pinkColor
+                            ? GlobalVariables.pinkColor
                             : Colors.white
                         : Colors.white
                     : Colors.white,
@@ -218,7 +217,7 @@ class _ArtistPageState extends State<ArtistPage> {
                             playlist.getName
                         ? Provider.of<PageNotifier>(context).currentSong.getSongId ==
                                 playlist.getSongs[index].getSongId
-                            ? Constants.pinkColor
+                            ? GlobalVariables.pinkColor
                             : Colors.grey
                         : Colors.grey
                     : Colors.grey,
@@ -231,7 +230,7 @@ class _ArtistPageState extends State<ArtistPage> {
                     padding: EdgeInsets.only(right: 6),
                     child: CircularProgressIndicator(
                       valueColor:
-                          AlwaysStoppedAnimation<Color>(Constants.pinkColor),
+                          AlwaysStoppedAnimation<Color>(GlobalVariables.pinkColor),
                       strokeWidth: 4.0,
                     ),
                   )
@@ -244,7 +243,7 @@ class _ArtistPageState extends State<ArtistPage> {
                                   playlist.getName
                               ? audioPlayerManager.currentSong.getSongId ==
                                       playlist.getSongs[index].getSongId
-                                  ? Constants.pinkColor
+                                  ? GlobalVariables.pinkColor
                                   : Colors.white
                               : Colors.white
                           : Colors.white,
@@ -265,27 +264,23 @@ class _ArtistPageState extends State<ArtistPage> {
                       audioPlayerManager.currentPlaylist.getName ==
                           playlist.getName) {
                     Navigator.push(
-                      homePageContext,
+                      GlobalVariables.homePageContext,
                       MaterialPageRoute(
-                          builder: (homePageContext) => MusicPlayerPage()),
+                          builder: (context) => MusicPlayerPage()),
                     );
                   } else {
                     audioPlayerManager.initSong(
-                      playlist.getSongs[index],
-                      playlist,
-                      PlaylistMode.loop,
+                      song: playlist.getSongs[index],
+                      playlist: playlist,
+                      playlistMode: PlaylistMode.loop,
                     );
-
-                    audioPlayerManager.playSong();
                   }
                 } else {
                   audioPlayerManager.initSong(
-                    playlist.getSongs[index],
-                    playlist,
-                    PlaylistMode.loop,
+                    song: playlist.getSongs[index],
+                    playlist: playlist,
+                    playlistMode: PlaylistMode.loop,
                   );
-
-                  audioPlayerManager.playSong();
                 }
               }
             },
@@ -297,7 +292,7 @@ class _ArtistPageState extends State<ArtistPage> {
 
   void showSongOptions(Song song, Playlist currentPlaylist) {
     showModalBottomSheet(
-      context: homePageContext,
+      context: GlobalVariables.homePageContext,
       builder: (builder) {
         return SongOptionsModalSheet(
           song,

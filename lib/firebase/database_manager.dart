@@ -5,7 +5,7 @@ import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/user.dart';
-import 'package:myapp/ui/widgets/sort_options_modal_buttom_sheet.dart';
+import 'package:myapp/ui/widgets/sort_modal_buttom_sheet.dart';
 
 class FirebaseDatabaseManager {
   static final String _usersDir = "users";

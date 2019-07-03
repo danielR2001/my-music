@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/ui/pages/root_page.dart';
@@ -40,7 +40,7 @@ class _State extends State<LogInPage> {
             gradient: LinearGradient(
               colors: [
                 Color(0xE4000000),
-                Constants.pinkColor,
+                GlobalVariables.pinkColor,
               ],
               begin: FractionalOffset.bottomRight,
               stops: [0.7, 1.0],
@@ -197,7 +197,7 @@ class _State extends State<LogInPage> {
                             color: Colors.white,
                             fontSize: 16,
                           ),
-                          cursorColor: Constants.pinkColor,
+                          cursorColor: GlobalVariables.pinkColor,
                           decoration: InputDecoration(
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
@@ -206,7 +206,7 @@ class _State extends State<LogInPage> {
                             ),
                             labelText: "Email",
                             labelStyle: TextStyle(
-                              color: Constants.pinkColor,
+                              color: GlobalVariables.pinkColor,
                               fontSize: 18,
                             ),
                           ),
@@ -228,7 +228,7 @@ class _State extends State<LogInPage> {
                             color: Colors.white,
                             fontSize: 16,
                           ),
-                          cursorColor: Constants.pinkColor,
+                          cursorColor: GlobalVariables.pinkColor,
                           decoration: InputDecoration(
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
@@ -237,7 +237,7 @@ class _State extends State<LogInPage> {
                             ),
                             labelText: "Password",
                             labelStyle: TextStyle(
-                              color: Constants.pinkColor,
+                              color: GlobalVariables.pinkColor,
                               fontSize: 18,
                             ),
                           ),
@@ -260,7 +260,7 @@ class _State extends State<LogInPage> {
                             alignment: Alignment.center,
                             height: 60.0,
                             decoration: BoxDecoration(
-                              color: Constants.pinkColor,
+                              color: GlobalVariables.pinkColor,
                               borderRadius: BorderRadius.circular(40.0),
                             ),
                             child: Text(
@@ -375,7 +375,7 @@ class _State extends State<LogInPage> {
                         value: null,
                         strokeWidth: 3.0,
                         valueColor: new AlwaysStoppedAnimation<Color>(
-                            Constants.pinkColor),
+                            GlobalVariables.pinkColor),
                       ),
                     ),
                   ),

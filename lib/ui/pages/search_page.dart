@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/constants/constants.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
-import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 
 class SearchPage extends StatefulWidget {
@@ -21,6 +20,8 @@ class _SearchPageState extends State<SearchPage> {
   FocusNode focusNode = FocusNode();
   String hintText = "Search";
   Playlist searchResultsPlaylist;
+  int lastSearchId = 0;
+  TextDirection textDirection = TextDirection.ltr;
   @override
   void initState() {
     focusNode.addListener(() {
@@ -30,6 +31,18 @@ class _SearchPageState extends State<SearchPage> {
         hintText = "Search";
       }
     });
+    if (GlobalVariables.lastSearch != null) {
+      FetchData.getSearchResults(GlobalVariables.lastSearch).then((results) {
+        setState(() {
+          if (results != null) {
+            searchResults = results[GlobalVariables.lastSearch];
+            searchResultsPlaylist = Playlist("Search Playlist");
+            searchResultsPlaylist.setSongs = searchResults;
+            searchLength = searchResults.length;
+          }
+        });
+      });
+    }
     super.initState();
   }
 
@@ -76,6 +89,7 @@ class _SearchPageState extends State<SearchPage> {
                     Flexible(
                       child: Container(
                         child: TextField(
+                          textDirection: textDirection,
                           controller: textEditingController,
                           autofocus: true,
                           focusNode: focusNode,
@@ -83,7 +97,7 @@ class _SearchPageState extends State<SearchPage> {
                             color: Colors.white,
                             fontSize: 16,
                           ),
-                          cursorColor: Constants.pinkColor,
+                          cursorColor: GlobalVariables.pinkColor,
                           decoration: InputDecoration.collapsed(
                             hintText: hintText,
                             hintStyle: TextStyle(
@@ -92,12 +106,22 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           ),
                           onChanged: (txt) {
+                            if (RegExp(r"^[א-ת0-9\$!?&\()\[\]/,\-#\+'= ]+$")
+                                .hasMatch(txt)) {
+                              setState(() {
+                                textDirection = TextDirection.rtl;
+                              });
+                            } else {
+                              setState(() {
+                                textDirection = TextDirection.ltr;
+                              });
+                            }
                             if (txt != "") {
-                              FetchData.getResultsSitePage1(txt)
-                                  .then((results) {
+                              FetchData.getSearchResults(txt).then((results) {
                                 setState(() {
-                                  if (results != null) {
-                                    searchResults = results;
+                                  if (results != null && results[txt] != null) {
+                                    searchResults = results[txt];
+                                    GlobalVariables.lastSearch = txt;
                                     searchResultsPlaylist =
                                         Playlist("Search Playlist");
                                     searchResultsPlaylist.setSongs =
@@ -109,33 +133,35 @@ class _SearchPageState extends State<SearchPage> {
                             }
                           },
                           onSubmitted: (txt) =>
-                              FetchData.getResultsSitePage1(txt)
-                                  .then((results) {
-                                setState(() {
-                                  if (results != null) {
-                                    searchResults = results;
-                                    searchResultsPlaylist =
-                                        Playlist("Search Playlist");
-                                    searchResultsPlaylist.setSongs =
-                                        searchResults;
-                                    searchLength = searchResults.length;
-                                  }
-                                });
-                              }),
+                              FetchData.getSearchResults(txt).then((results) {
+                            setState(() {
+                              if (results != null && results[txt] != null) {
+                                searchResults = results[txt];
+                                GlobalVariables.lastSearch = txt;
+                                searchResultsPlaylist =
+                                    Playlist("Search Playlist");
+                                searchResultsPlaylist.setSongs = searchResults;
+                                searchLength = searchResults.length;
+                              }
+                            });
+                          }),
                         ),
                       ),
                     ),
-                    IconButton(
-                      iconSize: 25,
-                      icon: Icon(
-                        Icons.clear,
-                        color: Colors.white,
+                    Padding(
+                      padding: const EdgeInsets.only(right: 4),
+                      child: IconButton(
+                        iconSize: 25,
+                        icon: Icon(
+                          Icons.clear,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            textEditingController.clear();
+                          });
+                        },
                       ),
-                      onPressed: () {
-                        setState(() {
-                          textEditingController.clear();
-                        });
-                      },
                     ),
                   ],
                 ),
@@ -181,6 +207,7 @@ class _SearchPageState extends State<SearchPage> {
       artist = song.getArtist;
     }
     return ListTile(
+      contentPadding: EdgeInsets.only(left: 20,right: 4),
       title: Text(
         title,
         style: TextStyle(
@@ -212,11 +239,10 @@ class _SearchPageState extends State<SearchPage> {
           temp.setSongs = searchResultsPlaylist.getSongs;
           FocusScope.of(context).requestFocus(FocusNode());
           audioPlayerManager.initSong(
-            song,
-            temp,
-            PlaylistMode.loop,
+            song: song,
+            playlist: temp,
+            playlistMode: PlaylistMode.loop,
           );
-          audioPlayerManager.playSong();
         }
       },
     );
@@ -224,7 +250,7 @@ class _SearchPageState extends State<SearchPage> {
 
   void showMoreOptions(Song song) {
     showModalBottomSheet(
-      context: homePageContext,
+      context: GlobalVariables.homePageContext,
       builder: (builder) {
         return SongOptionsModalSheet(
           song,

@@ -1,7 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/user.dart';
@@ -36,8 +36,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Constants.darkGreyColor,
-                    Constants.pinkColor,
+                    GlobalVariables.darkGreyColor,
+                    GlobalVariables.pinkColor,
                   ],
                   begin: FractionalOffset.bottomRight,
                   stops: [0.7, 1.0],
@@ -190,7 +190,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                     fit: BoxFit.cover,
                   ),
                   border: Border.all(
-                    color: Constants.lightGreyColor,
+                    color: GlobalVariables.lightGreyColor,
                     width: 0.5,
                   ),
                 ),

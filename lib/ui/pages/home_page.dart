@@ -1,15 +1,16 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/constants/constants.dart';
+import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/ui/widgets/buttom_navigation_bar.dart';
 import 'package:myapp/ui/widgets/sound_bar.dart';
 import 'package:myapp/tab_navigation/tab_navigator.dart';
+import 'package:provider/provider.dart';
 import 'music_player_page.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/ui/widgets/text_style.dart';
 
-BuildContext homePageContext;
 
 class HomePage extends StatefulWidget {
   @override
@@ -28,6 +29,7 @@ class _HomePageState extends State<HomePage> {
     TabItem.discover: GlobalKey<NavigatorState>(),
     TabItem.account: GlobalKey<NavigatorState>(),
   };
+  //GlobalKey homePagekey = GlobalKey();
 
   void selectTab(TabItem tabItem) {
     setState(() {
@@ -37,6 +39,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    soundBar = drawPausedSoundBar();
     initSong();
     super.initState();
   }
@@ -49,8 +52,12 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    homePageContext = context;
-    return  WillPopScope(
+    GlobalVariables.homePageContext = context;
+    return ChangeNotifierProvider<PageNotifier>(
+      builder: (BuildContext context) {
+        return PageNotifier();
+      },
+      child: WillPopScope(
         onWillPop: () async {
           if (navigatorKeys[currentTab].currentState.canPop())
             await navigatorKeys[currentTab].currentState.maybePop();
@@ -62,7 +69,7 @@ class _HomePageState extends State<HomePage> {
           ]),
           bottomNavigationBar: Theme(
             data: Theme.of(context).copyWith(
-              canvasColor: Constants.lightGreyColor,
+              canvasColor: GlobalVariables.lightGreyColor,
               textTheme: Theme.of(context).textTheme.copyWith(
                     caption: TextStyle(
                       color: Colors.grey,
@@ -81,6 +88,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
+      ),
     );
   }
 
@@ -95,7 +103,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void initSong() {
-    stateStream = audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
+    stateStream =
+        audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
         setState(() {
           checkSongStatus(state);
@@ -112,28 +121,7 @@ class _HomePageState extends State<HomePage> {
             Icons.pause,
             color: Colors.white,
           );
-          soundBar = Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  width: 8,
-                  height: 50,
-                  child: SoundBar(Duration(milliseconds: 400), 15.0, 5.0),
-                ),
-                Container(
-                  width: 8,
-                  height: 50,
-                  child: SoundBar(Duration(milliseconds: 450), 15.0, 5.0),
-                ),
-                Container(
-                  width: 8,
-                  height: 50,
-                  child: SoundBar(Duration(milliseconds: 350), 15.0, 5.0),
-                ),
-              ],
-            ),
-          );
+          soundBar = drawPlayingSoundBar();
         },
       );
     } else {
@@ -143,32 +131,7 @@ class _HomePageState extends State<HomePage> {
             Icons.play_arrow,
             color: Colors.white,
           );
-          soundBar = Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                Container(
-                  color: Colors.white,
-                  width: 5,
-                  height: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 3),
-                  child: Container(
-                    color: Colors.white,
-                    width: 5,
-                    height: 15,
-                  ),
-                ),
-                Container(
-                  color: Colors.white,
-                  width: 5,
-                  height: 5,
-                ),
-              ],
-            ),
-          );
+          soundBar = drawPausedSoundBar();
         },
       );
     }
@@ -186,12 +149,12 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  GestureDetector musicPlayerControl() {
+  Widget musicPlayerControl() {
     if (audioPlayerManager.currentSong != null) {
       return GestureDetector(
           child: Container(
             decoration: BoxDecoration(
-              color: Constants.lightGreyColor,
+              color: GlobalVariables.lightGreyColor,
               border: Border(
                 bottom: BorderSide(color: Colors.black),
               ),
@@ -219,13 +182,12 @@ class _HomePageState extends State<HomePage> {
                             true,
                           ),
                           TextDecoration(
-                            audioPlayerManager.currentSong.getArtist,
-                            14,
-                            Colors.grey,
-                            30,
-                            20,
-                            false
-                          ),
+                              audioPlayerManager.currentSong.getArtist,
+                              14,
+                              Colors.grey,
+                              30,
+                              20,
+                              false),
                         ],
                       ),
                     ],
@@ -241,10 +203,12 @@ class _HomePageState extends State<HomePage> {
                               Duration(milliseconds: 0)) {
                         audioPlayerManager.audioPlayer.state ==
                                 AudioPlayerState.PLAYING
-                            ? audioPlayerManager.pauseSong(false)
+                            ? audioPlayerManager.pauseSong(
+                                calledFromNative: false)
                             : audioPlayerManager.audioPlayer.state ==
                                     AudioPlayerState.PAUSED
-                                ? audioPlayerManager.resumeSong(false)
+                                ? audioPlayerManager.resumeSong(
+                                    calledFromNative: false)
                                 : playSong();
                       }
                     },
@@ -258,21 +222,69 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(builder: (context) => MusicPlayerPage()),
               ));
     } else {
-      return GestureDetector(
-        child: Container(
-          height: 0,
-        ),
-      );
+      return Container();
     }
   }
 
   void playSong() {
     audioPlayerManager.initSong(
-      audioPlayerManager.currentSong,
-      audioPlayerManager.currentPlaylist,
-      audioPlayerManager.playlistMode,
+      song: audioPlayerManager.currentSong,
+      playlist: audioPlayerManager.currentPlaylist,
+      playlistMode: audioPlayerManager.playlistMode,
     );
+  }
 
-    audioPlayerManager.playSong();
+  Widget drawPausedSoundBar() {
+    return Expanded(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          Container(
+            color: Colors.white,
+            width: 5,
+            height: 10,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 3),
+            child: Container(
+              color: Colors.white,
+              width: 5,
+              height: 15,
+            ),
+          ),
+          Container(
+            color: Colors.white,
+            width: 5,
+            height: 5,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget drawPlayingSoundBar() {
+    return Expanded(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            width: 8,
+            height: 50,
+            child: SoundBar(Duration(milliseconds: 400), 15.0, 5.0),
+          ),
+          Container(
+            width: 8,
+            height: 50,
+            child: SoundBar(Duration(milliseconds: 450), 15.0, 5.0),
+          ),
+          Container(
+            width: 8,
+            height: 50,
+            child: SoundBar(Duration(milliseconds: 350), 15.0, 5.0),
+          ),
+        ],
+      ),
+    );
   }
 }

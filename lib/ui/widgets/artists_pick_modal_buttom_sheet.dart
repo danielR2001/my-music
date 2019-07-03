@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/constants/constants.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/ui/pages/artist_page.dart';
-import 'package:myapp/ui/pages/home_page.dart';
 import 'package:provider/provider.dart';
 
 class ArtistsPickModalSheet extends StatefulWidget {
@@ -30,7 +29,7 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
         borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20.0),
             topRight: const Radius.circular(20.0)),
-        color: Constants.lightGreyColor,
+        color: GlobalVariables.lightGreyColor,
       ),
       height: (70 * widget.artists.length).toDouble(),
       child: Column(
@@ -108,19 +107,19 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
           if (widget.artists[index].getId != null) {
             FetchData.getArtistInfoPage(widget.artists[index]).then((artist) {
               if (!canceled) {
-                FetchData.getResultsSitePage1(artist.getName).then((results) {
+                FetchData.getSearchResults(artist.getName).then((results) {
                   if (!canceled) {
                     if (results != null) {
-                      results.forEach((song) {
-                        if (song.getArtist
-                                .toLowerCase()
-                                .contains(artist.getName.toLowerCase()) ||
-                            song.getTitle
-                                .toLowerCase()
-                                .contains(artist.getName.toLowerCase())) {
-                          songs.add(song);
-                        }
-                      });
+                      // results.forEach((song) {
+                      //   if (song.getArtist
+                      //           .toLowerCase()
+                      //           .contains(artist.getName.toLowerCase()) ||
+                      //       song.getTitle
+                      //           .toLowerCase()
+                      //           .contains(artist.getName.toLowerCase())) {
+                      //     songs.add(song);
+                      //   }
+                      // });
                       Playlist temp = Playlist(artist.getName + " Top Hits");
                       temp.setSongs = songs;
                       Provider.of<PageNotifier>(context)
@@ -129,7 +128,7 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
                     loadingArtists = true;
                     Navigator.of(context, rootNavigator: true).pop('dialog');
                     Navigator.push(
-                      homePageContext,
+                      GlobalVariables.homePageContext,
                       MaterialPageRoute(
                           builder: (context) => ArtistPage(artist)),
                     );
@@ -140,28 +139,28 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
           } else {
             Provider.of<PageNotifier>(context).currentPlaylistPagePlaylist =
                 Playlist(widget.artists[index].getName + " Top Hits");
-            FetchData.getResultsSitePage1(widget.artists[index].getName)
+            FetchData.getSearchResults(widget.artists[index].getName)
                 .then((results) {
               if (!canceled) {
                 if (results != null) {
-                  results.forEach((song) {
-                    if (song.getArtist.toLowerCase().contains(
-                            widget.artists[index].getName.toLowerCase()) ||
-                        song.getTitle.toLowerCase().contains(
-                            widget.artists[index].getName.toLowerCase())) {
-                      Provider.of<PageNotifier>(context)
-                          .currentPlaylistPagePlaylist
-                          .addNewSong(song);
-                    }
-                  });
-                  Provider.of<PageNotifier>(context)
-                      .currentPlaylistPagePlaylist
-                      .setSongs = results;
+                  // results.forEach((song) {
+                  //   if (song.getArtist.toLowerCase().contains(
+                  //           widget.artists[index].getName.toLowerCase()) ||
+                  //       song.getTitle.toLowerCase().contains(
+                  //           widget.artists[index].getName.toLowerCase())) {
+                  //     Provider.of<PageNotifier>(context)
+                  //         .currentPlaylistPagePlaylist
+                  //         .addNewSong(song);
+                  //   }
+                  // });
+                  // Provider.of<PageNotifier>(context)
+                  //     .currentPlaylistPagePlaylist
+                  //     .setSongs = results;
                 }
                 loadingArtists = true;
                 Navigator.of(context, rootNavigator: true).pop('dialog');
                 Navigator.push(
-                  homePageContext,
+                  GlobalVariables.homePageContext,
                   MaterialPageRoute(
                     builder: (context) => ArtistPage(widget.artists[index]),
                   ),
@@ -199,7 +198,7 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
                         value: null,
                         strokeWidth: 3.0,
                         valueColor: new AlwaysStoppedAnimation<Color>(
-                            Constants.pinkColor),
+                            GlobalVariables.pinkColor),
                       ),
                     ),
                   ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/user.dart';
 import 'home_page.dart';
@@ -35,7 +35,7 @@ class _SignUpPageState extends State<SignUpPage> {
             gradient: LinearGradient(
               colors: [
                 Color(0xE4000000),
-                Constants.pinkColor,
+                GlobalVariables.pinkColor,
               ],
               begin: FractionalOffset.bottomRight,
               stops: [0.7, 1.0],
@@ -192,7 +192,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             color: Colors.white,
                             fontSize: 16,
                           ),
-                          cursorColor: Constants.pinkColor,
+                          cursorColor: GlobalVariables.pinkColor,
                           decoration: InputDecoration(
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
@@ -201,7 +201,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                             labelText: "Email",
                             labelStyle: TextStyle(
-                              color: Constants.pinkColor,
+                              color: GlobalVariables.pinkColor,
                               fontSize: 18,
                             ),
                           ),
@@ -223,7 +223,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             color: Colors.white,
                             fontSize: 16,
                           ),
-                          cursorColor: Constants.pinkColor,
+                          cursorColor: GlobalVariables.pinkColor,
                           decoration: InputDecoration(
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
@@ -232,7 +232,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                             labelText: "Password",
                             labelStyle: TextStyle(
-                              color: Constants.pinkColor,
+                              color: GlobalVariables.pinkColor,
                               fontSize: 18,
                             ),
                           ),
@@ -252,7 +252,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             color: Colors.white,
                             fontSize: 16,
                           ),
-                          cursorColor: Constants.pinkColor,
+                          cursorColor: GlobalVariables.pinkColor,
                           decoration: InputDecoration(
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
@@ -261,7 +261,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                             labelText: "User name",
                             labelStyle: TextStyle(
-                              color: Constants.pinkColor,
+                              color: GlobalVariables.pinkColor,
                               fontSize: 18,
                             ),
                           ),
@@ -339,7 +339,7 @@ class _SignUpPageState extends State<SignUpPage> {
             alignment: Alignment.center,
             height: 60.0,
             decoration: BoxDecoration(
-              color: Constants.pinkColor,
+              color: GlobalVariables.pinkColor,
               borderRadius: BorderRadius.circular(40.0),
             ),
             child: Text(
@@ -364,7 +364,7 @@ class _SignUpPageState extends State<SignUpPage> {
             alignment: Alignment.center,
             height: 60.0,
             decoration: BoxDecoration(
-              color: Constants.pinkColor,
+              color: GlobalVariables.pinkColor,
               borderRadius: BorderRadius.circular(40.0),
             ),
             child: Text(
@@ -437,7 +437,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         value: null,
                         strokeWidth: 3.0,
                         valueColor: new AlwaysStoppedAnimation<Color>(
-                            Constants.pinkColor),
+                            GlobalVariables.pinkColor),
                       ),
                     ),
                   ),

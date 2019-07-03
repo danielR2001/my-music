@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
-import 'package:myapp/constants/constants.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
+import 'package:myapp/page_notifier/page_notifier.dart';
+import 'package:provider/provider.dart';
 
 class QueueModalSheet extends StatefulWidget {
   @override
@@ -20,7 +22,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
         borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20.0),
             topRight: const Radius.circular(20.0)),
-        color: Constants.lightGreyColor,
+        color: GlobalVariables.lightGreyColor,
       ),
       child: Column(
         children: <Widget>[
@@ -97,9 +99,10 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
       title: Text(
         title,
         style: TextStyle(
-          color: audioPlayerManager.currentSong.getSongId == song.getSongId
-              ? Constants.pinkColor
-              : Colors.white,
+          color: Provider.of<PageNotifier>(context).currentSong.getSongId ==
+                  song.getSongId
+              ? GlobalVariables.pinkColor
+              : Colors.grey,
           fontSize: 14,
           fontWeight: FontWeight.bold,
         ),
@@ -107,8 +110,9 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
       subtitle: Text(
         artist,
         style: TextStyle(
-          color: audioPlayerManager.currentSong.getSongId == song.getSongId
-              ? Constants.pinkColor
+          color: Provider.of<PageNotifier>(context).currentSong.getSongId ==
+                  song.getSongId
+              ? GlobalVariables.pinkColor
               : Colors.grey,
           fontSize: 12,
         ),
@@ -134,11 +138,10 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
           if (audioPlayerManager.isLoaded &&
               audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
             audioPlayerManager.initSong(
-              song,
-              audioPlayerManager.currentPlaylist,
-              audioPlayerManager.playlistMode,
+              song: song,
+              playlist: audioPlayerManager.currentPlaylist,
+              playlistMode: audioPlayerManager.playlistMode,
             );
-            audioPlayerManager.playSong();
             setState(() {});
           }
         }

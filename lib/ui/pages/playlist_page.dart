@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/constants/constants.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/main.dart';
@@ -8,7 +8,6 @@ import 'package:myapp/models/song.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
@@ -51,7 +50,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          color: Constants.darkGreyColor,
+          color: GlobalVariables.darkGreyColor,
         ),
         child: Theme(
           data: Theme.of(context).copyWith(accentColor: Colors.grey),
@@ -68,11 +67,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
                               ? BoxDecoration()
                               : BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Constants.lightGreyColor,
+                                  color: GlobalVariables.lightGreyColor,
                                 )
                           : BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Constants.lightGreyColor,
+                              color: GlobalVariables.lightGreyColor,
                             ),
                       child: IconButton(
                         icon: Icon(
@@ -95,11 +94,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
                             ? BoxDecoration()
                             : BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Constants.lightGreyColor,
+                                color: GlobalVariables.lightGreyColor,
                               )
                         : BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Constants.lightGreyColor,
+                            color: GlobalVariables.lightGreyColor,
                           ),
                     child: IconButton(
                       icon: Icon(
@@ -115,9 +114,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 automaticallyImplyLeading: false,
                 backgroundColor: _scrollController.hasClients
                     ? _scrollController.offset > 270 - kToolbarHeight
-                        ? Constants.lightGreyColor
-                        : Constants.darkGreyColor
-                    : Constants.darkGreyColor,
+                        ? GlobalVariables.lightGreyColor
+                        : GlobalVariables.darkGreyColor
+                    : GlobalVariables.darkGreyColor,
                 expandedHeight: 300,
                 pinned: true,
                 flexibleSpace: FlexibleSpaceBar(
@@ -161,7 +160,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                         begin: FractionalOffset.topCenter,
                         stops: [0, 1],
                         end: FractionalOffset.bottomCenter,
-                        colors: [Constants.darkGreyColor, Colors.transparent],
+                        colors: [GlobalVariables.darkGreyColor, Colors.transparent],
                       ).createShader(
                           Rect.fromLTRB(0, 0, rect.width, rect.height));
                     },
@@ -189,11 +188,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
               makeSliverList(
                   widget.playlistModalSheetMode == PlaylistModalSheetMode.public
                       ? widget.playlist
-                      : Provider.of<PageNotifier>(context)
+                      : Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                                   .currentPlaylistPagePlaylist
                                   .getPushId ==
                               widget.playlist.getPushId
-                          ? Provider.of<PageNotifier>(context)
+                          ? Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                               .currentPlaylistPagePlaylist
                           : widget.playlist,
                   context)
@@ -230,6 +229,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
             artist = playlist.getSongs[index].getArtist;
           }
           return ListTile(
+            contentPadding: EdgeInsets.only(left: 20,right: 4),
             title: Text(
               title,
               style: TextStyle(
@@ -239,7 +239,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                             playlist.getPushId
                         ? audioPlayerManager.currentSong.getSongId ==
                                 playlist.getSongs[index].getSongId
-                            ? Constants.pinkColor
+                            ? GlobalVariables.pinkColor
                             : Colors.white
                         : Colors.white
                     : Colors.white,
@@ -256,7 +256,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                             playlist.getPushId
                         ? audioPlayerManager.currentSong.getSongId ==
                                 playlist.getSongs[index].getSongId
-                            ? Constants.pinkColor
+                            ? GlobalVariables.pinkColor
                             : Colors.grey
                         : Colors.grey
                     : Colors.grey,
@@ -270,16 +270,16 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 ? Padding(
                     padding: EdgeInsets.only(right: 6),
                     child: CircularProgressIndicator(
-                      value: Provider.of<PageNotifier>(context)
+                      value: Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                               .downloadedProgresses[
                                   playlist.getSongs[index].getSongId]
                               .toDouble() /
-                          Provider.of<PageNotifier>(context)
+                          Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                               .downloadedTotals[
                                   playlist.getSongs[index].getSongId]
                               .toDouble(),
                       valueColor:
-                          AlwaysStoppedAnimation<Color>(Constants.pinkColor),
+                          AlwaysStoppedAnimation<Color>(GlobalVariables.pinkColor),
                       backgroundColor: Colors.pink[50],
                       strokeWidth: 4.0,
                     ),
@@ -293,7 +293,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                                   playlist.getPushId
                               ? audioPlayerManager.currentSong.getSongId ==
                                       playlist.getSongs[index].getSongId
-                                  ? Constants.pinkColor
+                                  ? GlobalVariables.pinkColor
                                   : Colors.white
                               : Colors.white
                           : Colors.white,
@@ -314,27 +314,23 @@ class _PlaylistPageState extends State<PlaylistPage> {
                       audioPlayerManager.currentPlaylist.getPushId ==
                           playlist.getPushId) {
                     Navigator.push(
-                      homePageContext,
+                      GlobalVariables.homePageContext,
                       MaterialPageRoute(
-                          builder: (homePageContext) => MusicPlayerPage()),
+                          builder: (context) => MusicPlayerPage()),
                     );
                   } else {
                     audioPlayerManager.initSong(
-                      playlist.getSongs[index],
-                      playlist,
-                      PlaylistMode.loop,
+                      song: playlist.getSongs[index],
+                      playlist: playlist,
+                      playlistMode: PlaylistMode.loop,
                     );
-
-                    audioPlayerManager.playSong();
                   }
                 } else {
                   audioPlayerManager.initSong(
-                    playlist.getSongs[index],
-                    playlist,
-                    PlaylistMode.loop,
+                    song: playlist.getSongs[index],
+                    playlist: playlist,
+                    playlistMode: PlaylistMode.loop,
                   );
-
-                  audioPlayerManager.playSong();
                 }
               }
             },
@@ -353,7 +349,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
         songModalSheetMode = SongModalSheetMode.download_public_search_artist;
       }
       showModalBottomSheet(
-        context: homePageContext,
+        context: GlobalVariables.homePageContext,
         builder: (builder) {
           return SongOptionsModalSheet(
             song,
@@ -368,7 +364,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
 
   void showPlaylistOptions(Playlist currentPlaylist) {
     showModalBottomSheet(
-      context: homePageContext,
+      context: GlobalVariables.homePageContext,
       builder: (builder) {
         return PlaylistOptionsModalSheet(
             currentPlaylist, context, widget.playlistModalSheetMode);
@@ -381,10 +377,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
       width: 50,
       height: 50,
       decoration: BoxDecoration(
-        color: Constants.lightGreyColor,
+        color: GlobalVariables.lightGreyColor,
         shape: BoxShape.rectangle,
         border: Border.all(
-          color: Constants.lightGreyColor,
+          color: GlobalVariables.lightGreyColor,
           width: 0.4,
         ),
         image: DecorationImage(
@@ -404,21 +400,21 @@ class _PlaylistPageState extends State<PlaylistPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Constants.lightGreyColor,
-            Constants.darkGreyColor,
+            GlobalVariables.lightGreyColor,
+            GlobalVariables.darkGreyColor,
           ],
           begin: FractionalOffset.bottomLeft,
           stops: [0.3, 0.8],
           end: FractionalOffset.topRight,
         ),
         border: Border.all(
-          color: Constants.lightGreyColor,
+          color: GlobalVariables.lightGreyColor,
           width: 0.4,
         ),
       ),
       child: Icon(
         Icons.music_note,
-        color: Constants.pinkColor,
+        color: GlobalVariables.pinkColor,
         size: 40,
       ),
     );
@@ -438,7 +434,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0),
               ),
-              color: Constants.pinkColor,
+              color: GlobalVariables.pinkColor,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -463,11 +459,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
               elevation: 6.0,
               onPressed: () {
                 audioPlayerManager.initSong(
-                  widget.playlist.getSongs[0],
-                  widget.playlist,
-                  PlaylistMode.loop,
+                  song: widget.playlist.getSongs[0],
+                  playlist: widget.playlist,
+                  playlistMode: PlaylistMode.loop,
                 );
-                audioPlayerManager.playSong();
               },
             ),
           ),
@@ -482,7 +477,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30.0),
               ),
-              color: Constants.pinkColor,
+              color: GlobalVariables.pinkColor,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -510,12 +505,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 var rnd = Random();
                 int randomNum = rnd.nextInt(widget.playlist.getSongs.length);
                 audioPlayerManager.initSong(
-                  widget.playlist.getSongs[randomNum],
-                  widget.playlist,
-                  PlaylistMode.shuffle,
+                  song: widget.playlist.getSongs[randomNum],
+                  playlist: widget.playlist,
+                  playlistMode: PlaylistMode.shuffle,
                 );
-
-                audioPlayerManager.playSong();
               },
             ),
           ),

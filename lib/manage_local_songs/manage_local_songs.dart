@@ -1,17 +1,16 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/ui/pages/home_page.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class ManageLocalSongs {
   static Dio dio = Dio();
-  static final String startingUrl = "https://music.xn--41a.ws";
   static List<Song> currentDownloading = List();
   static Directory externalDir;
   static Directory fullSongDownloadDir;
@@ -47,26 +46,25 @@ class ManageLocalSongs {
       _downloadSongImage(song);
     }
     _downloadSongInfo(song);
-    FetchData.getDownloadUrlPage1(song).then((downloadUrl) async {
+    FetchData.getSongPlayUrl(song).then((downloadUrl) async {
       if (downloadUrl != null) {
         currentDownloading.add(song);
-        Provider.of<PageNotifier>(homePageContext).addDownloaded(song);
+        Provider.of<PageNotifier>(GlobalVariables.homePageContext).addDownloaded(song);
         try {
-          await dio.download(startingUrl + downloadUrl,
+          await dio.download(downloadUrl,
               "${songDirectory.path}/${song.getSongId}.mp3",
               onReceiveProgress: (prog, total) {
-            if (Provider.of<PageNotifier>(homePageContext)
+            if (Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                     .downloadedTotals[song.getSongId] ==
                 1) {
-              Provider.of<PageNotifier>(homePageContext)
+              Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                   .updateDownloadedTotals(song, total);
             }
 
-            Provider.of<PageNotifier>(homePageContext)
+            Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                 .updateDownloadedProgsses(song, prog);
           }).whenComplete(() {
-            Provider.of<PageNotifier>(homePageContext)
-                .removeDownloaded(song);
+            Provider.of<PageNotifier>(GlobalVariables.homePageContext).removeDownloaded(song);
             currentDownloading.remove(song);
 
             currentUser.addSongToDownloadedPlaylist(song);
@@ -166,4 +164,5 @@ class ManageLocalSongs {
   static Future<void> deleteDownloadedDirectory() async {
     await new Directory('${fullSongDownloadDir.path}').delete(recursive: true);
   }
+
 }

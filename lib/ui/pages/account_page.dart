@@ -1,11 +1,10 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/constants/constants.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/settings_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:provider/provider.dart';
@@ -17,8 +16,6 @@ class AccountPage extends StatefulWidget {
   @override
   _AccountPageState createState() => _AccountPageState();
 }
-
-
 
 class _AccountPageState extends State<AccountPage> {
   bool openPlaylists = true;
@@ -32,8 +29,8 @@ class _AccountPageState extends State<AccountPage> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Constants.darkGreyColor,
-                  Constants.pinkColor,
+                  GlobalVariables.darkGreyColor,
+                  GlobalVariables.pinkColor,
                 ],
                 begin: FractionalOffset.bottomRight,
                 stops: [0.7, 1.0],
@@ -72,7 +69,7 @@ class _AccountPageState extends State<AccountPage> {
                             ),
                             onPressed: () {
                               Navigator.push(
-                                homePageContext,
+                                GlobalVariables.homePageContext,
                                 MaterialPageRoute(
                                   builder: (context) => SettingsPage(),
                                 ),
@@ -118,7 +115,7 @@ class _AccountPageState extends State<AccountPage> {
                         color: Colors.white,
                       ),
                       onTap: () {
-                        Provider.of<PageNotifier>(context)
+                        Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                                 .setCurrentPlaylistPagePlaylist =
                             currentUser.getDownloadedSongsPlaylist;
                         widget.onPush(
@@ -195,7 +192,7 @@ class _AccountPageState extends State<AccountPage> {
             color: Colors.white,
           ),
           onTap: () {
-            Provider.of<PageNotifier>(context).setCurrentPlaylistPagePlaylist =
+            Provider.of<PageNotifier>(GlobalVariables.homePageContext).setCurrentPlaylistPagePlaylist =
                 playlist;
             widget.onPush(createMap(playlist));
           }),
@@ -248,7 +245,7 @@ class _AccountPageState extends State<AccountPage> {
       width: 60,
       height: 60,
       decoration: BoxDecoration(
-        color: Constants.lightGreyColor,
+        color: GlobalVariables.lightGreyColor,
         shape: BoxShape.rectangle,
         image: DecorationImage(
           fit: BoxFit.fill,
@@ -267,21 +264,21 @@ class _AccountPageState extends State<AccountPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Constants.lightGreyColor,
-            Constants.darkGreyColor,
+            GlobalVariables.lightGreyColor,
+            GlobalVariables.darkGreyColor,
           ],
           begin: FractionalOffset.bottomLeft,
           stops: [0.3, 0.8],
           end: FractionalOffset.topRight,
         ),
         border: Border.all(
-          color: Constants.lightGreyColor,
+          color: GlobalVariables.lightGreyColor,
           width: 0.4,
         ),
       ),
       child: Icon(
         Icons.music_note,
-        color: Constants.pinkColor,
+        color: GlobalVariables.pinkColor,
         size: 40,
       ),
     );

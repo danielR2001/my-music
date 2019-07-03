@@ -54,9 +54,9 @@ class MusicControlNotification {
         if (audioPlayerManager.isLoaded &&
             audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
           audioPlayerManager.audioPlayer.state == AudioPlayerState.PLAYING
-              ? audioPlayerManager.pauseSong(false)
+              ? audioPlayerManager.pauseSong(calledFromNative: false)
               : audioPlayerManager.audioPlayer.state == AudioPlayerState.PAUSED
-                  ? audioPlayerManager.resumeSong(false)
+                  ? audioPlayerManager.resumeSong(calledFromNative: false)
                   : _playSong();
         }
         break;
@@ -69,7 +69,7 @@ class MusicControlNotification {
       case 'prevSong':
         if (audioPlayerManager.isLoaded &&
             audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
-          audioPlayerManager.playPreviousSong();
+          audioPlayerManager.playPreviousSong(false);
         }
         break;
       case 'openMusicplayerPage':
@@ -84,10 +84,9 @@ class MusicControlNotification {
 
   static void _playSong() {
     audioPlayerManager.initSong(
-      audioPlayerManager.currentSong,
-      audioPlayerManager.currentPlaylist,
-      audioPlayerManager.playlistMode,
+      song: audioPlayerManager.currentSong,
+      playlist: audioPlayerManager.currentPlaylist,
+      playlistMode: audioPlayerManager.playlistMode,
     );
-    audioPlayerManager.playSong();
   }
 }

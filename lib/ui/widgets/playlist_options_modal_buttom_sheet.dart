@@ -1,13 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:myapp/constants/constants.dart';
 import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
-import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
-import 'package:myapp/ui/widgets/sort_options_modal_buttom_sheet.dart';
+import 'package:myapp/ui/widgets/sort_modal_buttom_sheet.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 
 enum PlaylistModalSheetMode {
@@ -37,7 +36,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     if (widget.playlistMode == PlaylistModalSheetMode.download) {
       widgetsCount = 2;
     } else if (widget.playlistMode == PlaylistModalSheetMode.public) {
-      widgetsCount = 2;
+      widgetsCount = 3;
     }
     super.initState();
   }
@@ -52,23 +51,23 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20.0),
             topRight: const Radius.circular(20.0)),
-        color: Constants.lightGreyColor,
+        color: GlobalVariables.lightGreyColor,
       ),
       child: Column(
         children: <Widget>[
-          showDownloadAll(),
-          showUnDownloadAll(),
-          showAddAllToPlayList(),
-          showRenamePlaylist(),
-          showSort(),
-          showPlaylistPrivacy(),
-          showDelete(),
+          drawDownloadAll(),
+          drawUnDownloadAll(),
+          drawAddAllToPlayList(),
+          drawRenamePlaylist(),
+          drawSort(),
+          drawPlaylistPrivacy(),
+          drawDelete(),
         ],
       ),
     );
   }
 
-  Widget showDownloadAll() {
+  Widget drawDownloadAll() {
     if (widget.playlistMode == PlaylistModalSheetMode.regular ||
         widget.playlistMode == PlaylistModalSheetMode.public) {
       return ListTile(
@@ -92,7 +91,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIos: 1,
-            backgroundColor: Constants.pinkColor,
+            backgroundColor: GlobalVariables.pinkColor,
             textColor: Colors.white,
             fontSize: 16.0,
           );
@@ -104,7 +103,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                     toastLength: Toast.LENGTH_LONG,
                     gravity: ToastGravity.BOTTOM,
                     timeInSecForIos: 1,
-                    backgroundColor: Constants.pinkColor,
+                    backgroundColor: GlobalVariables.pinkColor,
                     textColor: Colors.white,
                     fontSize: 16.0,
                   ));
@@ -115,7 +114,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     }
   }
 
-  Widget showAddAllToPlayList() {
+  Widget drawAddAllToPlayList() {
     if (widget.playlistMode == PlaylistModalSheetMode.regular ||
         widget.playlistMode == PlaylistModalSheetMode.public) {
       return ListTile(
@@ -146,7 +145,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     }
   }
 
-  Widget showUnDownloadAll() {
+  Widget drawUnDownloadAll() {
     if (widget.playlistMode == PlaylistModalSheetMode.regular ||
         widget.playlistMode == PlaylistModalSheetMode.download) {
       return ListTile(
@@ -171,7 +170,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIos: 1,
-              backgroundColor: Constants.pinkColor,
+              backgroundColor: GlobalVariables.pinkColor,
               textColor: Colors.white,
               fontSize: 16.0,
             );
@@ -183,7 +182,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                       toastLength: Toast.LENGTH_LONG,
                       gravity: ToastGravity.BOTTOM,
                       timeInSecForIos: 1,
-                      backgroundColor: Constants.pinkColor,
+                      backgroundColor: GlobalVariables.pinkColor,
                       textColor: Colors.white,
                       fontSize: 16.0,
                     ));
@@ -193,7 +192,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIos: 1,
-              backgroundColor: Constants.pinkColor,
+              backgroundColor: GlobalVariables.pinkColor,
               textColor: Colors.white,
               fontSize: 16.0,
             );
@@ -205,7 +204,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     }
   }
 
-  Widget showRenamePlaylist() {
+  Widget drawRenamePlaylist() {
     if (widget.playlistMode == PlaylistModalSheetMode.regular) {
       return ListTile(
         contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
@@ -229,31 +228,27 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     }
   }
 
-  Widget showSort() {
-    if (widget.playlistMode != PlaylistModalSheetMode.public) {
-      return ListTile(
-        contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
-        dense: true,
-        leading: Icon(
-          Icons.sort,
-          color: Colors.grey,
-          size: 30,
-        ),
-        title: Text(
-          "Sort",
-          style: TextStyle(
-              color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-        ),
-        onTap: () {
-          showPlaylistOptions(widget.playlist, context);
-        },
-      );
-    } else {
-      return Container();
-    }
+  Widget drawSort() {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
+      dense: true,
+      leading: Icon(
+        Icons.sort,
+        color: Colors.grey,
+        size: 30,
+      ),
+      title: Text(
+        "Sort",
+        style: TextStyle(
+            color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+      ),
+      onTap: () {
+        showPlaylistOptions(widget.playlist, context);
+      },
+    );
   }
 
-  Widget showPlaylistPrivacy() {
+  Widget drawPlaylistPrivacy() {
     if (widget.playlistMode == PlaylistModalSheetMode.regular) {
       return ListTile(
         contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
@@ -275,7 +270,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
           Playlist temp = widget.playlist;
           if (widget.playlist.getIsPublic) {
             temp = await FirebaseDatabaseManager.addPublicPlaylist(
-                widget.playlist,false);
+                widget.playlist, false);
           } else {
             FirebaseDatabaseManager.removeFromPublicPlaylist(
                 widget.playlist, false);
@@ -289,7 +284,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     }
   }
 
-  Widget showDelete() {
+  Widget drawDelete() {
     if (widget.playlistMode == PlaylistModalSheetMode.regular) {
       return ListTile(
         contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
@@ -305,18 +300,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () {
-          FirebaseDatabaseManager.removePlaylist(widget.playlist);
-          currentUser.removePlaylist(widget.playlist);
-          if (audioPlayerManager.currentPlaylist != null) {
-            if (audioPlayerManager.currentPlaylist.getName ==
-                audioPlayerManager.currentPlaylist.getName) {
-              audioPlayerManager.loopPlaylist = null;
-              audioPlayerManager.shuffledPlaylist = null;
-              audioPlayerManager.currentPlaylist = null;
-            }
-          }
-          Navigator.of(context, rootNavigator: true).pop('dialog');
-          Navigator.of(widget.playlistPageContext).pop();
+          showAlertDialog(context);
         },
       );
     } else {
@@ -327,10 +311,11 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
   void showPlaylistOptions(Playlist currentPlaylist, BuildContext context) {
     Navigator.pop(context);
     showModalBottomSheet(
-      context: homePageContext,
+      context: GlobalVariables.homePageContext,
       builder: (builder) {
-        return SortOptionsModalSheet(
+        return SortModalSheet(
           currentPlaylist,
+          widget.playlistMode == PlaylistModalSheetMode.public ? false : true,
         );
       },
     );
@@ -348,7 +333,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               fontSize: 20,
             ),
           ),
-          backgroundColor: Constants.lightGreyColor,
+          backgroundColor: GlobalVariables.lightGreyColor,
           children: <Widget>[
             Form(
               key: formKey,
@@ -395,16 +380,15 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                         alignment: Alignment.center,
                         height: 50.0,
                         decoration: BoxDecoration(
-                          color: Constants.pinkColor,
+                          color: GlobalVariables.pinkColor,
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(
                           "Rename",
                           style: TextStyle(
-                            fontSize: 18.0,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold
-                          ),
+                              fontSize: 18.0,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -462,5 +446,111 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         }
       });
     });
+  }
+
+  void showAlertDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text(
+            "Hii " + currentUser.getName + "!",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Text(
+                "Are you sure?",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: GestureDetector(
+                      child: Container(
+                        alignment: Alignment.center,
+                        height: 50.0,
+                        width: 90,
+                        decoration: BoxDecoration(
+                          color: GlobalVariables.pinkColor,
+                          borderRadius: BorderRadius.circular(40.0),
+                        ),
+                        child: Text(
+                          "Cancel",
+                          style: TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context, rootNavigator: true)
+                            .pop('dialog');
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: GestureDetector(
+                      child: Container(
+                        alignment: Alignment.center,
+                        height: 50.0,
+                        width: 90,
+                        decoration: BoxDecoration(
+                          color: GlobalVariables.pinkColor,
+                          borderRadius: BorderRadius.circular(40.0),
+                        ),
+                        child: Text(
+                          "Yes",
+                          style: TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      onTap: () {
+                        FirebaseDatabaseManager.removePlaylist(widget.playlist);
+                        currentUser.removePlaylist(widget.playlist);
+                        if (audioPlayerManager.currentPlaylist != null) {
+                          if (audioPlayerManager.currentPlaylist.getName ==
+                              audioPlayerManager.currentPlaylist.getName) {
+                            audioPlayerManager.loopPlaylist = null;
+                            audioPlayerManager.shuffledPlaylist = null;
+                            audioPlayerManager.currentPlaylist = null;
+                          }
+                        }
+                        Navigator.of(context, rootNavigator: true)
+                            .pop('dialog');
+                        Navigator.of(context, rootNavigator: true)
+                            .pop('dialog');
+                        Navigator.of(widget.playlistPageContext).pop();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          backgroundColor: Colors.grey[850],
+        );
+      },
+    );
   }
 }

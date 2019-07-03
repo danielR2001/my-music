@@ -43,6 +43,6 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
     audioPlayerManager = AudioPlayerManager();
     publicPlaylists = new List();
     MusicControlNotification.startService(context);
-    InternetConnectioCheck.activateReciever();
+    InternetConnectionCheck.activateReciever();
   }
 }

@@ -1,16 +1,15 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:myapp/communicate_with_native/internet_connection_check.dart';
-import 'package:myapp/constants/constants.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/artists_pick_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
@@ -42,7 +41,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   @override
   void initState() {
     super.initState();
-    InternetConnectioCheck.check().then((isNetworkAvailable) {
+    InternetConnectionCheck.check().then((isNetworkAvailable) {
       if (isNetworkAvailable) {
         FetchData.getSongImageUrl(widget.song, false).then((imageUrl) {
           if (mounted) {
@@ -54,7 +53,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
         });
       }
     });
-    checkForIntenetConnetionForNetworkImage();
+    //checkForIntenetConnetionForNetworkImage();
   }
 
   @override
@@ -79,7 +78,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
         borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20.0),
             topRight: const Radius.circular(20.0)),
-        color: Constants.lightGreyColor,
+        color: GlobalVariables.lightGreyColor,
       ),
       child: Column(
         children: <Widget>[
@@ -165,7 +164,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
               FirebaseDatabaseManager.removeSongFromPlaylist(
                   widget.playlist, widget.song);
               widget.playlist.removeSong(widget.song);
-              Provider.of<PageNotifier>(homePageContext)
+              Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                   .setCurrentPlaylistPagePlaylist = widget.playlist;
               currentUser.updatePlaylist(widget.playlist);
               if (audioPlayerManager.currentPlaylist != null) {
@@ -242,11 +241,11 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                 ManageLocalSongs.checkIfFileExists(widget.song)
                     .then((exists) async {
                   if (!exists) {
-                    if (Provider.of<PageNotifier>(homePageContext)
+                    if (Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                             .currentPlaylistPagePlaylist
                             .getName ==
                         currentUser.getDownloadedSongsPlaylist.getName) {
-                      Provider.of<PageNotifier>(homePageContext)
+                      Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                               .setCurrentPlaylistPagePlaylist =
                           currentUser.getDownloadedSongsPlaylist;
                     }
@@ -261,17 +260,18 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                       toastLength: Toast.LENGTH_SHORT,
                       gravity: ToastGravity.BOTTOM,
                       timeInSecForIos: 1,
-                      backgroundColor: Constants.pinkColor,
+                      backgroundColor: GlobalVariables.pinkColor,
                       textColor: Colors.white,
                       fontSize: 16.0,
                     );
+                    Navigator.of(context, rootNavigator: true).pop('dialog');
                   } else {
                     Fluttertoast.showToast(
                       msg: "Song is already exists!",
                       toastLength: Toast.LENGTH_SHORT,
                       gravity: ToastGravity.BOTTOM,
                       timeInSecForIos: 1,
-                      backgroundColor: Constants.pinkColor,
+                      backgroundColor: GlobalVariables.pinkColor,
                       textColor: Colors.white,
                       fontSize: 16.0,
                     );
@@ -283,7 +283,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                   toastLength: Toast.LENGTH_SHORT,
                   gravity: ToastGravity.BOTTOM,
                   timeInSecForIos: 1,
-                  backgroundColor: Constants.pinkColor,
+                  backgroundColor: GlobalVariables.pinkColor,
                   textColor: Colors.white,
                   fontSize: 16.0,
                 );
@@ -319,11 +319,11 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
               if (exists) {
                 ManageLocalSongs.deleteSongDirectory(widget.song);
                 currentUser.removeSongFromDownloadedPlaylist(widget.song);
-                if (Provider.of<PageNotifier>(homePageContext)
+                if (Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                         .currentPlaylistPagePlaylist
                         .getName ==
                     currentUser.getDownloadedSongsPlaylist.getName) {
-                  Provider.of<PageNotifier>(homePageContext)
+                  Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                           .setCurrentPlaylistPagePlaylist =
                       currentUser.getDownloadedSongsPlaylist;
                 }
@@ -340,7 +340,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                   toastLength: Toast.LENGTH_SHORT,
                   gravity: ToastGravity.BOTTOM,
                   timeInSecForIos: 1,
-                  backgroundColor: Constants.pinkColor,
+                  backgroundColor: GlobalVariables.pinkColor,
                   textColor: Colors.white,
                   fontSize: 16.0,
                 );
@@ -350,7 +350,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                   toastLength: Toast.LENGTH_SHORT,
                   gravity: ToastGravity.BOTTOM,
                   timeInSecForIos: 1,
-                  backgroundColor: Constants.pinkColor,
+                  backgroundColor: GlobalVariables.pinkColor,
                   textColor: Colors.white,
                   fontSize: 16.0,
                 );
@@ -533,7 +533,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                         value: null,
                         strokeWidth: 2.0,
                         valueColor:
-                            AlwaysStoppedAnimation<Color>(Constants.pinkColor),
+                            AlwaysStoppedAnimation<Color>(GlobalVariables.pinkColor),
                       ),
                     ),
                   ),
@@ -558,8 +558,8 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Constants.lightGreyColor,
-              Constants.darkGreyColor,
+              GlobalVariables.lightGreyColor,
+              GlobalVariables.darkGreyColor,
             ],
             begin: FractionalOffset.bottomLeft,
             stops: [0.3, 0.8],
@@ -579,7 +579,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
         child: widget.song.getImageUrl.length == 0 || imageProvider == null
             ? Icon(
                 Icons.music_note,
-                color: Constants.pinkColor,
+                color: GlobalVariables.pinkColor,
                 size: 40,
               )
             : Image(
@@ -589,7 +589,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   }
 
   void checkForIntenetConnetionForNetworkImage() {
-    InternetConnectioCheck.check().then((available) {
+    InternetConnectionCheck.check().then((available) {
       ManageLocalSongs.checkIfFileExists(widget.song).then((exists) {
         if (exists) {
           File file = File(
