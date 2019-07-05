@@ -58,8 +58,10 @@ class _HomePageState extends State<HomePage> {
       },
       child: WillPopScope(
         onWillPop: () async {
-          if (navigatorKeys[currentTab].currentState.canPop())
+          if (navigatorKeys[currentTab].currentState.canPop()) {
             await navigatorKeys[currentTab].currentState.maybePop();
+          }
+          return Future.value(false);
         },
         child: Scaffold(
           body: Stack(children: <Widget>[

@@ -16,7 +16,6 @@ class DiscoverPage extends StatefulWidget {
 }
 
 class _DiscoverPageState extends State<DiscoverPage> {
-
   _DiscoverPageState();
   @override
   void initState() {
@@ -156,8 +155,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
 
   Future syncAllPublicPlaylists() async {
     await FirebaseDatabaseManager.buildPublicPlaylists();
-    setState(() {
-    });
+    setState(() {});
   }
 
   Expanded drawPlaylists(Playlist playlist, BuildContext context) {
@@ -189,10 +187,13 @@ class _DiscoverPageState extends State<DiscoverPage> {
                             "assets/images/default_playlist_image.jpg"),
                     fit: BoxFit.cover,
                   ),
-                  border: Border.all(
-                    color: GlobalVariables.lightGreyColor,
-                    width: 0.5,
-                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey[850],
+                      blurRadius: 0.7,
+                      spreadRadius: 0.2,
+                    ),
+                  ],
                 ),
               ),
               SizedBox(
@@ -226,7 +227,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
       playlistValues['playlist'] = playlist;
       playlistValues['imageUrl'] = "";
     }
-    playlistValues['playlistCreator'] = User(playlist.getCreator, null, false);
+    playlistValues['playlistCreator'] = User(playlist.getCreator, null);
     playlistValues['playlistModalSheetMode'] = PlaylistModalSheetMode.public;
     return playlistValues;
   }

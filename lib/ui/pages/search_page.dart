@@ -197,10 +197,10 @@ class _SearchPageState extends State<SearchPage> {
     } else {
       title = song.getTitle;
     }
-    if (song.getArtist.length > 40) {
-      int pos = song.getArtist.lastIndexOf("", 40);
-      if (pos < 30) {
-        pos = 40;
+    if (song.getArtist.length > 36) {
+      int pos = song.getArtist.lastIndexOf("", 36);
+      if (pos < 26) {
+        pos = 36;
       }
       artist = song.getArtist.substring(0, pos) + "...";
     } else {

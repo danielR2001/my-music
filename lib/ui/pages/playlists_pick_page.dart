@@ -469,10 +469,13 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
       decoration: BoxDecoration(
         color: GlobalVariables.lightGreyColor,
         shape: BoxShape.rectangle,
-        border: Border.all(
-          color: GlobalVariables.lightGreyColor,
-          width: 0.4,
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey[850],
+            blurRadius: 0.3,
+            spreadRadius: 0.2,
+          ),
+        ],
         image: DecorationImage(
           fit: BoxFit.fill,
           image: NetworkImage(
@@ -497,10 +500,13 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           stops: [0.3, 0.8],
           end: FractionalOffset.topRight,
         ),
-        border: Border.all(
-          color: GlobalVariables.darkGreyColor,
-          width: 0.3,
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey[850],
+            blurRadius: 1.0,
+            spreadRadius: 0.5,
+          ),
+        ],
       ),
       child: Icon(
         Icons.music_note,

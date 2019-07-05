@@ -53,13 +53,15 @@ class SettingsPage extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      Container(width: 50,),
+                      Container(
+                        width: 50,
+                      ),
                     ],
                   ),
                 ),
                 Expanded(
                   child: Text(
-                    "1.5.0",
+                    "1.5.1",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 17,
@@ -99,10 +101,7 @@ class SettingsPage extends StatelessWidget {
           title: Text(
             "Hii " + currentUser.getName + "!",
             style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold
-            ),
+                color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           children: <Widget>[
@@ -135,10 +134,9 @@ class SettingsPage extends StatelessWidget {
                         child: Text(
                           "Cancel",
                           style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold
-                          ),
+                              fontSize: 16.0,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                       onTap: () {
@@ -164,27 +162,24 @@ class SettingsPage extends StatelessWidget {
                         child: Text(
                           "Got it",
                           style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold
-                          ),
+                              fontSize: 16.0,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                       onTap: () {
                         publicPlaylists = List();
                         FirebaseDatabaseManager.cancelStreams().then((a) {
                           ManageLocalSongs.deleteDownloadedDirectory();
-                          FirebaseDatabaseManager.changeUserSignInState(false)
-                              .then((a) {
-                            FirebaseAuthentication.signOut().then((a) {
-                              audioPlayerManager.closeSong(closeSongMode: CloseSongMode.completely);
-                              currentUser = null;
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => WelcomePage(),
-                                  ));
-                            });
+                          FirebaseAuthentication.signOut().then((a) {
+                            audioPlayerManager.closeSong(
+                                closeSongMode: CloseSongMode.completely);
+                            currentUser = null;
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => WelcomePage(),
+                                ));
                           });
                         });
                       },

@@ -4,6 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/communicate_with_native/get_image_dominant_color.dart';
 import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
@@ -27,9 +28,9 @@ class MusicPageState extends State<MusicPlayerPage> {
   StreamSubscription<Duration> posStream;
   StreamSubscription<Duration> durStream;
   StreamSubscription<void> completionStream;
-  double thumbRadius = 0;
   ImageProvider imageProvider;
   GlobalKey<FlipCardState> flipCardKey = GlobalKey<FlipCardState>();
+  Color backgroundColor = GlobalVariables.darkGreyColor;
   @override
   void initState() {
     super.initState();
@@ -56,7 +57,7 @@ class MusicPageState extends State<MusicPlayerPage> {
             gradient: LinearGradient(
               colors: [
                 GlobalVariables.darkGreyColor,
-                GlobalVariables.pinkColor,
+                backgroundColor,
               ],
               begin: FractionalOffset.bottomCenter,
               stops: [0.28, 1.0],
@@ -184,13 +185,11 @@ class MusicPageState extends State<MusicPlayerPage> {
                   ),
                   SliderTheme(
                     data: SliderThemeData(
-                      thumbShape: RoundSliderThumbShape(
-                          enabledThumbRadius: thumbRadius),
+                      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5),
                       trackHeight: 3,
-                      disabledThumbColor: Colors.black,
-                      thumbColor: GlobalVariables.pinkColor,
+                      thumbColor: Colors.white,
                       inactiveTrackColor: GlobalVariables.lightGreyColor,
-                      activeTrackColor: GlobalVariables.pinkColor,
+                      activeTrackColor: Colors.white,
                       overlayColor: Colors.transparent,
                     ),
                     child: Slider(
@@ -209,11 +208,6 @@ class MusicPageState extends State<MusicPlayerPage> {
                               ? audioPlayerManager.songDuration.inSeconds
                                   .toDouble()
                               : 0.0,
-                      onChangeStart: (double value) {
-                        setState(() {
-                          thumbRadius = 4;
-                        });
-                      },
                       onChanged: (double value) {
                         setState(() {
                           value = value;
@@ -221,11 +215,6 @@ class MusicPageState extends State<MusicPlayerPage> {
                           audioPlayerManager.songPosition =
                               Duration(seconds: value.toInt());
                           seekToSecond(value.toInt());
-                        });
-                      },
-                      onChangeEnd: (double value) {
-                        setState(() {
-                          thumbRadius = 0;
                         });
                       },
                     ),
@@ -678,7 +667,8 @@ class MusicPageState extends State<MusicPlayerPage> {
           boxShadow: [
             BoxShadow(
               color: Colors.grey[850],
-              blurRadius: 5.0,
+              blurRadius: 1.0,
+              spreadRadius: 0.5,
             ),
           ],
         ),
@@ -696,11 +686,20 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   Future generateBackgroundColors() async {
-    // paletteGenerator = await PaletteGenerator.fromImageProvider(
-    //   imageProvider,
-    //   maximumColorCount: 20,
-    // );
-    // paletteGenerator.dominantColor;
-    print("");
+    if (audioPlayerManager.currentSong.getImageUrl != "") {
+      String dominantColor = await GetImageDominantColor.getDominantColor(
+          audioPlayerManager.currentSong.getImageUrl);
+      if (dominantColor != null) {
+        dominantColor = dominantColor.replaceAll("#", "");
+        dominantColor = "0xff" + dominantColor;
+        setState(() {
+          backgroundColor = Color(int.parse(dominantColor));
+        });
+      }
+    } else {
+      setState(() {
+        backgroundColor = GlobalVariables.pinkColor;
+      });
+    }
   }
 }

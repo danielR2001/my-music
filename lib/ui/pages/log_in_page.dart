@@ -32,6 +32,7 @@ class _State extends State<LogInPage> {
           context,
           false,
         );
+        return Future.value(false);
       },
       child: Scaffold(
         key: key,
@@ -293,14 +294,12 @@ class _State extends State<LogInPage> {
       FirebaseAuthentication.logInWithEmail(loginInEmail, loginInPassword)
           .then((user) {
         if (user != null) {
-          FirebaseDatabaseManager.syncUser(user.uid, false).then((user) {
-            if (user != null && user.getName != "") {
-              FirebaseDatabaseManager.changeUserSignInState(true);
-              user.setSignedIn = true;
+          FirebaseDatabaseManager.syncUser(user.uid).then((user) {
+            if (user != null) {
               currentUser = user;
               ManageLocalSongs.checkIfStoragePermissionGranted()
                   .then((permissionGranted) {
-                ManageLocalSongs.initDirs().then((a){
+                ManageLocalSongs.initDirs().then((a) {
                   ManageLocalSongs.syncDownloaded();
                 });
               });
@@ -311,26 +310,14 @@ class _State extends State<LogInPage> {
                     builder: (context) => HomePage(),
                   ));
             } else {
-              if (user == null) {
-                Navigator.of(context, rootNavigator: true).pop('dialog');
-                key.currentState.showSnackBar(
-                  SnackBar(
-                    duration: Duration(seconds: 10),
-                    content: Text(
-                        "You didn't verify your email account! So go verify your email and then click the continue button in the sign up page."),
-                  ),
-                );
-              } else {
-                FirebaseAuthentication.signOut();
-                Navigator.of(context, rootNavigator: true).pop('dialog');
-                key.currentState.showSnackBar(
-                  SnackBar(
-                    duration: Duration(seconds: 5),
-                    content: Text(
-                        "You are already signed in this account with other device!"),
-                  ),
-                );
-              }
+              Navigator.of(context, rootNavigator: true).pop('dialog');
+              key.currentState.showSnackBar(
+                SnackBar(
+                  duration: Duration(seconds: 10),
+                  content: Text(
+                      "You didn't verify your email account! So go verify your email and then click the continue button in the sign up page."),
+                ),
+              );
             }
           });
         } else {

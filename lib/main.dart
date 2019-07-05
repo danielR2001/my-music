@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/communicate_with_native/music_control_notification.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/ui/decorations/portrait_mode_mixin.dart';
@@ -26,13 +27,15 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
         return PageNotifier();
       },
       child: MaterialApp(
-      title: 'My Music',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: 'Montserrat',
-        canvasColor: Colors.transparent,
-      ),
-      home: RootPage(),
+        title: 'My Music',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          fontFamily: 'Montserrat',
+          canvasColor: Colors.transparent,
+          textSelectionHandleColor: GlobalVariables.pinkColor,
+          textSelectionColor: Colors.grey,
+        ),
+        home: RootPage(),
       ),
     );
   }

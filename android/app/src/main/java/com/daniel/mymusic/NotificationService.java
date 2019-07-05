@@ -118,10 +118,6 @@ public class NotificationService extends Service {
     }
 
     @Override
-    public void onDestroy() {
-    }
-
-    @Override
     public IBinder onBind(Intent intent) {
         throw new UnsupportedOperationException("Not yet implemented");
     }

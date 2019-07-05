@@ -26,8 +26,7 @@ class FirebaseDatabaseManager {
     _userPushId = pushId.key;
   }
 
-  static Future<User> syncUser(
-      String currentUserId, bool alreadySignedIn) async {
+  static Future<User> syncUser(String currentUserId) async {
     List<User> users = List();
     List<String> keys = List();
     List<Map> playlists = List();
@@ -41,8 +40,7 @@ class FirebaseDatabaseManager {
         keys.add(key);
         playlists.add(values["playlists"]);
 
-        User user =
-            User(values["userName"], values["firebaseUId"], values['signedIn']);
+        User user = User(values["userName"], values["firebaseUId"]);
         users.add(user);
       },
     );
@@ -50,16 +48,12 @@ class FirebaseDatabaseManager {
     users.forEach(
       (user) {
         if (user.getFirebaseUId == currentUserId) {
-          if (!user.getSignedIn || alreadySignedIn) {
-            _userPushId = keys[i];
-            tempUser = user;
-            if (playlists[i] != null) {
-              tempUser.setMyPlaylists = _buildPlaylists(playlists[i]);
-            }
-            print("user synced successfuly");
-          } else {
-            tempUser = User("", "", false);
+          _userPushId = keys[i];
+          tempUser = user;
+          if (playlists[i] != null) {
+            tempUser.setMyPlaylists = _buildPlaylists(playlists[i]);
           }
+          print("user synced successfuly");
         }
         i++;
       },
@@ -151,14 +145,6 @@ class FirebaseDatabaseManager {
     if (playlist.getIsPublic) {
       _removeSongFromPublicPlaylist(playlist, song);
     }
-  }
-
-  static Future<void> changeUserSignInState(bool signedIn) async {
-    await FirebaseDatabase.instance
-        .reference()
-        .child(_usersDir)
-        .child(_userPushId)
-        .update({"signedIn": signedIn});
   }
 
   static Future<void> buildPublicPlaylists() async {

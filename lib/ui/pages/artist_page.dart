@@ -180,10 +180,10 @@ class _ArtistPageState extends State<ArtistPage> {
           } else {
             title = playlist.getSongs[index].getTitle;
           }
-          if (playlist.getSongs[index].getArtist.length > 40) {
-            int pos = playlist.getSongs[index].getArtist.lastIndexOf("", 40);
-            if (pos < 30) {
-              pos = 40;
+          if (playlist.getSongs[index].getArtist.length > 36) {
+            int pos = playlist.getSongs[index].getArtist.lastIndexOf("", 36);
+            if (pos < 26) {
+              pos = 36;
             }
             artist =
                 playlist.getSongs[index].getArtist.substring(0, pos) + "...";

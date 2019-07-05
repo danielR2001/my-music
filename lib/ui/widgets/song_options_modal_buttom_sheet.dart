@@ -53,7 +53,6 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
         });
       }
     });
-    //checkForIntenetConnetionForNetworkImage();
   }
 
   @override
@@ -569,14 +568,11 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             stops: [0.3, 0.8],
             end: FractionalOffset.topRight,
           ),
-          border: Border.all(
-            color: Colors.black,
-            width: 0.2,
-          ),
           boxShadow: [
             BoxShadow(
               color: Colors.grey[850],
-              blurRadius: 3.0,
+              blurRadius: 1.0,
+              spreadRadius: 0.5,
             ),
           ],
         ),

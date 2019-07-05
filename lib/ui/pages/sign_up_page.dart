@@ -27,6 +27,7 @@ class _SignUpPageState extends State<SignUpPage> {
           context,
           false,
         );
+        return Future.value(false);
       },
       child: Scaffold(
         key: key,
@@ -387,10 +388,10 @@ class _SignUpPageState extends State<SignUpPage> {
       (isEmailVerified) {
         if (isEmailVerified) {
           FirebaseAuthentication.currentUser().then((user) {
-            currentUser = User(userName, user.uid, true);
+            currentUser = User(userName, user.uid);
             FirebaseDatabaseManager.saveUser();
             Navigator.of(context, rootNavigator: true).pop('dialog');
-            FirebaseDatabaseManager.syncUser(user.uid, false).then((a) {
+            FirebaseDatabaseManager.syncUser(user.uid).then((a) {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(

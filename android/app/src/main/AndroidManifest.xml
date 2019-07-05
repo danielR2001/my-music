@@ -1,8 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.daniel.mymusic">
-         <uses-permission android:name="android.permission.INTERNET" />
-         <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-         <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="My Music"
@@ -24,11 +26,5 @@
             </intent-filter>
         </activity>
         <service android:name="com.daniel.mymusic.NotificationService" />
-
-        <receiver android:name=".InternetConnectionBroadcastReceiver">
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>

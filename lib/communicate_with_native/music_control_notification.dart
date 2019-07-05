@@ -17,7 +17,7 @@ class MusicControlNotification {
     try {
       final bool result = await platform.invokeMethod('startService');
       response = result;
-      platform.setMethodCallHandler(myUtilsHandler);
+      platform.setMethodCallHandler(_myUtilsHandler);
     } on PlatformException catch (e) {
       print("error invoking method from native: $e");
       response = false;
@@ -48,7 +48,7 @@ class MusicControlNotification {
     return response;
   }
 
-  static Future<dynamic> myUtilsHandler(MethodCall methodCall) async {
+  static Future<dynamic> _myUtilsHandler(MethodCall methodCall) async {
     switch (methodCall.method) {
       case 'playOrPause':
         if (audioPlayerManager.isLoaded &&

@@ -248,6 +248,13 @@ class _AccountPageState extends State<AccountPage> {
       decoration: BoxDecoration(
         color: GlobalVariables.lightGreyColor,
         shape: BoxShape.rectangle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey[850],
+            blurRadius: 0.3,
+            spreadRadius: 0.2,
+          ),
+        ],
         image: DecorationImage(
           fit: BoxFit.fill,
           image: NetworkImage(
@@ -263,20 +270,22 @@ class _AccountPageState extends State<AccountPage> {
       width: 60,
       height: 60,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            GlobalVariables.lightGreyColor,
-            GlobalVariables.darkGreyColor,
-          ],
-          begin: FractionalOffset.bottomLeft,
-          stops: [0.3, 0.8],
-          end: FractionalOffset.topRight,
-        ),
-        border: Border.all(
-          color: GlobalVariables.lightGreyColor,
-          width: 0.4,
-        ),
-      ),
+          gradient: LinearGradient(
+            colors: [
+              GlobalVariables.lightGreyColor,
+              GlobalVariables.darkGreyColor,
+            ],
+            begin: FractionalOffset.bottomLeft,
+            stops: [0.3, 0.8],
+            end: FractionalOffset.topRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey[850],
+              blurRadius: 1.0,
+              spreadRadius: 0.5,
+            ),
+          ]),
       child: Icon(
         Icons.music_note,
         color: GlobalVariables.pinkColor,
