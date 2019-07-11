@@ -50,11 +50,8 @@ public class MainActivity extends FlutterActivity {
           String imageUrl = call.argument("imageUrl");
           boolean isPlaying = call.argument("isPlaying");
           String localPath = call.argument("localPath");
-          boolean dontLoadImage = call.argument("dontLoadImage");
-          if (dontLoadImage) {
-            NotificationService.makeNotification(title, artist, NotificationService.imageBitmap,
-                getApplicationContext(), isPlaying, imageUrl);
-          } else {
+          boolean loadImage = call.argument("loadImage");
+          if (loadImage) {
             Bitmap bitmap;
             try {
               bitmap = new LoadImageFromUrl(title, artist, imageUrl, getApplicationContext(), isPlaying, localPath)
@@ -67,8 +64,11 @@ public class MainActivity extends FlutterActivity {
             } else {
               NotificationService.makeNotification(title, artist, null, getApplicationContext(), isPlaying, imageUrl);
             }
+            result.success(true);
+          } else {
+            NotificationService.makeNotification(title, artist, NotificationService.imageBitmap,
+                getApplicationContext(), isPlaying, imageUrl);
           }
-          result.success(true);
         }
       }
     });
@@ -81,6 +81,9 @@ public class MainActivity extends FlutterActivity {
           registerReceiver(mNetworkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         } else if (call.method.equals("internetConnectionCheck")) {
           result.success(InternetConnectionBroadcastReceiver.networkAvailable);
+        } else if (call.method.equals("DisposeInternetConnectionReceiver")) {
+          BroadcastReceiver mNetworkReceiver = new InternetConnectionBroadcastReceiver();
+          unregisterReceiver(mNetworkReceiver);
         }
       }
     });
@@ -99,18 +102,25 @@ public class MainActivity extends FlutterActivity {
       @Override
       public void onMethodCall(MethodCall call, MethodChannel.Result result) {
         if (call.method.equals("getDominantColor")) {
-          String imageUrl = call.argument("imageUrl");
+          String imagePath = call.argument("imagePath");
+          boolean isLocal = call.argument("isLocal");
           Bitmap bitmap;
-          try {
-            bitmap = new LoadImageFromUrl(imageUrl).execute().get();
-          } catch (Exception e) {
-            bitmap = null;
+          if (isLocal) {
+            try {
+              bitmap = new LoadImageFromUrl(null, imagePath).execute().get();
+            } catch (Exception e) {
+              bitmap = null;
+            }
+          } else {
+            try {
+              bitmap = new LoadImageFromUrl(imagePath, null).execute().get();
+            } catch (Exception e) {
+              bitmap = null;
+            }
           }
-          if (bitmap != null) {
-            Log.d("MainActivity", "success!!!");
+          if (bitmap != null) {;
             result.success(getImageDominantColor(bitmap));
           } else {
-            Log.d("MainActivity", "failed!!!");
             result.success(null);
           }
         }
@@ -143,12 +153,13 @@ public class MainActivity extends FlutterActivity {
         int green = (int) (color.green() * 255);
         int blue = (int) (color.blue() * 255);
         hex = String.format("#%02x%02x%02x", red, green, blue);
-      }else{
+      } else {
         return null;
       }
-    }else{
+    } else {
       return null;
     }
     return hex;
   }
+
 }

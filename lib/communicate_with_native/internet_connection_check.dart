@@ -11,6 +11,14 @@ class InternetConnectionCheck {
     }
   }
 
+  static Future<void> disposeReciever() async {
+    try {
+      await platform.invokeMethod('DisposeInternetConnectionReceiver');
+    } on PlatformException catch (e) {
+      print("error invoking method from native: $e");
+    }
+  }
+
   static Future<bool> check() async {
     bool response;
     try {

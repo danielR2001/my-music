@@ -61,7 +61,7 @@ class SettingsPage extends StatelessWidget {
                 ),
                 Expanded(
                   child: Text(
-                    "1.5.1",
+                    "1.5.2",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 17,

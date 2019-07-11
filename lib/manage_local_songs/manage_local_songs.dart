@@ -1,5 +1,8 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
@@ -39,46 +42,64 @@ class ManageLocalSongs {
   }
 
   static Future<void> downloadSong(Song song) async {
-    Directory songDirectory =
-        await new Directory('${fullSongDownloadDir.path}/${song.getSongId}')
-            .create(recursive: true);
-    if (song.getImageUrl != "") {
-      _downloadSongImage(song);
-    }
-    _downloadSongInfo(song);
-    FetchData.getSongPlayUrl(song).then((downloadUrl) async {
-      if (downloadUrl != null) {
-        currentDownloading.add(song);
-        Provider.of<PageNotifier>(GlobalVariables.homePageContext).addDownloaded(song);
-        try {
-          await dio.download(downloadUrl,
-              "${songDirectory.path}/${song.getSongId}.mp3",
-              onReceiveProgress: (prog, total) {
-            if (Provider.of<PageNotifier>(GlobalVariables.homePageContext)
-                    .downloadedTotals[song.getSongId] ==
-                1) {
-              Provider.of<PageNotifier>(GlobalVariables.homePageContext)
-                  .updateDownloadedTotals(song, total);
-            }
+    bool available = await InternetConnectionCheck.check();
+    Directory songDirectory;
 
-            Provider.of<PageNotifier>(GlobalVariables.homePageContext)
-                .updateDownloadedProgsses(song, prog);
-          }).whenComplete(() {
-            Provider.of<PageNotifier>(GlobalVariables.homePageContext).removeDownloaded(song);
-            currentDownloading.remove(song);
-
-            currentUser.addSongToDownloadedPlaylist(song);
-            print("song: ${song.getSongId}, download completed!");
-          });
-        } catch (e) {
-          print(e);
-
-          currentDownloading.remove(song);
-        }
-      } else {
-        currentDownloading.remove(song);
+    if (available) {
+      songDirectory =
+          await new Directory('${fullSongDownloadDir.path}/${song.getSongId}')
+              .create(recursive: true);
+      if (song.getImageUrl != "") {
+        _downloadSongImage(song);
       }
-    });
+      _downloadSongInfo(song);
+      FetchData.getSongPlayUrl(song).then((downloadUrl) async {
+        if (downloadUrl != null) {
+          currentDownloading.add(song);
+          Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+              .addDownloaded(song);
+          try {
+            await dio.download(
+                downloadUrl, "${songDirectory.path}/${song.getSongId}.mp3",
+                onReceiveProgress: (prog, total) {
+              if (Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                      .downloadedTotals[song.getSongId] ==
+                  1) {
+                Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                    .updateDownloadedTotals(song, total);
+              }
+
+              Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                  .updateDownloadedProgsses(song, prog);
+            }).whenComplete(() {
+              Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                  .removeDownloaded(song);
+              currentDownloading.remove(song);
+
+              currentUser.addSongToDownloadedPlaylist(song);
+              print("song: ${song.getSongId}, download completed!");
+            });
+          } catch (e) {
+            print(e);
+            currentDownloading.remove(song);
+            _makeToast(text: "something went wrong");
+          }
+        } else {
+          currentDownloading.remove(song);
+          _makeToast(text: "something went wrong");
+        }
+      });
+    } else {
+      _makeToast(text: "no internet connection");
+    }
+  }
+
+  static Future<void> cancelDownLoad() async {
+    // try{
+    //   await dio.options.
+    // }catch(e){
+
+    // }
   }
 
   static Future<void> _downloadSongImage(Song song) async {
@@ -165,4 +186,15 @@ class ManageLocalSongs {
     await new Directory('${fullSongDownloadDir.path}').delete(recursive: true);
   }
 
+  static void _makeToast({String text}) {
+    Fluttertoast.showToast(
+      msg: text,
+      toastLength: Toast.LENGTH_SHORT,
+      timeInSecForIos: 1,
+      fontSize: 16.0,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: GlobalVariables.pinkColor,
+      textColor: Colors.white,
+    );
+  }
 }

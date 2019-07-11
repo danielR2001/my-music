@@ -33,31 +33,34 @@ public class LoadImageFromUrl extends AsyncTask<String, Void, Bitmap> {
         this.localPath = localPath;
     }
 
-    public LoadImageFromUrl(String imageUrl) {
+    public LoadImageFromUrl(String imageUrl, String localPath) {
         super();
         this.imageUrl = imageUrl;
+        this.localPath = localPath;
     }
 
     @Override
     protected Bitmap doInBackground(String... strings) {
         Log.d("load Image Thread", "loading image...");
-        if (localPath != null) {
+        if (this.localPath != null) {
             if (new File(localPath).exists()) {
-                return BitmapFactory.decodeFile(localPath);
+                return BitmapFactory.decodeFile(this.localPath);
             } else {
-                if (!this.imageUrl.equals("")) {
-                    try {
-                        URL url = new URL(this.imageUrl);
-                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                        connection.setDoInput(true);
-                        connection.connect();
-                        InputStream in = connection.getInputStream();
-                        return BitmapFactory.decodeStream(in);
-                    } catch (MalformedURLException e) {
-                        Log.d("load Image Thread", "Failed loading image!!!");
+                if (this.imageUrl != null) {
+                    if (!this.imageUrl.equals("")) {
+                        try {
+                            URL url = new URL(this.imageUrl);
+                            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                            connection.setDoInput(true);
+                            connection.connect();
+                            InputStream in = connection.getInputStream();
+                            return BitmapFactory.decodeStream(in);
+                        } catch (MalformedURLException e) {
+                            Log.d("load Image Thread", "Failed loading image!!!");
 
-                    } catch (IOException e) {
-                        Log.d("load Image Thread", "Failed loading image!!!");
+                        } catch (IOException e) {
+                            Log.d("load Image Thread", "Failed loading image!!!");
+                        }
                     }
                 }
             }

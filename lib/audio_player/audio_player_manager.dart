@@ -39,6 +39,7 @@ class AudioPlayerManager {
   bool isLoaded;
   PreviousMode previousMode;
 
+  String _songStreamUrl;
   Song _firstSkippedSong;
   bool _isNetworkAvailable;
   StreamSubscription<void> _audioPlayerOnCompleteStream;
@@ -56,12 +57,16 @@ class AudioPlayerManager {
 
   Future<void> initSong(
       {Song song, Playlist playlist, PlaylistMode playlistMode}) async {
+
+    closeSong(closeSongMode: CloseSongMode.partly);
     isLoaded = false;
     previousMode = PreviousMode.restart;
     currentSong = song;
     songPosition = Duration(seconds: 0);
+
     Provider.of<PageNotifier>(GlobalVariables.homePageContext).setCurrentSong =
         song;
+        
     _isNetworkAvailable = await InternetConnectionCheck.check();
 
     if (song.getImageUrl == "") {
@@ -102,7 +107,7 @@ class AudioPlayerManager {
       shuffledPlaylist = null;
       currentPlaylist = null;
     }
-    bool readyToPlay = await _setAudioPlayerUrl();
+    bool readyToPlay = await _checkIfReadyToPlay();
     if (readyToPlay) {
       _firstSkippedSong = null;
       _playSong();
@@ -117,20 +122,38 @@ class AudioPlayerManager {
           isLoaded = true;
           songPosition = null;
           _firstSkippedSong = null;
-          closeSong(closeSongMode: CloseSongMode.partly);
+          MusicControlNotification.makeNotification(currentSong, false, true);
         }
       }
     } else {
       isLoaded = true;
       songPosition = null;
+      MusicControlNotification.makeNotification(currentSong, false, true);
     }
   }
 
   Future _playSong() async {
-    closeSong();
-    MusicControlNotification.makeNotification(currentSong, true, false);
-    await audioPlayer.resume();
-    isLoaded = true;
+    isLoaded = false;
+    bool exists = await ManageLocalSongs.checkIfFileExists(currentSong);
+    if (exists && currentUser.songExistsInDownloadedPlaylist(currentSong)) {
+      int status = await audioPlayer.play(
+          "${ManageLocalSongs.fullSongDownloadDir.path}/${currentSong.getSongId}/${currentSong.getSongId}.mp3",
+          stayAwake: true);
+      if (status == 1) {
+        MusicControlNotification.makeNotification(currentSong, true, false);
+        isLoaded = true;
+      } else {
+        closeSong(closeSongMode: CloseSongMode.completely);
+      }
+    } else {
+      int status = await audioPlayer.play(_songStreamUrl, stayAwake: true);
+      if (status == 1) {
+        MusicControlNotification.makeNotification(currentSong, true, true);
+        isLoaded = true;
+      } else {
+        closeSong(closeSongMode: CloseSongMode.completely);
+      }
+    }
 
     _listenForDurationChanged();
     _listenForPositionChanged();
@@ -140,14 +163,14 @@ class AudioPlayerManager {
   void resumeSong({bool calledFromNative}) {
     audioPlayer.resume();
     if (!calledFromNative) {
-      MusicControlNotification.makeNotification(currentSong, true, true);
+      MusicControlNotification.makeNotification(currentSong, true, false);
     }
   }
 
   void pauseSong({bool calledFromNative}) {
     audioPlayer.pause();
     if (!calledFromNative) {
-      MusicControlNotification.makeNotification(currentSong, false, true);
+      MusicControlNotification.makeNotification(currentSong, false, false);
     }
   }
 
@@ -158,10 +181,14 @@ class AudioPlayerManager {
         currentPlaylist = null;
         loopPlaylist = null;
         shuffledPlaylist = null;
+        audioPlayer.stop();
+        audioPlayer.release();
       } else if (closeSongMode == CloseSongMode.partly) {
         audioPlayer.stop();
         audioPlayer.release();
       }
+    } else {
+      audioPlayer.pause();
     }
     if (_audioPlayerOnCompleteStream != null) {
       _audioPlayerOnCompleteStream.cancel();
@@ -319,13 +346,15 @@ class AudioPlayerManager {
         if (duration.inSeconds - songPosition.inSeconds == 1) {
           songPosition = duration;
           print(songPosition.inSeconds);
-          // if (songPosition.inSeconds % 5 == 0) {
-          //   if (audioPlayer.state == AudioPlayerState.PLAYING) {
-          //     MusicControlNotification.makeNotification(currentSong, true, true);
-          //   } else {
-          //     MusicControlNotification.makeNotification(currentSong, false, true);
-          //   }
-          // }
+          if (songPosition.inSeconds % 5 == 0) {
+            if (audioPlayer.state == AudioPlayerState.PLAYING) {
+              MusicControlNotification.makeNotification(
+                  currentSong, true, false);
+            } else {
+              MusicControlNotification.makeNotification(
+                  currentSong, false, false);
+            }
+          }
         }
       }
     });
@@ -365,26 +394,19 @@ class AudioPlayerManager {
     );
   }
 
-  Future<bool> _setAudioPlayerUrl() async {
-    isLoaded = false;
+  Future<bool> _checkIfReadyToPlay() async {
     bool exists = await ManageLocalSongs.checkIfFileExists(currentSong);
     if (exists && currentUser.songExistsInDownloadedPlaylist(currentSong)) {
-      await audioPlayer.setUrl(
-          "${ManageLocalSongs.fullSongDownloadDir.path}/${currentSong.getSongId}/${currentSong.getSongId}.mp3");
       return true;
     } else {
       if (_isNetworkAvailable) {
-        String streamUrl = await FetchData.getSongPlayUrl(currentSong);
-        if (streamUrl != null) {
-          await audioPlayer.setUrl(streamUrl);
+        _songStreamUrl = await FetchData.getSongPlayUrl(currentSong);
+        if (_songStreamUrl != null) {
           return true;
         } else {
-          _makeToast(text: "oops something went wrong :(");
           return false;
         }
       } else {
-        _makeToast(text: "no intenet connection");
-        MusicControlNotification.makeNotification(currentSong, false, false);
         return false;
       }
     }

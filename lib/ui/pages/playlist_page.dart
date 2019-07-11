@@ -160,7 +160,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
                         begin: FractionalOffset.topCenter,
                         stops: [0, 1],
                         end: FractionalOffset.bottomCenter,
-                        colors: [GlobalVariables.darkGreyColor, Colors.transparent],
+                        colors: [
+                          GlobalVariables.darkGreyColor,
+                          Colors.transparent
+                        ],
                       ).createShader(
                           Rect.fromLTRB(0, 0, rect.width, rect.height));
                     },
@@ -188,11 +191,13 @@ class _PlaylistPageState extends State<PlaylistPage> {
               makeSliverList(
                   widget.playlistModalSheetMode == PlaylistModalSheetMode.public
                       ? widget.playlist
-                      : Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                      : Provider.of<PageNotifier>(
+                                      GlobalVariables.homePageContext)
                                   .currentPlaylistPagePlaylist
                                   .getPushId ==
                               widget.playlist.getPushId
-                          ? Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                          ? Provider.of<PageNotifier>(
+                                  GlobalVariables.homePageContext)
                               .currentPlaylistPagePlaylist
                           : widget.playlist,
                   context)
@@ -229,7 +234,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
             artist = playlist.getSongs[index].getArtist;
           }
           return ListTile(
-            contentPadding: EdgeInsets.only(left: 20,right: 4),
+            contentPadding: EdgeInsets.only(left: 20, right: 4),
             title: Text(
               title,
               style: TextStyle(
@@ -263,48 +268,55 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 fontSize: 13,
               ),
             ),
-            trailing: ManageLocalSongs.isSongDownloading(
-                        playlist.getSongs[index]) &&
-                    widget.playlistModalSheetMode !=
-                        PlaylistModalSheetMode.public
-                ? Padding(
-                    padding: EdgeInsets.only(right: 6),
-                    child: CircularProgressIndicator(
-                      value: Provider.of<PageNotifier>(GlobalVariables.homePageContext)
-                              .downloadedProgresses[
-                                  playlist.getSongs[index].getSongId]
-                              .toDouble() /
-                          Provider.of<PageNotifier>(GlobalVariables.homePageContext)
-                              .downloadedTotals[
-                                  playlist.getSongs[index].getSongId]
-                              .toDouble(),
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(GlobalVariables.pinkColor),
-                      backgroundColor: Colors.pink[50],
-                      strokeWidth: 4.0,
-                    ),
-                  )
-                : IconButton(
-                    icon: Icon(
-                      Icons.more_vert,
-                      color: audioPlayerManager.currentSong != null &&
-                              audioPlayerManager.currentPlaylist != null
-                          ? audioPlayerManager.loopPlaylist.getPushId ==
-                                  playlist.getPushId
-                              ? audioPlayerManager.currentSong.getSongId ==
-                                      playlist.getSongs[index].getSongId
-                                  ? GlobalVariables.pinkColor
+            trailing:
+                ManageLocalSongs.isSongDownloading(playlist.getSongs[index]) &&
+                        widget.playlistModalSheetMode !=
+                            PlaylistModalSheetMode.public
+                    ? Padding(
+                        padding: EdgeInsets.only(right: 6),
+                        child: GestureDetector(
+                          child: CircularProgressIndicator(
+                            value: Provider.of<PageNotifier>(
+                                        GlobalVariables.homePageContext)
+                                    .downloadedProgresses[
+                                        playlist.getSongs[index].getSongId]
+                                    .toDouble() /
+                                Provider.of<PageNotifier>(
+                                        GlobalVariables.homePageContext)
+                                    .downloadedTotals[
+                                        playlist.getSongs[index].getSongId]
+                                    .toDouble(),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                GlobalVariables.pinkColor),
+                            backgroundColor: Colors.pink[50],
+                            strokeWidth: 4.0,
+                          ),
+                          onTap: (){
+                            
+                          },
+                        ),
+                      )
+                    : IconButton(
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: audioPlayerManager.currentSong != null &&
+                                  audioPlayerManager.currentPlaylist != null
+                              ? audioPlayerManager.loopPlaylist.getPushId ==
+                                      playlist.getPushId
+                                  ? audioPlayerManager.currentSong.getSongId ==
+                                          playlist.getSongs[index].getSongId
+                                      ? GlobalVariables.pinkColor
+                                      : Colors.white
                                   : Colors.white
-                              : Colors.white
-                          : Colors.white,
-                    ),
-                    iconSize: 30,
-                    onPressed: () {
-                      setState(() {
-                        showSongOptions(playlist.getSongs[index], playlist);
-                      });
-                    },
-                  ),
+                              : Colors.white,
+                        ),
+                        iconSize: 30,
+                        onPressed: () {
+                          setState(() {
+                            showSongOptions(playlist.getSongs[index], playlist);
+                          });
+                        },
+                      ),
             onTap: () {
               if (audioPlayerManager.isLoaded) {
                 if (audioPlayerManager.currentSong != null &&

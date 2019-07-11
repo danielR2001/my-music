@@ -26,7 +26,7 @@ class MusicControlNotification {
   }
 
   static Future<bool> makeNotification(
-      Song song, bool isPlaying, bool dontLoadImage) async {
+      Song song, bool isPlaying, bool loadImage) async {
     bool response;
     String localPath =
         "${ManageLocalSongs.fullSongDownloadDir.path}/${song.getSongId}/${song.getSongId}.png";
@@ -38,7 +38,7 @@ class MusicControlNotification {
         "imageUrl": song.getImageUrl,
         "isPlaying": isPlaying,
         "localPath": localPath,
-        "dontLoadImage": dontLoadImage,
+        "loadImage": loadImage,
       });
       response = result;
     } on PlatformException catch (e) {

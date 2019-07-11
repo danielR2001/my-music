@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
+import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
@@ -19,6 +23,13 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPageState extends State<AccountPage> {
   bool openPlaylists = true;
+  Map<String, ImageProvider> imageProviders = Map();
+  @override
+  void initState() {
+    super.initState();
+    checkForIntenetConnetionForNetworkImage();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Navigator(onGenerateRoute: (RouteSettings settings) {
@@ -166,7 +177,7 @@ class _AccountPageState extends State<AccountPage> {
     });
   }
 
-  Padding userPlaylists(Playlist playlist, BuildContext context) {
+  Padding userPlaylists(Playlist playlist, BuildContext context, int index) {
     return Padding(
       padding: const EdgeInsets.only(
         top: 10,
@@ -175,10 +186,8 @@ class _AccountPageState extends State<AccountPage> {
       ),
       child: ListTile(
           leading: playlist.getSongs.length > 0
-              ? playlist.getSongs[0].getImageUrl.length > 0
-                  ? drawSongImage(playlist.getSongs[0])
-                  : drawDefaultSongImage()
-              : drawDefaultSongImage(),
+              ? drawSongImage(playlist.getSongs[0], index)
+              : drawSongImage(null, index),
           title: AutoSizeText(
             cutPlaylistName(playlist),
             style: TextStyle(
@@ -231,7 +240,8 @@ class _AccountPageState extends State<AccountPage> {
                     : 0
                 : 0,
             itemBuilder: (BuildContext context, int index) {
-              return userPlaylists(currentUser.getPlaylists[index], context);
+              return userPlaylists(
+                  currentUser.getPlaylists[index], context, index);
             },
           ),
         ),
@@ -241,35 +251,12 @@ class _AccountPageState extends State<AccountPage> {
     }
   }
 
-  Widget drawSongImage(Song song) {
-    return Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
-        color: GlobalVariables.lightGreyColor,
-        shape: BoxShape.rectangle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey[850],
-            blurRadius: 0.3,
-            spreadRadius: 0.2,
-          ),
-        ],
-        image: DecorationImage(
-          fit: BoxFit.fill,
-          image: NetworkImage(
-            song.getImageUrl,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget drawDefaultSongImage() {
-    return Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
+  Widget drawSongImage(Song song, int index) {
+    if (song != null) {
+      return Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
               GlobalVariables.lightGreyColor,
@@ -279,19 +266,63 @@ class _AccountPageState extends State<AccountPage> {
             stops: [0.3, 0.8],
             end: FractionalOffset.topRight,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey[850],
-              blurRadius: 1.0,
-              spreadRadius: 0.5,
-            ),
-          ]),
-      child: Icon(
-        Icons.music_note,
-        color: GlobalVariables.pinkColor,
-        size: 40,
-      ),
-    );
+          // border: Border.all(
+          //   color: Colors.black,
+          //   width: 0.1,
+          // ),
+          // boxShadow: [
+          //   BoxShadow(
+          //     color: Colors.grey[850],
+          //     blurRadius: 0.1,
+          //     spreadRadius: 0.1,
+          //   ),
+          // ],
+        ),
+        child:
+            imageProviders.length != 0 && imageProviders[song.getSongId] != null
+                ? Image(
+                    image: imageProviders[song.getSongId],
+                    fit: BoxFit.contain,
+                  )
+                : Icon(
+                    Icons.music_note,
+                    color: GlobalVariables.pinkColor,
+                    size: 30,
+                  ),
+      );
+    } else {
+      return Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              GlobalVariables.lightGreyColor,
+              GlobalVariables.darkGreyColor,
+            ],
+            begin: FractionalOffset.bottomLeft,
+            stops: [0.3, 0.8],
+            end: FractionalOffset.topRight,
+          ),
+          // border: Border.all(
+          //   color: Colors.black,
+          //   width: 0.1,
+          // ),
+          // boxShadow: [
+          //   BoxShadow(
+          //     color: Colors.grey[850],
+          //     blurRadius: 0.1,
+          //     spreadRadius: 0.1,
+          //   ),
+          // ],
+        ),
+        child: Icon(
+          Icons.music_note,
+          color: GlobalVariables.pinkColor,
+          size: 30,
+        ),
+      );
+    }
   }
 
   String cutPlaylistName(Playlist playlist) {
@@ -306,5 +337,33 @@ class _AccountPageState extends State<AccountPage> {
       name = playlist.getName;
     }
     return name;
+  }
+
+  void checkForIntenetConnetionForNetworkImage() {
+    InternetConnectionCheck.check().then((available) {
+      currentUser.getPlaylists.forEach((playlist) {
+        if (playlist.getSongs.length > 0) {
+          ManageLocalSongs.checkIfFileExists(playlist.getSongs[0])
+              .then((exists) {
+            if (exists) {
+              File file = File(
+                  "${ManageLocalSongs.fullSongDownloadDir.path}/${playlist.getSongs[0].getSongId}/${playlist.getSongs[0].getSongId}.png");
+              setState(() {
+                imageProviders[playlist.getSongs[0].getSongId] =
+                    (FileImage(file));
+              });
+            } else {
+              if (available) {
+                setState(() {
+                  imageProviders[playlist.getSongs[0].getSongId] = NetworkImage(
+                    playlist.getSongs[0].getImageUrl,
+                  );
+                });
+              }
+            }
+          });
+        } 
+      });
+    });
   }
 }

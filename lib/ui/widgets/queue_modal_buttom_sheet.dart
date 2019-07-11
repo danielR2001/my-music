@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
@@ -26,43 +25,53 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
       ),
       child: Column(
         children: <Widget>[
+          drawTitle(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: ListTile(
-              leading: Icon(
-                audioPlayerManager.playlistMode == PlaylistMode.loop
-                    ? Icons.repeat
-                    : CupertinoIcons.shuffle,
-                color: Colors.grey,
-                size: 25,
-              ),
-              title: Text(
-                "Queue",
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+            padding: const EdgeInsets.only(bottom: 5),
+            child: Container(
+              height: 1,
+              //width: 350,
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.grey,
+                  ),
                 ),
               ),
-              onTap: () {},
             ),
           ),
-          Expanded(
-            child: Theme(
-              data: Theme.of(context).copyWith(accentColor: Colors.grey),
-              child: ListView.builder(
-                itemCount: audioPlayerManager.currentPlaylist.getSongs.length,
-                itemExtent: 60,
-                itemBuilder: (BuildContext context, int index) {
-                  return songItem(
-                      audioPlayerManager.currentPlaylist.getSongs[index],
-                      index + 1,
-                      context);
-                },
-              ),
-            ),
-          ),
+          drawPlaylistQueueSongs(),
         ],
+      ),
+    );
+  }
+  // Widgets
+  Widget drawTitle() {
+    return ListTile(
+      title: Text(
+        "Queue",
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget drawPlaylistQueueSongs() {
+    return Expanded(
+      child: Theme(
+        data: Theme.of(context).copyWith(accentColor: Colors.grey),
+        child: ListView.builder(
+          itemCount: audioPlayerManager.currentPlaylist.getSongs.length,
+          itemExtent: 60,
+          itemBuilder: (BuildContext context, int index) {
+            return songItem(audioPlayerManager.currentPlaylist.getSongs[index],
+                index + 1, context);
+          },
+        ),
       ),
     );
   }

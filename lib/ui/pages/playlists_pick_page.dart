@@ -146,21 +146,15 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
               if (added) {
                 Navigator.of(context, rootNavigator: true).pop('dialog');
                 Navigator.pop(context);
+                Navigator.of(context, rootNavigator: true).pop('dialog');
+                _makeToast(text: "Added to ${playlist.getName}");
               }
             });
           } else {
             addAllSongToPlaylist(playlist);
             Navigator.pop(context);
-
-            Fluttertoast.showToast(
-              msg: "Don't worry! adding only songs that aren't added yet :D",
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIos: 1,
-              backgroundColor: GlobalVariables.pinkColor,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
+            Navigator.of(context, rootNavigator: true).pop('dialog');
+            _makeToast(text: "Added to ${playlist.getName}");
           }
         },
       ),
@@ -520,5 +514,17 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     widget.songs.forEach((song) {
       addSongToPlaylist(playlist, song, true);
     });
+  }
+
+  void _makeToast({String text}) {
+    Fluttertoast.showToast(
+      msg: text,
+      toastLength: Toast.LENGTH_LONG,
+      timeInSecForIos: 3,
+      fontSize: 18.0,
+      gravity: ToastGravity.CENTER,
+      backgroundColor: GlobalVariables.toastColor,
+      textColor: Colors.white,
+    );
   }
 }

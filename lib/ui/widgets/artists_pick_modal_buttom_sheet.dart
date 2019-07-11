@@ -109,17 +109,17 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
               if (!canceled) {
                 FetchData.getSearchResults(artist.getName).then((results) {
                   if (!canceled) {
-                    if (results != null) {
-                      // results.forEach((song) {
-                      //   if (song.getArtist
-                      //           .toLowerCase()
-                      //           .contains(artist.getName.toLowerCase()) ||
-                      //       song.getTitle
-                      //           .toLowerCase()
-                      //           .contains(artist.getName.toLowerCase())) {
-                      //     songs.add(song);
-                      //   }
-                      // });
+                    if (results != null && results[artist.getName] != null) {
+                      results[artist.getName].forEach((song) {
+                        if (song.getArtist
+                                .toLowerCase()
+                                .contains(artist.getName.toLowerCase()) ||
+                            song.getTitle
+                                .toLowerCase()
+                                .contains(artist.getName.toLowerCase())) {
+                          songs.add(song);
+                        }
+                      });
                       Playlist temp = Playlist(artist.getName + " Top Hits");
                       temp.setSongs = songs;
                       Provider.of<PageNotifier>(context)
@@ -142,20 +142,21 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
             FetchData.getSearchResults(widget.artists[index].getName)
                 .then((results) {
               if (!canceled) {
-                if (results != null) {
-                  // results.forEach((song) {
-                  //   if (song.getArtist.toLowerCase().contains(
-                  //           widget.artists[index].getName.toLowerCase()) ||
-                  //       song.getTitle.toLowerCase().contains(
-                  //           widget.artists[index].getName.toLowerCase())) {
-                  //     Provider.of<PageNotifier>(context)
-                  //         .currentPlaylistPagePlaylist
-                  //         .addNewSong(song);
-                  //   }
-                  // });
-                  // Provider.of<PageNotifier>(context)
-                  //     .currentPlaylistPagePlaylist
-                  //     .setSongs = results;
+                if (results != null &&
+                    results[widget.artists[index].getName] != null) {
+                  results[widget.artists[index].getName].forEach((song) {
+                    if (song.getArtist.toLowerCase().contains(
+                            widget.artists[index].getName.toLowerCase()) ||
+                        song.getTitle.toLowerCase().contains(
+                            widget.artists[index].getName.toLowerCase())) {
+                      songs.add(song);
+                    }
+                  });
+                  Playlist temp =
+                      Playlist(widget.artists[index].getName + " Top Hits");
+                  temp.setSongs = songs;
+                  Provider.of<PageNotifier>(context)
+                      .setCurrentPlaylistPagePlaylist = temp;
                 }
                 loadingArtists = true;
                 Navigator.of(context, rootNavigator: true).pop('dialog');

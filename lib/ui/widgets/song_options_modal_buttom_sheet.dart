@@ -90,30 +90,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    AutoSizeText(
-                      widget.song.getTitle,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                    ),
-                    AutoSizeText(
-                      widget.song.getArtist,
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 16.0,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                    ),
-                  ],
-                )
+                drawSongTitleArtist(),
               ],
             ),
           ),
@@ -141,6 +118,66 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
     );
   }
 
+  //Widgets
+  Widget drawSongTitleArtist() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        AutoSizeText(
+          widget.song.getTitle,
+          style: TextStyle(
+              color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+        ),
+        AutoSizeText(
+          widget.song.getArtist,
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: 16.0,
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+        ),
+      ],
+    );
+  }
+  
+  Widget drawSongImageWidget() {
+    return Container(
+      width: 90,
+      height: 90,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            GlobalVariables.lightGreyColor,
+            GlobalVariables.darkGreyColor,
+          ],
+          begin: FractionalOffset.bottomLeft,
+          stops: [0.3, 0.8],
+          end: FractionalOffset.topRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey[850],
+            blurRadius: 1.0,
+            spreadRadius: 0.5,
+          ),
+        ],
+      ),
+      child: widget.song.getImageUrl.length == 0 || imageProvider == null
+          ? Icon(
+              Icons.music_note,
+              color: GlobalVariables.pinkColor,
+              size: 40,
+            )
+          : Image(
+              image: imageProvider,
+              fit: BoxFit.contain,
+            ),
+    );
+  }
+ 
   Widget drawRemoveFromPlaylist(BuildContext context) {
     if (widget.songModalSheetMode == SongModalSheetMode.regular &&
         widget.playlist != null) {
@@ -245,12 +282,18 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                   if (!exists) {
                     if (Provider.of<PageNotifier>(
                                 GlobalVariables.homePageContext)
-                            .currentPlaylistPagePlaylist
-                            .getName ==
-                        currentUser.getDownloadedSongsPlaylist.getName) {
-                      Provider.of<PageNotifier>(GlobalVariables.homePageContext)
-                              .setCurrentPlaylistPagePlaylist =
-                          currentUser.getDownloadedSongsPlaylist;
+                            .currentPlaylistPagePlaylist !=
+                        null) {
+                      if (Provider.of<PageNotifier>(
+                                  GlobalVariables.homePageContext)
+                              .currentPlaylistPagePlaylist
+                              .getName ==
+                          currentUser.getDownloadedSongsPlaylist.getName) {
+                        Provider.of<PageNotifier>(
+                                    GlobalVariables.homePageContext)
+                                .setCurrentPlaylistPagePlaylist =
+                            currentUser.getDownloadedSongsPlaylist;
+                      }
                     }
                     if (widget.song.getImageUrl == "") {
                       String imageUrl =
@@ -330,13 +373,15 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                           .setCurrentPlaylistPagePlaylist =
                       currentUser.getDownloadedSongsPlaylist;
                 }
-                if (widget.song.getSongId ==
-                        audioPlayerManager.currentSong.getSongId &&
-                    widget.playlist.getName ==
-                        currentUser.getDownloadedSongsPlaylist.getName) {
-                  audioPlayerManager.currentPlaylist = null;
-                  audioPlayerManager.shuffledPlaylist = null;
-                  audioPlayerManager.loopPlaylist = null;
+                if (audioPlayerManager.currentSong != null) {
+                  if (widget.song.getSongId ==
+                          audioPlayerManager.currentSong.getSongId &&
+                      widget.playlist.getName ==
+                          currentUser.getDownloadedSongsPlaylist.getName) {
+                    audioPlayerManager.currentPlaylist = null;
+                    audioPlayerManager.shuffledPlaylist = null;
+                    audioPlayerManager.loopPlaylist = null;
+                  }
                 }
                 Fluttertoast.showToast(
                   msg: "song Undownloaded",
@@ -466,7 +511,8 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
       ),
     );
   }
-
+  
+  //Methods
   void showQueueModalBottomSheet(BuildContext context) {
     Navigator.pop(context);
     showModalBottomSheet(
@@ -554,56 +600,26 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
     });
   }
 
-  Widget drawSongImageWidget() {
-    return Container(
-        width: 90,
-        height: 90,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              GlobalVariables.lightGreyColor,
-              GlobalVariables.darkGreyColor,
-            ],
-            begin: FractionalOffset.bottomLeft,
-            stops: [0.3, 0.8],
-            end: FractionalOffset.topRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey[850],
-              blurRadius: 1.0,
-              spreadRadius: 0.5,
-            ),
-          ],
-        ),
-        child: widget.song.getImageUrl.length == 0 || imageProvider == null
-            ? Icon(
-                Icons.music_note,
-                color: GlobalVariables.pinkColor,
-                size: 40,
-              )
-            : Image(
-                image: imageProvider,
-                fit: BoxFit.contain,
-              ));
-  }
-
   void checkForIntenetConnetionForNetworkImage() {
     InternetConnectionCheck.check().then((available) {
       ManageLocalSongs.checkIfFileExists(widget.song).then((exists) {
         if (exists) {
-          File file = File(
-              "${ManageLocalSongs.fullSongDownloadDir.path}/${widget.song.getSongId}/${widget.song.getSongId}.png");
-          setState(() {
-            imageProvider = FileImage(file);
-          });
+          if (mounted) {
+            File file = File(
+                "${ManageLocalSongs.fullSongDownloadDir.path}/${widget.song.getSongId}/${widget.song.getSongId}.png");
+            setState(() {
+              imageProvider = FileImage(file);
+            });
+          }
         } else {
           if (available) {
-            setState(() {
-              imageProvider = NetworkImage(
-                widget.song.getImageUrl,
-              );
-            });
+            if (mounted) {
+              setState(() {
+                imageProvider = NetworkImage(
+                  widget.song.getImageUrl,
+                );
+              });
+            }
           }
         }
       });

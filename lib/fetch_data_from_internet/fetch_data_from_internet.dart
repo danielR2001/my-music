@@ -52,9 +52,8 @@ class FetchData {
     if (songTitle.contains(" ")) {
       songTitle = songTitle.replaceAll(" ", "+");
     }
-    var encoded =
-        Uri.encodeFull(songTitle);
-    String url = siteUrl + song.getSearchString + "+" +encoded;
+    var encoded = Uri.encodeFull(songTitle);
+    String url = siteUrl + song.getSearchString + "+" + encoded;
     return http.get(url).catchError((eror) {
       print("error getSongPlayUrl");
       return '';
@@ -210,11 +209,15 @@ class FetchData {
     String imageUrl;
     List infoElement;
     List imageUrlElement;
-    imageUrlElement = document.getElementsByClassName("artist-image");
-    imageUrl = imageUrlElement[0].innerHtml;
-    imageUrl = imageUrl.substring(
-        imageUrl.indexOf('data-default-src="') + 'data-default-src="'.length,
-        imageUrl.indexOf('"> <source srcset='));
+    if (artist.getImageUrl != "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png") {
+      imageUrlElement = document.getElementsByClassName("artist-image");
+      imageUrl = imageUrlElement[0].innerHtml;
+      imageUrl = imageUrl.substring(
+          imageUrl.indexOf('data-default-src="') + 'data-default-src="'.length,
+          imageUrl.indexOf('"> <source srcset='));
+    }else{
+      imageUrl = "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png";
+    }
     infoElement = document.getElementsByClassName("msc-artist-biography-text");
     if (infoElement.length > 0) {
       info = infoElement[0].innerHtml;
@@ -226,10 +229,6 @@ class FetchData {
       info = info.replaceAll(";", "");
     } else {
       info = "";
-    }
-    if (imageUrl ==
-        "https://static.bbc.co.uk/music_clips/3.0.29/img/default_artist_images/pop1.jpg") {
-      imageUrl = "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png";
     }
     artist.setInfo = info;
     artist.setImageUrl = imageUrl;
@@ -377,8 +376,8 @@ class FetchData {
         searchString = searchString.replaceRange(
             searchString.indexOf(">"), searchString.length, "");
         searchString = searchString.replaceAll('"', "");
-        if(searchString.contains("+%26amp%3B")){
-        searchString = searchString.replaceAll("+%26amp%3B", "");
+        if (searchString.contains("+%26amp%3B")) {
+          searchString = searchString.replaceAll("+%26amp%3B", "");
         }
 
         artist = item.substring(
