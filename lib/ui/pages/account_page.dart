@@ -1,15 +1,17 @@
 import 'dart:io';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/communicate_with_native/internet_connection_check.dart';
+import 'package:myapp/firebase/authentication.dart';
+import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/ui/pages/settings_page.dart';
+import 'package:myapp/ui/pages/welcome_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:provider/provider.dart';
 
@@ -24,6 +26,7 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   bool openPlaylists = true;
   Map<String, ImageProvider> imageProviders = Map();
+  bool needToReloadImages = false;
   @override
   void initState() {
     super.initState();
@@ -74,17 +77,12 @@ class _AccountPageState extends State<AccountPage> {
                           padding: const EdgeInsets.only(right: 5),
                           child: IconButton(
                             icon: Icon(
-                              Icons.settings,
+                              Icons.exit_to_app,
                               size: 30,
                               color: Colors.white,
                             ),
                             onPressed: () {
-                              Navigator.push(
-                                GlobalVariables.homePageContext,
-                                MaterialPageRoute(
-                                  builder: (context) => SettingsPage(),
-                                ),
-                              );
+                              showAlertDialog(context);
                             },
                           ),
                         )
@@ -114,7 +112,8 @@ class _AccountPageState extends State<AccountPage> {
                         size: 30,
                       ),
                       title: Text(
-                        "Downloaded",
+                        "Downloaded" +
+                            "  (${currentUser.getDownloadedSongsPlaylist.getSongs.length})",
                         style: TextStyle(
                           fontSize: 17,
                           color: Colors.white,
@@ -189,7 +188,7 @@ class _AccountPageState extends State<AccountPage> {
               ? drawSongImage(playlist.getSongs[0], index)
               : drawSongImage(null, index),
           title: AutoSizeText(
-            cutPlaylistName(playlist),
+            cutPlaylistName(playlist) + "  (${playlist.getSongs.length})",
             style: TextStyle(
               fontSize: 17,
               color: Colors.white,
@@ -213,12 +212,8 @@ class _AccountPageState extends State<AccountPage> {
     Map<String, dynamic> playlistValues = Map();
     if (playlist.getSongs.length > 0) {
       playlistValues['playlist'] = playlist;
-      playlistValues['imageUrl'] = playlist.getSongs[0].getImageUrl != ""
-          ? playlist.getSongs[0].getImageUrl
-          : "";
     } else {
       playlistValues['playlist'] = playlist;
-      playlistValues['imageUrl'] = "";
     }
     playlistValues['playlistCreator'] = currentUser;
     playlistValues['playlistModalSheetMode'] =
@@ -230,6 +225,9 @@ class _AccountPageState extends State<AccountPage> {
 
   Widget showOrHidePlaylists() {
     if (openPlaylists) {
+      if (!GlobalVariables.isOfflineMode && needToReloadImages) {
+        checkForIntenetConnetionForNetworkImage();
+      }
       return Expanded(
         child: Theme(
           data: Theme.of(context).copyWith(accentColor: Colors.grey),
@@ -266,23 +264,23 @@ class _AccountPageState extends State<AccountPage> {
             stops: [0.3, 0.8],
             end: FractionalOffset.topRight,
           ),
-          // border: Border.all(
-          //   color: Colors.black,
-          //   width: 0.1,
-          // ),
-          // boxShadow: [
-          //   BoxShadow(
-          //     color: Colors.grey[850],
-          //     blurRadius: 0.1,
-          //     spreadRadius: 0.1,
-          //   ),
-          // ],
+          border: Border.all(
+            color: Colors.black,
+            width: 0.1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey[850],
+              blurRadius: 0.1,
+              spreadRadius: 0.1,
+            ),
+          ],
         ),
         child:
             imageProviders.length != 0 && imageProviders[song.getSongId] != null
                 ? Image(
                     image: imageProviders[song.getSongId],
-                    fit: BoxFit.contain,
+                    fit: BoxFit.cover,
                   )
                 : Icon(
                     Icons.music_note,
@@ -304,17 +302,17 @@ class _AccountPageState extends State<AccountPage> {
             stops: [0.3, 0.8],
             end: FractionalOffset.topRight,
           ),
-          // border: Border.all(
-          //   color: Colors.black,
-          //   width: 0.1,
-          // ),
-          // boxShadow: [
-          //   BoxShadow(
-          //     color: Colors.grey[850],
-          //     blurRadius: 0.1,
-          //     spreadRadius: 0.1,
-          //   ),
-          // ],
+          border: Border.all(
+            color: Colors.black,
+            width: 0.1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey[850],
+              blurRadius: 0.1,
+              spreadRadius: 0.1,
+            ),
+          ],
         ),
         child: Icon(
           Icons.music_note,
@@ -340,30 +338,137 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   void checkForIntenetConnetionForNetworkImage() {
-    InternetConnectionCheck.check().then((available) {
+    if (!GlobalVariables.isOfflineMode) {
       currentUser.getPlaylists.forEach((playlist) {
-        if (playlist.getSongs.length > 0) {
-          ManageLocalSongs.checkIfFileExists(playlist.getSongs[0])
-              .then((exists) {
-            if (exists) {
-              File file = File(
-                  "${ManageLocalSongs.fullSongDownloadDir.path}/${playlist.getSongs[0].getSongId}/${playlist.getSongs[0].getSongId}.png");
-              setState(() {
-                imageProviders[playlist.getSongs[0].getSongId] =
-                    (FileImage(file));
-              });
-            } else {
-              if (available) {
+        InternetConnectionCheck.check().then((available) {
+          if (playlist.getSongs.length > 0) {
+            ManageLocalSongs.checkIfFileExists(playlist.getSongs[0])
+                .then((exists) {
+              if (exists) {
+                File file = File(
+                    "${ManageLocalSongs.fullSongDownloadDir.path}/${playlist.getSongs[0].getSongId}/${playlist.getSongs[0].getSongId}.png");
                 setState(() {
-                  imageProviders[playlist.getSongs[0].getSongId] = NetworkImage(
-                    playlist.getSongs[0].getImageUrl,
-                  );
+                  imageProviders[playlist.getSongs[0].getSongId] =
+                      (FileImage(file));
                 });
+              } else {
+                if (available) {
+                  setState(() {
+                    imageProviders[playlist.getSongs[0].getSongId] =
+                        NetworkImage(
+                      playlist.getSongs[0].getImageUrl,
+                    );
+                  });
+                }
               }
-            }
-          });
-        } 
+            });
+          }
+        });
       });
-    });
+    } else {
+      needToReloadImages = true;
+    }
+  }
+
+  void showAlertDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text(
+            "Hii " + currentUser.getName + "!",
+            style: TextStyle(
+                color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Text(
+                "Are you sure you want to sign out? \n \nIf you will proceed with your action all your local songs will be erased.",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 30),
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: GestureDetector(
+                      child: Container(
+                        alignment: Alignment.center,
+                        height: 50.0,
+                        width: 90,
+                        decoration: BoxDecoration(
+                          color: GlobalVariables.pinkColor,
+                          borderRadius: BorderRadius.circular(40.0),
+                        ),
+                        child: Text(
+                          "Cancel",
+                          style: TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context, rootNavigator: true)
+                            .pop('dialog');
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: GestureDetector(
+                      child: Container(
+                        alignment: Alignment.center,
+                        height: 50.0,
+                        width: 90,
+                        decoration: BoxDecoration(
+                          color: GlobalVariables.pinkColor,
+                          borderRadius: BorderRadius.circular(40.0),
+                        ),
+                        child: Text(
+                          "Got it",
+                          style: TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      onTap: () {
+                        publicPlaylists = List();
+                        FirebaseDatabaseManager.cancelStreams().then((a) {
+                          ManageLocalSongs.deleteDownloadedDirectory();
+                          FirebaseAuthentication.signOut().then((a) {
+                            audioPlayerManager.closeSong(
+                                closeSongMode: CloseSongMode.completely);
+                            currentUser = null;
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => WelcomePage(),
+                                ));
+                          });
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          backgroundColor: Colors.grey[850],
+        );
+      },
+    );
   }
 }

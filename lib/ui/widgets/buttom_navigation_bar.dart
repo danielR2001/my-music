@@ -13,16 +13,6 @@ class TabHelper {
     return TabItem.discover;
   }
 
-  // static String title(TabItem tabItem) {
-  //   switch (tabItem) {
-  //     case TabItem.discover:
-  //       return 'Discover';
-  //     case TabItem.account:
-  //       return 'Account';
-  //   }
-  //   return '';
-  // }
-
   static IconData icon(TabItem tabItem) {
     switch (tabItem) {
       case TabItem.discover:

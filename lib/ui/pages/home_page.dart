@@ -81,9 +81,16 @@ class _HomePageState extends State<HomePage> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 musicPlayerControl(),
-                BottomNavigation(
-                  currentTab: currentTab,
-                  onSelectTab: selectTab,
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(color: Colors.black),
+                    ),
+                  ),
+                  child: BottomNavigation(
+                    currentTab: currentTab,
+                    onSelectTab: selectTab,
+                  ),
                 ),
               ],
             ),
@@ -155,9 +162,6 @@ class _HomePageState extends State<HomePage> {
           child: Container(
             decoration: BoxDecoration(
               color: GlobalVariables.lightGreyColor,
-              border: Border(
-                bottom: BorderSide(color: Colors.black),
-              ),
             ),
             height: 45,
             child: Row(

@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
+import android.content.ComponentName;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.os.Build;
@@ -33,7 +34,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import android.graphics.BitmapFactory;
 import java.util.concurrent.TimeUnit;
-import android.util.Log;
 
 public class NotificationService extends Service {
     private static Intent playIntent;
@@ -58,7 +58,7 @@ public class NotificationService extends Service {
     private static boolean isPlaying;
     public static Bitmap imageBitmap;
     private static String imageUrl;
-    private static MediaSessionCompat MediaSession;
+    private static MediaSessionCompat mediaSession;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -81,7 +81,6 @@ public class NotificationService extends Service {
             });
         } else if (intent.getAction().equals(Constants.PLAY_ACTION)) {
             isPlaying = !isPlaying;
-            makeNotification(title, artist, imageBitmap, getApplicationContext(), isPlaying, imageUrl);
             MainActivity.channel1.invokeMethod("playOrPause", null, new Result() {
                 @Override
                 public void success(Object o) {
@@ -145,23 +144,46 @@ public class NotificationService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CreateNotificationChannel(context);
             notificationManagerForOreo = NotificationManagerCompat.from(context);
-            notification = new NotificationCompat.Builder(context, CHANNEL_ID).setContentTitle(title)
-                    .setContentText(artist).setSmallIcon(R.drawable.app_logo_no_background).setLargeIcon(imageBitmap)
-                    .setShowWhen(false).addAction(R.drawable.ic_skip_previous, "", pprevIntent)
-                    .addAction(iconInts[index], "", pplayIntent).addAction(R.drawable.ic_skip_next, "", pnextIntent)
+            notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+                    .setContentTitle(title)
+                    .setContentText(artist)
+                    .setSmallIcon(R.drawable.app_logo_no_background)
+                    .setLargeIcon(imageBitmap)
+                    .setShowWhen(true)
+                    .addAction(R.drawable.ic_previous, "", pprevIntent)
+                    .addAction(iconInts[index], "", pplayIntent)
+                    .addAction(R.drawable.ic_next, "", pnextIntent)
                     .setStyle(new androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle()
-                            .setShowActionsInCompactView(0, 1, 2).setMediaSession(MediaSession.getSessionToken()))// .setMediaSession(token))
-                    .setDeleteIntent(pdeleteIntent).setContentIntent(pendingIntent).setTimeoutAfter(1800000).setColorized(true)
-                    .setWhen(System.currentTimeMillis()).build();
+                            .setShowActionsInCompactView(0, 1, 2)
+                            .setMediaSession(mediaSession.getSessionToken()))
+                    .setDeleteIntent(pdeleteIntent)
+                    .setContentIntent(pendingIntent)
+                    .setTimeoutAfter(1800000)
+                    .setColorized(true)
+                    .setCategory(Notification.CATEGORY_TRANSPORT)
+                    .setWhen(System.currentTimeMillis())
+                    .setPriority(NotificationManager.IMPORTANCE_MAX)
+                    .build();
 
         } else {
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notification = new NotificationCompat.Builder(context).setContentTitle(title).setContentText(artist)
-                    .setSmallIcon(R.drawable.app_logo_no_background).setLargeIcon(imageBitmap).setSound(null)
-                    .setShowWhen(false).setColor(context.getResources().getColor(R.color.pink))
-                    .addAction(R.drawable.ic_skip_previous, "", pprevIntent).addAction(iconInts[index], "", pplayIntent)
-                    .addAction(R.drawable.ic_skip_next, "", pnextIntent).setDeleteIntent(pdeleteIntent)
-                    .setContentIntent(pendingIntent).setTimeoutAfter(1800000).setWhen(System.currentTimeMillis())
+            notification = new NotificationCompat.Builder(context)
+                    .setContentTitle(title)
+                    .setContentText(artist)
+                    .setSmallIcon(R.drawable.app_logo_no_background)
+                    .setLargeIcon(imageBitmap)
+                    .setSound(null)
+                    .setShowWhen(false)
+                    .setColor(context.getResources()
+                    .getColor(R.color.pink))
+                    .addAction(R.drawable.ic_previous, "", pprevIntent)
+                    .addAction(iconInts[index], "", pplayIntent)
+                    .addAction(R.drawable.ic_next, "", pnextIntent)
+                    .setDeleteIntent(pdeleteIntent)
+                    .setContentIntent(pendingIntent)
+                    .setTimeoutAfter(1800000)
+                    .setWhen(System.currentTimeMillis())
+                    .setCategory(Notification.CATEGORY_TRANSPORT)
                     .build();
         }
         if (iP) {
@@ -174,7 +196,7 @@ public class NotificationService extends Service {
     private static void CreateNotificationChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, "Playback",
-                    NotificationManager.IMPORTANCE_DEFAULT);
+                    NotificationManager.IMPORTANCE_HIGH);
             notificationChannel.setSound(null, null);
             notificationChannel.setShowBadge(false);
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -203,7 +225,14 @@ public class NotificationService extends Service {
         deleteIntent.setAction(Constants.STOPFOREGROUND_ACTION);
         pdeleteIntent = PendingIntent.getService(this, 0, deleteIntent, 0);
 
-        MediaSession = new MediaSessionCompat(this, "playback");
+
+        //ComponentName mediaButtonReceiver = new ComponentName(this ,RemoteControlReceiver.class);
+        mediaSession = new MediaSessionCompat(this, "playback", null, null);// mediaButtonReceiver, null);
+        //mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | 
+        //                    MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+       // mediaSession.setCallback(this);
+       // mediaSession.setActive(true);
+
     }
 
     private static Bitmap getBitmapfromUrl(String imageUrl) {

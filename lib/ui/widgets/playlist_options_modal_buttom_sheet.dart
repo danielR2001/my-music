@@ -311,6 +311,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
   void showPlaylistOptions(Playlist currentPlaylist, BuildContext context) {
     Navigator.pop(context);
     showModalBottomSheet(
+      backgroundColor: Colors.transparent,
       context: GlobalVariables.homePageContext,
       builder: (builder) {
         return SortModalSheet(

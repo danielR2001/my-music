@@ -31,7 +31,6 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           fontFamily: 'Montserrat',
-          canvasColor: Colors.transparent,
           textSelectionHandleColor: GlobalVariables.pinkColor,
           textSelectionColor: Colors.grey,
         ),

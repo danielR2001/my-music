@@ -29,6 +29,7 @@ class FirebaseAuthentication {
       );
     } catch (e) {
       print(e);
+      user  = null;
     }
     return user;
   }

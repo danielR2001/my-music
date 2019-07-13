@@ -301,14 +301,14 @@ class _State extends State<LogInPage> {
                   .then((permissionGranted) {
                 ManageLocalSongs.initDirs().then((a) {
                   ManageLocalSongs.syncDownloaded();
+                  Navigator.of(context, rootNavigator: true).pop('dialog');
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomePage(),
+                      ));
                 });
               });
-              Navigator.of(context, rootNavigator: true).pop('dialog');
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomePage(),
-                  ));
             } else {
               Navigator.of(context, rootNavigator: true).pop('dialog');
               key.currentState.showSnackBar(

@@ -440,8 +440,7 @@ class MusicPageState extends State<MusicPlayerPage> {
       onPressed: () {
         if (audioPlayerManager.currentPlaylist != null &&
             audioPlayerManager.currentPlaylist.getSongs.length > 0) {
-          if (audioPlayerManager.isLoaded &&
-              audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
+          if (audioPlayerManager.isLoaded) {
             setState(() {
               _position = Duration(seconds: 0);
               _duration = _duration;
@@ -455,8 +454,8 @@ class MusicPageState extends State<MusicPlayerPage> {
                 imageProvider = null;
               });
             }
-
-            audioPlayerManager.playPreviousSong(false);
+            generateBackgroundColors();
+            audioPlayerManager.playPreviousSong();
           }
         }
       },
@@ -494,8 +493,7 @@ class MusicPageState extends State<MusicPlayerPage> {
       onPressed: () {
         if (audioPlayerManager.currentPlaylist != null &&
             audioPlayerManager.currentPlaylist.getSongs.length > 0) {
-          if (audioPlayerManager.isLoaded &&
-              audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
+          if (audioPlayerManager.isLoaded) {
             setState(() {
               _position = Duration(seconds: 0);
               _duration = _duration;
@@ -504,7 +502,7 @@ class MusicPageState extends State<MusicPlayerPage> {
             if (!flipCardKey.currentState.isFront) {
               flipCardKey.currentState.toggleCard();
             }
-
+            generateBackgroundColors();
             audioPlayerManager.playNextSong();
           }
         }
@@ -537,7 +535,7 @@ class MusicPageState extends State<MusicPlayerPage> {
         splashColor: Colors.grey,
         icon: Icon(
           Icons.playlist_play,
-          size: 25,
+          size: 30,
           color: Colors.white,
         ),
         onPressed: () {
@@ -550,6 +548,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   //methods
   void showMoreOptions(BuildContext context) {
     showModalBottomSheet(
+      backgroundColor: Colors.transparent,
       context: context,
       builder: (builder) {
         return SongOptionsModalSheet(
@@ -649,6 +648,7 @@ class MusicPageState extends State<MusicPlayerPage> {
     completionStream =
         audioPlayerManager.audioPlayer.onPlayerCompletion.listen((a) {
       checkForIntenetConnetionForNetworkImage();
+      generateBackgroundColors();
       if (mounted) {
         setState(() {
           if (!flipCardKey.currentState.isFront) {
@@ -713,6 +713,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   void playSong() {
+    generateBackgroundColors();
     checkForIntenetConnetionForNetworkImage();
     audioPlayerManager.initSong(
       song: audioPlayerManager.currentSong,
@@ -766,6 +767,7 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   void showQueueModalBottomSheet(BuildContext context) {
     showModalBottomSheet(
+      backgroundColor: Colors.transparent,
       context: context,
       builder: (builder) {
         return QueueModalSheet();

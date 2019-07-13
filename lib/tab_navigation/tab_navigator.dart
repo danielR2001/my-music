@@ -56,8 +56,6 @@ class TabNavigator extends StatelessWidget {
         TabNavigatorRoutes.subTab2: (context) => PlaylistPage(
               playlist:
                   playlistValues != null ? playlistValues['playlist'] : null,
-              imagePath:
-                  playlistValues != null ? playlistValues['imageUrl'] : "",
               playlistCreator: playlistValues != null
                   ? playlistValues['playlistCreator']
                   : null,
@@ -75,8 +73,6 @@ class TabNavigator extends StatelessWidget {
         TabNavigatorRoutes.subTab: (context) => PlaylistPage(
               playlist:
                   playlistValues != null ? playlistValues['playlist'] : null,
-              imagePath:
-                  playlistValues != null ? playlistValues['imageUrl'] : "",
               playlistCreator: playlistValues != null
                   ? playlistValues['playlistCreator']
                   : null,

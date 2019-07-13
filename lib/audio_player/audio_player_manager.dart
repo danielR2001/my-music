@@ -57,7 +57,6 @@ class AudioPlayerManager {
 
   Future<void> initSong(
       {Song song, Playlist playlist, PlaylistMode playlistMode}) async {
-
     closeSong(closeSongMode: CloseSongMode.partly);
     isLoaded = false;
     previousMode = PreviousMode.restart;
@@ -66,7 +65,7 @@ class AudioPlayerManager {
 
     Provider.of<PageNotifier>(GlobalVariables.homePageContext).setCurrentSong =
         song;
-        
+
     _isNetworkAvailable = await InternetConnectionCheck.check();
 
     if (song.getImageUrl == "") {
@@ -143,7 +142,10 @@ class AudioPlayerManager {
         MusicControlNotification.makeNotification(currentSong, true, false);
         isLoaded = true;
       } else {
-        closeSong(closeSongMode: CloseSongMode.completely);
+        closeSong(closeSongMode: CloseSongMode.partly);
+        isLoaded = true;
+        songPosition = null;
+        MusicControlNotification.makeNotification(currentSong, false, true);
       }
     } else {
       int status = await audioPlayer.play(_songStreamUrl, stayAwake: true);
@@ -201,7 +203,7 @@ class AudioPlayerManager {
     audioPlayer.seek(duration);
   }
 
-  Future playPreviousSong(bool automaticPlayNext) async {
+  Future playPreviousSong() async {
     if (previousMode == PreviousMode.previous) {
       if (currentPlaylist != null) {
         int i = 0;
@@ -249,7 +251,7 @@ class AudioPlayerManager {
           resumeSong(calledFromNative: false);
         }
       } else {
-        playPreviousSong(true);
+        playPreviousSong();
       }
     }
   }

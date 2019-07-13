@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
+import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
@@ -16,7 +20,7 @@ class DiscoverPage extends StatefulWidget {
 }
 
 class _DiscoverPageState extends State<DiscoverPage> {
-  _DiscoverPageState();
+  Map<String, ImageProvider> imageProviders = Map();
   @override
   void initState() {
     syncAllPublicPlaylists();
@@ -155,7 +159,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
 
   Future syncAllPublicPlaylists() async {
     await FirebaseDatabaseManager.buildPublicPlaylists();
-    setState(() {});
+    checkForIntenetConnetionForNetworkImage();
   }
 
   Expanded drawPlaylists(Playlist playlist, BuildContext context) {
@@ -175,26 +179,40 @@ class _DiscoverPageState extends State<DiscoverPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Container(
-                alignment: Alignment.center,
                 height: 180.0,
                 decoration: BoxDecoration(
-                  image: DecorationImage(
-                    colorFilter: ColorFilter.mode(
-                        Colors.black.withOpacity(1.0), BlendMode.dstATop),
-                    image: playlist.getSongs.length > 0
-                        ? NetworkImage(playlist.getSongs[0].getImageUrl)
-                        : AssetImage(
-                            "assets/images/default_playlist_image.jpg"),
-                    fit: BoxFit.cover,
+                  gradient: LinearGradient(
+                    colors: [
+                      GlobalVariables.lightGreyColor,
+                      GlobalVariables.darkGreyColor,
+                    ],
+                    begin: FractionalOffset.bottomLeft,
+                    stops: [0.3, 0.8],
+                    end: FractionalOffset.topRight,
+                  ),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 0.1,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey[850],
-                      blurRadius: 0.7,
-                      spreadRadius: 0.2,
+                      blurRadius: 0.1,
+                      spreadRadius: 0.1,
                     ),
                   ],
                 ),
+                child: imageProviders.length != 0 &&
+                        imageProviders[playlist.getSongs[0].getSongId] != null
+                    ? Image(
+                        image: imageProviders[playlist.getSongs[0].getSongId],
+                        fit: BoxFit.cover,
+                      )
+                    : Icon(
+                        Icons.music_note,
+                        color: GlobalVariables.pinkColor,
+                        size: 75,
+                      ),
               ),
               SizedBox(
                 height: 5,
@@ -220,15 +238,39 @@ class _DiscoverPageState extends State<DiscoverPage> {
     Map<String, dynamic> playlistValues = Map();
     if (playlist.getSongs.length > 0) {
       playlistValues['playlist'] = playlist;
-      playlistValues['imageUrl'] = playlist.getSongs[0].getImageUrl != ""
-          ? playlist.getSongs[0].getImageUrl
-          : "";
     } else {
       playlistValues['playlist'] = playlist;
-      playlistValues['imageUrl'] = "";
     }
     playlistValues['playlistCreator'] = User(playlist.getCreator, null);
     playlistValues['playlistModalSheetMode'] = PlaylistModalSheetMode.public;
     return playlistValues;
+  }
+
+  void checkForIntenetConnetionForNetworkImage() {
+    publicPlaylists.forEach((playlist) {
+      InternetConnectionCheck.check().then((available) {
+        if (playlist.getSongs.length > 0) {
+          ManageLocalSongs.checkIfFileExists(playlist.getSongs[0])
+              .then((exists) {
+            if (exists) {
+              File file = File(
+                  "${ManageLocalSongs.fullSongDownloadDir.path}/${playlist.getSongs[0].getSongId}/${playlist.getSongs[0].getSongId}.png");
+              setState(() {
+                imageProviders[playlist.getSongs[0].getSongId] =
+                    (FileImage(file));
+              });
+            } else {
+              if (available) {
+                setState(() {
+                  imageProviders[playlist.getSongs[0].getSongId] = NetworkImage(
+                    playlist.getSongs[0].getImageUrl,
+                  );
+                });
+              }
+            }
+          });
+        }
+      });
+    });
   }
 }

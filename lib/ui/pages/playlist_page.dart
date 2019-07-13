@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
@@ -17,14 +20,10 @@ import 'package:provider/provider.dart';
 
 class PlaylistPage extends StatefulWidget {
   final Playlist playlist;
-  final String imagePath;
   final User playlistCreator;
   final PlaylistModalSheetMode playlistModalSheetMode;
   PlaylistPage(
-      {this.playlist,
-      this.imagePath,
-      this.playlistCreator,
-      this.playlistModalSheetMode});
+      {this.playlist, this.playlistCreator, this.playlistModalSheetMode});
 
   @override
   _PlaylistPageState createState() => _PlaylistPageState();
@@ -37,6 +36,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
   @override
   void initState() {
     _scrollController = ScrollController()..addListener(() => setState(() {}));
+    checkForIntenetConnetionForNetworkImage();
     super.initState();
   }
 
@@ -168,16 +168,16 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           Rect.fromLTRB(0, 0, rect.width, rect.height));
                     },
                     blendMode: BlendMode.dstIn,
-                    child: Image(
-                      image: widget.imagePath != ""
-                          ? NetworkImage(
-                              widget.imagePath,
-                            )
-                          : AssetImage(
-                              'assets/images/default_playlist_image.jpg',
-                            ),
-                      fit: BoxFit.cover,
-                    ),
+                    child: imageProvider != null
+                        ? Image(
+                            image: imageProvider,
+                            fit: BoxFit.cover,
+                          )
+                        : Icon(
+                            Icons.music_note,
+                            color: GlobalVariables.pinkColor,
+                            size: 75,
+                          ),
                   ),
                 ),
               ),
@@ -291,9 +291,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                             backgroundColor: Colors.pink[50],
                             strokeWidth: 4.0,
                           ),
-                          onTap: (){
-                            
-                          },
+                          onTap: () {},
                         ),
                       )
                     : IconButton(
@@ -361,6 +359,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
         songModalSheetMode = SongModalSheetMode.download_public_search_artist;
       }
       showModalBottomSheet(
+        backgroundColor: Colors.transparent,
         context: GlobalVariables.homePageContext,
         builder: (builder) {
           return SongOptionsModalSheet(
@@ -376,12 +375,36 @@ class _PlaylistPageState extends State<PlaylistPage> {
 
   void showPlaylistOptions(Playlist currentPlaylist) {
     showModalBottomSheet(
+      backgroundColor: Colors.transparent,
       context: GlobalVariables.homePageContext,
       builder: (builder) {
         return PlaylistOptionsModalSheet(
             currentPlaylist, context, widget.playlistModalSheetMode);
       },
     );
+  }
+
+  void checkForIntenetConnetionForNetworkImage() {
+    InternetConnectionCheck.check().then((available) {
+      ManageLocalSongs.checkIfFileExists(widget.playlist.getSongs[0])
+          .then((exists) {
+        if (exists) {
+          File file = File(
+              "${ManageLocalSongs.fullSongDownloadDir.path}/${widget.playlist.getSongs[0].getSongId}/${widget.playlist.getSongs[0].getSongId}.png");
+          setState(() {
+            imageProvider = (FileImage(file));
+          });
+        } else {
+          if (available) {
+            setState(() {
+              imageProvider = NetworkImage(
+                widget.playlist.getSongs[0].getImageUrl,
+              );
+            });
+          }
+        }
+      });
+    });
   }
 
   Widget drawSongImage(Song song) {

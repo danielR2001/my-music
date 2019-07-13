@@ -142,7 +142,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
       ],
     );
   }
-  
+
   Widget drawSongImageWidget() {
     return Container(
       width: 90,
@@ -177,7 +177,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             ),
     );
   }
- 
+
   Widget drawRemoveFromPlaylist(BuildContext context) {
     if (widget.songModalSheetMode == SongModalSheetMode.regular &&
         widget.playlist != null) {
@@ -454,7 +454,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
           height: 50,
           child: ListTile(
             leading: Icon(
-              Icons.queue_music,
+              Icons.playlist_play,
               color: Colors.grey,
               size: 30,
             ),
@@ -478,6 +478,14 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   }
 
   Widget drawViewArtist(BuildContext context) {
+    String text = "View artist";
+    if (widget.song.getArtist.contains(",") ||
+        widget.song.getArtist.contains("&") ||
+        widget.song.getArtist.contains("vs") ||
+        widget.song.getArtist.contains("ft.") ||
+        widget.song.getArtist.contains("feat.")) {
+      text += "s";
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Container(
@@ -489,7 +497,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             size: 30,
           ),
           title: Text(
-            "View artists",
+            text,
             style: TextStyle(
               color: Colors.white,
               fontSize: 15,
@@ -511,11 +519,12 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
       ),
     );
   }
-  
+
   //Methods
   void showQueueModalBottomSheet(BuildContext context) {
     Navigator.pop(context);
     showModalBottomSheet(
+      backgroundColor: Colors.transparent,
       context: context,
       builder: (builder) {
         return QueueModalSheet();
@@ -526,6 +535,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   void showArtists(BuildContext context, List<Artist> artists) {
     Navigator.pop(context);
     showModalBottomSheet(
+      backgroundColor: Colors.transparent,
       context: context,
       builder: (builder) {
         return ArtistsPickModalSheet(widget.song, artists);
@@ -576,11 +586,11 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                 children: <Widget>[
                   Center(
                     child: SizedBox(
-                      height: 40.0,
+                      height: 50.0,
                       width: 50.0,
                       child: CircularProgressIndicator(
                         value: null,
-                        strokeWidth: 2.0,
+                        strokeWidth: 3.0,
                         valueColor: AlwaysStoppedAnimation<Color>(
                             GlobalVariables.pinkColor),
                       ),

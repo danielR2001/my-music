@@ -1,4 +1,7 @@
 import 'package:flutter/services.dart';
+import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/main.dart';
 
 class InternetConnectionCheck {
   static const platform = const MethodChannel('flutter.native/internet');
@@ -24,11 +27,28 @@ class InternetConnectionCheck {
     try {
       final bool result =
           await platform.invokeMethod('internetConnectionCheck');
+                platform.setMethodCallHandler(_myUtilsHandler);
       response = result;
     } on PlatformException catch (e) {
       print("error invoking method from native: $e");
       response = false;
     }
     return response;
+  }
+
+  static Future<dynamic> _myUtilsHandler(MethodCall methodCall) async {
+    switch (methodCall.method) {
+      case 'comebackToOnlineMode':
+        {
+          GlobalVariables.isOfflineMode = false;
+          FirebaseDatabaseManager.syncUser(currentUser.getFirebaseUId)
+              .then((user) {
+            currentUser = user;
+          });
+        }
+        break;
+
+      default:
+    }
   }
 }

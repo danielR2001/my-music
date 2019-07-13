@@ -4,8 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/ui/decorations/page_change_animation.dart';
-import 'package:myapp/ui/pages/music_player_page.dart';
 
 class MusicControlNotification {
   static const platform = const MethodChannel('flutter.native/notifications');
@@ -61,23 +59,16 @@ class MusicControlNotification {
         }
         break;
       case 'nextSong':
-        if (audioPlayerManager.isLoaded &&
-            audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
+        if (audioPlayerManager.isLoaded) {
           audioPlayerManager.playNextSong();
         }
         break;
       case 'prevSong':
-        if (audioPlayerManager.isLoaded &&
-            audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
-          audioPlayerManager.playPreviousSong(false);
+        if (audioPlayerManager.isLoaded) {
+          audioPlayerManager.playPreviousSong();
         }
         break;
-      case 'openMusicplayerPage':
-        Navigator.push(
-          context,
-          MyCustomRouteAnimation(builder: (context) => MusicPlayerPage()),
-        );
-        break;
+        
       default:
     }
   }

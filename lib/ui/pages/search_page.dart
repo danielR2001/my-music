@@ -14,23 +14,15 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   int searchLength = 0;
-  static List<Song> searchResults = List();
+  List<Song> searchResults = List();
   TextEditingController textEditingController = TextEditingController();
   ImageProvider songImage;
-  FocusNode focusNode = FocusNode();
   String hintText = "Search";
   Playlist searchResultsPlaylist;
   int lastSearchId = 0;
   TextDirection textDirection = TextDirection.ltr;
   @override
   void initState() {
-    focusNode.addListener(() {
-      if (focusNode.hasFocus) {
-        hintText = "";
-      } else {
-        hintText = "Search";
-      }
-    });
     if (GlobalVariables.lastSearch != null) {
       FetchData.getSearchResults(GlobalVariables.lastSearch).then((results) {
         setState(() {
@@ -48,9 +40,7 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   void dispose() {
-    focusNode.removeListener(() {});
     textEditingController.dispose();
-
     super.dispose();
   }
 
@@ -91,8 +81,6 @@ class _SearchPageState extends State<SearchPage> {
                         child: TextField(
                           textDirection: textDirection,
                           controller: textEditingController,
-                          autofocus: true,
-                          focusNode: focusNode,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -207,7 +195,7 @@ class _SearchPageState extends State<SearchPage> {
       artist = song.getArtist;
     }
     return ListTile(
-      contentPadding: EdgeInsets.only(left: 20,right: 4),
+      contentPadding: EdgeInsets.only(left: 20, right: 4),
       title: Text(
         title,
         style: TextStyle(
