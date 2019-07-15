@@ -97,17 +97,13 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                     height: 15,
                   ),
                   Expanded(
-                    child: Theme(
-                      data: Theme.of(context)
-                          .copyWith(accentColor: Colors.transparent),
-                      child: ListView.builder(
-                        itemCount: currentUser.getPlaylists != null
-                            ? currentUser.getPlaylists.length
-                            : 0,
-                        itemBuilder: (BuildContext context, int index) {
-                          return userPlaylists(currentUser.getPlaylists[index]);
-                        },
-                      ),
+                    child: ListView.builder(
+                      itemCount: currentUser.getPlaylists != null
+                          ? currentUser.getPlaylists.length
+                          : 0,
+                      itemBuilder: (BuildContext context, int index) {
+                        return userPlaylists(currentUser.getPlaylists[index]);
+                      },
                     ),
                   ),
                   SizedBox(

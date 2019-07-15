@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/user.dart';
-
+import 'package:connectivity/connectivity.dart';
 import 'welcome_page.dart';
 import 'home_page.dart';
 
@@ -35,9 +34,9 @@ class _RootPageState extends State<RootPage> {
     FirebaseAuthentication.currentUser().then(
       (user) {
         if (user != null) {
-          InternetConnectionCheck.check().then((available) {
-            if (available) {
-              GlobalVariables.isOfflineMode = false;
+          Connectivity().checkConnectivity().then((connectivityResult) {
+            if (connectivityResult == ConnectivityResult.mobile ||
+                connectivityResult == ConnectivityResult.wifi) {
               FirebaseDatabaseManager.syncUser(user.uid).then((user) {
                 if (user != null && user.getName != "") {
                   currentUser = user;

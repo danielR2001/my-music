@@ -155,15 +155,13 @@ class _SearchPageState extends State<SearchPage> {
                 ),
               ),
               Expanded(
-                child: Theme(
-                  data: Theme.of(context).copyWith(accentColor: Colors.grey),
-                  child: ListView.builder(
+                child:  
+                  ListView.builder(
                     itemCount: searchLength,
                     itemExtent: 60,
                     itemBuilder: (BuildContext context, int index) {
                       return songSearchResult(searchResults[index], context);
                     },
-                  ),
                 ),
               ),
             ],
@@ -238,6 +236,7 @@ class _SearchPageState extends State<SearchPage> {
 
   void showMoreOptions(Song song) {
     showModalBottomSheet(
+      backgroundColor: Colors.transparent,
       context: GlobalVariables.homePageContext,
       builder: (builder) {
         return SongOptionsModalSheet(

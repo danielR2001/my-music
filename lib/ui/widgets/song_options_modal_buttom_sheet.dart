@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
@@ -11,6 +11,7 @@ import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
+import 'package:myapp/ui/decorations/my_custom_icons.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/artists_pick_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
@@ -41,8 +42,9 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   @override
   void initState() {
     super.initState();
-    InternetConnectionCheck.check().then((isNetworkAvailable) {
-      if (isNetworkAvailable) {
+    Connectivity().checkConnectivity().then((connectivityResult) {
+      if (connectivityResult == ConnectivityResult.mobile ||
+          connectivityResult == ConnectivityResult.wifi) {
         FetchData.getSongImageUrl(widget.song, false).then((imageUrl) {
           if (mounted) {
             setState(() {
@@ -348,7 +350,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
         height: 50,
         child: ListTile(
           leading: Icon(
-            Icons.undo,
+            Icons.cancel,
             color: Colors.grey,
             size: 30,
           ),
@@ -479,12 +481,14 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
 
   Widget drawViewArtist(BuildContext context) {
     String text = "View artist";
+    IconData iconData = MyCustomIcons.artist_icon;
     if (widget.song.getArtist.contains(",") ||
         widget.song.getArtist.contains("&") ||
         widget.song.getArtist.contains("vs") ||
         widget.song.getArtist.contains("ft.") ||
         widget.song.getArtist.contains("feat.")) {
       text += "s";
+      iconData = MyCustomIcons.artists_icon;
     }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -492,7 +496,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
         height: 50,
         child: ListTile(
           leading: Icon(
-            Icons.account_circle,
+            iconData,
             color: Colors.grey,
             size: 30,
           ),
@@ -611,7 +615,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   }
 
   void checkForIntenetConnetionForNetworkImage() {
-    InternetConnectionCheck.check().then((available) {
+    Connectivity().checkConnectivity().then((connectivityResult) {
       ManageLocalSongs.checkIfFileExists(widget.song).then((exists) {
         if (exists) {
           if (mounted) {
@@ -622,7 +626,8 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             });
           }
         } else {
-          if (available) {
+          if (connectivityResult == ConnectivityResult.mobile ||
+              connectivityResult == ConnectivityResult.wifi) {
             if (mounted) {
               setState(() {
                 imageProvider = NetworkImage(

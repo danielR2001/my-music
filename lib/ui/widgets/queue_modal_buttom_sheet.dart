@@ -40,11 +40,30 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
               ),
             ),
           ),
-          drawPlaylistQueueSongs(),
+          Expanded(
+            child: Theme(
+              data: Theme.of(context).copyWith(canvasColor: GlobalVariables.lightGreyColor),
+              child: ReorderableListView(
+                children: drawPlaylistQueueSongs(),
+                onReorder: (from, to) {
+                  if (to > from) {
+                    to--;
+                  }
+                  Song temp = Song.fromSong(
+                      audioPlayerManager.currentPlaylist.getSongs[to]);
+                  audioPlayerManager.currentPlaylist.getSongs[to] =
+                      audioPlayerManager.currentPlaylist.getSongs[from];
+                  audioPlayerManager.currentPlaylist.getSongs[from] = temp;
+                  setState(() {});
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
+
   // Widgets
   Widget drawTitle() {
     return ListTile(
@@ -60,23 +79,19 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
     );
   }
 
-  Widget drawPlaylistQueueSongs() {
-    return Expanded(
-      child: Theme(
-        data: Theme.of(context).copyWith(accentColor: Colors.grey),
-        child: ListView.builder(
-          itemCount: audioPlayerManager.currentPlaylist.getSongs.length,
-          itemExtent: 60,
-          itemBuilder: (BuildContext context, int index) {
-            return songItem(audioPlayerManager.currentPlaylist.getSongs[index],
-                index + 1, context);
-          },
-        ),
-      ),
-    );
+  List<Widget> drawPlaylistQueueSongs() {
+    List<Widget> songs = List();
+    for (int i = 0;
+        i < audioPlayerManager.currentPlaylist.getSongs.length;
+        i++) {
+      Key key = Key("$i");
+      songs.add(songItem(
+          audioPlayerManager.currentPlaylist.getSongs[i], i + 1, context, key));
+    }
+    return songs;
   }
 
-  Widget songItem(Song song, int pos, BuildContext context) {
+  Widget songItem(Song song, int pos, BuildContext context, Key key) {
     String title;
     String artist;
     if (song.getTitle.length > 25) {
@@ -98,6 +113,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
       artist = song.getArtist;
     }
     return ListTile(
+      key: key,
       leading: Text(
         "$pos",
         style: TextStyle(

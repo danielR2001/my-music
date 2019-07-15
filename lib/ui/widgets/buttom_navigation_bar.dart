@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/ui/decorations/my_custom_icons.dart';
 
-enum TabItem { discover, account }
+enum TabItem { discover, library }
 
 class TabHelper {
   static TabItem item({int index}) {
@@ -8,17 +9,23 @@ class TabHelper {
       case 0:
         return TabItem.discover;
       case 1:
-        return TabItem.account;
+        return TabItem.library;
     }
     return TabItem.discover;
   }
 
-  static IconData icon(TabItem tabItem) {
+  static Icon icon(TabItem tabItem) {
     switch (tabItem) {
       case TabItem.discover:
-        return Icons.explore;
-      case TabItem.account:
-        return Icons.person_outline;
+        return Icon(
+          Icons.explore,
+          size: 30,
+        );
+      case TabItem.library:
+        return Icon(
+          MyCustomIcons.library_icon,
+          size: 24,
+        );
     }
     return null;
   }
@@ -37,23 +44,21 @@ class BottomNavigation extends StatelessWidget {
       currentIndex: currentTab == TabItem.discover ? 0 : 1,
       items: [
         buildItem(tabItem: TabItem.discover),
-        buildItem(tabItem: TabItem.account),
+        buildItem(tabItem: TabItem.library),
       ],
       onTap: (index) => onSelectTab(
-            TabHelper.item(index: index),
-          ),
+        TabHelper.item(index: index),
+      ),
     );
   }
 
   BottomNavigationBarItem buildItem({TabItem tabItem}) {
     //String text = TabHelper.title(tabItem);
-    IconData icon = TabHelper.icon(tabItem);
+    Icon icon = TabHelper.icon(tabItem);
     return BottomNavigationBarItem(
-      icon: Icon(
-        icon,
-        size: 30,
-      ),
-      title: Container(height: 0,)
-    );
+        icon: icon,
+        title: Container(
+          height: 0,
+        ));
   }
 }

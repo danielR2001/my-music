@@ -25,13 +25,12 @@ import java.text.Normalizer;
 
 public class MainActivity extends FlutterActivity {
   private static final String CHANNEL1 = "flutter.native/notifications";
-  private static final String CHANNEL2 = "flutter.native/internet";
-  private static final String CHANNEL3 = "flutter.native/unaccent";
-  private static final String CHANNEL4 = "flutter.native/dominantColor";
+  private static final String CHANNEL2 = "flutter.native/unaccent";
+  private static final String CHANNEL3 = "flutter.native/dominantColor";
   public static MethodChannel channel1;
   public static MethodChannel channel2;
   public static MethodChannel channel3;
-  public static MethodChannel channel4;
+  private static BroadcastReceiver mNetworkReceiver;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -76,29 +75,14 @@ public class MainActivity extends FlutterActivity {
     channel2.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
       @Override
       public void onMethodCall(MethodCall call, MethodChannel.Result result) {
-        if (call.method.equals("ActivateInternetConnectionReceiver")) {
-          BroadcastReceiver mNetworkReceiver = new InternetConnectionBroadcastReceiver();
-          registerReceiver(mNetworkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        } else if (call.method.equals("internetConnectionCheck")) {
-          result.success(InternetConnectionBroadcastReceiver.networkAvailable);
-        } else if (call.method.equals("DisposeInternetConnectionReceiver")) {
-          BroadcastReceiver mNetworkReceiver = new InternetConnectionBroadcastReceiver();
-          unregisterReceiver(mNetworkReceiver);
-        }
-      }
-    });
-    channel3 = new MethodChannel(getFlutterView(), CHANNEL3);
-    channel3.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
-      @Override
-      public void onMethodCall(MethodCall call, MethodChannel.Result result) {
         if (call.method.equals("unaccent")) {
           String str = call.argument("string");
           result.success(unaccent(str));
         }
       }
     });
-    channel4 = new MethodChannel(getFlutterView(), CHANNEL4);
-    channel4.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
+    channel3 = new MethodChannel(getFlutterView(), CHANNEL3);
+    channel3.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
       @Override
       public void onMethodCall(MethodCall call, MethodChannel.Result result) {
         if (call.method.equals("getDominantColor")) {
@@ -118,7 +102,8 @@ public class MainActivity extends FlutterActivity {
               bitmap = null;
             }
           }
-          if (bitmap != null) {;
+          if (bitmap != null) {
+            ;
             result.success(getImageDominantColor(bitmap));
           } else {
             result.success(null);

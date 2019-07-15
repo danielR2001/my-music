@@ -177,6 +177,13 @@ class FirebaseDatabaseManager {
                 tempPlaylist.addNewSong(temp);
               });
             }
+            List<Song> sortedPlaylist = List();
+
+            sortedPlaylist = tempPlaylist.getSongs;
+            sortedPlaylist.sort((a, b) => a.getTitle.compareTo(b.getTitle));
+            
+            tempPlaylist.setSongs = sortedPlaylist;
+            tempPlaylist.setSortedType = SortType.title;
             publicPlaylists.add(tempPlaylist);
           }
         },
@@ -288,6 +295,13 @@ class FirebaseDatabaseManager {
         ));
       });
     }
+    List<Song> sortedPlaylist = List();
+
+    sortedPlaylist = playlist.getSongs;
+    sortedPlaylist.sort((a, b) => a.getTitle.compareTo(b.getTitle));
+
+    playlist.setSongs = sortedPlaylist;
+    playlist.setSortedType = SortType.title;
     return playlist;
   }
 
@@ -316,19 +330,10 @@ class FirebaseDatabaseManager {
           });
         }
         List<Song> sortedPlaylist = List();
-        List<int> datesList = List();
-        for (int i = 0; i < tempPlaylist.getSongs.length; i++) {
-          datesList.add(tempPlaylist.getSongs[i].getDateAdded);
-        }
-        datesList.sort();
-        datesList.forEach((date) {
-          for (int i = 0; i < tempPlaylist.getSongs.length; i++) {
-            if (tempPlaylist.getSongs[i].getDateAdded == date) {
-              sortedPlaylist.add(tempPlaylist.getSongs[i]);
-              break;
-            }
-          }
-        });
+
+        sortedPlaylist = tempPlaylist.getSongs;
+        sortedPlaylist.sort((a, b) => a.getDateAdded.compareTo(b.getDateAdded));
+
         tempPlaylist.setSongs = sortedPlaylist;
         tempPlaylist.setSortedType = SortType.recentlyAdded;
         playlists.add(tempPlaylist);

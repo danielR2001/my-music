@@ -9,7 +9,6 @@ import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/ui/pages/root_page.dart';
 import 'package:myapp/models/user.dart';
-import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:provider/provider.dart';
 
 void main() => runApp(MyApp());
@@ -30,6 +29,7 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
         title: 'My Music',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          accentColor: Colors.grey,
           fontFamily: 'Montserrat',
           textSelectionHandleColor: GlobalVariables.pinkColor,
           textSelectionColor: Colors.grey,
@@ -45,6 +45,5 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
     audioPlayerManager = AudioPlayerManager();
     publicPlaylists = new List();
     MusicControlNotification.startService(context);
-    InternetConnectionCheck.activateReciever();
   }
 }

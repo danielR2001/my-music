@@ -149,7 +149,7 @@ public class NotificationService extends Service {
                     .setContentText(artist)
                     .setSmallIcon(R.drawable.app_logo_no_background)
                     .setLargeIcon(imageBitmap)
-                    .setShowWhen(true)
+                    .setShowWhen(false)
                     .addAction(R.drawable.ic_previous, "", pprevIntent)
                     .addAction(iconInts[index], "", pplayIntent)
                     .addAction(R.drawable.ic_next, "", pnextIntent)
@@ -162,7 +162,7 @@ public class NotificationService extends Service {
                     .setColorized(true)
                     .setCategory(Notification.CATEGORY_TRANSPORT)
                     .setWhen(System.currentTimeMillis())
-                    .setPriority(NotificationManager.IMPORTANCE_MAX)
+                    //.setPriority(NotificationManager.IMPORTANCE_MAX)
                     .build();
 
         } else {
@@ -196,7 +196,7 @@ public class NotificationService extends Service {
     private static void CreateNotificationChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, "Playback",
-                    NotificationManager.IMPORTANCE_HIGH);
+                    NotificationManager.IMPORTANCE_DEFAULT);
             notificationChannel.setSound(null, null);
             notificationChannel.setShowBadge(false);
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

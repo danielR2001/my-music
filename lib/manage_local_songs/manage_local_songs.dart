@@ -1,8 +1,8 @@
 import 'dart:io';
+import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
@@ -42,10 +42,12 @@ class ManageLocalSongs {
   }
 
   static Future<void> downloadSong(Song song) async {
-    bool available = await InternetConnectionCheck.check();
+    ConnectivityResult connectivityResult =
+        await Connectivity().checkConnectivity();
     Directory songDirectory;
 
-    if (available) {
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
       songDirectory =
           await new Directory('${fullSongDownloadDir.path}/${song.getSongId}')
               .create(recursive: true);

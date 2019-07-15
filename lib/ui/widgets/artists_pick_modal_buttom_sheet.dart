@@ -35,15 +35,12 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
       child: Column(
         children: <Widget>[
           Expanded(
-            child: Theme(
-              data: Theme.of(context).copyWith(accentColor: Colors.grey),
-              child: ListView.builder(
-                itemCount: widget.artists.length,
-                itemExtent: 70,
-                itemBuilder: (BuildContext context, int index) {
-                  return artistListTile(index, context);
-                },
-              ),
+            child: ListView.builder(
+              itemCount: widget.artists.length,
+              itemExtent: 70,
+              itemBuilder: (BuildContext context, int index) {
+                return artistListTile(index, context);
+              },
             ),
           ),
         ],

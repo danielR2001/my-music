@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
-import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
@@ -11,6 +11,7 @@ import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
+import 'package:myapp/ui/decorations/my_custom_icons.dart';
 import 'package:myapp/ui/pages/welcome_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:provider/provider.dart';
@@ -77,8 +78,8 @@ class _AccountPageState extends State<AccountPage> {
                           padding: const EdgeInsets.only(right: 5),
                           child: IconButton(
                             icon: Icon(
-                              Icons.exit_to_app,
-                              size: 30,
+                              MyCustomIcons.logout_icon,
+                              size: 22,
                               color: Colors.white,
                             ),
                             onPressed: () {
@@ -112,8 +113,10 @@ class _AccountPageState extends State<AccountPage> {
                         size: 30,
                       ),
                       title: Text(
-                        "Downloaded" +
-                            "  (${currentUser.getDownloadedSongsPlaylist.getSongs.length})",
+                        currentUser != null
+                            ? "My device" +
+                                "  (${currentUser.getDownloadedSongsPlaylist.getSongs.length})"
+                            : "My device",
                         style: TextStyle(
                           fontSize: 17,
                           color: Colors.white,
@@ -229,19 +232,16 @@ class _AccountPageState extends State<AccountPage> {
         checkForIntenetConnetionForNetworkImage();
       }
       return Expanded(
-        child: Theme(
-          data: Theme.of(context).copyWith(accentColor: Colors.grey),
-          child: ListView.builder(
-            itemCount: currentUser != null
-                ? currentUser.getPlaylists != null
-                    ? currentUser.getPlaylists.length
-                    : 0
-                : 0,
-            itemBuilder: (BuildContext context, int index) {
-              return userPlaylists(
-                  currentUser.getPlaylists[index], context, index);
-            },
-          ),
+        child: ListView.builder(
+          itemCount: currentUser != null
+              ? currentUser.getPlaylists != null
+                  ? currentUser.getPlaylists.length
+                  : 0
+              : 0,
+          itemBuilder: (BuildContext context, int index) {
+            return userPlaylists(
+                currentUser.getPlaylists[index], context, index);
+          },
         ),
       );
     } else {
@@ -340,7 +340,7 @@ class _AccountPageState extends State<AccountPage> {
   void checkForIntenetConnetionForNetworkImage() {
     if (!GlobalVariables.isOfflineMode) {
       currentUser.getPlaylists.forEach((playlist) {
-        InternetConnectionCheck.check().then((available) {
+        Connectivity().checkConnectivity().then((connectivityResult) {
           if (playlist.getSongs.length > 0) {
             ManageLocalSongs.checkIfFileExists(playlist.getSongs[0])
                 .then((exists) {
@@ -352,7 +352,8 @@ class _AccountPageState extends State<AccountPage> {
                       (FileImage(file));
                 });
               } else {
-                if (available) {
+                if (connectivityResult == ConnectivityResult.mobile ||
+                    connectivityResult == ConnectivityResult.wifi) {
                   setState(() {
                     imageProviders[playlist.getSongs[0].getSongId] =
                         NetworkImage(

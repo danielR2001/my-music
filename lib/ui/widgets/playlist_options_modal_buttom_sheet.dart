@@ -5,6 +5,7 @@ import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
+import 'package:myapp/ui/decorations/my_custom_icons.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/sort_modal_buttom_sheet.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
@@ -212,7 +213,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         leading: Icon(
           Icons.edit,
           color: Colors.grey,
-          size: 30,
+          size: 28,
         ),
         title: Text(
           "Rename playlist",
@@ -254,7 +255,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
         dense: true,
         leading: Icon(
-          widget.playlist.getIsPublic ? Icons.public : Icons.lock,
+          widget.playlist.getIsPublic ? Icons.public : MyCustomIcons.private_icon,
           color: Colors.grey,
           size: 30,
         ),
@@ -290,7 +291,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
         dense: true,
         leading: Icon(
-          CupertinoIcons.delete_solid,
+          Icons.delete,
           color: Colors.grey,
           size: 30,
         ),

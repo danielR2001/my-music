@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
@@ -41,7 +41,7 @@ class AudioPlayerManager {
 
   String _songStreamUrl;
   Song _firstSkippedSong;
-  bool _isNetworkAvailable;
+  ConnectivityResult _connectivityResult;
   StreamSubscription<void> _audioPlayerOnCompleteStream;
   StreamSubscription<void> _audioPlayerOnDurationChangedStream;
   StreamSubscription<void> _audioPlayerOnPositionChangedStream;
@@ -66,20 +66,21 @@ class AudioPlayerManager {
     Provider.of<PageNotifier>(GlobalVariables.homePageContext).setCurrentSong =
         song;
 
-    _isNetworkAvailable = await InternetConnectionCheck.check();
+    _connectivityResult = await Connectivity().checkConnectivity();
 
     if (song.getImageUrl == "") {
-      if (_isNetworkAvailable) {
+      if (_connectivityResult == ConnectivityResult.mobile ||
+          _connectivityResult == ConnectivityResult.wifi) {
         FetchData.getSongImageUrl(song, false).then((imageUrl) {
           song.setImageUrl = imageUrl;
           if (song.getTitle == currentSong.getTitle) {
             currentSong = song;
-            MusicControlNotification.makeNotification(currentSong, true, false);
           }
         });
       }
     }
-    if (_isNetworkAvailable) {
+    if (_connectivityResult == ConnectivityResult.mobile ||
+        _connectivityResult == ConnectivityResult.wifi) {
       FetchData.getLyricsPageUrl(song).then((url) {
         if (url != null) {
           FetchData.getSongLyrics(url).then((lyrics) {
@@ -110,7 +111,8 @@ class AudioPlayerManager {
     if (readyToPlay) {
       _firstSkippedSong = null;
       _playSong();
-    } else if (_isNetworkAvailable) {
+    } else if (_connectivityResult == ConnectivityResult.mobile ||
+        _connectivityResult == ConnectivityResult.wifi) {
       if (_firstSkippedSong == null) {
         _firstSkippedSong = song;
         playNextSong();
@@ -139,7 +141,7 @@ class AudioPlayerManager {
           "${ManageLocalSongs.fullSongDownloadDir.path}/${currentSong.getSongId}/${currentSong.getSongId}.mp3",
           stayAwake: true);
       if (status == 1) {
-        MusicControlNotification.makeNotification(currentSong, true, false);
+        MusicControlNotification.makeNotification(currentSong, true, true);
         isLoaded = true;
       } else {
         closeSong(closeSongMode: CloseSongMode.partly);
@@ -208,7 +210,7 @@ class AudioPlayerManager {
       if (currentPlaylist != null) {
         int i = 0;
         Song correctPreviousSong;
-        _isNetworkAvailable = await InternetConnectionCheck.check();
+        _connectivityResult = await Connectivity().checkConnectivity();
         Song previousSong;
         if (currentPlaylist.getSongs.length > 1) {
           if (currentSong.getSongId == currentPlaylist.getSongs[0].getSongId) {
@@ -231,7 +233,8 @@ class AudioPlayerManager {
           songDuration = Duration(seconds: 0);
           seekTime(duration: songDuration);
         }
-        if (_isNetworkAvailable) {
+        if (_connectivityResult == ConnectivityResult.mobile ||
+            _connectivityResult == ConnectivityResult.wifi) {
           pauseSong(calledFromNative: false);
         } else {
           closeSong(closeSongMode: CloseSongMode.partly);
@@ -244,7 +247,8 @@ class AudioPlayerManager {
       }
     } else {
       previousMode = PreviousMode.previous;
-      if (_isNetworkAvailable) {
+      if (_connectivityResult == ConnectivityResult.mobile ||
+          _connectivityResult == ConnectivityResult.wifi) {
         songPosition = Duration(seconds: 0);
         audioPlayer.seek(songPosition);
         if (audioPlayer.state == AudioPlayerState.PAUSED) {
@@ -261,7 +265,7 @@ class AudioPlayerManager {
       bool foundSong = false;
       Song nextSong;
 
-      _isNetworkAvailable = await InternetConnectionCheck.check();
+      _connectivityResult = await Connectivity().checkConnectivity();
       if (currentPlaylist.getSongs.length > 1) {
         currentPlaylist.getSongs.forEach((song) {
           if (foundSong) {
@@ -281,7 +285,8 @@ class AudioPlayerManager {
       if (nextSong == null && foundSong) {
         nextSong = currentPlaylist.getSongs[0];
       }
-      if (_isNetworkAvailable) {
+      if (_connectivityResult == ConnectivityResult.mobile ||
+          _connectivityResult == ConnectivityResult.wifi) {
         pauseSong(calledFromNative: false);
       } else {
         closeSong(closeSongMode: CloseSongMode.partly);
@@ -344,20 +349,18 @@ class AudioPlayerManager {
   void _listenForPositionChanged() {
     _audioPlayerOnPositionChangedStream =
         audioPlayer.onAudioPositionChanged.listen((duration) {
-      if (songPosition != null) {
-        if (duration.inSeconds - songPosition.inSeconds == 1) {
-          songPosition = duration;
-          print(songPosition.inSeconds);
-          if (songPosition.inSeconds % 5 == 0) {
-            if (audioPlayer.state == AudioPlayerState.PLAYING) {
-              MusicControlNotification.makeNotification(
-                  currentSong, true, false);
-            } else {
-              MusicControlNotification.makeNotification(
-                  currentSong, false, false);
-            }
-          }
-        }
+      songPosition = duration;
+      if (duration.inSeconds - songPosition.inSeconds == 1) {
+        print(songPosition.inSeconds);
+        // if (songPosition.inSeconds % 5 == 0) {
+        //   if (audioPlayer.state == AudioPlayerState.PLAYING) {
+        //     MusicControlNotification.makeNotification(
+        //         currentSong, true, false);
+        //   } else {
+        //     MusicControlNotification.makeNotification(
+        //         currentSong, false, false);
+        //   }
+        // }
       }
     });
   }
@@ -401,7 +404,8 @@ class AudioPlayerManager {
     if (exists && currentUser.songExistsInDownloadedPlaylist(currentSong)) {
       return true;
     } else {
-      if (_isNetworkAvailable) {
+      if (_connectivityResult == ConnectivityResult.mobile ||
+          _connectivityResult == ConnectivityResult.wifi) {
         _songStreamUrl = await FetchData.getSongPlayUrl(currentSong);
         if (_songStreamUrl != null) {
           return true;

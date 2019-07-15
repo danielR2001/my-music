@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:marquee/marquee.dart';
+import 'package:marquee_widget/marquee_widget.dart';
 
 class TextDecoration extends StatelessWidget {
   final String txt;
@@ -36,16 +36,14 @@ class TextDecoration extends StatelessWidget {
         width: 280,
         height: height,
         child: Marquee(
-          text: txt,
-          scrollAxis: Axis.horizontal,
+            child: Text(
+          txt,
           style: TextStyle(
             fontSize: size,
             color: color,
             fontWeight: makeBold ? FontWeight.bold : FontWeight.normal,
           ),
-          blankSpace: 30.0,
-          velocity: 30.0,
-        ),
+        )),
       );
     }
   }

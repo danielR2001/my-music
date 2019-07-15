@@ -36,127 +36,126 @@ class _ArtistPageState extends State<ArtistPage> {
         decoration: BoxDecoration(
           color: GlobalVariables.darkGreyColor,
         ),
-        child: Theme(
-          data: Theme.of(context).copyWith(accentColor: Colors.grey),
-          child: CustomScrollView(
-            controller: _scrollController,
-            slivers: <Widget>[
-              SliverAppBar(
-                leading: Padding(
-                  padding: const EdgeInsets.all(6),
-                  child: Container(
-                    decoration: _scrollController.hasClients
-                        ? _scrollController.offset > 300 - kToolbarHeight
-                            ? BoxDecoration()
-                            : BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: GlobalVariables.lightGreyColor,
-                              )
-                        : BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: GlobalVariables.lightGreyColor,
-                          ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.arrow_back,
-                        color: iconColor,
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: <Widget>[
+            SliverAppBar(
+              leading: Padding(
+                padding: const EdgeInsets.all(6),
+                child: Container(
+                  decoration: _scrollController.hasClients
+                      ? _scrollController.offset > 300 - kToolbarHeight
+                          ? BoxDecoration()
+                          : BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: GlobalVariables.lightGreyColor,
+                            )
+                      : BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: GlobalVariables.lightGreyColor,
+                        ),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: iconColor,
                     ),
-                  ),
-                ),
-                automaticallyImplyLeading: false,
-                backgroundColor: _scrollController.hasClients
-                    ? _scrollController.offset > 270 - kToolbarHeight
-                        ? GlobalVariables.lightGreyColor
-                        : GlobalVariables.darkGreyColor
-                    : GlobalVariables.darkGreyColor,
-                expandedHeight: 300,
-                pinned: true,
-                flexibleSpace: FlexibleSpaceBar(
-                  centerTitle: true,
-                  title: AutoSizeText(
-                    widget.artist.getName,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                  ),
-                  background: ShaderMask(
-                    shaderCallback: (rect) {
-                      return LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [GlobalVariables.darkGreyColor, Colors.transparent],
-                      ).createShader(
-                          Rect.fromLTRB(0, 0, rect.width, rect.height));
+                    onPressed: () {
+                      Navigator.pop(context);
                     },
-                    blendMode: BlendMode.dstIn,
-                    child: widget.artist.getImageUrl !=
-                            "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png"
-                        ? Image.network(
-                            widget.artist.getImageUrl,
-                            fit: BoxFit.cover,
-                          )
-                        : Image.network(
-                            "https://www.collegeatlas.org/wp-content/uploads/2014/06/Top-Party-Schools-main-image.jpg",
-                            fit: BoxFit.cover,
-                          ),
                   ),
                 ),
               ),
-              SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    widget.artist.getInfo != ""
-                        ? Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 10),
-                            child: Text(
-                              "About:",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          )
-                        : Container(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 5),
-                      child: Text(
-                        widget.artist.getInfo,
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
+              automaticallyImplyLeading: false,
+              backgroundColor: _scrollController.hasClients
+                  ? _scrollController.offset > 270 - kToolbarHeight
+                      ? GlobalVariables.lightGreyColor
+                      : GlobalVariables.darkGreyColor
+                  : GlobalVariables.darkGreyColor,
+              expandedHeight: 300,
+              pinned: true,
+              flexibleSpace: FlexibleSpaceBar(
+                centerTitle: true,
+                title: AutoSizeText(
+                  widget.artist.getName,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                ),
+                background: ShaderMask(
+                  shaderCallback: (rect) {
+                    return LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        GlobalVariables.darkGreyColor,
+                        Colors.transparent
+                      ],
+                    ).createShader(
+                        Rect.fromLTRB(0, 0, rect.width, rect.height));
+                  },
+                  blendMode: BlendMode.dstIn,
+                  child: widget.artist.getImageUrl !=
+                          "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png"
+                      ? Image.network(
+                          widget.artist.getImageUrl,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.network(
+                          "https://www.collegeatlas.org/wp-content/uploads/2014/06/Top-Party-Schools-main-image.jpg",
+                          fit: BoxFit.cover,
                         ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 10),
-                      child: Text(
-                        "Top Hits:",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    )
-                  ],
                 ),
               ),
-              makeSliverList(
-                  Provider.of<PageNotifier>(context)
-                      .currentPlaylistPagePlaylist,
-                  context)
-            ],
-          ),
+            ),
+            SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  widget.artist.getInfo != ""
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 10),
+                          child: Text(
+                            "About:",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )
+                      : Container(),
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                    child: Text(
+                      widget.artist.getInfo,
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
+                    child: Text(
+                      "Top Hits:",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            makeSliverList(
+                Provider.of<PageNotifier>(context).currentPlaylistPagePlaylist,
+                context)
+          ],
         ),
       ),
     );
@@ -215,7 +214,9 @@ class _ArtistPageState extends State<ArtistPage> {
                         audioPlayerManager.currentPlaylist != null
                     ? audioPlayerManager.loopPlaylist.getName ==
                             playlist.getName
-                        ? Provider.of<PageNotifier>(context).currentSong.getSongId ==
+                        ? Provider.of<PageNotifier>(context)
+                                    .currentSong
+                                    .getSongId ==
                                 playlist.getSongs[index].getSongId
                             ? GlobalVariables.pinkColor
                             : Colors.grey
@@ -224,37 +225,37 @@ class _ArtistPageState extends State<ArtistPage> {
                 fontSize: 12,
               ),
             ),
-            trailing: ManageLocalSongs.isSongDownloading(
-                    playlist.getSongs[index])
-                ? Padding(
-                    padding: EdgeInsets.only(right: 6),
-                    child: CircularProgressIndicator(
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(GlobalVariables.pinkColor),
-                      strokeWidth: 4.0,
-                    ),
-                  )
-                : IconButton(
-                    icon: Icon(
-                      Icons.more_vert,
-                      color: audioPlayerManager.currentSong != null &&
-                              audioPlayerManager.currentPlaylist != null
-                          ? audioPlayerManager.loopPlaylist.getName ==
-                                  playlist.getName
-                              ? audioPlayerManager.currentSong.getSongId ==
-                                      playlist.getSongs[index].getSongId
-                                  ? GlobalVariables.pinkColor
+            trailing:
+                ManageLocalSongs.isSongDownloading(playlist.getSongs[index])
+                    ? Padding(
+                        padding: EdgeInsets.only(right: 6),
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              GlobalVariables.pinkColor),
+                          strokeWidth: 4.0,
+                        ),
+                      )
+                    : IconButton(
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: audioPlayerManager.currentSong != null &&
+                                  audioPlayerManager.currentPlaylist != null
+                              ? audioPlayerManager.loopPlaylist.getName ==
+                                      playlist.getName
+                                  ? audioPlayerManager.currentSong.getSongId ==
+                                          playlist.getSongs[index].getSongId
+                                      ? GlobalVariables.pinkColor
+                                      : Colors.white
                                   : Colors.white
-                              : Colors.white
-                          : Colors.white,
-                    ),
-                    iconSize: 30,
-                    onPressed: () {
-                      setState(() {
-                        showSongOptions(playlist.getSongs[index], playlist);
-                      });
-                    },
-                  ),
+                              : Colors.white,
+                        ),
+                        iconSize: 30,
+                        onPressed: () {
+                          setState(() {
+                            showSongOptions(playlist.getSongs[index], playlist);
+                          });
+                        },
+                      ),
             onTap: () {
               if (audioPlayerManager.isLoaded) {
                 if (audioPlayerManager.currentSong != null &&

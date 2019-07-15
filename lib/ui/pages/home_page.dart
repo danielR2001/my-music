@@ -3,6 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
+import 'package:myapp/ui/decorations/my_custom_icons.dart';
 import 'package:myapp/ui/widgets/buttom_navigation_bar.dart';
 import 'package:myapp/ui/widgets/sound_bar.dart';
 import 'package:myapp/tab_navigation/tab_navigator.dart';
@@ -18,7 +19,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Icon musicPlayerIcon = Icon(
-    Icons.pause,
+    MyCustomIcons.pause_icon,
     color: Colors.white,
   );
   StreamSubscription<AudioPlayerState> stateStream;
@@ -26,7 +27,7 @@ class _HomePageState extends State<HomePage> {
   TabItem currentTab = TabItem.discover;
   Map<TabItem, GlobalKey<NavigatorState>> navigatorKeys = {
     TabItem.discover: GlobalKey<NavigatorState>(),
-    TabItem.account: GlobalKey<NavigatorState>(),
+    TabItem.library: GlobalKey<NavigatorState>(),
   };
   //GlobalKey homePagekey = GlobalKey();
 
@@ -66,7 +67,7 @@ class _HomePageState extends State<HomePage> {
         child: Scaffold(
           body: Stack(children: <Widget>[
             buildOffstageNavigator(TabItem.discover),
-            buildOffstageNavigator(TabItem.account),
+            buildOffstageNavigator(TabItem.library),
           ]),
           bottomNavigationBar: Theme(
             data: Theme.of(context).copyWith(
@@ -125,7 +126,7 @@ class _HomePageState extends State<HomePage> {
       setState(
         () {
           musicPlayerIcon = Icon(
-            Icons.pause,
+            MyCustomIcons.pause_icon,
             color: Colors.white,
           );
           soundBar = drawPlayingSoundBar();
@@ -135,7 +136,7 @@ class _HomePageState extends State<HomePage> {
       setState(
         () {
           musicPlayerIcon = Icon(
-            Icons.play_arrow,
+            MyCustomIcons.play_icon,
             color: Colors.white,
           );
           soundBar = drawPausedSoundBar();
@@ -201,7 +202,7 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                   child: IconButton(
                     icon: musicPlayerIcon,
-                    iconSize: 30,
+                    iconSize: 20,
                     onPressed: () {
                       if (audioPlayerManager.isLoaded &&
                           audioPlayerManager.songPosition !=

@@ -2,14 +2,15 @@ import 'dart:async';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/communicate_with_native/get_image_dominant_color.dart';
-import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
+import 'package:myapp/ui/decorations/my_custom_icons.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'package:flip_card/flip_card.dart';
@@ -183,7 +184,7 @@ class MusicPageState extends State<MusicPlayerPage> {
       ),
     );
   }
-  
+
   Widget drawSongImageLyricsFlipCard() {
     return Expanded(
       child: Column(
@@ -204,7 +205,7 @@ class MusicPageState extends State<MusicPlayerPage> {
       ),
     );
   }
-  
+
   Widget drawLyricsWidget() {
     return Container(
       decoration: BoxDecoration(
@@ -588,7 +589,7 @@ class MusicPageState extends State<MusicPlayerPage> {
       setState(
         () {
           playlistModeIcon = Icon(
-            Icons.repeat,
+            MyCustomIcons.repeat_icon,
             color: Colors.white,
             size: 25,
           );
@@ -598,7 +599,7 @@ class MusicPageState extends State<MusicPlayerPage> {
       setState(
         () {
           playlistModeIcon = Icon(
-            CupertinoIcons.shuffle_medium,
+            MyCustomIcons.shuffle_icon,
             color: Colors.white,
             size: 25,
           );
@@ -686,7 +687,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   void checkForIntenetConnetionForNetworkImage() {
-    InternetConnectionCheck.check().then((available) {
+    Connectivity().checkConnectivity().then((connectivityResult) {
       ManageLocalSongs.checkIfFileExists(audioPlayerManager.currentSong)
           .then((exists) {
         if (exists) {
@@ -698,7 +699,8 @@ class MusicPageState extends State<MusicPlayerPage> {
             });
           }
         } else {
-          if (available) {
+          if (connectivityResult == ConnectivityResult.mobile ||
+              connectivityResult == ConnectivityResult.wifi) {
             if (mounted) {
               setState(() {
                 imageProvider = NetworkImage(
@@ -725,7 +727,8 @@ class MusicPageState extends State<MusicPlayerPage> {
   Future generateBackgroundColors() async {
     if (audioPlayerManager.currentSong.getImageUrl != "") {
       String dominantColor;
-      bool available = await InternetConnectionCheck.check();
+      ConnectivityResult connectivityResult =
+          await Connectivity().checkConnectivity();
       bool exists = await ManageLocalSongs.checkIfFileExists(
           audioPlayerManager.currentSong);
       if (exists) {
@@ -734,7 +737,8 @@ class MusicPageState extends State<MusicPlayerPage> {
                 "${ManageLocalSongs.fullSongDownloadDir.path}/${audioPlayerManager.currentSong.getSongId}/${audioPlayerManager.currentSong.getSongId}.png",
             isLocal: true);
       } else {
-        if (available) {
+        if (connectivityResult == ConnectivityResult.mobile ||
+            connectivityResult == ConnectivityResult.wifi) {
           dominantColor = await GetImageDominantColor.getDominantColor(
               imagePath: audioPlayerManager.currentSong.getImageUrl,
               isLocal: false);

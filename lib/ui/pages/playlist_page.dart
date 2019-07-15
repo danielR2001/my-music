@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/communicate_with_native/internet_connection_check.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
@@ -11,6 +11,7 @@ import 'package:myapp/models/song.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
+import 'package:myapp/ui/decorations/my_custom_icons.dart';
 import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
@@ -52,41 +53,12 @@ class _PlaylistPageState extends State<PlaylistPage> {
         decoration: BoxDecoration(
           color: GlobalVariables.darkGreyColor,
         ),
-        child: Theme(
-          data: Theme.of(context).copyWith(accentColor: Colors.grey),
-          child: CustomScrollView(
-            controller: _scrollController,
-            slivers: <Widget>[
-              SliverAppBar(
-                actions: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(6),
-                    child: Container(
-                      decoration: _scrollController.hasClients
-                          ? _scrollController.offset > 300 - kToolbarHeight
-                              ? BoxDecoration()
-                              : BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: GlobalVariables.lightGreyColor,
-                                )
-                          : BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: GlobalVariables.lightGreyColor,
-                            ),
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.more_vert,
-                          color: iconColor,
-                        ),
-                        iconSize: 30,
-                        onPressed: () {
-                          showPlaylistOptions(widget.playlist);
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-                leading: Padding(
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: <Widget>[
+            SliverAppBar(
+              actions: <Widget>[
+                Padding(
                   padding: const EdgeInsets.all(6),
                   child: Container(
                     decoration: _scrollController.hasClients
@@ -102,107 +74,132 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           ),
                     child: IconButton(
                       icon: Icon(
-                        Icons.arrow_back,
+                        Icons.more_vert,
                         color: iconColor,
                       ),
+                      iconSize: 30,
                       onPressed: () {
-                        Navigator.pop(context);
+                        showPlaylistOptions(widget.playlist);
                       },
                     ),
                   ),
                 ),
-                automaticallyImplyLeading: false,
-                backgroundColor: _scrollController.hasClients
-                    ? _scrollController.offset > 270 - kToolbarHeight
-                        ? GlobalVariables.lightGreyColor
-                        : GlobalVariables.darkGreyColor
-                    : GlobalVariables.darkGreyColor,
-                expandedHeight: 300,
-                pinned: true,
-                flexibleSpace: FlexibleSpaceBar(
-                  centerTitle: true,
-                  titlePadding: EdgeInsets.only(),
-                  title: Container(
-                    height: 50,
-                    width: 200,
-                    child: Column(
-                      children: <Widget>[
-                        AutoSizeText(
-                          widget.playlist.getName,
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
+              ],
+              leading: Padding(
+                padding: const EdgeInsets.all(6),
+                child: Container(
+                  decoration: _scrollController.hasClients
+                      ? _scrollController.offset > 300 - kToolbarHeight
+                          ? BoxDecoration()
+                          : BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: GlobalVariables.lightGreyColor,
+                            )
+                      : BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: GlobalVariables.lightGreyColor,
                         ),
-                        SizedBox(
-                          height: 1,
-                        ),
-                        AutoSizeText(
-                          currentUser != null
-                              ? widget.playlistModalSheetMode !=
-                                      PlaylistModalSheetMode.download
-                                  ? "by: " + widget.playlistCreator.getName
-                                  : ""
-                              : "",
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12.0,
-                          ),
-                          maxLines: 1,
-                        ),
-                      ],
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: iconColor,
                     ),
-                  ),
-                  background: ShaderMask(
-                    shaderCallback: (rect) {
-                      return LinearGradient(
-                        begin: FractionalOffset.topCenter,
-                        stops: [0, 1],
-                        end: FractionalOffset.bottomCenter,
-                        colors: [
-                          GlobalVariables.darkGreyColor,
-                          Colors.transparent
-                        ],
-                      ).createShader(
-                          Rect.fromLTRB(0, 0, rect.width, rect.height));
+                    onPressed: () {
+                      Navigator.pop(context);
                     },
-                    blendMode: BlendMode.dstIn,
-                    child: imageProvider != null
-                        ? Image(
-                            image: imageProvider,
-                            fit: BoxFit.cover,
-                          )
-                        : Icon(
-                            Icons.music_note,
-                            color: GlobalVariables.pinkColor,
-                            size: 75,
-                          ),
                   ),
                 ),
               ),
-              SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    drawPlaylistButtons(),
-                  ],
+              automaticallyImplyLeading: false,
+              backgroundColor: _scrollController.hasClients
+                  ? _scrollController.offset > 270 - kToolbarHeight
+                      ? GlobalVariables.lightGreyColor
+                      : GlobalVariables.darkGreyColor
+                  : GlobalVariables.darkGreyColor,
+              expandedHeight: 300,
+              pinned: true,
+              flexibleSpace: FlexibleSpaceBar(
+                centerTitle: true,
+                titlePadding: EdgeInsets.only(),
+                title: Container(
+                  height: 50,
+                  width: 200,
+                  child: Column(
+                    children: <Widget>[
+                      AutoSizeText(
+                        widget.playlist.getName,
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                      ),
+                      SizedBox(
+                        height: 1,
+                      ),
+                      AutoSizeText(
+                        currentUser != null
+                            ? widget.playlistModalSheetMode !=
+                                    PlaylistModalSheetMode.download
+                                ? "by: " + widget.playlistCreator.getName
+                                : ""
+                            : "",
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12.0,
+                        ),
+                        maxLines: 1,
+                      ),
+                    ],
+                  ),
+                ),
+                background: ShaderMask(
+                  shaderCallback: (rect) {
+                    return LinearGradient(
+                      begin: FractionalOffset.topCenter,
+                      stops: [0, 1],
+                      end: FractionalOffset.bottomCenter,
+                      colors: [
+                        GlobalVariables.darkGreyColor,
+                        Colors.transparent
+                      ],
+                    ).createShader(
+                        Rect.fromLTRB(0, 0, rect.width, rect.height));
+                  },
+                  blendMode: BlendMode.dstIn,
+                  child: imageProvider != null
+                      ? Image(
+                          image: imageProvider,
+                          fit: BoxFit.cover,
+                        )
+                      : Icon(
+                          Icons.music_note,
+                          color: GlobalVariables.pinkColor,
+                          size: 75,
+                        ),
                 ),
               ),
-              makeSliverList(
-                  widget.playlistModalSheetMode == PlaylistModalSheetMode.public
-                      ? widget.playlist
-                      : Provider.of<PageNotifier>(
-                                      GlobalVariables.homePageContext)
-                                  .currentPlaylistPagePlaylist
-                                  .getPushId ==
-                              widget.playlist.getPushId
-                          ? Provider.of<PageNotifier>(
-                                  GlobalVariables.homePageContext)
-                              .currentPlaylistPagePlaylist
-                          : widget.playlist,
-                  context)
-            ],
-          ),
+            ),
+            SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  drawPlaylistButtons(),
+                ],
+              ),
+            ),
+            makeSliverList(
+                widget.playlistModalSheetMode == PlaylistModalSheetMode.public
+                    ? widget.playlist
+                    : Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                                .currentPlaylistPagePlaylist
+                                .getPushId ==
+                            widget.playlist.getPushId
+                        ? Provider.of<PageNotifier>(
+                                GlobalVariables.homePageContext)
+                            .currentPlaylistPagePlaylist
+                        : widget.playlist,
+                context)
+          ],
         ),
       ),
     );
@@ -238,16 +235,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
             title: Text(
               title,
               style: TextStyle(
-                color: audioPlayerManager.currentSong != null &&
-                        audioPlayerManager.currentPlaylist != null
-                    ? audioPlayerManager.loopPlaylist.getPushId ==
-                            playlist.getPushId
-                        ? audioPlayerManager.currentSong.getSongId ==
-                                playlist.getSongs[index].getSongId
-                            ? GlobalVariables.pinkColor
-                            : Colors.white
-                        : Colors.white
-                    : Colors.white,
+                color: setSongColor(playlist, playlist.getSongs[index], true),
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
@@ -255,16 +243,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
             subtitle: Text(
               artist,
               style: TextStyle(
-                color: audioPlayerManager.currentSong != null &&
-                        audioPlayerManager.currentPlaylist != null
-                    ? audioPlayerManager.loopPlaylist.getPushId ==
-                            playlist.getPushId
-                        ? audioPlayerManager.currentSong.getSongId ==
-                                playlist.getSongs[index].getSongId
-                            ? GlobalVariables.pinkColor
-                            : Colors.grey
-                        : Colors.grey
-                    : Colors.grey,
+                color: setSongColor(playlist, playlist.getSongs[index], false),
                 fontSize: 13,
               ),
             ),
@@ -297,16 +276,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
                     : IconButton(
                         icon: Icon(
                           Icons.more_vert,
-                          color: audioPlayerManager.currentSong != null &&
-                                  audioPlayerManager.currentPlaylist != null
-                              ? audioPlayerManager.loopPlaylist.getPushId ==
-                                      playlist.getPushId
-                                  ? audioPlayerManager.currentSong.getSongId ==
-                                          playlist.getSongs[index].getSongId
-                                      ? GlobalVariables.pinkColor
-                                      : Colors.white
-                                  : Colors.white
-                              : Colors.white,
+                          color: setSongColor(
+                              playlist, playlist.getSongs[index], true),
                         ),
                         iconSize: 30,
                         onPressed: () {
@@ -316,25 +287,39 @@ class _PlaylistPageState extends State<PlaylistPage> {
                         },
                       ),
             onTap: () {
-              if (audioPlayerManager.isLoaded) {
-                if (audioPlayerManager.currentSong != null &&
-                    audioPlayerManager.currentPlaylist != null) {
-                  if (audioPlayerManager.currentSong.getSongId ==
-                          playlist.getSongs[index].getSongId &&
-                      audioPlayerManager.currentPlaylist.getPushId ==
-                          playlist.getPushId) {
-                    Navigator.push(
-                      GlobalVariables.homePageContext,
-                      MaterialPageRoute(
-                          builder: (context) => MusicPlayerPage()),
-                    );
-                  } else {
-                    audioPlayerManager.initSong(
-                      song: playlist.getSongs[index],
-                      playlist: playlist,
-                      playlistMode: PlaylistMode.loop,
-                    );
+              String playlistPushId;
+              bool openMusicPlayer = false;
+              if (audioPlayerManager.currentSong != null &&
+                  audioPlayerManager.currentPlaylist != null) {
+                if (audioPlayerManager.currentPlaylist.getPushId != null) {
+                  playlistPushId = audioPlayerManager.currentPlaylist.getPushId;
+                } else {
+                  playlistPushId = audioPlayerManager
+                      .currentPlaylist.getPublicPlaylistPushId;
+                }
+
+                if (playlist.getPushId != null) {
+                  if (playlist.getPushId == playlistPushId) {
+                    if (audioPlayerManager.currentSong.getSongId ==
+                        playlist.getSongs[index].getSongId) {
+                      openMusicPlayer = true;
+                    }
                   }
+                } else {
+                  if (playlist.getPublicPlaylistPushId == playlistPushId) {
+                    if (audioPlayerManager.currentSong.getSongId ==
+                        playlist.getSongs[index].getSongId) {
+                      openMusicPlayer = true;
+                    }
+                  }
+                }
+              }
+              if (audioPlayerManager.isLoaded) {
+                if (openMusicPlayer) {
+                  Navigator.push(
+                    GlobalVariables.homePageContext,
+                    MaterialPageRoute(builder: (context) => MusicPlayerPage()),
+                  );
                 } else {
                   audioPlayerManager.initSong(
                     song: playlist.getSongs[index],
@@ -348,6 +333,43 @@ class _PlaylistPageState extends State<PlaylistPage> {
         }),
       ),
     );
+  }
+
+  Color setSongColor(Playlist playlist, Song song, bool returnWhite) {
+    String playlistPushId;
+    if (audioPlayerManager.currentSong != null &&
+        audioPlayerManager.currentPlaylist != null) {
+      if (audioPlayerManager.currentPlaylist.getPushId != null) {
+        playlistPushId = audioPlayerManager.currentPlaylist.getPushId;
+      } else {
+        playlistPushId =
+            audioPlayerManager.currentPlaylist.getPublicPlaylistPushId;
+      }
+
+      if (playlist.getPushId != null) {
+        if (playlist.getPushId == playlistPushId) {
+          if (audioPlayerManager.currentSong.getSongId == song.getSongId) {
+            return GlobalVariables.pinkColor;
+          } else {
+            return returnWhite ? Colors.white : Colors.grey;
+          }
+        } else {
+          return returnWhite ? Colors.white : Colors.grey;
+        }
+      } else {
+        if (playlist.getPublicPlaylistPushId == playlistPushId) {
+          if (audioPlayerManager.currentSong.getSongId == song.getSongId) {
+            return GlobalVariables.pinkColor;
+          } else {
+            return returnWhite ? Colors.white : Colors.grey;
+          }
+        } else {
+          return returnWhite ? Colors.white : Colors.grey;
+        }
+      }
+    } else {
+      return returnWhite ? Colors.white : Colors.grey;
+    }
   }
 
   void showSongOptions(Song song, Playlist currentPlaylist) {
@@ -385,26 +407,29 @@ class _PlaylistPageState extends State<PlaylistPage> {
   }
 
   void checkForIntenetConnetionForNetworkImage() {
-    InternetConnectionCheck.check().then((available) {
-      ManageLocalSongs.checkIfFileExists(widget.playlist.getSongs[0])
-          .then((exists) {
-        if (exists) {
-          File file = File(
-              "${ManageLocalSongs.fullSongDownloadDir.path}/${widget.playlist.getSongs[0].getSongId}/${widget.playlist.getSongs[0].getSongId}.png");
-          setState(() {
-            imageProvider = (FileImage(file));
-          });
-        } else {
-          if (available) {
+    if (widget.playlist.getSongs.length > 0) {
+      Connectivity().checkConnectivity().then((connectivityResult) {
+        ManageLocalSongs.checkIfFileExists(widget.playlist.getSongs[0])
+            .then((exists) {
+          if (exists) {
+            File file = File(
+                "${ManageLocalSongs.fullSongDownloadDir.path}/${widget.playlist.getSongs[0].getSongId}/${widget.playlist.getSongs[0].getSongId}.png");
             setState(() {
-              imageProvider = NetworkImage(
-                widget.playlist.getSongs[0].getImageUrl,
-              );
+              imageProvider = (FileImage(file));
             });
+          } else {
+            if (connectivityResult == ConnectivityResult.mobile ||
+                connectivityResult == ConnectivityResult.wifi) {
+              setState(() {
+                imageProvider = NetworkImage(
+                  widget.playlist.getSongs[0].getImageUrl,
+                );
+              });
+            }
           }
-        }
+        });
       });
-    });
+    }
   }
 
   Widget drawSongImage(Song song) {
@@ -475,8 +500,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 children: <Widget>[
                   Expanded(
                     child: Icon(
-                      Icons.play_arrow,
+                      MyCustomIcons.play_icon,
                       color: Colors.white,
+                      size: 15,
                     ),
                   ),
                   Expanded(
@@ -493,11 +519,13 @@ class _PlaylistPageState extends State<PlaylistPage> {
               ),
               elevation: 6.0,
               onPressed: () {
-                audioPlayerManager.initSong(
-                  song: widget.playlist.getSongs[0],
-                  playlist: widget.playlist,
-                  playlistMode: PlaylistMode.loop,
-                );
+                if (widget.playlist.getSongs.length > 0) {
+                  audioPlayerManager.initSong(
+                    song: widget.playlist.getSongs[0],
+                    playlist: widget.playlist,
+                    playlistMode: PlaylistMode.loop,
+                  );
+                }
               },
             ),
           ),
@@ -518,7 +546,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 children: <Widget>[
                   Expanded(
                     child: Icon(
-                      CupertinoIcons.shuffle_medium,
+                      MyCustomIcons.shuffle_icon,
                       color: Colors.white,
                       size: 22,
                     ),
@@ -537,13 +565,15 @@ class _PlaylistPageState extends State<PlaylistPage> {
               ),
               elevation: 6.0,
               onPressed: () {
-                var rnd = Random();
-                int randomNum = rnd.nextInt(widget.playlist.getSongs.length);
-                audioPlayerManager.initSong(
-                  song: widget.playlist.getSongs[randomNum],
-                  playlist: widget.playlist,
-                  playlistMode: PlaylistMode.shuffle,
-                );
+                if (widget.playlist.getSongs.length > 0) {
+                  var rnd = Random();
+                  int randomNum = rnd.nextInt(widget.playlist.getSongs.length);
+                  audioPlayerManager.initSong(
+                    song: widget.playlist.getSongs[randomNum],
+                    playlist: widget.playlist,
+                    playlistMode: PlaylistMode.shuffle,
+                  );
+                }
               },
             ),
           ),
