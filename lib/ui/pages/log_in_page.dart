@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
@@ -17,11 +18,6 @@ class _State extends State<LogInPage> {
   static final key = GlobalKey<ScaffoldState>();
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () {
@@ -35,251 +31,183 @@ class _State extends State<LogInPage> {
         return Future.value(false);
       },
       child: Scaffold(
+        resizeToAvoidBottomPadding: false,
         key: key,
         body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color(0xE4000000),
+                Colors.deepPurple,
                 GlobalVariables.pinkColor,
               ],
               begin: FractionalOffset.bottomRight,
-              stops: [0.7, 1.0],
+              stops: [0.4, 1.0],
               end: FractionalOffset.topLeft,
             ),
           ),
-          child: ListView(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 10.0,
-                  top: 10.0,
+          child: SafeArea(
+            child: Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 10.0,
+                        top: 10.0,
+                      ),
+                      child: IconButton(
+                          alignment: Alignment.topLeft,
+                          icon: Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            final form = formKey.currentState;
+                            form.save();
+                            if (MediaQuery.of(context).viewInsets.bottom != 0) {
+                              SystemChannels.textInput
+                                  .invokeMethod('TextInput.hide')
+                                  .then((a) {
+                                Navigator.pop(
+                                  context,
+                                  false,
+                                );
+                              });
+                            } else {
+                              Navigator.pop(
+                                context,
+                                false,
+                              );
+                            }
+                          }),
+                    ),
+                  ],
                 ),
-                child: IconButton(
-                    alignment: Alignment.topLeft,
-                    icon: Icon(
-                      Icons.arrow_back,
+                Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 20,
+                  ),
+                  child: Text(
+                    "Welcome Back!",
+                    style: TextStyle(
+                      fontSize: 25.0,
                       color: Colors.white,
                     ),
-                    onPressed: () {
-                      FocusScope.of(context).requestFocus(FocusNode());
-                      final form = formKey.currentState;
-                      form.save();
-                      Navigator.pop(
-                        context,
-                        false,
-                      );
-                    }),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                  bottom: 20,
-                ),
-                child: Text(
-                  "Welcome Back!",
-                  style: TextStyle(
-                    fontSize: 25.0,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 15,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xff3b5998),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: ListTile(
-                    leading: Text(
-                      "Log In With FaceBook",
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    trailing: Container(
-                      width: 35.0,
-                      height: 35.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          fit: BoxFit.fill,
-                          image: ExactAssetImage(
-                            "assets/images/facebook_logo.png",
-                          ),
-                        ),
-                      ),
-                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: ListTile(
-                    leading: Text(
-                      "Log In With Google",
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    trailing: Container(
-                      width: 35.0,
-                      height: 35.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          fit: BoxFit.fill,
-                          image: ExactAssetImage(
-                            "assets/images/google_logo.png",
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.white,
-                          ),
-                        ),
-                        child: SizedBox()),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 60),
-                    child: Text(
-                      "or",
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.white,
-                          ),
-                        ),
-                        child: SizedBox()),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Form(
-                  key: formKey,
+                Padding(
+                  padding: const EdgeInsets.only(top: 80),
                   child: Column(
                     children: <Widget>[
-                      Theme(
-                        data: ThemeData(
-                          hintColor: Colors.white,
-                        ),
-                        child: TextFormField(
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                          cursorColor: GlobalVariables.pinkColor,
-                          decoration: InputDecoration(
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.white,
-                              ),
-                            ),
-                            labelText: "Email",
-                            labelStyle: TextStyle(
-                              color: GlobalVariables.pinkColor,
-                              fontSize: 18,
-                            ),
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                          initialValue:
-                              loginInEmail != null ? loginInEmail : "",
-                          validator: (value) =>
-                              value.isEmpty ? 'Email can\'t be empty' : null,
-                          onSaved: (value) => loginInEmail = value,
-                        ),
-                      ),
-                      Theme(
-                        data: ThemeData(
-                          hintColor: Colors.white,
-                        ),
-                        child: TextFormField(
-                          obscureText: true,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                          cursorColor: GlobalVariables.pinkColor,
-                          decoration: InputDecoration(
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.white,
-                              ),
-                            ),
-                            labelText: "Password",
-                            labelStyle: TextStyle(
-                              color: GlobalVariables.pinkColor,
-                              fontSize: 18,
-                            ),
-                          ),
-                          initialValue:
-                              loginInPassword != null ? loginInPassword : "",
-                          validator: (value) =>
-                              value.isEmpty ? 'Password can\'t be empty' : null,
-                          onSaved: (value) => loginInPassword = value,
-                        ),
-                      ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 20),
-                        child: GestureDetector(
-                          onTap: () {
-                            FocusScope.of(context).requestFocus(FocusNode());
-                            signInWithEmailAndPass();
-                          },
-                          child: Container(
-                            alignment: Alignment.center,
-                            height: 60.0,
-                            decoration: BoxDecoration(
-                              color: GlobalVariables.pinkColor,
-                              borderRadius: BorderRadius.circular(40.0),
-                            ),
-                            child: Text(
-                              "Log In",
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Form(
+                          key: formKey,
+                          child: Column(
+                            children: <Widget>[
+                              TextFormField(
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                                cursorColor: GlobalVariables.pinkColor,
+                                decoration: InputDecoration(
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  labelText: "Email",
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  errorStyle: TextStyle(
+                                    color: GlobalVariables.pinkColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                keyboardType: TextInputType.emailAddress,
+                                initialValue:
+                                    loginInEmail != null ? loginInEmail : "",
+                                validator: (value) => value.isEmpty
+                                    ? 'Email can\'t be empty'
+                                    : null,
+                                onSaved: (value) => loginInEmail = value,
                               ),
-                            ),
+                              TextFormField(
+                                obscureText: true,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                ),
+                                cursorColor: GlobalVariables.pinkColor,
+                                decoration: InputDecoration(
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  labelText: "Password",
+                                  labelStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  errorStyle: TextStyle(
+                                    color: GlobalVariables.pinkColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                initialValue: loginInPassword != null
+                                    ? loginInPassword
+                                    : "",
+                                validator: (value) => value.isEmpty
+                                    ? 'Password can\'t be empty'
+                                    : null,
+                                onSaved: (value) => loginInPassword = value,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 40, vertical: 20),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    FocusScope.of(context)
+                                        .requestFocus(FocusNode());
+                                    signInWithEmailAndPass();
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    height: 60.0,
+                                    decoration: BoxDecoration(
+                                      color: GlobalVariables.pinkColor,
+                                      borderRadius: BorderRadius.circular(40.0),
+                                    ),
+                                    child: Text(
+                                      "Log In",
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -287,9 +215,9 @@ class _State extends State<LogInPage> {
   }
 
   void signInWithEmailAndPass() {
-    showLoadingBar();
     final form = formKey.currentState;
     if (form.validate()) {
+      showLoadingBar();
       form.save();
       FirebaseAuthentication.logInWithEmail(loginInEmail, loginInPassword)
           .then((user) {

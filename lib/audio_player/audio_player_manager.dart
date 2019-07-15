@@ -36,7 +36,7 @@ class AudioPlayerManager {
   PlaylistMode playlistMode;
   Duration songDuration;
   Duration songPosition;
-  bool isLoaded;
+  bool isSongLoaded;
   PreviousMode previousMode;
 
   String _songStreamUrl;
@@ -49,7 +49,7 @@ class AudioPlayerManager {
   AudioPlayerManager() {
     audioPlayer = AudioPlayer();
     previousMode = PreviousMode.restart;
-    isLoaded = true;
+    isSongLoaded = true;
     AudioPlayer.logEnabled = true;
     _listenForErrors();
     audioPlayer.setReleaseMode(ReleaseMode.STOP);
@@ -58,7 +58,7 @@ class AudioPlayerManager {
   Future<void> initSong(
       {Song song, Playlist playlist, PlaylistMode playlistMode}) async {
     closeSong(closeSongMode: CloseSongMode.partly);
-    isLoaded = false;
+    isSongLoaded = false;
     previousMode = PreviousMode.restart;
     currentSong = song;
     songPosition = Duration(seconds: 0);
@@ -75,6 +75,7 @@ class AudioPlayerManager {
           song.setImageUrl = imageUrl;
           if (song.getTitle == currentSong.getTitle) {
             currentSong = song;
+            MusicControlNotification.makeNotification(currentSong, false, true);
           }
         });
       }
@@ -120,21 +121,21 @@ class AudioPlayerManager {
         if (song.getSongId != _firstSkippedSong.getSongId) {
           playNextSong();
         } else {
-          isLoaded = true;
+          isSongLoaded = true;
           songPosition = null;
           _firstSkippedSong = null;
           MusicControlNotification.makeNotification(currentSong, false, true);
         }
       }
     } else {
-      isLoaded = true;
+      isSongLoaded = true;
       songPosition = null;
       MusicControlNotification.makeNotification(currentSong, false, true);
     }
   }
 
   Future _playSong() async {
-    isLoaded = false;
+    isSongLoaded = false;
     bool exists = await ManageLocalSongs.checkIfFileExists(currentSong);
     if (exists && currentUser.songExistsInDownloadedPlaylist(currentSong)) {
       int status = await audioPlayer.play(
@@ -142,10 +143,10 @@ class AudioPlayerManager {
           stayAwake: true);
       if (status == 1) {
         MusicControlNotification.makeNotification(currentSong, true, true);
-        isLoaded = true;
+        isSongLoaded = true;
       } else {
         closeSong(closeSongMode: CloseSongMode.partly);
-        isLoaded = true;
+        isSongLoaded = true;
         songPosition = null;
         MusicControlNotification.makeNotification(currentSong, false, true);
       }
@@ -153,7 +154,7 @@ class AudioPlayerManager {
       int status = await audioPlayer.play(_songStreamUrl, stayAwake: true);
       if (status == 1) {
         MusicControlNotification.makeNotification(currentSong, true, true);
-        isLoaded = true;
+        isSongLoaded = true;
       } else {
         closeSong(closeSongMode: CloseSongMode.completely);
       }

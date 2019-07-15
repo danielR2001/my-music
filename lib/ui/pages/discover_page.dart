@@ -39,10 +39,11 @@ class _DiscoverPageState extends State<DiscoverPage> {
                 gradient: LinearGradient(
                   colors: [
                     GlobalVariables.darkGreyColor,
+                    GlobalVariables.lightDarkGreyColor,
                     GlobalVariables.pinkColor,
                   ],
                   begin: FractionalOffset.bottomRight,
-                  stops: [0.7, 1.0],
+                  stops: [0.2, 0.7, 1.0],
                   end: FractionalOffset.topLeft,
                 ),
               ),

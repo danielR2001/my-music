@@ -39,9 +39,6 @@ flutter:
   uses-material-design: true
 
   assets:
-   - assets/images/sign_in_pic.png
-   - assets/images/google_logo.png
-   - assets/images/facebook_logo.png
    - assets/images/default_playlist_image.jpg
    - assets/images/app_logo.png
 

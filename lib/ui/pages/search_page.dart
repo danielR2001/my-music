@@ -219,8 +219,7 @@ class _SearchPageState extends State<SearchPage> {
         },
       ),
       onTap: () async {
-        if (audioPlayerManager.isLoaded &&
-            audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
+        if (audioPlayerManager.isSongLoaded) {
           Playlist temp = Playlist(searchResultsPlaylist.getName);
           temp.setSongs = searchResultsPlaylist.getSongs;
           FocusScope.of(context).requestFocus(FocusNode());

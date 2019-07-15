@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
@@ -35,250 +36,190 @@ class _SignUpPageState extends State<SignUpPage> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color(0xE4000000),
+                Colors.deepPurple,
                 GlobalVariables.pinkColor,
               ],
               begin: FractionalOffset.bottomRight,
-              stops: [0.7, 1.0],
+              stops: [0.4, 1.0],
               end: FractionalOffset.topLeft,
             ),
           ),
-          child: ListView(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 10.0,
-                  top: 10.0,
-                ),
-                child: IconButton(
-                    alignment: Alignment.topLeft,
-                    icon: Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      FocusScope.of(context).requestFocus(FocusNode());
-                      final form = formKey.currentState;
-                      form.save();
-                      Navigator.pop(
-                        context,
-                        false,
-                      );
-                    }),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                  bottom: 20,
-                ),
-                child: Text(
-                  "Hello! Let`s sign up",
-                  style: TextStyle(
-                    fontSize: 25.0,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 15,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xff3b5998),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: ListTile(
-                    leading: Text(
-                      "Sign up With FaceBook",
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    trailing: Container(
-                      width: 35.0,
-                      height: 35.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          fit: BoxFit.fill,
-                          image: ExactAssetImage(
-                            "assets/images/facebook_logo.png",
+          child: SafeArea(
+            child: ListView(
+              children: <Widget>[
+                Column(
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 10.0,
+                            top: 10.0,
                           ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: ListTile(
-                    leading: Text(
-                      "Sign up With Google",
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    trailing: Container(
-                      width: 35.0,
-                      height: 35.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          fit: BoxFit.fill,
-                          image: ExactAssetImage(
-                            "assets/images/google_logo.png",
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.white,
-                          ),
-                        ),
-                        child: SizedBox()),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 60),
-                    child: Text(
-                      "or",
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.white,
-                          ),
-                        ),
-                        child: SizedBox()),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    children: <Widget>[
-                      Theme(
-                        data: ThemeData(
-                          hintColor: Colors.white,
-                        ),
-                        child: TextFormField(
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                          cursorColor: GlobalVariables.pinkColor,
-                          decoration: InputDecoration(
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
+                          child: IconButton(
+                              alignment: Alignment.topLeft,
+                              icon: Icon(
+                                Icons.arrow_back,
                                 color: Colors.white,
                               ),
-                            ),
-                            labelText: "Email",
-                            labelStyle: TextStyle(
-                              color: GlobalVariables.pinkColor,
-                              fontSize: 18,
-                            ),
-                          ),
-                          onFieldSubmitted: (value) => print(value),
-                          initialValue: signUpEmail != null ? signUpEmail : "",
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) =>
-                              value.isEmpty ? 'Email can\'t be empty' : null,
-                          onSaved: (value) => signUpEmail = value,
+                              onPressed: () {
+                                final form = formKey.currentState;
+                                form.save();
+                                if (MediaQuery.of(context).viewInsets.bottom !=
+                                    0) {
+                                  SystemChannels.textInput
+                                      .invokeMethod('TextInput.hide')
+                                      .then((a) {
+                                    Navigator.pop(
+                                      context,
+                                      false,
+                                    );
+                                  });
+                                } else {
+                                  Navigator.pop(
+                                    context,
+                                    false,
+                                  );
+                                }
+                              }),
                         ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: 0,
                       ),
-                      Theme(
-                        data: ThemeData(
-                          hintColor: Colors.white,
+                      child: Text(
+                        "Hello! Let`s sign up",
+                        style: TextStyle(
+                          fontSize: 25.0,
+                          color: Colors.white,
                         ),
-                        child: TextFormField(
-                          obscureText: true,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                          cursorColor: GlobalVariables.pinkColor,
-                          decoration: InputDecoration(
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.white,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 80),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Form(
+                              key: formKey,
+                              child: Column(
+                                children: <Widget>[
+                                  TextFormField(
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                    ),
+                                    cursorColor: GlobalVariables.pinkColor,
+                                    decoration: InputDecoration(
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        labelText: "Email",
+                                        labelStyle: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        errorStyle: TextStyle(
+                                          color: GlobalVariables.pinkColor,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        fillColor: Colors.white),
+                                    onFieldSubmitted: (value) => print(value),
+                                    initialValue:
+                                        signUpEmail != null ? signUpEmail : "",
+                                    keyboardType: TextInputType.emailAddress,
+                                    validator: (value) => value.isEmpty
+                                        ? 'Email can\'t be empty'
+                                        : null,
+                                    onSaved: (value) => signUpEmail = value,
+                                  ),
+                                  TextFormField(
+                                    obscureText: true,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                    ),
+                                    cursorColor: GlobalVariables.pinkColor,
+                                    decoration: InputDecoration(
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      labelText: "Password",
+                                      labelStyle: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      errorStyle: TextStyle(
+                                        color: GlobalVariables.pinkColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    initialValue: signUpPassword != null
+                                        ? signUpPassword
+                                        : "",
+                                    validator: (value) => value.isEmpty
+                                        ? 'Password can\'t be empty'
+                                        : null,
+                                    onSaved: (value) => signUpPassword = value,
+                                  ),
+                                  TextFormField(
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                    ),
+                                    cursorColor: GlobalVariables.pinkColor,
+                                    decoration: InputDecoration(
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      labelText: "User name",
+                                      labelStyle: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      errorStyle: TextStyle(
+                                        color: GlobalVariables.pinkColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    initialValue:
+                                        userName != null ? userName : "",
+                                    validator: (value) => value.isEmpty
+                                        ? 'User name can\'t be empty'
+                                        : null,
+                                    onSaved: (value) => userName = value,
+                                  ),
+                                  signInButtonOrVerify()
+                                ],
                               ),
                             ),
-                            labelText: "Password",
-                            labelStyle: TextStyle(
-                              color: GlobalVariables.pinkColor,
-                              fontSize: 18,
-                            ),
                           ),
-                          initialValue:
-                              signUpPassword != null ? signUpPassword : "",
-                          validator: (value) =>
-                              value.isEmpty ? 'Password can\'t be empty' : null,
-                          onSaved: (value) => signUpPassword = value,
-                        ),
+                        ],
                       ),
-                      Theme(
-                        data: ThemeData(
-                          hintColor: Colors.white,
-                        ),
-                        child: TextFormField(
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                          cursorColor: GlobalVariables.pinkColor,
-                          decoration: InputDecoration(
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.white,
-                              ),
-                            ),
-                            labelText: "User name",
-                            labelStyle: TextStyle(
-                              color: GlobalVariables.pinkColor,
-                              fontSize: 18,
-                            ),
-                          ),
-                          initialValue: userName != null ? userName : "",
-                          validator: (value) => value.isEmpty
-                              ? 'User name can\'t be empty'
-                              : null,
-                          onSaved: (value) => userName = value,
-                        ),
-                      ),
-                      signInButtonOrVerify()
-                    ],
-                  ),
-                ),
-              ),
-            ],
+                    ),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),

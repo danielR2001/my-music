@@ -314,7 +314,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                   }
                 }
               }
-              if (audioPlayerManager.isLoaded) {
+              if (audioPlayerManager.isSongLoaded) {
                 if (openMusicPlayer) {
                   Navigator.push(
                     GlobalVariables.homePageContext,

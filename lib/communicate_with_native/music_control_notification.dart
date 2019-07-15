@@ -49,7 +49,7 @@ class MusicControlNotification {
   static Future<dynamic> _myUtilsHandler(MethodCall methodCall) async {
     switch (methodCall.method) {
       case 'playOrPause':
-        if (audioPlayerManager.isLoaded &&
+        if (audioPlayerManager.isSongLoaded &&
             audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
           audioPlayerManager.audioPlayer.state == AudioPlayerState.PLAYING
               ? audioPlayerManager.pauseSong(calledFromNative: false)
@@ -59,12 +59,12 @@ class MusicControlNotification {
         }
         break;
       case 'nextSong':
-        if (audioPlayerManager.isLoaded) {
+        if (audioPlayerManager.isSongLoaded) {
           audioPlayerManager.playNextSong();
         }
         break;
       case 'prevSong':
-        if (audioPlayerManager.isLoaded) {
+        if (audioPlayerManager.isSongLoaded) {
           audioPlayerManager.playPreviousSong();
         }
         break;

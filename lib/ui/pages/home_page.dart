@@ -204,7 +204,7 @@ class _HomePageState extends State<HomePage> {
                     icon: musicPlayerIcon,
                     iconSize: 20,
                     onPressed: () {
-                      if (audioPlayerManager.isLoaded &&
+                      if (audioPlayerManager.isSongLoaded &&
                           audioPlayerManager.songPosition !=
                               Duration(milliseconds: 0)) {
                         audioPlayerManager.audioPlayer.state ==

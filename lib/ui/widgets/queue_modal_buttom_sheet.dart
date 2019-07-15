@@ -160,7 +160,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
             ),
       onTap: () {
         if (audioPlayerManager.currentSong.getSongId != song.getSongId) {
-          if (audioPlayerManager.isLoaded &&
+          if (audioPlayerManager.isSongLoaded &&
               audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
             audioPlayerManager.initSong(
               song: song,

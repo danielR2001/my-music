@@ -257,7 +257,7 @@ class _ArtistPageState extends State<ArtistPage> {
                         },
                       ),
             onTap: () {
-              if (audioPlayerManager.isLoaded) {
+              if (audioPlayerManager.isSongLoaded) {
                 if (audioPlayerManager.currentSong != null &&
                     audioPlayerManager.currentPlaylist != null) {
                   if (audioPlayerManager.currentSong.getSongId ==

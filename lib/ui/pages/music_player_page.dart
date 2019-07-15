@@ -441,7 +441,7 @@ class MusicPageState extends State<MusicPlayerPage> {
       onPressed: () {
         if (audioPlayerManager.currentPlaylist != null &&
             audioPlayerManager.currentPlaylist.getSongs.length > 0) {
-          if (audioPlayerManager.isLoaded) {
+          if (audioPlayerManager.isSongLoaded) {
             setState(() {
               _position = Duration(seconds: 0);
               _duration = _duration;
@@ -470,7 +470,7 @@ class MusicPageState extends State<MusicPlayerPage> {
       iconSize: 80,
       icon: musicPlayerIcon,
       onPressed: () {
-        if (audioPlayerManager.isLoaded &&
+        if (audioPlayerManager.isSongLoaded &&
             audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
           audioPlayerManager.audioPlayer.state == AudioPlayerState.PLAYING
               ? audioPlayerManager.pauseSong(calledFromNative: false)
@@ -494,7 +494,7 @@ class MusicPageState extends State<MusicPlayerPage> {
       onPressed: () {
         if (audioPlayerManager.currentPlaylist != null &&
             audioPlayerManager.currentPlaylist.getSongs.length > 0) {
-          if (audioPlayerManager.isLoaded) {
+          if (audioPlayerManager.isSongLoaded) {
             setState(() {
               _position = Duration(seconds: 0);
               _duration = _duration;
