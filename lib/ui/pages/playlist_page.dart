@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/global_variables/global_variables.dart';
@@ -270,7 +268,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
                             backgroundColor: Colors.pink[50],
                             strokeWidth: 4.0,
                           ),
-                          onTap: () {},
+                          onTap: () {
+                            ManageLocalSongs.cancelDownLoad(playlist.getSongs[index]);
+                          },
                         ),
                       )
                     : IconButton(
@@ -408,7 +408,6 @@ class _PlaylistPageState extends State<PlaylistPage> {
 
   void checkForIntenetConnetionForNetworkImage() {
     if (widget.playlist.getSongs.length > 0) {
-      Connectivity().checkConnectivity().then((connectivityResult) {
         ManageLocalSongs.checkIfFileExists(widget.playlist.getSongs[0])
             .then((exists) {
           if (exists) {
@@ -418,8 +417,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
               imageProvider = (FileImage(file));
             });
           } else {
-            if (connectivityResult == ConnectivityResult.mobile ||
-                connectivityResult == ConnectivityResult.wifi) {
+            if (GlobalVariables.isNetworkAvailable) {
               setState(() {
                 imageProvider = NetworkImage(
                   widget.playlist.getSongs[0].getImageUrl,
@@ -428,7 +426,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
             }
           }
         });
-      });
+      
     }
   }
 

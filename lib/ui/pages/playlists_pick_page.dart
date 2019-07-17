@@ -169,7 +169,9 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     if (!songAlreadyExistsInPlaylist) {
       if (song.getImageUrl.length == 0) {
         String imageUrl = await FetchData.getSongImageUrl(song, false);
-        song.setImageUrl = imageUrl;
+        if (imageUrl != null) {
+          song.setImageUrl = imageUrl;
+        }
       }
       if (audioPlayerManager.currentPlaylist != null
           ? playlist.getName == audioPlayerManager.currentPlaylist.getName
@@ -245,7 +247,9 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
             if (widget.song.getImageUrl.length == 0) {
               String imageUrl =
                   await FetchData.getSongImageUrl(widget.song, false);
-              widget.song.setImageUrl = imageUrl;
+              if (imageUrl != null) {
+                widget.song.setImageUrl = imageUrl;
+              }
             }
             updatedsong = widget.song;
             updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
@@ -255,12 +259,14 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
             currentUser.addNewPlaylist(playlist);
           } else {
             widget.songs.forEach((song) {
-              if (song.getImageUrl.length == 0) {
+              if (song.getImageUrl == "") {
                 FetchData.getSongImageUrl(song, false).then((imageUrl) {
-                  song.setImageUrl = imageUrl;
-                  updatedsong =
-                      FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
-                  playlist.addNewSong(updatedsong);
+                  if (imageUrl != null) {
+                    song.setImageUrl = imageUrl;
+                    updatedsong = FirebaseDatabaseManager.addSongToPlaylist(
+                        playlist, song);
+                    playlist.addNewSong(updatedsong);
+                  }
                 });
               } else {
                 updatedsong =

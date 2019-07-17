@@ -14,6 +14,7 @@ import 'package:myapp/ui/decorations/my_custom_icons.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'package:flip_card/flip_card.dart';
+import 'package:myapp/ui/widgets/text_style.dart';
 
 class MusicPlayerPage extends StatefulWidget {
   @override
@@ -36,7 +37,6 @@ class MusicPageState extends State<MusicPlayerPage> {
   @override
   void initState() {
     super.initState();
-    generateBackgroundColors();
     checkForIntenetConnetionForNetworkImage();
     initSong();
   }
@@ -319,31 +319,23 @@ class MusicPageState extends State<MusicPlayerPage> {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
         children: <Widget>[
-          AutoSizeText(
-            audioPlayerManager.currentSong != null
-                ? audioPlayerManager.currentSong.getTitle
-                : "",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
+          TextDecoration(
+            txt: audioPlayerManager.currentSong.getTitle,
+            size: 20,
+            color: Colors.white,
+            txtMaxLength: 25,
+            height: 30,
+            width: 300,
+            makeBold: true,
           ),
-          SizedBox(
-            height: 5,
-          ),
-          AutoSizeText(
-            audioPlayerManager.currentSong != null
-                ? audioPlayerManager.currentSong.getArtist
-                : "",
-            style: TextStyle(
-              color: Colors.grey,
-              fontSize: 14.0,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
+          TextDecoration(
+            txt: audioPlayerManager.currentSong.getArtist,
+            size: 14,
+            color: Colors.grey,
+            txtMaxLength: 30,
+            height: 20,
+            width: 300,
+            makeBold: false,
           ),
         ],
       ),
@@ -433,9 +425,9 @@ class MusicPageState extends State<MusicPlayerPage> {
     return IconButton(
       splashColor: Colors.grey,
       alignment: Alignment.center,
-      iconSize: 45,
+      iconSize: 25,
       icon: Icon(
-        Icons.skip_previous,
+        MyCustomIcons.previous_icon,
         color: Colors.white,
       ),
       onPressed: () {
@@ -455,7 +447,6 @@ class MusicPageState extends State<MusicPlayerPage> {
                 imageProvider = null;
               });
             }
-            generateBackgroundColors();
             audioPlayerManager.playPreviousSong();
           }
         }
@@ -464,21 +455,27 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   Widget drawPlayButton() {
-    return IconButton(
-      splashColor: Colors.grey,
-      alignment: Alignment.center,
-      iconSize: 80,
-      icon: musicPlayerIcon,
-      onPressed: () {
-        if (audioPlayerManager.isSongLoaded &&
-            audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
-          audioPlayerManager.audioPlayer.state == AudioPlayerState.PLAYING
-              ? audioPlayerManager.pauseSong(calledFromNative: false)
-              : audioPlayerManager.audioPlayer.state == AudioPlayerState.PAUSED
-                  ? audioPlayerManager.resumeSong(calledFromNative: false)
-                  : playSong();
-        }
-      },
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      child: GestureDetector(
+        child: Container(
+          width: 80,
+          height: 80,
+          alignment: Alignment.center,
+          child: musicPlayerIcon,
+        ),
+        onTap: () {
+          if (audioPlayerManager.isSongLoaded &&
+              audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
+            audioPlayerManager.audioPlayer.state == AudioPlayerState.PLAYING
+                ? audioPlayerManager.pauseSong(calledFromNative: false)
+                : audioPlayerManager.audioPlayer.state ==
+                        AudioPlayerState.PAUSED
+                    ? audioPlayerManager.resumeSong(calledFromNative: false)
+                    : playSong();
+          }
+        },
+      ),
     );
   }
 
@@ -486,9 +483,9 @@ class MusicPageState extends State<MusicPlayerPage> {
     return IconButton(
       splashColor: Colors.grey,
       alignment: Alignment.center,
-      iconSize: 45,
+      iconSize: 25,
       icon: Icon(
-        Icons.skip_next,
+        MyCustomIcons.next_icon,
         color: Colors.white,
       ),
       onPressed: () {
@@ -503,7 +500,6 @@ class MusicPageState extends State<MusicPlayerPage> {
             if (!flipCardKey.currentState.isFront) {
               flipCardKey.currentState.toggleCard();
             }
-            generateBackgroundColors();
             audioPlayerManager.playNextSong();
           }
         }
@@ -569,6 +565,7 @@ class MusicPageState extends State<MusicPlayerPage> {
           musicPlayerIcon = Icon(
             Icons.pause_circle_filled,
             color: Colors.white,
+            size: 77,
           );
         },
       );
@@ -576,8 +573,9 @@ class MusicPageState extends State<MusicPlayerPage> {
       setState(
         () {
           musicPlayerIcon = Icon(
-            Icons.play_circle_filled,
+            MyCustomIcons.play_rounded_icon,
             color: Colors.white,
+            size: 80,
           );
         },
       );
@@ -591,7 +589,7 @@ class MusicPageState extends State<MusicPlayerPage> {
           playlistModeIcon = Icon(
             MyCustomIcons.repeat_icon,
             color: Colors.white,
-            size: 25,
+            size: 22,
           );
         },
       );
@@ -601,7 +599,7 @@ class MusicPageState extends State<MusicPlayerPage> {
           playlistModeIcon = Icon(
             MyCustomIcons.shuffle_icon,
             color: Colors.white,
-            size: 25,
+            size: 22,
           );
         },
       );
@@ -649,7 +647,6 @@ class MusicPageState extends State<MusicPlayerPage> {
     completionStream =
         audioPlayerManager.audioPlayer.onPlayerCompletion.listen((a) {
       checkForIntenetConnetionForNetworkImage();
-      generateBackgroundColors();
       if (mounted) {
         setState(() {
           if (!flipCardKey.currentState.isFront) {
@@ -687,30 +684,28 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   void checkForIntenetConnetionForNetworkImage() {
-    Connectivity().checkConnectivity().then((connectivityResult) {
-      ManageLocalSongs.checkIfFileExists(audioPlayerManager.currentSong)
-          .then((exists) {
-        if (exists) {
-          File file = File(
-              "${ManageLocalSongs.fullSongDownloadDir.path}/${audioPlayerManager.currentSong.getSongId}/${audioPlayerManager.currentSong.getSongId}.png");
+    generateBackgroundColors();
+    ManageLocalSongs.checkIfFileExists(audioPlayerManager.currentSong)
+        .then((exists) {
+      if (exists) {
+        File file = File(
+            "${ManageLocalSongs.fullSongDownloadDir.path}/${audioPlayerManager.currentSong.getSongId}/${audioPlayerManager.currentSong.getSongId}.png");
+        if (mounted) {
+          setState(() {
+            imageProvider = FileImage(file);
+          });
+        }
+      } else {
+        if (GlobalVariables.isNetworkAvailable) {
           if (mounted) {
             setState(() {
-              imageProvider = FileImage(file);
+              imageProvider = NetworkImage(
+                audioPlayerManager.currentSong.getImageUrl,
+              );
             });
           }
-        } else {
-          if (connectivityResult == ConnectivityResult.mobile ||
-              connectivityResult == ConnectivityResult.wifi) {
-            if (mounted) {
-              setState(() {
-                imageProvider = NetworkImage(
-                  audioPlayerManager.currentSong.getImageUrl,
-                );
-              });
-            }
-          }
         }
-      });
+      }
     });
   }
 

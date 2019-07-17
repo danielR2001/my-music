@@ -29,6 +29,16 @@ class TabHelper {
     }
     return null;
   }
+
+  static String title(TabItem tabItem) {
+    switch (tabItem) {
+      case TabItem.discover:
+        return 'Discover';
+      case TabItem.library:
+        return 'Your Library';
+    }
+    return '';
+  }
 }
 
 class BottomNavigation extends StatelessWidget {
@@ -39,6 +49,8 @@ class BottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      unselectedFontSize: 11,
+      selectedFontSize: 11,
       fixedColor: Colors.white,
       type: BottomNavigationBarType.fixed,
       currentIndex: currentTab == TabItem.discover ? 0 : 1,
@@ -55,10 +67,12 @@ class BottomNavigation extends StatelessWidget {
   BottomNavigationBarItem buildItem({TabItem tabItem}) {
     //String text = TabHelper.title(tabItem);
     Icon icon = TabHelper.icon(tabItem);
+    String title = TabHelper.title(tabItem);
     return BottomNavigationBarItem(
-        icon: icon,
-        title: Container(
-          height: 0,
-        ));
+      icon: icon,
+      title: Text(
+        title,
+      ),
+    );
   }
 }

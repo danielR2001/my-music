@@ -82,16 +82,9 @@ class _HomePageState extends State<HomePage> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 musicPlayerControl(),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(color: Colors.black),
-                    ),
-                  ),
-                  child: BottomNavigation(
-                    currentTab: currentTab,
-                    onSelectTab: selectTab,
-                  ),
+                BottomNavigation(
+                  currentTab: currentTab,
+                  onSelectTab: selectTab,
                 ),
               ],
             ),
@@ -163,6 +156,9 @@ class _HomePageState extends State<HomePage> {
           child: Container(
             decoration: BoxDecoration(
               color: GlobalVariables.lightGreyColor,
+              border: Border(
+                bottom: BorderSide(color: Colors.black, width: 0.5),
+              ),
             ),
             height: 45,
             child: Row(
@@ -182,8 +178,9 @@ class _HomePageState extends State<HomePage> {
                             txt: audioPlayerManager.currentSong.getTitle,
                             size: 14,
                             color: Colors.white,
-                            txtMaxLength: 20,
+                            txtMaxLength: 30,
                             height: 20,
+                            width: 260,
                             makeBold: true,
                           ),
                           TextDecoration(
@@ -192,6 +189,7 @@ class _HomePageState extends State<HomePage> {
                             color: Colors.grey,
                             txtMaxLength: 30,
                             height: 20,
+                            width: 260,
                             makeBold: false,
                           ),
                         ],

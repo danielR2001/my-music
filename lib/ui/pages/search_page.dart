@@ -79,6 +79,7 @@ class _SearchPageState extends State<SearchPage> {
                     Flexible(
                       child: Container(
                         child: TextField(
+                          autofocus: true,
                           textDirection: textDirection,
                           controller: textEditingController,
                           style: TextStyle(
@@ -87,12 +88,12 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                           cursorColor: GlobalVariables.pinkColor,
                           decoration: InputDecoration.collapsed(
-                            hintText: hintText,
-                            hintStyle: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                            ),
-                          ),
+                           hintText: hintText,
+                           hintStyle: TextStyle(
+                             color: Colors.white,
+                             fontSize: 18,
+                           ),
+                         ),
                           onChanged: (txt) {
                             if (RegExp(r"^[א-ת0-9\$!?&\()\[\]/,\-#\+'= ]+$")
                                 .hasMatch(txt)) {

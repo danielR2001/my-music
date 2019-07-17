@@ -23,14 +23,13 @@ class MusicControlNotification {
     return response;
   }
 
-  static Future<bool> makeNotification(
+  static Future<void> makeNotification(
       Song song, bool isPlaying, bool loadImage) async {
-    bool response;
     String localPath =
         "${ManageLocalSongs.fullSongDownloadDir.path}/${song.getSongId}/${song.getSongId}.png";
     print("making notification");
     try {
-      final bool result = await platform.invokeMethod('makeNotification', {
+      await platform.invokeMethod('makeNotification', {
         "title": song.getTitle,
         "artist": song.getArtist,
         "imageUrl": song.getImageUrl,
@@ -38,12 +37,19 @@ class MusicControlNotification {
         "localPath": localPath,
         "loadImage": loadImage,
       });
-      response = result;
     } on PlatformException catch (e) {
       print("error invoking method from native: $e");
-      response = false;
     }
-    return response;
+  }
+
+  static Future<void> removeNotification() async {
+  
+    print("removing notification");
+    try {
+      await platform.invokeMethod('removeNotification');
+    } on PlatformException catch (e) {
+      print("error invoking method from native: $e");
+    }
   }
 
   static Future<dynamic> _myUtilsHandler(MethodCall methodCall) async {
@@ -68,7 +74,7 @@ class MusicControlNotification {
           audioPlayerManager.playPreviousSong();
         }
         break;
-        
+
       default:
     }
   }

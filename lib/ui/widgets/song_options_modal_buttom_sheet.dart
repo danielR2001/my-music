@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/firebase/database_manager.dart';
@@ -42,19 +41,18 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   @override
   void initState() {
     super.initState();
-    Connectivity().checkConnectivity().then((connectivityResult) {
-      if (connectivityResult == ConnectivityResult.mobile ||
-          connectivityResult == ConnectivityResult.wifi) {
-        FetchData.getSongImageUrl(widget.song, false).then((imageUrl) {
-          if (mounted) {
+    if (GlobalVariables.isNetworkAvailable) {
+      FetchData.getSongImageUrl(widget.song, false).then((imageUrl) {
+        if (mounted) {
+          if (imageUrl != null) {
             setState(() {
               widget.song.setImageUrl = imageUrl;
               checkForIntenetConnetionForNetworkImage();
             });
           }
-        });
-      }
-    });
+        }
+      });
+    }
   }
 
   @override
@@ -300,18 +298,11 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                     if (widget.song.getImageUrl == "") {
                       String imageUrl =
                           await FetchData.getSongImageUrl(widget.song, false);
-                      widget.song.setImageUrl = imageUrl;
+                      if (imageUrl != null) {
+                        widget.song.setImageUrl = imageUrl;
+                      }
                     }
                     ManageLocalSongs.downloadSong(widget.song);
-                    Fluttertoast.showToast(
-                      msg: "Download started",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      timeInSecForIos: 1,
-                      backgroundColor: GlobalVariables.pinkColor,
-                      textColor: Colors.white,
-                      fontSize: 16.0,
-                    );
                     Navigator.of(context, rootNavigator: true).pop('dialog');
                   } else {
                     Fluttertoast.showToast(
@@ -512,10 +503,14 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             canceled = false;
             showLoadingBar(context);
             buildArtistsList(getArtists()).then((artists) {
-              if (!canceled) {
+              if (!canceled && artists.length > 0) {
                 loadingArtists = true;
                 Navigator.of(context, rootNavigator: true).pop('dialog');
                 showArtists(context, artists);
+              } else {
+                if (artists.length == 0) {
+                  Navigator.of(context, rootNavigator: true).pop('dialog');
+                }
               }
             });
           },
@@ -562,7 +557,10 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   Future<List<Artist>> buildArtistsList(List<String> artistsList) async {
     List<Artist> artists = List();
     for (int i = 0; i < artistsList.length; i++) {
-      artists.add(await builArtist(artistsList[i]));
+      Artist artist = await builArtist(artistsList[i]);
+      if (artist != null) {
+        artists.add(artist);
+      }
     }
     return artists;
   }
@@ -615,29 +613,26 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   }
 
   void checkForIntenetConnetionForNetworkImage() {
-    Connectivity().checkConnectivity().then((connectivityResult) {
-      ManageLocalSongs.checkIfFileExists(widget.song).then((exists) {
-        if (exists) {
+    ManageLocalSongs.checkIfFileExists(widget.song).then((exists) {
+      if (exists) {
+        if (mounted) {
+          File file = File(
+              "${ManageLocalSongs.fullSongDownloadDir.path}/${widget.song.getSongId}/${widget.song.getSongId}.png");
+          setState(() {
+            imageProvider = FileImage(file);
+          });
+        }
+      } else {
+        if (GlobalVariables.isNetworkAvailable) {
           if (mounted) {
-            File file = File(
-                "${ManageLocalSongs.fullSongDownloadDir.path}/${widget.song.getSongId}/${widget.song.getSongId}.png");
             setState(() {
-              imageProvider = FileImage(file);
+              imageProvider = NetworkImage(
+                widget.song.getImageUrl,
+              );
             });
           }
-        } else {
-          if (connectivityResult == ConnectivityResult.mobile ||
-              connectivityResult == ConnectivityResult.wifi) {
-            if (mounted) {
-              setState(() {
-                imageProvider = NetworkImage(
-                  widget.song.getImageUrl,
-                );
-              });
-            }
-          }
         }
-      });
+      }
     });
   }
 }

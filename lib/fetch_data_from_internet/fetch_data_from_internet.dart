@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:html/dom.dart';
-import 'package:http/http.dart' as http;
 import 'package:myapp/communicate_with_native/remove_accent_chars.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:html/parser.dart' show parse;
+import 'package:dio/dio.dart';
 
 class FetchData {
   static final String searchUrl = 'https://mp3-tut.com/search?query=';
@@ -22,46 +25,46 @@ class FetchData {
   static Future<Map<String, List<Song>>> getSearchResults(
       String searchStr) async {
     var responseList;
+    try {
+      Response response = await Dio().get(
+        searchUrl + searchStr,
+      );
+      print('Search For Results 1 search completed');
 
-    return http
-        .get(
-          searchUrl + searchStr,
-        )
-        .catchError((eror) {
-          print("error getResultsSitePage1");
-          return null;
-        })
-        .whenComplete(() => print('Search For Results 1 search completed'))
-        .then((http.Response response) {
-          var document = parse(response.body);
-          var elements = document.getElementsByClassName("list-view");
-          var html = elements[0].outerHtml;
-          html = html.replaceAll('\n', '');
-          responseList = html.split('<div class="play-button-container">');
-          responseList.removeAt(0);
-          Map<String, List<Song>> resultsMap = Map();
-          resultsMap[searchStr] =
-              _buildSearchResult(responseList, searchUrl + searchStr + "/");
-          return resultsMap;
-        });
+      var document = parse(response.data);
+      var elements = document.getElementsByClassName("list-view");
+      var html = elements[0].outerHtml;
+      html = html.replaceAll('\n', '');
+      responseList = html.split('<div class="play-button-container">');
+      responseList.removeAt(0);
+      Map<String, List<Song>> resultsMap = Map();
+      resultsMap[searchStr] =
+          _buildSearchResult(responseList, searchUrl + searchStr + "/");
+      return resultsMap;
+    } on DioError catch (e) {
+      print(e);
+      _makeToast(text: "No network connection");
+      return null;
+    } catch (e) {
+      print(e);
+      _makeToast(text: "Something went wrong");
+      return null;
+    }
   }
 
   static Future<String> getSongPlayUrl(Song song) async {
     var responseList;
     String songTitle = song.getTitle;
+    songTitle = _editSearchParams(songTitle, true, true);
     if (songTitle.contains(" ")) {
       songTitle = songTitle.replaceAll(" ", "+");
     }
     var encoded = Uri.encodeFull(songTitle);
     String url = siteUrl + song.getSearchString + "+" + encoded;
-    return http.get(url).catchError((eror) {
-      print("error getSongPlayUrl");
-      return '';
-    }).whenComplete(() {
+    try {
+      Response response = await Dio().get(url);
       print('song search completed');
-      return null;
-    }).then((http.Response response) async {
-      var document = parse(response.body);
+      var document = parse(response.data);
       var elements = document.getElementsByClassName("list-view");
       var html = elements[0].outerHtml;
       html = html.replaceAll('\n', '');
@@ -74,7 +77,15 @@ class FetchData {
         }
       }
       return streamUrl;
-    });
+    } on DioError catch (e) {
+      print(e);
+      _makeToast(text: "No network connection");
+      return null;
+    } catch (e) {
+      print(e);
+      _makeToast(text: "Something went wrong");
+      return null;
+    }
   }
 
   static Future<String> getSongImageUrl(Song song, bool secondTry) async {
@@ -85,26 +96,29 @@ class FetchData {
     tempArtist = _editSearchParams(tempArtist, secondTry, true);
     imageUrl = tempTitle + " " + tempArtist;
     var encoded = Uri.encodeFull(imageSearchUrl + imageUrl);
+    try {
+      Response response = await Dio().get(encoded);
+      print('image search completed');
 
-    return http
-        .get(encoded)
-        .catchError((eror) {
-          print("error getSongImageUrl");
-          return '';
-        })
-        .whenComplete(() => print('image search completed'))
-        .then((http.Response response) {
-          List<dynamic> list = jsonDecode(response.body)['data'];
-          if (list.length > 0) {
-            return _getImageUrlFromResponse(list[0]);
-          } else {
-            if (!secondTry) {
-              return getSongImageUrl(song, true);
-            } else {
-              return '';
-            }
-          }
-        });
+      List<dynamic> list = jsonDecode(response.data)['data'];
+      if (list.length > 0) {
+        return _getImageUrlFromResponse(list[0]);
+      } else {
+        if (!secondTry) {
+          return getSongImageUrl(song, true);
+        } else {
+          return null;
+        }
+      }
+    } on DioError catch (e) {
+      print(e);
+      _makeToast(text: "Bad network connection");
+      return null;
+    } catch (e) {
+      print(e);
+      _makeToast(text: "Something went wrong");
+      return null;
+    }
   }
 
   static Future<Artist> getArtistPageIdAndImageUrl(String artistName) async {
@@ -112,50 +126,54 @@ class FetchData {
     if (artistName.contains(" ")) {
       name = name.replaceAll(" ", "+");
     }
+    try {
+      Response response = await Dio().get(
+        artistIdUrl + name,
+      );
+      print('Get Artist Info search completed');
 
-    return http
-        .get(
-          artistIdUrl + name,
-        )
-        .catchError((eror) {
-          print("error getArtistPageIdAndImageUrl");
-          return null;
-        })
-        .whenComplete(() => print('Get Artist Info search completed'))
-        .then((http.Response response) {
-          List<dynamic> list = jsonDecode(response.body)['artists'];
-          if (list.length > 0) {
-            return Artist(
-                artistName,
-                "https://ichef.bbci.co.uk/images/ic/160x160/" +
-                    list[0]["image_id"],
-                id: list[0]["id"]);
-          } else {
-            return Artist(artistName,
-                "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png",
-                info: "");
-          }
-        });
+      List<dynamic> list = response.data['artists'];
+      if (list.length > 0) {
+        return Artist(artistName,
+            "https://ichef.bbci.co.uk/images/ic/160x160/" + list[0]["image_id"],
+            id: list[0]["id"]);
+      } else {
+        return Artist(artistName,
+            "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png",
+            info: "");
+      }
+    } on DioError catch (e) {
+      print(e);
+      _makeToast(text: "No network connection");
+      return null;
+    } catch (e) {
+      print(e);
+      _makeToast(text: "Something went wrong");
+      return null;
+    }
   }
 
   static Future<Artist> getArtistInfoPage(Artist artist) async {
-    return http
-        .get(
-          artistInfoSearchUrl + artist.getId,
-        )
-        .catchError((eror) {
-          print("error getArtistInfoPage");
-          return null;
-        })
-        .whenComplete(() => print('Get Artist Info search completed'))
-        .then((http.Response response) {
-          Document document = parse(response.body);
-          return _buildArtist(document, artist);
-        });
+    try {
+      Response response = await Dio().get(
+        artistInfoSearchUrl + artist.getId,
+      );
+      print('Get Artist Info search completed');
+      Document document = parse(response.data);
+      return _buildArtist(document, artist);
+    } on DioError catch (e) {
+      print(e);
+      _makeToast(text: "No network connection");
+      return null;
+    } catch (e) {
+      print(e);
+      _makeToast(text: "Something went wrong");
+      return null;
+    }
   }
 
   static Future<String> getLyricsPageUrl(Song song) async {
-    String title = _editSearchParams(song.getTitle, true, false);
+    String title = _editSearchParams(song.getTitle, true, true);
     String artist = _editSearchParams(song.getArtist, false, false);
     String searchStr = title + " " + artist;
     searchStr = await _prepareStringToSearch(searchStr);
@@ -166,40 +184,43 @@ class FetchData {
     var hitsList;
     var resultsList;
     try {
-      return http
-          .get(encoded)
-          .catchError((eror) => print("error getLyricsPageUrl"))
-          .whenComplete(() => print('lyrics page search completed'))
-          .then((http.Response response) {
-        list = jsonDecode(response.body)['response'];
-        sectionsList = list['sections'];
-        sectionsMap = sectionsList[1];
-        hitsList = sectionsMap['hits'];
-        if (hitsList.length > 0) {
-          resultsList = hitsList[0]['result'];
-          return resultsList['url'];
-        } else {
-          return null;
-        }
-      });
+      Response response = await Dio().get(encoded);
+      print('lyrics page search completed');
+
+      list = response.data['response'];
+      sectionsList = list['sections'];
+      sectionsMap = sectionsList[1];
+      hitsList = sectionsMap['hits'];
+      if (hitsList.length > 0) {
+        resultsList = hitsList[0]['result'];
+        return resultsList['url'];
+      } else {
+        return null;
+      }
+    } on DioError catch (e) {
+      print(e);
+      _makeToast(text: "No network connection");
+      return null;
     } catch (e) {
       print(e);
+      _makeToast(text: "Something went wrong");
       return null;
     }
   }
 
   static Future<String> getSongLyrics(String url) async {
     try {
-      return http
-          .get(url)
-          .catchError((eror) => print("error getSongLyrics"))
-          .whenComplete(() => print('lyrics search completed'))
-          .then((http.Response response) {
-        Document document = parse(response.body);
-        return _buildLyrics(document);
-      });
+      Response response = await Dio().get(url);
+      print('lyrics search completed');
+      Document document = parse(response.data);
+      return _buildLyrics(document);
+    } on DioError catch (e) {
+      print(e);
+      _makeToast(text: "No network connection");
+      return null;
     } catch (e) {
       print(e);
+      _makeToast(text: "Something went wrong");
       return null;
     }
   }
@@ -209,13 +230,14 @@ class FetchData {
     String imageUrl;
     List infoElement;
     List imageUrlElement;
-    if (artist.getImageUrl != "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png") {
+    if (artist.getImageUrl !=
+        "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png") {
       imageUrlElement = document.getElementsByClassName("artist-image");
       imageUrl = imageUrlElement[0].innerHtml;
       imageUrl = imageUrl.substring(
           imageUrl.indexOf('data-default-src="') + 'data-default-src="'.length,
           imageUrl.indexOf('"> <source srcset='));
-    }else{
+    } else {
       imageUrl = "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png";
     }
     infoElement = document.getElementsByClassName("msc-artist-biography-text");
@@ -456,5 +478,17 @@ class FetchData {
       lyrics = lyrics.replaceAll(">", "");
     }
     return lyrics;
+  }
+
+  static void _makeToast({String text}) {
+    Fluttertoast.showToast(
+      msg: text,
+      toastLength: Toast.LENGTH_SHORT,
+      timeInSecForIos: 1,
+      fontSize: 16.0,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: GlobalVariables.pinkColor,
+      textColor: Colors.white,
+    );
   }
 }

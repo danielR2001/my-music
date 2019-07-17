@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
+import 'package:myapp/communicate_with_native/music_control_notification.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
@@ -156,11 +156,11 @@ class _AccountPageState extends State<AccountPage> {
                     trailing: IconButton(
                       icon: openPlaylists
                           ? Icon(
-                              Icons.keyboard_arrow_down,
+                              Icons.keyboard_arrow_up,
                               color: Colors.white,
                             )
                           : Icon(
-                              Icons.keyboard_arrow_up,
+                              Icons.keyboard_arrow_down,
                               color: Colors.white,
                             ),
                       onPressed: () {
@@ -231,6 +231,7 @@ class _AccountPageState extends State<AccountPage> {
     if (openPlaylists) {
       if (!GlobalVariables.isOfflineMode && needToReloadImages) {
         checkForIntenetConnetionForNetworkImage();
+        needToReloadImages = false;
       }
       return Expanded(
         child: ListView.builder(
@@ -341,7 +342,6 @@ class _AccountPageState extends State<AccountPage> {
   void checkForIntenetConnetionForNetworkImage() {
     if (!GlobalVariables.isOfflineMode) {
       currentUser.getPlaylists.forEach((playlist) {
-        Connectivity().checkConnectivity().then((connectivityResult) {
           if (playlist.getSongs.length > 0) {
             ManageLocalSongs.checkIfFileExists(playlist.getSongs[0])
                 .then((exists) {
@@ -353,8 +353,7 @@ class _AccountPageState extends State<AccountPage> {
                       (FileImage(file));
                 });
               } else {
-                if (connectivityResult == ConnectivityResult.mobile ||
-                    connectivityResult == ConnectivityResult.wifi) {
+                if (GlobalVariables.isNetworkAvailable) {
                   setState(() {
                     imageProviders[playlist.getSongs[0].getSongId] =
                         NetworkImage(
@@ -365,7 +364,7 @@ class _AccountPageState extends State<AccountPage> {
               }
             });
           }
-        });
+      
       });
     } else {
       needToReloadImages = true;
@@ -453,6 +452,7 @@ class _AccountPageState extends State<AccountPage> {
                           FirebaseAuthentication.signOut().then((a) {
                             audioPlayerManager.closeSong(
                                 closeSongMode: CloseSongMode.completely);
+                                MusicControlNotification.removeNotification();
                             currentUser = null;
                             Navigator.pushReplacement(
                                 context,

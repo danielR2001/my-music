@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
@@ -20,6 +19,7 @@ class DiscoverPage extends StatefulWidget {
 
 class _DiscoverPageState extends State<DiscoverPage> {
   Map<String, ImageProvider> imageProviders = Map();
+  bool needToReloadImages = false;
   @override
   void initState() {
     syncAllPublicPlaylists();
@@ -109,39 +109,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                         ),
                       ]),
                     ),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: publicPlaylists.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          Padding row;
-                          Expanded padding1;
-                          Expanded padding2;
-                          if ((index + 1) % 2 != 0) {
-                            padding1 =
-                                drawPlaylists(publicPlaylists[index], context);
-                            padding2 = index + 1 != publicPlaylists.length
-                                ? drawPlaylists(
-                                    publicPlaylists[index + 1], context)
-                                : Expanded(child: Container());
-                            row = Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 5),
-                                child: Row(
-                                  children: <Widget>[
-                                    padding1,
-                                    SizedBox(
-                                      width: 20,
-                                    ),
-                                    padding2
-                                  ],
-                                ));
-                            return row;
-                          } else {
-                            return Container();
-                          }
-                        },
-                      ),
-                    ),
+                    drawPublicPlaylistsListView()
                   ],
                 ),
               ),
@@ -179,10 +147,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
       return Expanded(
         child: GestureDetector(
             child: Column(
-              // mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Container(
-                  //alignment: Alignment.center,
                   height: 180.0,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -299,31 +265,68 @@ class _DiscoverPageState extends State<DiscoverPage> {
   }
 
   void checkForIntenetConnetionForNetworkImage() {
+     if (!GlobalVariables.isOfflineMode) {
     publicPlaylists.forEach((playlist) {
-      Connectivity().checkConnectivity().then((connectivityResult) {
-        if (playlist.getSongs.length > 0) {
-          ManageLocalSongs.checkIfFileExists(playlist.getSongs[0])
-              .then((exists) {
-            if (exists) {
-              File file = File(
-                  "${ManageLocalSongs.fullSongDownloadDir.path}/${playlist.getSongs[0].getSongId}/${playlist.getSongs[0].getSongId}.png");
+      if (playlist.getSongs.length > 0) {
+        ManageLocalSongs.checkIfFileExists(playlist.getSongs[0]).then((exists) {
+          if (exists) {
+            File file = File(
+                "${ManageLocalSongs.fullSongDownloadDir.path}/${playlist.getSongs[0].getSongId}/${playlist.getSongs[0].getSongId}.png");
+            setState(() {
+              imageProviders[playlist.getSongs[0].getSongId] =
+                  (FileImage(file));
+            });
+          } else {
+            if (GlobalVariables.isNetworkAvailable) {
               setState(() {
-                imageProviders[playlist.getSongs[0].getSongId] =
-                    (FileImage(file));
+                imageProviders[playlist.getSongs[0].getSongId] = NetworkImage(
+                  playlist.getSongs[0].getImageUrl,
+                );
               });
-            } else {
-              if (connectivityResult == ConnectivityResult.mobile ||
-                  connectivityResult == ConnectivityResult.wifi) {
-                setState(() {
-                  imageProviders[playlist.getSongs[0].getSongId] = NetworkImage(
-                    playlist.getSongs[0].getImageUrl,
-                  );
-                });
-              }
             }
-          });
-        }
-      });
+          }
+        });
+      }
     });
+     }else{
+       needToReloadImages = true;
+     }
+  }
+
+  Widget drawPublicPlaylistsListView() {
+    if (!GlobalVariables.isOfflineMode && needToReloadImages) {
+      checkForIntenetConnetionForNetworkImage();
+      needToReloadImages = false;
+    }
+    return Expanded(
+      child: ListView.builder(
+        itemCount: publicPlaylists.length,
+        itemBuilder: (BuildContext context, int index) {
+          Padding row;
+          Expanded padding1;
+          Expanded padding2;
+          if ((index + 1) % 2 != 0) {
+            padding1 = drawPlaylists(publicPlaylists[index], context);
+            padding2 = index + 1 != publicPlaylists.length
+                ? drawPlaylists(publicPlaylists[index + 1], context)
+                : Expanded(child: Container());
+            row = Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                child: Row(
+                  children: <Widget>[
+                    padding1,
+                    SizedBox(
+                      width: 20,
+                    ),
+                    padding2
+                  ],
+                ));
+            return row;
+          } else {
+            return Container();
+          }
+        },
+      ),
+    );
   }
 }

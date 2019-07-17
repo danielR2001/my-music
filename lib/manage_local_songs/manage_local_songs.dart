@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -15,6 +14,7 @@ import 'package:provider/provider.dart';
 class ManageLocalSongs {
   static Dio dio = Dio();
   static List<Song> currentDownloading = List();
+  static Map<Song, CancelToken> cancelTokensMap = Map();
   static Directory externalDir;
   static Directory fullSongDownloadDir;
 
@@ -42,12 +42,10 @@ class ManageLocalSongs {
   }
 
   static Future<void> downloadSong(Song song) async {
-    ConnectivityResult connectivityResult =
-        await Connectivity().checkConnectivity();
     Directory songDirectory;
-
-    if (connectivityResult == ConnectivityResult.mobile ||
-        connectivityResult == ConnectivityResult.wifi) {
+    CancelToken cancelToken = CancelToken();
+    cancelTokensMap[song] = cancelToken;
+    if (GlobalVariables.isNetworkAvailable) {
       songDirectory =
           await new Directory('${fullSongDownloadDir.path}/${song.getSongId}')
               .create(recursive: true);
@@ -63,7 +61,7 @@ class ManageLocalSongs {
           try {
             await dio.download(
                 downloadUrl, "${songDirectory.path}/${song.getSongId}.mp3",
-                onReceiveProgress: (prog, total) {
+                cancelToken: cancelToken, onReceiveProgress: (prog, total) {
               if (Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                       .downloadedTotals[song.getSongId] ==
                   1) {
@@ -73,35 +71,44 @@ class ManageLocalSongs {
 
               Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                   .updateDownloadedProgsses(song, prog);
-            }).whenComplete(() {
-              Provider.of<PageNotifier>(GlobalVariables.homePageContext)
-                  .removeDownloaded(song);
-              currentDownloading.remove(song);
+              if (prog == total) {
+                Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                    .removeDownloaded(song);
+                currentDownloading.remove(song);
 
-              currentUser.addSongToDownloadedPlaylist(song);
-              print("song: ${song.getSongId}, download completed!");
+                currentUser.addSongToDownloadedPlaylist(song);
+                print("song: ${song.getSongId}, download completed!");
+              }
             });
+          } on DioError catch (e) {
+            if (e.message == "cancelled") {
+              _makeToast(text: "Download cancelled");
+            } else {
+              print(e);
+              _makeToast(text: "Something went wrong");
+            }
           } catch (e) {
             print(e);
             currentDownloading.remove(song);
-            _makeToast(text: "something went wrong");
+            cancelTokensMap.remove(song);
+            _makeToast(text: "Something went wrong");
           }
         } else {
           currentDownloading.remove(song);
-          _makeToast(text: "something went wrong");
+          _makeToast(text: "Something went wrong");
         }
       });
     } else {
-      _makeToast(text: "no internet connection");
+      _makeToast(text: "No internet connection");
     }
   }
 
-  static Future<void> cancelDownLoad() async {
-    // try{
-    //   await dio.options.
-    // }catch(e){
-
-    // }
+  static Future<void> cancelDownLoad(Song song) async {
+    cancelTokensMap[song].cancel("cancelled");
+    deleteSongDirectory(song);
+    currentDownloading.remove(song);
+    Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+        .removeDownloaded(song);
   }
 
   static Future<void> _downloadSongImage(Song song) async {
@@ -132,8 +139,14 @@ class ManageLocalSongs {
   }
 
   static Future<void> deleteSongDirectory(Song song) async {
-    await new Directory('${fullSongDownloadDir.path}/${song.getSongId}')
-        .delete(recursive: true);
+    bool exists =
+        await Directory('${fullSongDownloadDir.path}/${song.getSongId}')
+            .exists();
+
+    if (exists) {
+      await new Directory('${fullSongDownloadDir.path}/${song.getSongId}')
+          .delete(recursive: true);
+    }
   }
 
   static bool isSongDownloading(Song song) {

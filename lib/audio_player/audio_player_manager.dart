@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
@@ -41,7 +40,6 @@ class AudioPlayerManager {
 
   String _songStreamUrl;
   Song _firstSkippedSong;
-  ConnectivityResult _connectivityResult;
   StreamSubscription<void> _audioPlayerOnCompleteStream;
   StreamSubscription<void> _audioPlayerOnDurationChangedStream;
   StreamSubscription<void> _audioPlayerOnPositionChangedStream;
@@ -66,28 +64,34 @@ class AudioPlayerManager {
     Provider.of<PageNotifier>(GlobalVariables.homePageContext).setCurrentSong =
         song;
 
-    _connectivityResult = await Connectivity().checkConnectivity();
-
     if (song.getImageUrl == "") {
-      if (_connectivityResult == ConnectivityResult.mobile ||
-          _connectivityResult == ConnectivityResult.wifi) {
+      if (GlobalVariables.isNetworkAvailable) {
         FetchData.getSongImageUrl(song, false).then((imageUrl) {
-          song.setImageUrl = imageUrl;
-          if (song.getTitle == currentSong.getTitle) {
-            currentSong = song;
-            MusicControlNotification.makeNotification(currentSong, false, true);
+          if (imageUrl != null) {
+            song.setImageUrl = imageUrl;
+            if (song.getTitle == currentSong.getTitle) {
+              currentSong = song;
+              if (audioPlayer.state == AudioPlayerState.PLAYING) {
+                MusicControlNotification.makeNotification(
+                    currentSong, true, true);
+              } else {
+                MusicControlNotification.makeNotification(
+                    currentSong, false, true);
+              }
+            }
           }
         });
       }
     }
-    if (_connectivityResult == ConnectivityResult.mobile ||
-        _connectivityResult == ConnectivityResult.wifi) {
+    if (GlobalVariables.isNetworkAvailable) {
       FetchData.getLyricsPageUrl(song).then((url) {
         if (url != null) {
           FetchData.getSongLyrics(url).then((lyrics) {
-            song.setLyrics = lyrics;
-            if (song.getTitle == currentSong.getTitle) {
-              currentSong = song;
+            if (lyrics != null) {
+              song.setLyrics = lyrics;
+              if (song.getTitle == currentSong.getTitle) {
+                currentSong = song;
+              }
             }
           });
         }
@@ -112,8 +116,7 @@ class AudioPlayerManager {
     if (readyToPlay) {
       _firstSkippedSong = null;
       _playSong();
-    } else if (_connectivityResult == ConnectivityResult.mobile ||
-        _connectivityResult == ConnectivityResult.wifi) {
+    } else if (GlobalVariables.isNetworkAvailable) {
       if (_firstSkippedSong == null) {
         _firstSkippedSong = song;
         playNextSong();
@@ -211,7 +214,6 @@ class AudioPlayerManager {
       if (currentPlaylist != null) {
         int i = 0;
         Song correctPreviousSong;
-        _connectivityResult = await Connectivity().checkConnectivity();
         Song previousSong;
         if (currentPlaylist.getSongs.length > 1) {
           if (currentSong.getSongId == currentPlaylist.getSongs[0].getSongId) {
@@ -234,8 +236,7 @@ class AudioPlayerManager {
           songDuration = Duration(seconds: 0);
           seekTime(duration: songDuration);
         }
-        if (_connectivityResult == ConnectivityResult.mobile ||
-            _connectivityResult == ConnectivityResult.wifi) {
+        if (GlobalVariables.isNetworkAvailable) {
           pauseSong(calledFromNative: false);
         } else {
           closeSong(closeSongMode: CloseSongMode.partly);
@@ -248,8 +249,7 @@ class AudioPlayerManager {
       }
     } else {
       previousMode = PreviousMode.previous;
-      if (_connectivityResult == ConnectivityResult.mobile ||
-          _connectivityResult == ConnectivityResult.wifi) {
+      if (GlobalVariables.isNetworkAvailable) {
         songPosition = Duration(seconds: 0);
         audioPlayer.seek(songPosition);
         if (audioPlayer.state == AudioPlayerState.PAUSED) {
@@ -266,7 +266,6 @@ class AudioPlayerManager {
       bool foundSong = false;
       Song nextSong;
 
-      _connectivityResult = await Connectivity().checkConnectivity();
       if (currentPlaylist.getSongs.length > 1) {
         currentPlaylist.getSongs.forEach((song) {
           if (foundSong) {
@@ -286,8 +285,7 @@ class AudioPlayerManager {
       if (nextSong == null && foundSong) {
         nextSong = currentPlaylist.getSongs[0];
       }
-      if (_connectivityResult == ConnectivityResult.mobile ||
-          _connectivityResult == ConnectivityResult.wifi) {
+      if (GlobalVariables.isNetworkAvailable) {
         pauseSong(calledFromNative: false);
       } else {
         closeSong(closeSongMode: CloseSongMode.partly);
@@ -405,8 +403,7 @@ class AudioPlayerManager {
     if (exists && currentUser.songExistsInDownloadedPlaylist(currentSong)) {
       return true;
     } else {
-      if (_connectivityResult == ConnectivityResult.mobile ||
-          _connectivityResult == ConnectivityResult.wifi) {
+      if (GlobalVariables.isNetworkAvailable) {
         _songStreamUrl = await FetchData.getSongPlayUrl(currentSong);
         if (_songStreamUrl != null) {
           return true;

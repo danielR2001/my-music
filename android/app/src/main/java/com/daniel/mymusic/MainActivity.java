@@ -68,6 +68,9 @@ public class MainActivity extends FlutterActivity {
             NotificationService.makeNotification(title, artist, NotificationService.imageBitmap,
                 getApplicationContext(), isPlaying, imageUrl);
           }
+        }else if (call.method.equals("removeNotification")) {
+          NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+          mNotificationManager.cancel(0);
         }
       }
     });

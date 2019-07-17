@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:marquee_widget/marquee_widget.dart';
 
+//import 'package:myapp/ui/widgets/marquee_widget.dart';
+//import 'package:marquee_flutter/marquee_flutter.dart';
 class TextDecoration extends StatelessWidget {
   final String txt;
   final double size;
@@ -8,18 +10,21 @@ class TextDecoration extends StatelessWidget {
   final int txtMaxLength;
   final double height;
   final bool makeBold;
-  TextDecoration(
-      {this.txt,
-      this.size,
-      this.color,
-      this.txtMaxLength,
-      this.height,
-      this.makeBold});
+  final double width;
+  TextDecoration({
+    this.txt,
+    this.size,
+    this.color,
+    this.txtMaxLength,
+    this.height,
+    this.makeBold,
+    this.width,
+  });
   @override
   Widget build(BuildContext context) {
     if (txt.length < txtMaxLength) {
       return Container(
-        width: 280,
+        width: width,
         height: height,
         child: Text(
           txt,
@@ -33,17 +38,22 @@ class TextDecoration extends StatelessWidget {
       );
     } else {
       return Container(
-        width: 280,
+        width: width,
         height: height,
         child: Marquee(
-            child: Text(
-          txt,
-          style: TextStyle(
-            fontSize: size,
-            color: color,
-            fontWeight: makeBold ? FontWeight.bold : FontWeight.normal,
+          child: Text(
+            txt,
+            style: TextStyle(
+              fontSize: size,
+              color: color,
+              fontWeight: makeBold ? FontWeight.bold : FontWeight.normal,
+            ),
           ),
-        )),
+          animationDuration: Duration(seconds: width ~/80),
+          backDuration: Duration(seconds: width ~/80),
+          pauseDuration: Duration.zero,
+          textDirection: TextDirection.ltr,
+        ),
       );
     }
   }

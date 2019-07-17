@@ -6,7 +6,6 @@ import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/main.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/user.dart';
-import 'package:connectivity/connectivity.dart';
 import 'welcome_page.dart';
 import 'home_page.dart';
 
@@ -34,9 +33,7 @@ class _RootPageState extends State<RootPage> {
     FirebaseAuthentication.currentUser().then(
       (user) {
         if (user != null) {
-          Connectivity().checkConnectivity().then((connectivityResult) {
-            if (connectivityResult == ConnectivityResult.mobile ||
-                connectivityResult == ConnectivityResult.wifi) {
+            if (GlobalVariables.isNetworkAvailable) {
               FirebaseDatabaseManager.syncUser(user.uid).then((user) {
                 if (user != null && user.getName != "") {
                   currentUser = user;
@@ -86,7 +83,7 @@ class _RootPageState extends State<RootPage> {
                 });
               });
             }
-          });
+          
         } else {
           Navigator.pushReplacement(
             context,

@@ -10,4 +10,5 @@ class GlobalVariables{
   static BuildContext homePageContext;
   static String lastSearch;
   static bool isOfflineMode = false;
+  static bool isNetworkAvailable;
 }

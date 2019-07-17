@@ -103,7 +103,7 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
           showLoadingBar(context);
           if (widget.artists[index].getId != null) {
             FetchData.getArtistInfoPage(widget.artists[index]).then((artist) {
-              if (!canceled) {
+              if (!canceled && artist != null) {
                 FetchData.getSearchResults(artist.getName).then((results) {
                   if (!canceled) {
                     if (results != null && results[artist.getName] != null) {
@@ -131,6 +131,10 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
                     );
                   }
                 });
+              } else {
+                if (artist == null) {
+                  Navigator.of(context, rootNavigator: true).pop('dialog');
+                }
               }
             });
           } else {
