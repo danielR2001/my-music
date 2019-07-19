@@ -110,7 +110,13 @@ public class MainActivity extends FlutterActivity {
     int paletteDominantColor;
     String hex = "";
     Palette palette = Palette.from(bitmap).generate();
-    paletteDominantColor = palette.getVibrantColor(0);
+    paletteDominantColor = palette.getLightVibrantColor(0);
+    if(paletteDominantColor == 0){
+      paletteDominantColor = palette.getLightMutedColor(0);
+    }
+    if(paletteDominantColor == 0){
+      paletteDominantColor = palette.getVibrantColor(0);
+    }
     if (paletteDominantColor == 0) {
       paletteDominantColor = palette.getDominantColor(0);
     }

@@ -50,7 +50,7 @@ class AudioPlayerManager {
     audioPlayer = AudioPlayer();
     previousMode = PreviousMode.restart;
     isSongLoaded = true;
-    AudioPlayer.logEnabled = true;
+    // AudioPlayer.logEnabled = true;
     audioPlayer.setReleaseMode(ReleaseMode.STOP);
     _listenForErrors();
     _listenForDurationChanged();
@@ -146,35 +146,29 @@ class AudioPlayerManager {
   }
 
   Future _playSong() async {
-    isSongLoaded = false;
+    int audioPlayerStatus;
     bool exists = await ManageLocalSongs.checkIfFileExists(currentSong);
     if (exists && currentUser.songExistsInDownloadedPlaylist(currentSong)) {
-      int status = await audioPlayer.play(
+      audioPlayerStatus = await audioPlayer.play(
         "${ManageLocalSongs.fullSongDownloadDir.path}/${currentSong.getSongId}/${currentSong.getSongId}.mp3",
         stayAwake: true,
         respectAudioFocus: true,
       );
-      if (status == 1) {
-        MusicControlNotification.makeNotification(currentSong, true, true);
-        isSongLoaded = true;
-      } else {
-        closeSong(closeSongMode: CloseSongMode.partly);
-        isSongLoaded = true;
-        songPosition = null;
-        MusicControlNotification.makeNotification(currentSong, false, true);
-      }
     } else {
-      int status = await audioPlayer.play(
+      audioPlayerStatus = await audioPlayer.play(
         _songStreamUrl,
         stayAwake: true,
         respectAudioFocus: true,
       );
-      if (status == 1) {
-        MusicControlNotification.makeNotification(currentSong, true, true);
-        isSongLoaded = true;
-      } else {
-        closeSong(closeSongMode: CloseSongMode.completely);
-      }
+    }
+    if (audioPlayerStatus == 1) {
+      MusicControlNotification.makeNotification(currentSong, true, true);
+      isSongLoaded = true;
+    } else {
+      closeSong(closeSongMode: CloseSongMode.partly);
+      isSongLoaded = true;
+      songPosition = null;
+      MusicControlNotification.makeNotification(currentSong, false, true);
     }
   }
 
@@ -218,7 +212,7 @@ class AudioPlayerManager {
     audioPlayer.seek(duration);
   }
 
-  Future playPreviousSong() async {
+  void playPreviousSong()  {
     if (previousMode == PreviousMode.previous) {
       if (currentPlaylist != null) {
         int i = 0;
@@ -270,7 +264,7 @@ class AudioPlayerManager {
     }
   }
 
-  Future playNextSong() async {
+  void playNextSong()  {
     if (currentPlaylist != null) {
       bool foundSong = false;
       Song nextSong;
@@ -404,6 +398,10 @@ class AudioPlayerManager {
       } else if (state == AudioPlayerState.PAUSED) {
         MusicControlNotification.makeNotification(currentSong, false, false);
         audioPlayerState = AudioPlayerState.PAUSED;
+      } else if (state == AudioPlayerState.STOPPED) {
+        audioPlayerState = AudioPlayerState.STOPPED;
+      } else if (state == AudioPlayerState.COMPLETED) {
+        audioPlayerState = AudioPlayerState.COMPLETED;
       }
     });
   }

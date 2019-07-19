@@ -28,7 +28,7 @@ class FetchData {
       Response response = await Dio().get(
         searchUrl + searchStr,
       );
-      print('Search For Results 1 search completed');
+      print('Search For Results completed');
 
       var document = parse(response.data);
       var elements = document.getElementsByClassName("list-view");

@@ -25,6 +25,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   Duration _position;
   Duration _duration;
   Icon playlistModeIcon;
+  Icon musicPlayerIcon;
   StreamSubscription<AudioPlayerState> stateStream;
   StreamSubscription<Duration> posStream;
   StreamSubscription<Duration> durStream;
@@ -62,7 +63,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                 backgroundColor,
               ],
               begin: FractionalOffset.bottomCenter,
-              stops: [0.28, 1.0],
+              stops: [0.22, 1.0],
               end: FractionalOffset.topCenter,
             ),
           ),
@@ -433,10 +434,6 @@ class MusicPageState extends State<MusicPlayerPage> {
         if (audioPlayerManager.currentPlaylist != null &&
             audioPlayerManager.currentPlaylist.getSongs.length > 0 &&
             audioPlayerManager.isSongLoaded) {
-          if (!flipCardKey.currentState.isFront) {
-            flipCardKey.currentState.toggleCard();
-          }
-          audioPlayerManager.playPreviousSong();
           setState(() {
             _position = Duration(seconds: 0);
             _duration = _duration;
@@ -444,6 +441,11 @@ class MusicPageState extends State<MusicPlayerPage> {
               imageProvider = null;
             }
           });
+          if (!flipCardKey.currentState.isFront) {
+            flipCardKey.currentState.toggleCard();
+          }
+          audioPlayerManager.playPreviousSong();
+          checkForIntenetConnetionForNetworkImage();
         }
       },
     );
@@ -457,17 +459,7 @@ class MusicPageState extends State<MusicPlayerPage> {
           width: 80,
           height: 80,
           alignment: Alignment.center,
-          child: audioPlayerManager.audioPlayerState == AudioPlayerState.PLAYING
-              ? Icon(
-                  Icons.pause_circle_filled,
-                  color: Colors.white,
-                  size: 77,
-                )
-              : Icon(
-                  MyCustomIcons.play_rounded_icon,
-                  color: Colors.white,
-                  size: 80,
-                ),
+          child: musicPlayerIcon,
         ),
         onTap: () {
           if (audioPlayerManager.isSongLoaded &&
@@ -497,15 +489,16 @@ class MusicPageState extends State<MusicPlayerPage> {
         if (audioPlayerManager.currentPlaylist != null &&
             audioPlayerManager.currentPlaylist.getSongs.length > 0 &&
             audioPlayerManager.isSongLoaded) {
-          if (!flipCardKey.currentState.isFront) {
-            flipCardKey.currentState.toggleCard();
-          }
-          audioPlayerManager.playNextSong();
           setState(() {
             _position = Duration(seconds: 0);
             _duration = _duration;
             imageProvider = null;
           });
+          if (!flipCardKey.currentState.isFront) {
+            flipCardKey.currentState.toggleCard();
+          }
+          audioPlayerManager.playNextSong();
+          checkForIntenetConnetionForNetworkImage();
         }
       },
     );
@@ -578,6 +571,22 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
   }
 
+  void changePlayingIconState(bool isPlaying) {
+    if (isPlaying) {
+      setState(
+        () {
+          musicPlayerIcon = drawPauseIcon();
+        },
+      );
+    } else {
+      setState(
+        () {
+          musicPlayerIcon = drawPlayIcon();
+        },
+      );
+    }
+  }
+
   void changePlaylistModeIconState() {
     if (audioPlayerManager.playlistMode == PlaylistMode.loop) {
       setState(
@@ -599,6 +608,29 @@ class MusicPageState extends State<MusicPlayerPage> {
           );
         },
       );
+    }
+  }
+
+  void checkSongStatus(AudioPlayerState state) {
+    if (state == AudioPlayerState.PLAYING) {
+      checkForIntenetConnetionForNetworkImage();
+      changePlayingIconState(true);
+    } else if (state == AudioPlayerState.PAUSED) {
+      changePlayingIconState(false);
+    } else if (state == AudioPlayerState.STOPPED) {
+      if (mounted) {
+        setState(() {
+          _position = Duration(seconds: 0);
+        });
+      }
+      changePlayingIconState(false);
+    } else if (state == AudioPlayerState.COMPLETED) {
+      if (mounted) {
+        setState(() {
+          _position = Duration(seconds: 0);
+        });
+      }
+      changePlayingIconState(false);
     }
   }
 
@@ -631,9 +663,10 @@ class MusicPageState extends State<MusicPlayerPage> {
       }
     });
     changePlaylistModeIconState();
+    checkSongStatus(audioPlayerManager.audioPlayer.state);
     stateStream = audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
-        setState(() {});
+        checkSongStatus(state);
       },
     );
   }
@@ -657,28 +690,30 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   void checkForIntenetConnetionForNetworkImage() {
     generateBackgroundColors();
-    ManageLocalSongs.checkIfFileExists(audioPlayerManager.currentSong)
-        .then((exists) {
-      if (exists) {
-        File file = File(
-            "${ManageLocalSongs.fullSongDownloadDir.path}/${audioPlayerManager.currentSong.getSongId}/${audioPlayerManager.currentSong.getSongId}.png");
-        if (mounted) {
-          setState(() {
-            imageProvider = FileImage(file);
-          });
-        }
-      } else {
-        if (GlobalVariables.isNetworkAvailable) {
+    if (audioPlayerManager.currentSong.getImageUrl != "") {
+      ManageLocalSongs.checkIfFileExists(audioPlayerManager.currentSong)
+          .then((exists) {
+        if (exists) {
+          File file = File(
+              "${ManageLocalSongs.fullSongDownloadDir.path}/${audioPlayerManager.currentSong.getSongId}/${audioPlayerManager.currentSong.getSongId}.png");
           if (mounted) {
             setState(() {
-              imageProvider = NetworkImage(
-                audioPlayerManager.currentSong.getImageUrl,
-              );
+              imageProvider = FileImage(file);
             });
           }
+        } else {
+          if (GlobalVariables.isNetworkAvailable) {
+            if (mounted) {
+              setState(() {
+                imageProvider = NetworkImage(
+                  audioPlayerManager.currentSong.getImageUrl,
+                );
+              });
+            }
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   void playSong() {
