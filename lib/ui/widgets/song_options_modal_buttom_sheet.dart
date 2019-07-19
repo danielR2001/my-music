@@ -42,16 +42,20 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   void initState() {
     super.initState();
     if (GlobalVariables.isNetworkAvailable) {
-      FetchData.getSongImageUrl(widget.song, false).then((imageUrl) {
-        if (mounted) {
-          if (imageUrl != null) {
-            setState(() {
-              widget.song.setImageUrl = imageUrl;
-              checkForIntenetConnetionForNetworkImage();
-            });
+      if (widget.song.getImageUrl != "") {
+        checkForIntenetConnetionForNetworkImage();
+      } else {
+        FetchData.getSongImageUrl(widget.song, false).then((imageUrl) {
+          if (mounted) {
+            if (imageUrl != null) {
+              setState(() {
+                widget.song.setImageUrl = imageUrl;
+                checkForIntenetConnetionForNetworkImage();
+              });
+            }
           }
-        }
-      });
+        });
+      }
     }
   }
 

@@ -633,9 +633,7 @@ class MusicPageState extends State<MusicPlayerPage> {
     changePlaylistModeIconState();
     stateStream = audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
-        setState(() {
-          
-        });
+        setState(() {});
       },
     );
   }

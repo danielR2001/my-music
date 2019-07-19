@@ -88,12 +88,12 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                           cursorColor: GlobalVariables.pinkColor,
                           decoration: InputDecoration.collapsed(
-                           hintText: hintText,
-                           hintStyle: TextStyle(
-                             color: Colors.white,
-                             fontSize: 18,
-                           ),
-                         ),
+                            hintText: hintText,
+                            hintStyle: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            ),
+                          ),
                           onChanged: (txt) {
                             if (RegExp(r"^[א-ת0-9\$!?&\()\[\]/,\-#\+'= ]+$")
                                 .hasMatch(txt)) {
@@ -156,13 +156,12 @@ class _SearchPageState extends State<SearchPage> {
                 ),
               ),
               Expanded(
-                child:  
-                  ListView.builder(
-                    itemCount: searchLength,
-                    itemExtent: 60,
-                    itemBuilder: (BuildContext context, int index) {
-                      return songSearchResult(searchResults[index], context);
-                    },
+                child: ListView.builder(
+                  itemCount: searchLength,
+                  itemExtent: 60,
+                  itemBuilder: (BuildContext context, int index) {
+                    return songSearchResult(searchResults[index], context);
+                  },
                 ),
               ),
             ],
