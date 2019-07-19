@@ -12,7 +12,8 @@ dependencies:
 
   flutter_statusbarcolor: ^0.2.0
   html: ^0.14.0+1
-  audioplayers: ^0.13.1
+  audioplayers: 
+    git: git://github.com/danielR2001/audioplayers.git
   firebase_auth: ^0.11.1+7
   firebase_database: ^3.0.3
   dio: ^2.1.7 

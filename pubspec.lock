@@ -11,10 +11,12 @@ packages:
   audioplayers:
     dependency: "direct main"
     description:
-      name: audioplayers
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.13.1"
+      path: "."
+      ref: HEAD
+      resolved-ref: "3a5f6adea54c23f100c7c4a1a748bb512f496ff7"
+      url: "git://github.com/danielR2001/audioplayers.git"
+    source: git
+    version: "0.13.0"
   auto_size_text:
     dependency: "direct main"
     description:
