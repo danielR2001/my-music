@@ -7,13 +7,8 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.Result;
 
 import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.ActivityManager;
 import android.content.Context;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.util.Log;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.graphics.Bitmap;
@@ -25,17 +20,15 @@ import java.text.Normalizer;
 
 public class MainActivity extends FlutterActivity {
   private static final String CHANNEL1 = "flutter.native/notifications";
-  private static final String CHANNEL2 = "flutter.native/unaccent";
-  private static final String CHANNEL3 = "flutter.native/dominantColor";
+  private static final String CHANNEL2 = "flutter.native/dominantColor";
   public static MethodChannel channel1;
   public static MethodChannel channel2;
-  public static MethodChannel channel3;
-  private static BroadcastReceiver mNetworkReceiver;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     GeneratedPluginRegistrant.registerWith(this);
+    
     channel1 = new MethodChannel(getFlutterView(), CHANNEL1);
     channel1.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
       @Override
@@ -74,18 +67,9 @@ public class MainActivity extends FlutterActivity {
         }
       }
     });
+    
     channel2 = new MethodChannel(getFlutterView(), CHANNEL2);
     channel2.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
-      @Override
-      public void onMethodCall(MethodCall call, MethodChannel.Result result) {
-        if (call.method.equals("unaccent")) {
-          String str = call.argument("string");
-          result.success(unaccent(str));
-        }
-      }
-    });
-    channel3 = new MethodChannel(getFlutterView(), CHANNEL3);
-    channel3.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
       @Override
       public void onMethodCall(MethodCall call, MethodChannel.Result result) {
         if (call.method.equals("getDominantColor")) {
@@ -114,10 +98,6 @@ public class MainActivity extends FlutterActivity {
         }
       }
     });
-  }
-
-  private String unaccent(String src) {
-    return Normalizer.normalize(src, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
   }
 
   private void StartService() {

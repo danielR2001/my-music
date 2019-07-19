@@ -37,24 +37,32 @@ class AudioPlayerManager {
   Duration songPosition;
   bool isSongLoaded;
   PreviousMode previousMode;
+  AudioPlayerState audioPlayerState;
 
   String _songStreamUrl;
   Song _firstSkippedSong;
   StreamSubscription<void> _audioPlayerOnCompleteStream;
   StreamSubscription<void> _audioPlayerOnDurationChangedStream;
   StreamSubscription<void> _audioPlayerOnPositionChangedStream;
+  StreamSubscription<void> _audioPlayerOnStateChangedStream;
 
   AudioPlayerManager() {
     audioPlayer = AudioPlayer();
     previousMode = PreviousMode.restart;
     isSongLoaded = true;
     AudioPlayer.logEnabled = true;
-    _listenForErrors();
     audioPlayer.setReleaseMode(ReleaseMode.STOP);
+    _listenForErrors();
+    _listenForDurationChanged();
+    _listenForPositionChanged();
+    _listenIfCompleted();
+    _listenForStateChanges();
   }
 
   Future<void> initSong(
-      {Song song, Playlist playlist, PlaylistMode playlistMode}) async {
+      {@required Song song,
+      @required Playlist playlist,
+      @required PlaylistMode playlistMode}) async {
     closeSong(closeSongMode: CloseSongMode.partly);
     isSongLoaded = false;
     previousMode = PreviousMode.restart;
@@ -142,8 +150,10 @@ class AudioPlayerManager {
     bool exists = await ManageLocalSongs.checkIfFileExists(currentSong);
     if (exists && currentUser.songExistsInDownloadedPlaylist(currentSong)) {
       int status = await audioPlayer.play(
-          "${ManageLocalSongs.fullSongDownloadDir.path}/${currentSong.getSongId}/${currentSong.getSongId}.mp3",
-          stayAwake: true);
+        "${ManageLocalSongs.fullSongDownloadDir.path}/${currentSong.getSongId}/${currentSong.getSongId}.mp3",
+        stayAwake: true,
+        respectAudioFocus: true,
+      );
       if (status == 1) {
         MusicControlNotification.makeNotification(currentSong, true, true);
         isSongLoaded = true;
@@ -154,7 +164,11 @@ class AudioPlayerManager {
         MusicControlNotification.makeNotification(currentSong, false, true);
       }
     } else {
-      int status = await audioPlayer.play(_songStreamUrl, stayAwake: true);
+      int status = await audioPlayer.play(
+        _songStreamUrl,
+        stayAwake: true,
+        respectAudioFocus: true,
+      );
       if (status == 1) {
         MusicControlNotification.makeNotification(currentSong, true, true);
         isSongLoaded = true;
@@ -162,27 +176,23 @@ class AudioPlayerManager {
         closeSong(closeSongMode: CloseSongMode.completely);
       }
     }
-
-    _listenForDurationChanged();
-    _listenForPositionChanged();
-    _listenIfCompleted();
   }
 
-  void resumeSong({bool calledFromNative}) {
+  void resumeSong({@required bool calledFromNative}) {
     audioPlayer.resume();
     if (!calledFromNative) {
       MusicControlNotification.makeNotification(currentSong, true, false);
     }
   }
 
-  void pauseSong({bool calledFromNative}) {
+  void pauseSong({@required bool calledFromNative}) {
     audioPlayer.pause();
     if (!calledFromNative) {
       MusicControlNotification.makeNotification(currentSong, false, false);
     }
   }
 
-  void closeSong({CloseSongMode closeSongMode}) {
+  void closeSong({@required CloseSongMode closeSongMode}) {
     if (closeSongMode != null) {
       if (closeSongMode == CloseSongMode.completely) {
         currentSong = null;
@@ -191,6 +201,10 @@ class AudioPlayerManager {
         shuffledPlaylist = null;
         audioPlayer.stop();
         audioPlayer.release();
+        _audioPlayerOnCompleteStream.cancel();
+        _audioPlayerOnDurationChangedStream.cancel();
+        _audioPlayerOnPositionChangedStream.cancel();
+        _audioPlayerOnStateChangedStream.cancel();
       } else if (closeSongMode == CloseSongMode.partly) {
         audioPlayer.stop();
         audioPlayer.release();
@@ -198,14 +212,9 @@ class AudioPlayerManager {
     } else {
       audioPlayer.pause();
     }
-    if (_audioPlayerOnCompleteStream != null) {
-      _audioPlayerOnCompleteStream.cancel();
-      _audioPlayerOnDurationChangedStream.cancel();
-      _audioPlayerOnPositionChangedStream.cancel();
-    }
   }
 
-  void seekTime({Duration duration}) {
+  void seekTime({@required Duration duration}) {
     audioPlayer.seek(duration);
   }
 
@@ -386,7 +395,20 @@ class AudioPlayerManager {
     });
   }
 
-  void _makeToast({String text}) {
+  void _listenForStateChanges() {
+    _audioPlayerOnStateChangedStream =
+        audioPlayer.onPlayerStateChanged.listen((state) {
+      if (state == AudioPlayerState.PLAYING) {
+        MusicControlNotification.makeNotification(currentSong, true, false);
+        audioPlayerState = AudioPlayerState.PLAYING;
+      } else if (state == AudioPlayerState.PAUSED) {
+        MusicControlNotification.makeNotification(currentSong, false, false);
+        audioPlayerState = AudioPlayerState.PAUSED;
+      }
+    });
+  }
+
+  void _makeToast({@required String text}) {
     Fluttertoast.showToast(
       msg: text,
       toastLength: Toast.LENGTH_SHORT,

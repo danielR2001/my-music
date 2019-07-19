@@ -107,47 +107,9 @@ class _HomePageState extends State<HomePage> {
   void initSong() {
     stateStream = audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
-        setState(() {
-          checkSongStatus(state);
-        });
+        setState(() {});
       },
     );
-  }
-
-  void changeIconState(bool isPlaying) {
-    if (isPlaying) {
-      setState(
-        () {
-          musicPlayerIcon = Icon(
-            MyCustomIcons.pause_icon,
-            color: Colors.white,
-          );
-          soundBar = drawPlayingSoundBar();
-        },
-      );
-    } else {
-      setState(
-        () {
-          musicPlayerIcon = Icon(
-            MyCustomIcons.play_icon,
-            color: Colors.white,
-          );
-          soundBar = drawPausedSoundBar();
-        },
-      );
-    }
-  }
-
-  void checkSongStatus(AudioPlayerState state) {
-    if (state == AudioPlayerState.PLAYING) {
-      changeIconState(true);
-    } else if (state == AudioPlayerState.PAUSED) {
-      changeIconState(false);
-    } else if (state == AudioPlayerState.STOPPED) {
-      changeIconState(false);
-    } else if (state == null) {
-      changeIconState(false);
-    }
   }
 
   Widget musicPlayerControl() {
@@ -163,7 +125,9 @@ class _HomePageState extends State<HomePage> {
             height: 45,
             child: Row(
               children: <Widget>[
-                soundBar,
+                audioPlayerManager.audioPlayerState == AudioPlayerState.PLAYING
+                    ? drawPlayingSoundBar()
+                    : drawPausedSoundBar(),
                 Expanded(
                   flex: 5,
                   child: Row(
@@ -199,7 +163,10 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Expanded(
                   child: IconButton(
-                    icon: musicPlayerIcon,
+                    icon: audioPlayerManager.audioPlayerState ==
+                            AudioPlayerState.PLAYING
+                        ? drawPauseIcon()
+                        : drawPlayIcon(),
                     iconSize: 20,
                     onPressed: () {
                       if (audioPlayerManager.isSongLoaded &&
@@ -289,6 +256,20 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget drawPauseIcon() {
+    return Icon(
+      MyCustomIcons.pause_icon,
+      color: Colors.white,
+    );
+  }
+
+  Widget drawPlayIcon() {
+    return Icon(
+      MyCustomIcons.play_icon,
+      color: Colors.white,
     );
   }
 }

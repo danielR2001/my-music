@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:html/dom.dart';
-import 'package:myapp/communicate_with_native/remove_accent_chars.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
@@ -176,7 +175,6 @@ class FetchData {
     String title = _editSearchParams(song.getTitle, true, true);
     String artist = _editSearchParams(song.getArtist, false, false);
     String searchStr = title + " " + artist;
-    searchStr = await _prepareStringToSearch(searchStr);
     var encoded = Uri.encodeFull(lyricsSearchUrl + searchStr);
     var list;
     var sectionsMap;
@@ -424,21 +422,6 @@ class FetchData {
     } else {
       return null;
     }
-  }
-
-  static Future<String> _prepareStringToSearch(String searchStr) async {
-    if (searchStr.contains("Ø")) {
-      searchStr = searchStr.replaceAll("Ø", "o");
-    }
-    if (!RegExp(r'^[a-zA-Zא-תа-яА-Яё0-9\$!?&\()\[\]/,\-# ]+$')
-        .hasMatch(searchStr)) {
-      searchStr = await UnaccentString.unaccent(searchStr);
-    }
-    if (RegExp(r'^[a-zA-Zא-תа-яА-Яё0-9\$!?&\()\[\]/,\-#  ]+$')
-        .hasMatch(searchStr)) {
-      searchStr = searchStr.toLowerCase();
-    }
-    return searchStr;
   }
 
   static String _buildLyrics(Document document) {

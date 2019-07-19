@@ -11,10 +11,19 @@ class GetImageDominantColor {
         "isLocal": isLocal,
       });
       response = result;
+      platform.setMethodCallHandler(_myUtilsHandler);
     } on PlatformException catch (e) {
       print("error invoking method from native: $e");
       response = null;
     }
     return response;
+  }
+
+    static Future<dynamic> _myUtilsHandler(MethodCall methodCall) async {
+    switch (methodCall.method) {
+      case 'playOrPause':
+        break;
+      default:
+    }
   }
 }

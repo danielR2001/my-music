@@ -12,13 +12,13 @@ class TextDecoration extends StatelessWidget {
   final bool makeBold;
   final double width;
   TextDecoration({
-    this.txt,
-    this.size,
-    this.color,
-    this.txtMaxLength,
-    this.height,
-    this.makeBold,
-    this.width,
+    @required this.txt,
+    @required this.size,
+    @required this.color,
+    @required this.txtMaxLength,
+    @required this.height,
+    @required this.makeBold,
+    @required this.width,
   });
   @override
   Widget build(BuildContext context) {

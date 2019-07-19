@@ -40,12 +40,10 @@ public class NotificationService extends Service {
     private static Intent prevIntent;
     private static Intent nextIntent;
     private static Intent notificationIntent;
-    private static Intent deleteIntent;
     private static PendingIntent pplayIntent;
     private static PendingIntent pprevIntent;
     private static PendingIntent pnextIntent;
     private static PendingIntent pendingIntent;
-    private static PendingIntent pdeleteIntent;
     private static final String CHANNEL_ID = "Playback";
     private static NotificationManager notificationManager;
     private static Notification notification;
@@ -156,13 +154,11 @@ public class NotificationService extends Service {
                     .setStyle(new androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle()
                             .setShowActionsInCompactView(0, 1, 2)
                             .setMediaSession(mediaSession.getSessionToken()))
-                    .setDeleteIntent(pdeleteIntent)
                     .setContentIntent(pendingIntent)
                     .setTimeoutAfter(1800000)
                     .setColorized(true)
                     .setCategory(Notification.CATEGORY_TRANSPORT)
                     .setWhen(System.currentTimeMillis())
-                    //.setPriority(NotificationManager.IMPORTANCE_MAX)
                     .build();
 
         } else {
@@ -176,14 +172,14 @@ public class NotificationService extends Service {
                     .setShowWhen(false)
                     .setColor(context.getResources()
                     .getColor(R.color.pink))
-                    .addAction(R.drawable.ic_previous, "", pprevIntent)
-                    .addAction(iconInts[index], "", pplayIntent)
-                    .addAction(R.drawable.ic_next, "", pnextIntent)
-                    .setDeleteIntent(pdeleteIntent)
+                    .addAction(R.drawable.ic_previous, "Previous", pprevIntent)
+                    .addAction(iconInts[index], index ==0?"Pause":"Play", pplayIntent)
+                    .addAction(R.drawable.ic_next, "Next", pnextIntent)
                     .setContentIntent(pendingIntent)
                     .setTimeoutAfter(1800000)
-                    .setWhen(System.currentTimeMillis())
                     .setCategory(Notification.CATEGORY_TRANSPORT)
+                    .setWhen(System.currentTimeMillis())
+                    .setPriority(notificationManager.IMPORTANCE_MAX)
                     .build();
         }
         if (iP) {
@@ -220,11 +216,6 @@ public class NotificationService extends Service {
         nextIntent = new Intent(this, NotificationService.class);
         nextIntent.setAction(Constants.NEXT_ACTION);
         pnextIntent = PendingIntent.getService(this, 0, nextIntent, 0);
-
-        deleteIntent = new Intent(this, NotificationService.class);
-        deleteIntent.setAction(Constants.STOPFOREGROUND_ACTION);
-        pdeleteIntent = PendingIntent.getService(this, 0, deleteIntent, 0);
-
 
         //ComponentName mediaButtonReceiver = new ComponentName(this ,RemoteControlReceiver.class);
         mediaSession = new MediaSessionCompat(this, "playback", null, null);// mediaButtonReceiver, null);

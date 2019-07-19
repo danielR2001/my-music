@@ -24,7 +24,6 @@ class MusicPlayerPage extends StatefulWidget {
 class MusicPageState extends State<MusicPlayerPage> {
   Duration _position;
   Duration _duration;
-  Icon musicPlayerIcon;
   Icon playlistModeIcon;
   StreamSubscription<AudioPlayerState> stateStream;
   StreamSubscription<Duration> posStream;
@@ -432,23 +431,19 @@ class MusicPageState extends State<MusicPlayerPage> {
       ),
       onPressed: () {
         if (audioPlayerManager.currentPlaylist != null &&
-            audioPlayerManager.currentPlaylist.getSongs.length > 0) {
-          if (audioPlayerManager.isSongLoaded) {
-            setState(() {
-              _position = Duration(seconds: 0);
-              _duration = _duration;
-            });
-            if (!flipCardKey.currentState.isFront) {
-              flipCardKey.currentState.toggleCard();
-            }
+            audioPlayerManager.currentPlaylist.getSongs.length > 0 &&
+            audioPlayerManager.isSongLoaded) {
+          if (!flipCardKey.currentState.isFront) {
+            flipCardKey.currentState.toggleCard();
+          }
+          audioPlayerManager.playPreviousSong();
+          setState(() {
+            _position = Duration(seconds: 0);
+            _duration = _duration;
             if (audioPlayerManager.previousMode == PreviousMode.previous) {
               imageProvider = null;
-              setState(() {
-                imageProvider = null;
-              });
             }
-            audioPlayerManager.playPreviousSong();
-          }
+          });
         }
       },
     );
@@ -462,7 +457,17 @@ class MusicPageState extends State<MusicPlayerPage> {
           width: 80,
           height: 80,
           alignment: Alignment.center,
-          child: musicPlayerIcon,
+          child: audioPlayerManager.audioPlayerState == AudioPlayerState.PLAYING
+              ? Icon(
+                  Icons.pause_circle_filled,
+                  color: Colors.white,
+                  size: 77,
+                )
+              : Icon(
+                  MyCustomIcons.play_rounded_icon,
+                  color: Colors.white,
+                  size: 80,
+                ),
         ),
         onTap: () {
           if (audioPlayerManager.isSongLoaded &&
@@ -490,18 +495,17 @@ class MusicPageState extends State<MusicPlayerPage> {
       ),
       onPressed: () {
         if (audioPlayerManager.currentPlaylist != null &&
-            audioPlayerManager.currentPlaylist.getSongs.length > 0) {
-          if (audioPlayerManager.isSongLoaded) {
-            setState(() {
-              _position = Duration(seconds: 0);
-              _duration = _duration;
-              imageProvider = null;
-            });
-            if (!flipCardKey.currentState.isFront) {
-              flipCardKey.currentState.toggleCard();
-            }
-            audioPlayerManager.playNextSong();
+            audioPlayerManager.currentPlaylist.getSongs.length > 0 &&
+            audioPlayerManager.isSongLoaded) {
+          if (!flipCardKey.currentState.isFront) {
+            flipCardKey.currentState.toggleCard();
           }
+          audioPlayerManager.playNextSong();
+          setState(() {
+            _position = Duration(seconds: 0);
+            _duration = _duration;
+            imageProvider = null;
+          });
         }
       },
     );
@@ -542,6 +546,22 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
   }
 
+  Widget drawPauseIcon() {
+    return Icon(
+      Icons.pause_circle_filled,
+      color: Colors.white,
+      size: 77,
+    );
+  }
+
+  Widget drawPlayIcon() {
+    return Icon(
+      MyCustomIcons.play_rounded_icon,
+      color: Colors.white,
+      size: 80,
+    );
+  }
+
   //methods
   void showMoreOptions(BuildContext context) {
     showModalBottomSheet(
@@ -556,30 +576,6 @@ class MusicPageState extends State<MusicPlayerPage> {
         );
       },
     );
-  }
-
-  void changePlayingIconState(bool isPlaying) {
-    if (isPlaying) {
-      setState(
-        () {
-          musicPlayerIcon = Icon(
-            Icons.pause_circle_filled,
-            color: Colors.white,
-            size: 77,
-          );
-        },
-      );
-    } else {
-      setState(
-        () {
-          musicPlayerIcon = Icon(
-            MyCustomIcons.play_rounded_icon,
-            color: Colors.white,
-            size: 80,
-          );
-        },
-      );
-    }
   }
 
   void changePlaylistModeIconState() {
@@ -606,29 +602,6 @@ class MusicPageState extends State<MusicPlayerPage> {
     }
   }
 
-  void checkSongStatus(AudioPlayerState state) {
-    if (state == AudioPlayerState.PLAYING) {
-      checkForIntenetConnetionForNetworkImage();
-      changePlayingIconState(true);
-    } else if (state == AudioPlayerState.PAUSED) {
-      changePlayingIconState(false);
-    } else if (state == AudioPlayerState.STOPPED) {
-      if (mounted) {
-        setState(() {
-          _position = Duration(seconds: 0);
-        });
-      }
-      changePlayingIconState(false);
-    } else if (state == AudioPlayerState.COMPLETED) {
-      if (mounted) {
-        setState(() {
-          _position = Duration(seconds: 0);
-        });
-      }
-      changePlayingIconState(false);
-    }
-  }
-
   void initSong() {
     posStream = audioPlayerManager.audioPlayer.onAudioPositionChanged
         .listen((Duration p) {
@@ -648,20 +621,21 @@ class MusicPageState extends State<MusicPlayerPage> {
         audioPlayerManager.audioPlayer.onPlayerCompletion.listen((a) {
       checkForIntenetConnetionForNetworkImage();
       if (mounted) {
+        if (!flipCardKey.currentState.isFront) {
+          flipCardKey.currentState.toggleCard();
+        }
         setState(() {
-          if (!flipCardKey.currentState.isFront) {
-            flipCardKey.currentState.toggleCard();
-          }
           imageProvider = null;
           _position = Duration(seconds: 0);
         });
       }
     });
     changePlaylistModeIconState();
-    checkSongStatus(audioPlayerManager.audioPlayer.state);
     stateStream = audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
-        checkSongStatus(state);
+        setState(() {
+          
+        });
       },
     );
   }
@@ -710,7 +684,6 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   void playSong() {
-    generateBackgroundColors();
     checkForIntenetConnetionForNetworkImage();
     audioPlayerManager.initSong(
       song: audioPlayerManager.currentSong,
