@@ -3,7 +3,6 @@ import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
-import 'package:myapp/main.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 
@@ -174,10 +173,10 @@ class _SearchPageState extends State<SearchPage> {
   ListTile songSearchResult(Song song, BuildContext context) {
     String title;
     String artist;
-    if (song.getTitle.length > 28) {
-      int pos = song.getTitle.lastIndexOf("", 28);
-      if (pos < 20) {
-        pos = 28;
+    if (song.getTitle.length > 33) {
+      int pos = song.getTitle.lastIndexOf("", 33);
+      if (pos < 25) {
+        pos = 33;
       }
       title = song.getTitle.substring(0, pos) + "...";
     } else {
@@ -219,14 +218,14 @@ class _SearchPageState extends State<SearchPage> {
         },
       ),
       onTap: () async {
-        if (audioPlayerManager.isSongLoaded) {
+        if (AudioPlayerManager.isSongLoaded) {
           Playlist temp = Playlist(searchResultsPlaylist.getName);
           temp.setSongs = searchResultsPlaylist.getSongs;
           FocusScope.of(context).requestFocus(FocusNode());
-          audioPlayerManager.initSong(
+          AudioPlayerManager.initSong(
             song: song,
             playlist: temp,
-            playlistMode: PlaylistMode.loop,
+            mode: PlaylistMode.loop,
           );
         }
       },

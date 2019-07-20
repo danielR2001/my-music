@@ -3,7 +3,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/main.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/user.dart';
 import 'welcome_page.dart';
@@ -36,7 +35,7 @@ class _RootPageState extends State<RootPage> {
             if (GlobalVariables.isNetworkAvailable) {
               FirebaseDatabaseManager.syncUser(user.uid).then((user) {
                 if (user != null && user.getName != "") {
-                  currentUser = user;
+                  GlobalVariables.currentUser = user;
                   ManageLocalSongs.checkIfStoragePermissionGranted()
                       .then((permissionGranted) {
                     ManageLocalSongs.initDirs().then((a) {
@@ -60,7 +59,7 @@ class _RootPageState extends State<RootPage> {
               });
             } else {
               GlobalVariables.isOfflineMode = true;
-              currentUser = User(user.email, user.uid);
+              GlobalVariables.currentUser = User(user.email, user.uid);
               ManageLocalSongs.checkIfStoragePermissionGranted()
                   .then((permissionGranted) {
                 ManageLocalSongs.initDirs().then((a) {

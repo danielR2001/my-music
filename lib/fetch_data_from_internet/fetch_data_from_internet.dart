@@ -101,7 +101,7 @@ class FetchData {
 
       List<dynamic> list = jsonDecode(response.data)['data'];
       if (list.length > 0) {
-        return _getImageUrlFromResponse(list[0]);
+        return _getImageUrlFromResponse(list);
       } else {
         if (!secondTry) {
           return getSongImageUrl(song, true);
@@ -120,7 +120,7 @@ class FetchData {
     }
   }
 
-  static Future<Artist> getArtistPageIdAndImageUrl(String artistName) async {
+  static Future<Artist> getArtistImageUrl(String artistName) async {
     String name = artistName;
     if (artistName.contains(" ")) {
       name = name.replaceAll(" ", "+");
@@ -129,37 +129,16 @@ class FetchData {
       Response response = await Dio().get(
         artistIdUrl + name,
       );
-      print('Get Artist Info search completed');
+      print('Get Artist ImageUrl search completed');
 
       List<dynamic> list = response.data['artists'];
       if (list.length > 0) {
         return Artist(artistName,
-            "https://ichef.bbci.co.uk/images/ic/160x160/" + list[0]["image_id"],
-            id: list[0]["id"]);
+            "https://ichef.bbci.co.uk/images/ic/960x540/" + list[0]["image_id"]);
       } else {
         return Artist(artistName,
-            "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png",
-            info: "");
+            "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png");
       }
-    } on DioError catch (e) {
-      print(e);
-      _makeToast(text: "No network connection");
-      return null;
-    } catch (e) {
-      print(e);
-      _makeToast(text: "Something went wrong");
-      return null;
-    }
-  }
-
-  static Future<Artist> getArtistInfoPage(Artist artist) async {
-    try {
-      Response response = await Dio().get(
-        artistInfoSearchUrl + artist.getId,
-      );
-      print('Get Artist Info search completed');
-      Document document = parse(response.data);
-      return _buildArtist(document, artist);
     } on DioError catch (e) {
       print(e);
       _makeToast(text: "No network connection");
@@ -223,40 +202,13 @@ class FetchData {
     }
   }
 
-  static Artist _buildArtist(Document document, Artist artist) {
-    String info;
-    String imageUrl;
-    List infoElement;
-    List imageUrlElement;
-    if (artist.getImageUrl !=
-        "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png") {
-      imageUrlElement = document.getElementsByClassName("artist-image");
-      imageUrl = imageUrlElement[0].innerHtml;
-      imageUrl = imageUrl.substring(
-          imageUrl.indexOf('data-default-src="') + 'data-default-src="'.length,
-          imageUrl.indexOf('"> <source srcset='));
-    } else {
-      imageUrl = "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png";
+  static String _getImageUrlFromResponse(List<dynamic> songValues) {
+    int index = 0;
+    while (songValues[index]['title'].contains("8-Bit") ||
+        songValues[index]['title'].contains("16-Bit")) {
+      index++;
     }
-    infoElement = document.getElementsByClassName("msc-artist-biography-text");
-    if (infoElement.length > 0) {
-      info = infoElement[0].innerHtml;
-      info = info.substring(3, info.length - 4);
-      info = info.replaceAll("</p><p>", "\n\n");
-      info = info.replaceAll("amp;", "");
-      info = info.replaceAll("Â&nbsp;â", " -");
-      info = info.replaceAll(RegExp("[^\\x00-\\x7F]"), "");
-      info = info.replaceAll(";", "");
-    } else {
-      info = "";
-    }
-    artist.setInfo = info;
-    artist.setImageUrl = imageUrl;
-    return artist;
-  }
-
-  static String _getImageUrlFromResponse(Map songValues) {
-    Map album = songValues['album'];
+    Map album = songValues[index]['album'];
     return album['cover_big'];
   }
 

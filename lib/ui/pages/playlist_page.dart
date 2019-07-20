@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
-import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/models/user.dart';
@@ -136,7 +135,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                         height: 1,
                       ),
                       AutoSizeText(
-                        currentUser != null
+                        GlobalVariables.currentUser != null
                             ? widget.playlistModalSheetMode !=
                                     PlaylistModalSheetMode.download
                                 ? "by: " + widget.playlistCreator.getName
@@ -209,10 +208,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
         List.generate(playlist.getSongs.length, (int index) {
           String title;
           String artist;
-          if (playlist.getSongs[index].getTitle.length > 35) {
-            int pos = playlist.getSongs[index].getTitle.lastIndexOf("", 35);
+          if (playlist.getSongs[index].getTitle.length > 33) {
+            int pos = playlist.getSongs[index].getTitle.lastIndexOf("", 33);
             if (pos < 25) {
-              pos = 35;
+              pos = 33;
             }
             title = playlist.getSongs[index].getTitle.substring(0, pos) + "...";
           } else {
@@ -289,42 +288,42 @@ class _PlaylistPageState extends State<PlaylistPage> {
             onTap: () {
               String playlistPushId;
               bool openMusicPlayer = false;
-              if (audioPlayerManager.currentSong != null &&
-                  audioPlayerManager.currentPlaylist != null) {
-                if (audioPlayerManager.currentPlaylist.getPushId != null) {
-                  playlistPushId = audioPlayerManager.currentPlaylist.getPushId;
+              if (AudioPlayerManager.currentSong != null &&
+                  AudioPlayerManager.currentPlaylist != null) {
+                if (AudioPlayerManager.currentPlaylist.getPushId != null) {
+                  playlistPushId = AudioPlayerManager.currentPlaylist.getPushId;
                 } else {
-                  playlistPushId = audioPlayerManager
+                  playlistPushId = AudioPlayerManager
                       .currentPlaylist.getPublicPlaylistPushId;
                 }
 
                 if (playlist.getPushId != null) {
                   if (playlist.getPushId == playlistPushId) {
-                    if (audioPlayerManager.currentSong.getSongId ==
+                    if (AudioPlayerManager.currentSong.getSongId ==
                         playlist.getSongs[index].getSongId) {
                       openMusicPlayer = true;
                     }
                   }
                 } else {
                   if (playlist.getPublicPlaylistPushId == playlistPushId) {
-                    if (audioPlayerManager.currentSong.getSongId ==
+                    if (AudioPlayerManager.currentSong.getSongId ==
                         playlist.getSongs[index].getSongId) {
                       openMusicPlayer = true;
                     }
                   }
                 }
               }
-              if (audioPlayerManager.isSongLoaded) {
+              if (AudioPlayerManager.isSongLoaded) {
                 if (openMusicPlayer) {
                   Navigator.push(
                     GlobalVariables.homePageContext,
                     MaterialPageRoute(builder: (context) => MusicPlayerPage()),
                   );
                 } else {
-                  audioPlayerManager.initSong(
+                  AudioPlayerManager.initSong(
                     song: playlist.getSongs[index],
                     playlist: playlist,
-                    playlistMode: PlaylistMode.loop,
+                    mode: PlaylistMode.loop,
                   );
                 }
               }
@@ -337,18 +336,18 @@ class _PlaylistPageState extends State<PlaylistPage> {
 
   Color setSongColor(Playlist playlist, Song song, bool returnWhite) {
     String playlistPushId;
-    if (audioPlayerManager.currentSong != null &&
-        audioPlayerManager.currentPlaylist != null) {
-      if (audioPlayerManager.currentPlaylist.getPushId != null) {
-        playlistPushId = audioPlayerManager.currentPlaylist.getPushId;
+    if (AudioPlayerManager.currentSong != null &&
+        AudioPlayerManager.currentPlaylist != null) {
+      if (AudioPlayerManager.currentPlaylist.getPushId != null) {
+        playlistPushId = AudioPlayerManager.currentPlaylist.getPushId;
       } else {
         playlistPushId =
-            audioPlayerManager.currentPlaylist.getPublicPlaylistPushId;
+            AudioPlayerManager.currentPlaylist.getPublicPlaylistPushId;
       }
 
       if (playlist.getPushId != null) {
         if (playlist.getPushId == playlistPushId) {
-          if (audioPlayerManager.currentSong.getSongId == song.getSongId) {
+          if (AudioPlayerManager.currentSong.getSongId == song.getSongId) {
             return GlobalVariables.pinkColor;
           } else {
             return returnWhite ? Colors.white : Colors.grey;
@@ -358,7 +357,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
         }
       } else {
         if (playlist.getPublicPlaylistPushId == playlistPushId) {
-          if (audioPlayerManager.currentSong.getSongId == song.getSongId) {
+          if (AudioPlayerManager.currentSong.getSongId == song.getSongId) {
             return GlobalVariables.pinkColor;
           } else {
             return returnWhite ? Colors.white : Colors.grey;
@@ -373,9 +372,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
   }
 
   void showSongOptions(Song song, Playlist currentPlaylist) {
-    if (currentUser != null) {
+    if (GlobalVariables.currentUser != null) {
       SongModalSheetMode songModalSheetMode;
-      if (currentUser.getPlaylists.contains(currentPlaylist)) {
+      if (GlobalVariables.currentUser.getPlaylists.contains(currentPlaylist)) {
         songModalSheetMode = SongModalSheetMode.regular;
       } else {
         songModalSheetMode = SongModalSheetMode.download_public_search_artist;
@@ -518,10 +517,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
               elevation: 6.0,
               onPressed: () {
                 if (widget.playlist.getSongs.length > 0) {
-                  audioPlayerManager.initSong(
+                  AudioPlayerManager.initSong(
                     song: widget.playlist.getSongs[0],
                     playlist: widget.playlist,
-                    playlistMode: PlaylistMode.loop,
+                    mode: PlaylistMode.loop,
                   );
                 }
               },
@@ -566,10 +565,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 if (widget.playlist.getSongs.length > 0) {
                   var rnd = Random();
                   int randomNum = rnd.nextInt(widget.playlist.getSongs.length);
-                  audioPlayerManager.initSong(
+                  AudioPlayerManager.initSong(
                     song: widget.playlist.getSongs[randomNum],
                     playlist: widget.playlist,
-                    playlistMode: PlaylistMode.shuffle,
+                    mode: PlaylistMode.shuffle,
                   );
                 }
               },

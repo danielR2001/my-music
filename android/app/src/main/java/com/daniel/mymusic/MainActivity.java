@@ -13,6 +13,7 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.util.Log;
 
 import androidx.palette.graphics.Palette;
 
@@ -44,19 +45,23 @@ public class MainActivity extends FlutterActivity {
           String localPath = call.argument("localPath");
           boolean loadImage = call.argument("loadImage");
           if (loadImage) {
-            Bitmap bitmap;
             try {
-              bitmap = new LoadImageFromUrl(title, artist, imageUrl, getApplicationContext(), isPlaying, localPath)
-                  .execute().get();
+              LoadImageFromUrl loadImageFromUrl=new LoadImageFromUrl(title, artist, imageUrl, getApplicationContext(), isPlaying, localPath, new AsyncResponse() { 
+                @Override 
+                public void processFinish(Bitmap bitmap) { 
+                  if(bitmap !=null){
+                    NotificationService.makeNotification(title, artist, bitmap, getApplicationContext(), isPlaying, imageUrl);
+                    Log.d("load Image Thread", "image loading success");
+                  }else{
+                    NotificationService.makeNotification(title, artist, null, getApplicationContext(), isPlaying, imageUrl);
+                    Log.d("load Image Thread", "image loading failed");
+                  }
+                } 
+              }); 
+              loadImageFromUrl.execute();
             } catch (Exception e) {
-              bitmap = null;
-            }
-            if (bitmap != null) {
-              NotificationService.makeNotification(title, artist, bitmap, getApplicationContext(), isPlaying, imageUrl);
-            } else {
               NotificationService.makeNotification(title, artist, null, getApplicationContext(), isPlaying, imageUrl);
             }
-            result.success(true);
           } else {
             NotificationService.makeNotification(title, artist, NotificationService.imageBitmap,
                 getApplicationContext(), isPlaying, imageUrl);
@@ -75,25 +80,42 @@ public class MainActivity extends FlutterActivity {
         if (call.method.equals("getDominantColor")) {
           String imagePath = call.argument("imagePath");
           boolean isLocal = call.argument("isLocal");
-          Bitmap bitmap;
           if (isLocal) {
             try {
-              bitmap = new LoadImageFromUrl(null, imagePath).execute().get();
+              LoadImageFromUrl loadImageFromUrl = new LoadImageFromUrl(null, imagePath, new AsyncResponse() { 
+                @Override 
+                public void processFinish(Bitmap bitmap) { 
+                  if(bitmap !=null){
+                    result.success(getImageDominantColor(bitmap));
+                    Log.d("load Image Thread", "image loading success");
+                  }else{
+                    result.success(null);
+                    Log.d("load Image Thread", "image loading failed");
+                  }
+                } 
+              }); 
+              loadImageFromUrl.execute();
             } catch (Exception e) {
-              bitmap = null;
+              result.success(null);
             }
           } else {
             try {
-              bitmap = new LoadImageFromUrl(imagePath, null).execute().get();
+              LoadImageFromUrl loadImageFromUrl=new LoadImageFromUrl(imagePath, null, new AsyncResponse() { 
+                @Override 
+                public void processFinish(Bitmap bitmap) { 
+                  if(bitmap !=null){
+                    result.success(getImageDominantColor(bitmap));
+                    Log.d("load Image Thread", "image loading success");
+                  }else{
+                    result.success(null);
+                    Log.d("load Image Thread", "image loading failed");
+                  }
+                } 
+              }); 
+              loadImageFromUrl.execute();
             } catch (Exception e) {
-              bitmap = null;
+              result.success(null);
             }
-          }
-          if (bitmap != null) {
-            ;
-            result.success(getImageDominantColor(bitmap));
-          } else {
-            result.success(null);
           }
         }
       }

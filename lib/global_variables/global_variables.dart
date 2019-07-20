@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/models/playlist.dart';
+import 'package:myapp/models/user.dart';
 
 class GlobalVariables{
   static final Color lightGreyColor = Color(0xFF222222);
@@ -11,4 +13,6 @@ class GlobalVariables{
   static String lastSearch;
   static bool isOfflineMode = false;
   static bool isNetworkAvailable;
+  static User currentUser;
+  static List<Playlist> publicPlaylists;
 }

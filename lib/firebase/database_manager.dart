@@ -1,7 +1,6 @@
 import 'dart:async';
-
 import 'package:firebase_database/firebase_database.dart';
-import 'package:myapp/main.dart';
+import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/user.dart';
@@ -21,7 +20,7 @@ class FirebaseDatabaseManager {
   static void saveUser() {
     var pushId = FirebaseDatabase.instance.reference().child(_usersDir).push();
     pushId.set(
-      currentUser.toJson(),
+      GlobalVariables.currentUser.toJson(),
     );
     _userPushId = pushId.key;
   }
@@ -184,7 +183,7 @@ class FirebaseDatabaseManager {
             
             tempPlaylist.setSongs = sortedPlaylist;
             tempPlaylist.setSortedType = SortType.title;
-            publicPlaylists.add(tempPlaylist);
+            GlobalVariables.publicPlaylists.add(tempPlaylist);
           }
         },
       );
@@ -252,7 +251,7 @@ class FirebaseDatabaseManager {
   }
 
   static void _removeSongFromPublicPlaylist(Playlist playlist, Song song) {
-    Playlist publicPlaylist = publicPlaylists
+    Playlist publicPlaylist = GlobalVariables.publicPlaylists
         .where((temp) =>
             temp.getName == playlist.getName &&
             temp.getCreator == playlist.getCreator)
@@ -350,9 +349,9 @@ class FirebaseDatabaseManager {
         .onChildChanged
         .listen((playlistMap) {
       _updatePublicPlaylist(playlistMap.snapshot.key).then((playlist) {
-        publicPlaylists.removeWhere((temp) =>
+        GlobalVariables.publicPlaylists.removeWhere((temp) =>
             temp.getPublicPlaylistPushId == playlist.getPublicPlaylistPushId);
-        publicPlaylists.add(playlist);
+        GlobalVariables.publicPlaylists.add(playlist);
       });
     });
     onChildRemoved = FirebaseDatabase.instance
@@ -360,7 +359,7 @@ class FirebaseDatabaseManager {
         .child(_publicPlaylistsDir)
         .onChildRemoved
         .listen((playlistMap) {
-      publicPlaylists.removeWhere(
+      GlobalVariables.publicPlaylists.removeWhere(
           (temp) => temp.getPublicPlaylistPushId == playlistMap.snapshot.key);
     });
     onChildAdded = FirebaseDatabase.instance
@@ -371,10 +370,10 @@ class FirebaseDatabaseManager {
       if (!_firstCallChildAdded &&
           playlistMap.snapshot.key != "publicPlaylists") {
         _updatePublicPlaylist(playlistMap.snapshot.key).then((playlist) {
-          publicPlaylists.add(playlist);
+          GlobalVariables.publicPlaylists.add(playlist);
         });
       } else {
-        if (index == publicPlaylists.length - 1) {
+        if (index == GlobalVariables.publicPlaylists.length - 1) {
           _firstCallChildAdded = false;
         } else {
           index++;

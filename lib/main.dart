@@ -4,19 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:myapp/communicate_with_native/music_control_notification.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/models/playlist.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/ui/decorations/portrait_mode_mixin.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/ui/pages/root_page.dart';
-import 'package:myapp/models/user.dart';
 import 'package:provider/provider.dart';
 
 void main() => runApp(MyApp());
-AudioPlayerManager audioPlayerManager;
-User currentUser;
-List<Playlist> publicPlaylists;
 
 class MyApp extends StatelessWidget with PortraitModeMixin {
   @override
@@ -44,8 +39,8 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
   void init(BuildContext context) async {
     FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
     FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
-    audioPlayerManager = AudioPlayerManager();
-    publicPlaylists = new List();
+    GlobalVariables.publicPlaylists = new List();
+    AudioPlayerManager.initAudioPlayerManager();
     MusicControlNotification.startService(context);
     ConnectivityResult connectivityResult =
         await Connectivity().checkConnectivity();
@@ -60,9 +55,9 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
       } else {
         GlobalVariables.isNetworkAvailable = true;
         if (GlobalVariables.isOfflineMode) {
-          FirebaseDatabaseManager.syncUser(currentUser.getFirebaseUId)
+          FirebaseDatabaseManager.syncUser(GlobalVariables.currentUser.getFirebaseUId)
               .then((user) {
-            currentUser = user;
+            GlobalVariables.currentUser = user;
             GlobalVariables.isOfflineMode = false;
           });
         }

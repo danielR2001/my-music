@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/ui/decorations/my_custom_icons.dart';
@@ -9,7 +10,6 @@ import 'package:myapp/ui/widgets/sound_bar.dart';
 import 'package:myapp/tab_navigation/tab_navigator.dart';
 import 'package:provider/provider.dart';
 import 'music_player_page.dart';
-import 'package:myapp/main.dart';
 import 'package:myapp/ui/widgets/text_style.dart';
 
 class HomePage extends StatefulWidget {
@@ -105,7 +105,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void initSong() {
-    stateStream = audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
+    stateStream = AudioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
         setState(() {});
       },
@@ -113,7 +113,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget musicPlayerControl() {
-    if (audioPlayerManager.currentSong != null) {
+    if (AudioPlayerManager.currentSong != null) {
       return GestureDetector(
           child: Container(
             decoration: BoxDecoration(
@@ -125,7 +125,7 @@ class _HomePageState extends State<HomePage> {
             height: 45,
             child: Row(
               children: <Widget>[
-                audioPlayerManager.audioPlayerState == AudioPlayerState.PLAYING
+                AudioPlayerManager.audioPlayerState == AudioPlayerState.PLAYING
                     ? drawPlayingSoundBar()
                     : drawPausedSoundBar(),
                 Expanded(
@@ -139,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           TextDecoration(
-                            txt: audioPlayerManager.currentSong.getTitle,
+                            txt: AudioPlayerManager.currentSong.getTitle,
                             size: 14,
                             color: Colors.white,
                             txtMaxLength: 30,
@@ -148,7 +148,7 @@ class _HomePageState extends State<HomePage> {
                             makeBold: true,
                           ),
                           TextDecoration(
-                            txt: audioPlayerManager.currentSong.getArtist,
+                            txt: AudioPlayerManager.currentSong.getArtist,
                             size: 14,
                             color: Colors.grey,
                             txtMaxLength: 30,
@@ -163,22 +163,22 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Expanded(
                   child: IconButton(
-                    icon: audioPlayerManager.audioPlayerState ==
+                    icon: AudioPlayerManager.audioPlayerState ==
                             AudioPlayerState.PLAYING
                         ? drawPauseIcon()
                         : drawPlayIcon(),
                     iconSize: 20,
                     onPressed: () {
-                      if (audioPlayerManager.isSongLoaded &&
-                          audioPlayerManager.songPosition !=
+                      if (AudioPlayerManager.isSongLoaded &&
+                          AudioPlayerManager.songPosition !=
                               Duration(milliseconds: 0)) {
-                        audioPlayerManager.audioPlayer.state ==
+                        AudioPlayerManager.audioPlayer.state ==
                                 AudioPlayerState.PLAYING
-                            ? audioPlayerManager.pauseSong(
+                            ? AudioPlayerManager.pauseSong(
                                 calledFromNative: false)
-                            : audioPlayerManager.audioPlayer.state ==
+                            : AudioPlayerManager.audioPlayer.state ==
                                     AudioPlayerState.PAUSED
-                                ? audioPlayerManager.resumeSong(
+                                ? AudioPlayerManager.resumeSong(
                                     calledFromNative: false)
                                 : playSong();
                       }
@@ -198,10 +198,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void playSong() {
-    audioPlayerManager.initSong(
-      song: audioPlayerManager.currentSong,
-      playlist: audioPlayerManager.currentPlaylist,
-      playlistMode: audioPlayerManager.playlistMode,
+    AudioPlayerManager.initSong(
+      song: AudioPlayerManager.currentSong,
+      playlist: AudioPlayerManager.currentPlaylist,
+      mode: AudioPlayerManager.playlistMode,
     );
   }
 

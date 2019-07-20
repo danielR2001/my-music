@@ -6,7 +6,6 @@ import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/playlist.dart';
 
@@ -98,11 +97,11 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                   ),
                   Expanded(
                     child: ListView.builder(
-                      itemCount: currentUser.getPlaylists != null
-                          ? currentUser.getPlaylists.length
+                      itemCount: GlobalVariables.currentUser.getPlaylists != null
+                          ? GlobalVariables.currentUser.getPlaylists.length
                           : 0,
                       itemBuilder: (BuildContext context, int index) {
-                        return userPlaylists(currentUser.getPlaylists[index]);
+                        return userPlaylists(GlobalVariables.currentUser.getPlaylists[index]);
                       },
                     ),
                   ),
@@ -173,33 +172,33 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           song.setImageUrl = imageUrl;
         }
       }
-      if (audioPlayerManager.currentPlaylist != null
-          ? playlist.getName == audioPlayerManager.currentPlaylist.getName
+      if (AudioPlayerManager.currentPlaylist != null
+          ? playlist.getName == AudioPlayerManager.currentPlaylist.getName
           : false) {
-        if (audioPlayerManager.playlistMode == PlaylistMode.shuffle) {
+        if (AudioPlayerManager.playlistMode == PlaylistMode.shuffle) {
           updatedsong = song;
           updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
           updatedsong =
               FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
           playlist.addNewSong(updatedsong);
-          currentUser.updatePlaylist(playlist);
-          audioPlayerManager.loopPlaylist = playlist;
-          audioPlayerManager.setCurrentPlaylist();
+          GlobalVariables.currentUser.updatePlaylist(playlist);
+          AudioPlayerManager.loopPlaylist = playlist;
+          AudioPlayerManager.setCurrentPlaylist();
         } else {
           updatedsong = song;
           updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
           updatedsong =
               FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
           playlist.addNewSong(updatedsong);
-          currentUser.updatePlaylist(playlist);
-          audioPlayerManager.loopPlaylist = playlist;
+          GlobalVariables.currentUser.updatePlaylist(playlist);
+          AudioPlayerManager.loopPlaylist = playlist;
         }
       } else {
         updatedsong = song;
         updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
         updatedsong = FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
         playlist.addNewSong(updatedsong);
-        currentUser.updatePlaylist(playlist);
+        GlobalVariables.currentUser.updatePlaylist(playlist);
       }
       return true;
     } else {
@@ -228,7 +227,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     if (form.validate()) {
       form.save();
       if (_playlistName != "Search Playlist") {
-        currentUser.getPlaylists.forEach((playlist) {
+        GlobalVariables.currentUser.getPlaylists.forEach((playlist) {
           if (playlist.getName == _playlistName) {
             nameExists = true;
           }
@@ -237,7 +236,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
           Navigator.of(context, rootNavigator: true).pop('dialog');
           showLoadingBar(context);
           Playlist playlist = Playlist(_playlistName,
-              creator: currentUser.getName, isPublic: _isPublic);
+              creator: GlobalVariables.currentUser.getName, isPublic: _isPublic);
           playlist.setPushId = FirebaseDatabaseManager.addPlaylist(playlist);
           if (playlist.getIsPublic) {
             playlist =
@@ -256,7 +255,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
             updatedsong = FirebaseDatabaseManager.addSongToPlaylist(
                 playlist, widget.song);
             playlist.addNewSong(updatedsong);
-            currentUser.addNewPlaylist(playlist);
+            GlobalVariables.currentUser.addNewPlaylist(playlist);
           } else {
             widget.songs.forEach((song) {
               if (song.getImageUrl == "") {
@@ -274,7 +273,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                 playlist.addNewSong(updatedsong);
               }
             });
-            currentUser.addNewPlaylist(playlist);
+            GlobalVariables.currentUser.addNewPlaylist(playlist);
           }
           Navigator.of(context, rootNavigator: true).pop('dialog');
           Navigator.pop(context);

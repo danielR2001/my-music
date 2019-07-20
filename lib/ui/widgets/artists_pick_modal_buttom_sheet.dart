@@ -18,8 +18,6 @@ class ArtistsPickModalSheet extends StatefulWidget {
 }
 
 class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
-  bool canceled = false;
-  bool loadingArtists = false;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -79,11 +77,7 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
                     width: 0.2,
                   ),
                   image: DecorationImage(
-                    image: widget.artists[index].getImageUrl.length > 0
-                        ? NetworkImage(widget.artists[index].getImageUrl)
-                        : NetworkImage(
-                            'https://static.bbc.co.uk/music_clips/3.0.29/img/default_artist_images/pop1.jpg',
-                          ),
+                    image: NetworkImage(widget.artists[index].getImageUrl),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -98,125 +92,35 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
           ),
         ),
         onTap: () {
-          canceled = false;
           List<Song> songs = List();
-          showLoadingBar(context);
-          if (widget.artists[index].getId != null) {
-            FetchData.getArtistInfoPage(widget.artists[index]).then((artist) {
-              if (!canceled && artist != null) {
-                FetchData.getSearchResults(artist.getName).then((results) {
-                  if (!canceled) {
-                    if (results != null && results[artist.getName] != null) {
-                      results[artist.getName].forEach((song) {
-                        if (song.getArtist
-                                .toLowerCase()
-                                .contains(artist.getName.toLowerCase()) ||
-                            song.getTitle
-                                .toLowerCase()
-                                .contains(artist.getName.toLowerCase())) {
-                          songs.add(song);
-                        }
-                      });
-                      Playlist temp = Playlist(artist.getName + " Top Hits");
-                      temp.setSongs = songs;
-                      Provider.of<PageNotifier>(context)
-                          .setCurrentPlaylistPagePlaylist = temp;
-                    }
-                    loadingArtists = true;
-                    Navigator.of(context, rootNavigator: true).pop('dialog');
-                    Navigator.push(
-                      GlobalVariables.homePageContext,
-                      MaterialPageRoute(
-                          builder: (context) => ArtistPage(artist)),
-                    );
-                  }
-                });
-              } else {
-                if (artist == null) {
-                  Navigator.of(context, rootNavigator: true).pop('dialog');
+          Provider.of<PageNotifier>(context).setCurrentPlaylistPagePlaylist =
+              null;
+          FetchData.getSearchResults(widget.artists[index].getName)
+              .then((results) {
+            if (results != null &&
+                results[widget.artists[index].getName] != null) {
+              results[widget.artists[index].getName].forEach((song) {
+                if (song.getArtist.toLowerCase().contains(
+                        widget.artists[index].getName.toLowerCase()) ||
+                    song.getTitle.toLowerCase().contains(
+                        widget.artists[index].getName.toLowerCase())) {
+                  songs.add(song);
                 }
-              }
-            });
-          } else {
-            Provider.of<PageNotifier>(context).currentPlaylistPagePlaylist =
-                Playlist(widget.artists[index].getName + " Top Hits");
-            FetchData.getSearchResults(widget.artists[index].getName)
-                .then((results) {
-              if (!canceled) {
-                if (results != null &&
-                    results[widget.artists[index].getName] != null) {
-                  results[widget.artists[index].getName].forEach((song) {
-                    if (song.getArtist.toLowerCase().contains(
-                            widget.artists[index].getName.toLowerCase()) ||
-                        song.getTitle.toLowerCase().contains(
-                            widget.artists[index].getName.toLowerCase())) {
-                      songs.add(song);
-                    }
-                  });
-                  Playlist temp =
-                      Playlist(widget.artists[index].getName + " Top Hits");
-                  temp.setSongs = songs;
-                  Provider.of<PageNotifier>(context)
-                      .setCurrentPlaylistPagePlaylist = temp;
-                }
-                loadingArtists = true;
-                Navigator.of(context, rootNavigator: true).pop('dialog');
-                Navigator.push(
-                  GlobalVariables.homePageContext,
-                  MaterialPageRoute(
-                    builder: (context) => ArtistPage(widget.artists[index]),
-                  ),
-                );
-              }
-            });
-          }
+              });
+              Playlist temp =
+                  Playlist(widget.artists[index].getName + " Top Hits");
+              temp.setSongs = songs;
+              Provider.of<PageNotifier>(context)
+                  .setCurrentPlaylistPagePlaylist = temp;
+            }
+          });
+          Navigator.push(
+            GlobalVariables.homePageContext,
+            MaterialPageRoute(
+                builder: (context) => ArtistPage(widget.artists[index])),
+          );
         },
       ),
     );
-  }
-
-  void showLoadingBar(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          contentPadding: EdgeInsets.all(0.0),
-          backgroundColor: Colors.transparent,
-          children: <Widget>[
-            Container(
-              width: 60.0,
-              height: 60.0,
-              alignment: AlignmentDirectional.center,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Center(
-                    child: SizedBox(
-                      height: 50.0,
-                      width: 50.0,
-                      child: CircularProgressIndicator(
-                        value: null,
-                        strokeWidth: 3.0,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            GlobalVariables.pinkColor),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        );
-      },
-    ).then((a) {
-      if (!loadingArtists) {
-        canceled = true;
-        Navigator.of(context, rootNavigator: true).pop('dialog');
-      } else {
-        loadingArtists = false;
-      }
-    });
   }
 }

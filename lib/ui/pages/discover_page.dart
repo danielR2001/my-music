@@ -3,7 +3,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/main.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/user.dart';
@@ -266,7 +265,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
 
   void checkForIntenetConnetionForNetworkImage() {
      if (!GlobalVariables.isOfflineMode) {
-    publicPlaylists.forEach((playlist) {
+    GlobalVariables.publicPlaylists.forEach((playlist) {
       if (playlist.getSongs.length > 0) {
         ManageLocalSongs.checkIfFileExists(playlist.getSongs[0]).then((exists) {
           if (exists) {
@@ -300,15 +299,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
     }
     return Expanded(
       child: ListView.builder(
-        itemCount: publicPlaylists.length,
+        itemCount: GlobalVariables.publicPlaylists.length,
         itemBuilder: (BuildContext context, int index) {
           Padding row;
           Expanded padding1;
           Expanded padding2;
           if ((index + 1) % 2 != 0) {
-            padding1 = drawPlaylists(publicPlaylists[index], context);
-            padding2 = index + 1 != publicPlaylists.length
-                ? drawPlaylists(publicPlaylists[index + 1], context)
+            padding1 = drawPlaylists(GlobalVariables.publicPlaylists[index], context);
+            padding2 = index + 1 != GlobalVariables.publicPlaylists.length
+                ? drawPlaylists(GlobalVariables.publicPlaylists[index + 1], context)
                 : Expanded(child: Container());
             row = Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),

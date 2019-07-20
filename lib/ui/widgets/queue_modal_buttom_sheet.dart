@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:provider/provider.dart';
@@ -50,10 +50,10 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
                     to--;
                   }
                   Song temp = Song.fromSong(
-                      audioPlayerManager.currentPlaylist.getSongs[to]);
-                  audioPlayerManager.currentPlaylist.getSongs[to] =
-                      audioPlayerManager.currentPlaylist.getSongs[from];
-                  audioPlayerManager.currentPlaylist.getSongs[from] = temp;
+                      AudioPlayerManager.currentPlaylist.getSongs[to]);
+                  AudioPlayerManager.currentPlaylist.getSongs[to] =
+                      AudioPlayerManager.currentPlaylist.getSongs[from];
+                  AudioPlayerManager.currentPlaylist.getSongs[from] = temp;
                   setState(() {});
                 },
               ),
@@ -82,11 +82,11 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
   List<Widget> drawPlaylistQueueSongs() {
     List<Widget> songs = List();
     for (int i = 0;
-        i < audioPlayerManager.currentPlaylist.getSongs.length;
+        i < AudioPlayerManager.currentPlaylist.getSongs.length;
         i++) {
       Key key = Key("$i");
       songs.add(songItem(
-          audioPlayerManager.currentPlaylist.getSongs[i], i + 1, context, key));
+          AudioPlayerManager.currentPlaylist.getSongs[i], i + 1, context, key));
     }
     return songs;
   }
@@ -142,7 +142,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
           fontSize: 12,
         ),
       ),
-      trailing: audioPlayerManager.currentSong.getSongId != song.getSongId
+      trailing: AudioPlayerManager.currentSong.getSongId != song.getSongId
           ? IconButton(
               icon: Icon(
                 Icons.clear,
@@ -150,7 +150,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
               ),
               onPressed: () {
                 setState(() {
-                  audioPlayerManager.currentPlaylist.removeSong(song);
+                  AudioPlayerManager.currentPlaylist.removeSong(song);
                 });
               },
             )
@@ -159,13 +159,13 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
               height: 0,
             ),
       onTap: () {
-        if (audioPlayerManager.currentSong.getSongId != song.getSongId) {
-          if (audioPlayerManager.isSongLoaded &&
-              audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
-            audioPlayerManager.initSong(
+        if (AudioPlayerManager.currentSong.getSongId != song.getSongId) {
+          if (AudioPlayerManager.isSongLoaded &&
+              AudioPlayerManager.songPosition != Duration(milliseconds: 0)) {
+            AudioPlayerManager.initSong(
               song: song,
-              playlist: audioPlayerManager.currentPlaylist,
-              playlistMode: audioPlayerManager.playlistMode,
+              playlist: AudioPlayerManager.currentPlaylist,
+              mode: AudioPlayerManager.playlistMode,
             );
             setState(() {});
           }

@@ -6,7 +6,6 @@ import 'package:myapp/communicate_with_native/music_control_notification.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/main.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
@@ -114,9 +113,9 @@ class _AccountPageState extends State<AccountPage> {
                         size: 30,
                       ),
                       title: Text(
-                        currentUser != null
+                        GlobalVariables.currentUser != null
                             ? "My device" +
-                                "  (${currentUser.getDownloadedSongsPlaylist.getSongs.length})"
+                                "  (${GlobalVariables.currentUser.getDownloadedSongsPlaylist.getSongs.length})"
                             : "My device",
                         style: TextStyle(
                           fontSize: 17,
@@ -132,9 +131,9 @@ class _AccountPageState extends State<AccountPage> {
                         Provider.of<PageNotifier>(
                                     GlobalVariables.homePageContext)
                                 .setCurrentPlaylistPagePlaylist =
-                            currentUser.getDownloadedSongsPlaylist;
+                            GlobalVariables.currentUser.getDownloadedSongsPlaylist;
                         widget.onPush(
-                            createMap(currentUser.getDownloadedSongsPlaylist));
+                            createMap(GlobalVariables.currentUser.getDownloadedSongsPlaylist));
                       }),
                   SizedBox(
                     height: 20,
@@ -219,9 +218,9 @@ class _AccountPageState extends State<AccountPage> {
     } else {
       playlistValues['playlist'] = playlist;
     }
-    playlistValues['playlistCreator'] = currentUser;
+    playlistValues['playlistCreator'] = GlobalVariables.currentUser;
     playlistValues['playlistModalSheetMode'] =
-        playlist.getPushId != currentUser.getDownloadedSongsPlaylist.getPushId
+        playlist.getPushId != GlobalVariables.currentUser.getDownloadedSongsPlaylist.getPushId
             ? PlaylistModalSheetMode.regular
             : PlaylistModalSheetMode.download;
     return playlistValues;
@@ -235,14 +234,14 @@ class _AccountPageState extends State<AccountPage> {
       }
       return Expanded(
         child: ListView.builder(
-          itemCount: currentUser != null
-              ? currentUser.getPlaylists != null
-                  ? currentUser.getPlaylists.length
+          itemCount: GlobalVariables.currentUser != null
+              ? GlobalVariables.currentUser.getPlaylists != null
+                  ? GlobalVariables.currentUser.getPlaylists.length
                   : 0
               : 0,
           itemBuilder: (BuildContext context, int index) {
             return userPlaylists(
-                currentUser.getPlaylists[index], context, index);
+                GlobalVariables.currentUser.getPlaylists[index], context, index);
           },
         ),
       );
@@ -341,7 +340,7 @@ class _AccountPageState extends State<AccountPage> {
 
   void checkForIntenetConnetionForNetworkImage() {
     if (!GlobalVariables.isOfflineMode) {
-      currentUser.getPlaylists.forEach((playlist) {
+      GlobalVariables.currentUser.getPlaylists.forEach((playlist) {
           if (playlist.getSongs.length > 0) {
             ManageLocalSongs.checkIfFileExists(playlist.getSongs[0])
                 .then((exists) {
@@ -377,7 +376,7 @@ class _AccountPageState extends State<AccountPage> {
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(
-            "Hii " + currentUser.getName + "!",
+            "Hii " + GlobalVariables.currentUser.getName + "!",
             style: TextStyle(
                 color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
@@ -446,14 +445,14 @@ class _AccountPageState extends State<AccountPage> {
                         ),
                       ),
                       onTap: () {
-                        publicPlaylists = List();
+                        GlobalVariables.publicPlaylists = List();
                         FirebaseDatabaseManager.cancelStreams().then((a) {
                           ManageLocalSongs.deleteDownloadedDirectory();
                           FirebaseAuthentication.signOut().then((a) {
-                            audioPlayerManager.closeSong(
+                            AudioPlayerManager.closeSong(
                                 closeSongMode: CloseSongMode.completely);
                                 MusicControlNotification.removeNotification();
-                            currentUser = null;
+                            GlobalVariables.currentUser = null;
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(

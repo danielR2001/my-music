@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/main.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
@@ -27,26 +26,26 @@ enum CloseSongMode {
 }
 
 class AudioPlayerManager {
-  AudioPlayer audioPlayer;
-  Song currentSong;
-  Playlist currentPlaylist;
-  Playlist shuffledPlaylist;
-  Playlist loopPlaylist;
-  PlaylistMode playlistMode;
-  Duration songDuration;
-  Duration songPosition;
-  bool isSongLoaded;
-  PreviousMode previousMode;
-  AudioPlayerState audioPlayerState;
+  static AudioPlayer audioPlayer;
+  static Song currentSong;
+  static Playlist currentPlaylist;
+  static Playlist shuffledPlaylist;
+  static Playlist loopPlaylist;
+  static PlaylistMode playlistMode;
+  static Duration songDuration;
+  static Duration songPosition;
+  static bool isSongLoaded;
+  static PreviousMode previousMode;
+  static AudioPlayerState audioPlayerState;
 
-  String _songStreamUrl;
-  Song _firstSkippedSong;
-  StreamSubscription<void> _audioPlayerOnCompleteStream;
-  StreamSubscription<void> _audioPlayerOnDurationChangedStream;
-  StreamSubscription<void> _audioPlayerOnPositionChangedStream;
-  StreamSubscription<void> _audioPlayerOnStateChangedStream;
+  static String _songStreamUrl;
+  static Song _firstSkippedSong;
+  static StreamSubscription<void> _audioPlayerOnCompleteStream;
+  static StreamSubscription<void> _audioPlayerOnDurationChangedStream;
+  static StreamSubscription<void> _audioPlayerOnPositionChangedStream;
+  static StreamSubscription<void> _audioPlayerOnStateChangedStream;
 
-  AudioPlayerManager() {
+  static initAudioPlayerManager() {
     audioPlayer = AudioPlayer();
     previousMode = PreviousMode.restart;
     isSongLoaded = true;
@@ -59,10 +58,10 @@ class AudioPlayerManager {
     _listenForStateChanges();
   }
 
-  Future<void> initSong(
+  static Future<void> initSong(
       {@required Song song,
       @required Playlist playlist,
-      @required PlaylistMode playlistMode}) async {
+      @required PlaylistMode mode}) async {
     closeSong(closeSongMode: CloseSongMode.partly);
     isSongLoaded = false;
     previousMode = PreviousMode.restart;
@@ -106,7 +105,7 @@ class AudioPlayerManager {
       });
     }
 
-    this.playlistMode = playlistMode;
+    playlistMode = mode;
     if (playlist != null) {
       if (currentPlaylist != null) {
         if (currentPlaylist != playlist && loopPlaylist != playlist) {
@@ -145,10 +144,12 @@ class AudioPlayerManager {
     }
   }
 
-  Future _playSong() async {
+  static Future _playSong() async {
     int audioPlayerStatus;
     bool exists = await ManageLocalSongs.checkIfFileExists(currentSong);
-    if (exists && currentUser.songExistsInDownloadedPlaylist(currentSong)) {
+    if (exists &&
+        GlobalVariables.currentUser
+            .songExistsInDownloadedPlaylist(currentSong)) {
       audioPlayerStatus = await audioPlayer.play(
         "${ManageLocalSongs.fullSongDownloadDir.path}/${currentSong.getSongId}/${currentSong.getSongId}.mp3",
         stayAwake: true,
@@ -172,21 +173,21 @@ class AudioPlayerManager {
     }
   }
 
-  void resumeSong({@required bool calledFromNative}) {
+  static void resumeSong({@required bool calledFromNative}) {
     audioPlayer.resume();
     if (!calledFromNative) {
       MusicControlNotification.makeNotification(currentSong, true, false);
     }
   }
 
-  void pauseSong({@required bool calledFromNative}) {
+  static void pauseSong({@required bool calledFromNative}) {
     audioPlayer.pause();
     if (!calledFromNative) {
       MusicControlNotification.makeNotification(currentSong, false, false);
     }
   }
 
-  void closeSong({@required CloseSongMode closeSongMode}) {
+  static void closeSong({@required CloseSongMode closeSongMode}) {
     if (closeSongMode != null) {
       if (closeSongMode == CloseSongMode.completely) {
         currentSong = null;
@@ -208,11 +209,11 @@ class AudioPlayerManager {
     }
   }
 
-  void seekTime({@required Duration duration}) {
+  static void seekTime({@required Duration duration}) {
     audioPlayer.seek(duration);
   }
 
-  void playPreviousSong()  {
+  static void playPreviousSong() {
     if (previousMode == PreviousMode.previous) {
       if (currentPlaylist != null) {
         int i = 0;
@@ -247,7 +248,7 @@ class AudioPlayerManager {
         initSong(
           song: correctPreviousSong,
           playlist: currentPlaylist,
-          playlistMode: playlistMode,
+          mode: playlistMode,
         );
       }
     } else {
@@ -264,7 +265,7 @@ class AudioPlayerManager {
     }
   }
 
-  void playNextSong()  {
+  static void playNextSong() {
     if (currentPlaylist != null) {
       bool foundSong = false;
       Song nextSong;
@@ -296,12 +297,12 @@ class AudioPlayerManager {
       initSong(
         song: nextSong,
         playlist: currentPlaylist,
-        playlistMode: playlistMode,
+        mode: playlistMode,
       );
     }
   }
 
-  void setCurrentPlaylist({Playlist playlist}) {
+  static void setCurrentPlaylist({Playlist playlist}) {
     if (loopPlaylist == null) {
       loopPlaylist = playlist;
       audioPlayer.release();
@@ -316,7 +317,7 @@ class AudioPlayerManager {
     }
   }
 
-  void _createShuffledPlaylist() {
+  static void _createShuffledPlaylist() {
     List<Song> shuffledlist = List();
     List<int> randomPosList = _createRandomPosList();
     int pos = 0;
@@ -328,7 +329,7 @@ class AudioPlayerManager {
     shuffledPlaylist.setSongs = shuffledlist;
   }
 
-  List<int> _createRandomPosList() {
+  static List<int> _createRandomPosList() {
     List<int> randomPosList = List();
     var rnd = Random();
     int pos;
@@ -341,14 +342,14 @@ class AudioPlayerManager {
     return randomPosList;
   }
 
-  void _listenForDurationChanged() {
+  static void _listenForDurationChanged() {
     _audioPlayerOnDurationChangedStream =
         audioPlayer.onDurationChanged.listen((duration) {
       songDuration = duration;
     });
   }
 
-  void _listenForPositionChanged() {
+  static void _listenForPositionChanged() {
     _audioPlayerOnPositionChangedStream =
         audioPlayer.onAudioPositionChanged.listen((duration) {
       songPosition = duration;
@@ -367,7 +368,7 @@ class AudioPlayerManager {
     });
   }
 
-  void _listenIfCompleted() {
+  static void _listenIfCompleted() {
     _audioPlayerOnCompleteStream = audioPlayer.onPlayerCompletion.listen((a) {
       if (currentPlaylist != null) {
         playNextSong();
@@ -375,13 +376,13 @@ class AudioPlayerManager {
         initSong(
           song: currentSong,
           playlist: currentPlaylist,
-          playlistMode: playlistMode,
+          mode: playlistMode,
         );
       }
     });
   }
 
-  void _listenForErrors() {
+  static void _listenForErrors() {
     audioPlayer.onPlayerError.listen((eror) {
       closeSong(closeSongMode: CloseSongMode.completely);
       _makeToast(text: "Media Player error occurred");
@@ -389,7 +390,7 @@ class AudioPlayerManager {
     });
   }
 
-  void _listenForStateChanges() {
+  static void _listenForStateChanges() {
     _audioPlayerOnStateChangedStream =
         audioPlayer.onPlayerStateChanged.listen((state) {
       if (state == AudioPlayerState.PLAYING) {
@@ -406,7 +407,7 @@ class AudioPlayerManager {
     });
   }
 
-  void _makeToast({@required String text}) {
+  static void _makeToast({@required String text}) {
     Fluttertoast.showToast(
       msg: text,
       toastLength: Toast.LENGTH_SHORT,
@@ -418,9 +419,11 @@ class AudioPlayerManager {
     );
   }
 
-  Future<bool> _checkIfReadyToPlay() async {
+  static Future<bool> _checkIfReadyToPlay() async {
     bool exists = await ManageLocalSongs.checkIfFileExists(currentSong);
-    if (exists && currentUser.songExistsInDownloadedPlaylist(currentSong)) {
+    if (exists &&
+        GlobalVariables.currentUser
+            .songExistsInDownloadedPlaylist(currentSong)) {
       return true;
     } else {
       if (GlobalVariables.isNetworkAvailable) {

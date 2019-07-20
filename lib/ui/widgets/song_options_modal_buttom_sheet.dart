@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/main.dart';
 import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
@@ -124,26 +124,29 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
 
   //Widgets
   Widget drawSongTitleArtist() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        AutoSizeText(
-          widget.song.getTitle,
-          style: TextStyle(
-              color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-          maxLines: 1,
-        ),
-        AutoSizeText(
-          widget.song.getArtist,
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 16.0,
+    return Container(
+      width: 300,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          AutoSizeText(
+            widget.song.getTitle,
+            style: TextStyle(
+                color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+            maxLines: 1,
           ),
-          textAlign: TextAlign.center,
-          maxLines: 1,
-        ),
-      ],
+          AutoSizeText(
+            widget.song.getArtist,
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 16.0,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+          ),
+        ],
+      ),
     );
   }
 
@@ -209,24 +212,24 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
               widget.playlist.removeSong(widget.song);
               Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                   .setCurrentPlaylistPagePlaylist = widget.playlist;
-              currentUser.updatePlaylist(widget.playlist);
-              if (audioPlayerManager.currentPlaylist != null) {
-                if (audioPlayerManager.currentPlaylist.getPushId ==
+              GlobalVariables.currentUser.updatePlaylist(widget.playlist);
+              if (AudioPlayerManager.currentPlaylist != null) {
+                if (AudioPlayerManager.currentPlaylist.getPushId ==
                     widget.playlist.getPushId) {
                   if (widget.playlist.getSongs.length == 0) {
-                    audioPlayerManager.loopPlaylist = null;
-                    audioPlayerManager.shuffledPlaylist = null;
-                    audioPlayerManager.currentPlaylist = null;
+                    AudioPlayerManager.loopPlaylist = null;
+                    AudioPlayerManager.shuffledPlaylist = null;
+                    AudioPlayerManager.currentPlaylist = null;
                   } else {
-                    if (audioPlayerManager.currentSong.getSongId ==
+                    if (AudioPlayerManager.currentSong.getSongId ==
                         widget.song.getSongId) {
-                      audioPlayerManager.loopPlaylist = null;
-                      audioPlayerManager.shuffledPlaylist = null;
-                      audioPlayerManager.currentPlaylist = null;
+                      AudioPlayerManager.loopPlaylist = null;
+                      AudioPlayerManager.shuffledPlaylist = null;
+                      AudioPlayerManager.currentPlaylist = null;
                     } else {
-                      audioPlayerManager.loopPlaylist = widget.playlist;
-                      audioPlayerManager.shuffledPlaylist = null;
-                      audioPlayerManager.setCurrentPlaylist();
+                      AudioPlayerManager.loopPlaylist = widget.playlist;
+                      AudioPlayerManager.shuffledPlaylist = null;
+                      AudioPlayerManager.setCurrentPlaylist();
                     }
                   }
                 }
@@ -246,7 +249,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   }
 
   Widget drawDownloadSong(BuildContext context) {
-    if (!currentUser.songExistsInDownloadedPlaylist(widget.song) &&
+    if (!GlobalVariables.currentUser.songExistsInDownloadedPlaylist(widget.song) &&
         !ManageLocalSongs.isSongDownloading(widget.song)) {
       return downloadWidget(context);
     } else {
@@ -292,11 +295,11 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                                   GlobalVariables.homePageContext)
                               .currentPlaylistPagePlaylist
                               .getName ==
-                          currentUser.getDownloadedSongsPlaylist.getName) {
+                          GlobalVariables.currentUser.getDownloadedSongsPlaylist.getName) {
                         Provider.of<PageNotifier>(
                                     GlobalVariables.homePageContext)
                                 .setCurrentPlaylistPagePlaylist =
-                            currentUser.getDownloadedSongsPlaylist;
+                            GlobalVariables.currentUser.getDownloadedSongsPlaylist;
                       }
                     }
                     if (widget.song.getImageUrl == "") {
@@ -361,23 +364,23 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             ManageLocalSongs.checkIfFileExists(widget.song).then((exists) {
               if (exists) {
                 ManageLocalSongs.deleteSongDirectory(widget.song);
-                currentUser.removeSongFromDownloadedPlaylist(widget.song);
+                GlobalVariables.currentUser.removeSongFromDownloadedPlaylist(widget.song);
                 if (Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                         .currentPlaylistPagePlaylist
                         .getName ==
-                    currentUser.getDownloadedSongsPlaylist.getName) {
+                    GlobalVariables.currentUser.getDownloadedSongsPlaylist.getName) {
                   Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                           .setCurrentPlaylistPagePlaylist =
-                      currentUser.getDownloadedSongsPlaylist;
+                      GlobalVariables.currentUser.getDownloadedSongsPlaylist;
                 }
-                if (audioPlayerManager.currentSong != null) {
+                if (AudioPlayerManager.currentSong != null) {
                   if (widget.song.getSongId ==
-                          audioPlayerManager.currentSong.getSongId &&
+                          AudioPlayerManager.currentSong.getSongId &&
                       widget.playlist.getName ==
-                          currentUser.getDownloadedSongsPlaylist.getName) {
-                    audioPlayerManager.currentPlaylist = null;
-                    audioPlayerManager.shuffledPlaylist = null;
-                    audioPlayerManager.loopPlaylist = null;
+                          GlobalVariables.currentUser.getDownloadedSongsPlaylist.getName) {
+                    AudioPlayerManager.currentPlaylist = null;
+                    AudioPlayerManager.shuffledPlaylist = null;
+                    AudioPlayerManager.loopPlaylist = null;
                   }
                 }
                 Fluttertoast.showToast(
@@ -570,7 +573,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   }
 
   Future<Artist> builArtist(String artistName) async {
-    return await FetchData.getArtistPageIdAndImageUrl(artistName);
+    return await FetchData.getArtistImageUrl(artistName);
   }
 
   void showLoadingBar(BuildContext context) {

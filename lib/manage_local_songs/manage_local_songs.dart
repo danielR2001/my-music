@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/main.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:path_provider/path_provider.dart';
@@ -76,7 +75,7 @@ class ManageLocalSongs {
                     .removeDownloaded(song);
                 currentDownloading.remove(song);
 
-                currentUser.addSongToDownloadedPlaylist(song);
+                GlobalVariables.currentUser.addSongToDownloadedPlaylist(song);
                 print("song: ${song.getSongId}, download completed!");
               }
             });
@@ -182,11 +181,11 @@ class ManageLocalSongs {
         readSongInfoFile(file.path.substring(
                 file.path.lastIndexOf("/"), file.path.lastIndexOf(".txt")))
             .then((song) {
-          currentUser.getDownloadedSongsPlaylist.addNewSong(song);
+          GlobalVariables.currentUser.getDownloadedSongsPlaylist.addNewSong(song);
         });
       }
     });
-    currentUser.getDownloadedSongsPlaylist.setSongs = updatedDownloadedList;
+    GlobalVariables.currentUser.getDownloadedSongsPlaylist.setSongs = updatedDownloadedList;
   }
 
   static Future<Song> readSongInfoFile(String songId) async {

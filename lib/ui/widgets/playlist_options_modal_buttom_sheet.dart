@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/main.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/ui/decorations/my_custom_icons.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
@@ -277,7 +277,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                 widget.playlist, false);
           }
           FirebaseDatabaseManager.changePlaylistPrivacy(temp);
-          currentUser.updatePlaylist(temp);
+          GlobalVariables.currentUser.updatePlaylist(temp);
         },
       );
     } else {
@@ -413,11 +413,11 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
       form.save();
       FirebaseDatabaseManager.renamePlaylist(widget.playlist, _playlistNewName);
       widget.playlist.setName = _playlistNewName;
-      currentUser.updatePlaylist(widget.playlist);
-      if (audioPlayerManager.currentPlaylist != null) {
-        if (audioPlayerManager.currentPlaylist.getPushId ==
+      GlobalVariables.currentUser.updatePlaylist(widget.playlist);
+      if (AudioPlayerManager.currentPlaylist != null) {
+        if (AudioPlayerManager.currentPlaylist.getPushId ==
             widget.playlist.getPushId) {
-          audioPlayerManager.currentPlaylist.setName = _playlistNewName;
+          AudioPlayerManager.currentPlaylist.setName = _playlistNewName;
         }
       }
       Navigator.of(context, rootNavigator: true).pop('dialog');
@@ -439,11 +439,11 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
       ManageLocalSongs.checkIfFileExists(song).then((exists) {
         if (exists) {
           ManageLocalSongs.deleteSongDirectory(song);
-          currentUser.removeSongFromDownloadedPlaylist(song);
-          if (song.getSongId == audioPlayerManager.currentSong.getSongId) {
-            audioPlayerManager.currentPlaylist = null;
-            audioPlayerManager.shuffledPlaylist = null;
-            audioPlayerManager.loopPlaylist = null;
+          GlobalVariables.currentUser.removeSongFromDownloadedPlaylist(song);
+          if (song.getSongId == AudioPlayerManager.currentSong.getSongId) {
+            AudioPlayerManager.currentPlaylist = null;
+            AudioPlayerManager.shuffledPlaylist = null;
+            AudioPlayerManager.loopPlaylist = null;
           }
         }
       });
@@ -456,7 +456,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(
-            "Hii " + currentUser.getName + "!",
+            "Hii " + GlobalVariables.currentUser.getName + "!",
             style: TextStyle(
               color: Colors.white,
               fontSize: 16,
@@ -529,13 +529,13 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                       ),
                       onTap: () {
                         FirebaseDatabaseManager.removePlaylist(widget.playlist);
-                        currentUser.removePlaylist(widget.playlist);
-                        if (audioPlayerManager.currentPlaylist != null) {
-                          if (audioPlayerManager.currentPlaylist.getName ==
-                              audioPlayerManager.currentPlaylist.getName) {
-                            audioPlayerManager.loopPlaylist = null;
-                            audioPlayerManager.shuffledPlaylist = null;
-                            audioPlayerManager.currentPlaylist = null;
+                        GlobalVariables.currentUser.removePlaylist(widget.playlist);
+                        if (AudioPlayerManager.currentPlaylist != null) {
+                          if (AudioPlayerManager.currentPlaylist.getName ==
+                              AudioPlayerManager.currentPlaylist.getName) {
+                            AudioPlayerManager.loopPlaylist = null;
+                            AudioPlayerManager.shuffledPlaylist = null;
+                            AudioPlayerManager.currentPlaylist = null;
                           }
                         }
                         Navigator.of(context, rootNavigator: true)

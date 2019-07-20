@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/main.dart';
 import 'package:myapp/models/user.dart';
 import 'home_page.dart';
 import 'root_page.dart';
@@ -329,7 +328,7 @@ class _SignUpPageState extends State<SignUpPage> {
       (isEmailVerified) {
         if (isEmailVerified) {
           FirebaseAuthentication.currentUser().then((user) {
-            currentUser = User(userName, user.uid);
+            GlobalVariables.currentUser = User(userName, user.uid);
             FirebaseDatabaseManager.saveUser();
             Navigator.of(context, rootNavigator: true).pop('dialog');
             FirebaseDatabaseManager.syncUser(user.uid).then((a) {
