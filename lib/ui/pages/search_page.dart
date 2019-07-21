@@ -14,20 +14,24 @@ class _SearchPageState extends State<SearchPage> {
   int searchLength = 0;
   List<Song> searchResults = List();
   TextEditingController textEditingController = TextEditingController();
-  ImageProvider songImage;
   String hintText = "Search";
   Playlist searchResultsPlaylist;
-  int lastSearchId = 0;
   TextDirection textDirection = TextDirection.ltr;
+  bool loadingResults = false;
+  bool noResultsFound = false;
+
   @override
   void initState() {
     if (GlobalVariables.lastSearch != null) {
+      loadingResults = true;
+      noResultsFound = false;
       GlobalVariables.apiService
           .getSearchResults(GlobalVariables.lastSearch)
           .then((results) {
         setState(() {
           if (results != null) {
-            searchResults = results[GlobalVariables.lastSearch];
+            loadingResults = false;
+            searchResults = results;
             searchResultsPlaylist = Playlist("Search Playlist");
             searchResultsPlaylist.setSongs = searchResults;
             searchLength = searchResults.length;
@@ -72,15 +76,54 @@ class _SearchPageState extends State<SearchPage> {
                   ],
                 ),
               ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: searchLength,
-                  itemExtent: 60,
-                  itemBuilder: (BuildContext context, int index) {
-                    return drawSongSearchResult(searchResults[index], context);
-                  },
-                ),
-              ),
+              !loadingResults
+                  ? Expanded(
+                      child: ListView.builder(
+                        itemCount: searchLength,
+                        itemExtent: 60,
+                        itemBuilder: (BuildContext context, int index) {
+                          return drawSongSearchResult(
+                              searchResults[index], context);
+                        },
+                      ),
+                    )
+                  : noResultsFound
+                      ? Expanded(
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                              Text(
+                                "No results found!",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                "please check your spelling, or try different key words.",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ]))
+                      : Expanded(
+                          child: Center(
+                            child: SizedBox(
+                              height: 50.0,
+                              width: 50.0,
+                              child: CircularProgressIndicator(
+                                value: null,
+                                strokeWidth: 3.0,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    GlobalVariables.pinkColor),
+                              ),
+                            ),
+                          ),
+                        ),
             ],
           ),
         ),
@@ -103,61 +146,80 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget drawSearchBar() {
+    //! TODO fix bug
     return Flexible(
       child: Container(
         child: TextField(
-          autofocus: true,
-          textDirection: textDirection,
-          controller: textEditingController,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-          cursorColor: GlobalVariables.pinkColor,
-          decoration: InputDecoration.collapsed(
-            hintText: hintText,
-            hintStyle: TextStyle(
+            autofocus: true,
+            textDirection: textDirection,
+            controller: textEditingController,
+            style: TextStyle(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: 16,
             ),
-          ),
-          onChanged: (txt) {
-            if (RegExp(r"^[א-ת0-9\$!?&\()\[\]/,\-#\+'= ]+$").hasMatch(txt)) {
-              setState(() {
-                textDirection = TextDirection.rtl;
-              });
-            } else {
-              setState(() {
-                textDirection = TextDirection.ltr;
-              });
-            }
-            if (txt != "") {
+            cursorColor: GlobalVariables.pinkColor,
+            decoration: InputDecoration.collapsed(
+              hintText: hintText,
+              hintStyle: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+              ),
+            ),
+            onChanged: (txt) {
+              searchLength = 0;
+              searchResults = List();
+              loadingResults = true;
+              noResultsFound = false;
+              if (RegExp(r"^[א-ת0-9\$!?&\()\[\]/,\-#\+'= ]+$").hasMatch(txt)) {
+                setState(() {
+                  textDirection = TextDirection.rtl;
+                });
+              } else {
+                setState(() {
+                  textDirection = TextDirection.ltr;
+                });
+              }
+              if (txt != "") {
+                GlobalVariables.apiService
+                    .getSearchResults(txt)
+                    .then((results) {
+                  setState(() {
+                    if (results != null) {
+                      if (results.length > 0) {
+                        loadingResults = false;
+                        searchResults = results;
+                        GlobalVariables.lastSearch = txt;
+                        searchResultsPlaylist = Playlist("Search Playlist");
+                        searchResultsPlaylist.setSongs = searchResults;
+                        searchLength = searchResults.length;
+                      }
+                    } else {
+                      noResultsFound = true;
+                    }
+                  });
+                });
+              }
+            },
+            onSubmitted: (txt) {
+              loadingResults = true;
+              noResultsFound = false;
               GlobalVariables.apiService.getSearchResults(txt).then((results) {
                 setState(() {
-                  if (results != null && results[txt] != null) {
-                    searchResults = results[txt];
-                    GlobalVariables.lastSearch = txt;
-                    searchResultsPlaylist = Playlist("Search Playlist");
-                    searchResultsPlaylist.setSongs = searchResults;
-                    searchLength = searchResults.length;
+                  if (results != null) {
+                    if (results.length > 0) {
+                      loadingResults = false;
+                      searchResults = results;
+                      GlobalVariables.lastSearch = txt;
+                      searchResultsPlaylist = Playlist("Search Playlist");
+                      searchResultsPlaylist.setSongs = searchResults;
+                      searchLength = searchResults.length;
+                    }
+                  } else {
+                    noResultsFound = true;
                   }
                 });
               });
-            }
-          },
-          onSubmitted: (txt) =>
-              GlobalVariables.apiService.getSearchResults(txt).then((results) {
-            setState(() {
-              if (results != null && results[txt] != null) {
-                searchResults = results[txt];
-                GlobalVariables.lastSearch = txt;
-                searchResultsPlaylist = Playlist("Search Playlist");
-                searchResultsPlaylist.setSongs = searchResults;
-                searchLength = searchResults.length;
-              }
-            });
-          }),
-        ),
+            }),
       ),
     );
   }

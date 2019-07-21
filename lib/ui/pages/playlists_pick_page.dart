@@ -7,6 +7,7 @@ import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/playlist.dart';
+import 'package:myapp/toast_manager/toast_manager.dart';
 
 class PlaylistPickPage extends StatefulWidget {
   final song;
@@ -130,14 +131,28 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                 Navigator.of(context, rootNavigator: true).pop('dialog');
                 Navigator.pop(context);
                 Navigator.of(context, rootNavigator: true).pop('dialog');
-                _makeToast(text: "Added to ${playlist.name}");
+                GlobalVariables.toastManager.makeToast(
+                  text: ToastManager.songAddedToPlaylist + "${playlist.name}",
+                  toastLength: Toast.LENGTH_LONG,
+                  fontSize: 18,
+                  backgroundColor: GlobalVariables.toastColor,
+                  gravity: ToastGravity.CENTER,
+                );
               }
             });
           } else {
             addAllSongToPlaylist(playlist);
             Navigator.pop(context);
             Navigator.of(context, rootNavigator: true).pop('dialog');
-            _makeToast(text: "Added to ${playlist.name}");
+            GlobalVariables.toastManager
+                .makeToast(text: ToastManager.somethingWentWrong);
+            GlobalVariables.toastManager.makeToast(
+              text: ToastManager.songAddedToPlaylist + "${playlist.name}",
+              toastLength: Toast.LENGTH_LONG,
+              fontSize: 18,
+              backgroundColor: GlobalVariables.toastColor,
+              gravity: ToastGravity.CENTER,
+            );
           }
         },
       ),
@@ -505,18 +520,18 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
               width: 60.0,
               height: 60.0,
               alignment: AlignmentDirectional.center,
-              child: new Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  new Center(
-                    child: new SizedBox(
+                  Center(
+                    child: SizedBox(
                       height: 50.0,
                       width: 50.0,
-                      child: new CircularProgressIndicator(
+                      child: CircularProgressIndicator(
                         value: null,
                         strokeWidth: 3.0,
-                        valueColor: new AlwaysStoppedAnimation<Color>(
+                        valueColor: AlwaysStoppedAnimation<Color>(
                             GlobalVariables.pinkColor),
                       ),
                     ),
@@ -534,17 +549,5 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     widget.songs.forEach((song) {
       addSongToPlaylist(playlist, song, true);
     });
-  }
-
-  void _makeToast({String text}) {
-    Fluttertoast.showToast(
-      msg: text,
-      toastLength: Toast.LENGTH_LONG,
-      timeInSecForIos: 3,
-      fontSize: 18.0,
-      gravity: ToastGravity.CENTER,
-      backgroundColor: GlobalVariables.toastColor,
-      textColor: Colors.white,
-    );
   }
 }

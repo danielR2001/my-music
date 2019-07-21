@@ -37,7 +37,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                 gradient: LinearGradient(
                   colors: [
                     GlobalVariables.darkGreyColor,
-                    GlobalVariables.lightDarkGreyColor,
+                    GlobalVariables.lightGreyColor,
                     GlobalVariables.pinkColor,
                   ],
                   begin: FractionalOffset.bottomRight,
@@ -310,13 +310,13 @@ class _DiscoverPageState extends State<DiscoverPage> {
     playlistValues['playlistModalSheetMode'] = PlaylistModalSheetMode.public;
     return playlistValues;
   }
-
+  //! TODO remove this method
   void checkForIntenetConnetionForNetworkImage() {
     if (!GlobalVariables.isOfflineMode) {
       GlobalVariables.publicPlaylists.forEach((playlist) {
         if (playlist.songs.length > 0) {
           GlobalVariables.manageLocalSongs
-              .checkIfFileExists(playlist.songs[0])
+              .checkIfImageFileExists(playlist.songs[0])
               .then((exists) {
             if (exists) {
               File file = File(

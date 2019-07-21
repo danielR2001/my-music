@@ -4,6 +4,7 @@ import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/user.dart';
+import 'package:myapp/toast_manager/toast_manager.dart';
 import 'welcome_page.dart';
 import 'home_page.dart';
 
@@ -75,14 +76,11 @@ class _RootPageState extends State<RootPage> {
                 .then((permissionGranted) {
               GlobalVariables.manageLocalSongs.initDirs().then((a) {
                 GlobalVariables.manageLocalSongs.syncDownloaded();
-                Fluttertoast.showToast(
-                  msg: "Connected in oflline mode",
+                GlobalVariables.toastManager.makeToast(
+                  text: ToastManager.ofllineModeConnection,
                   toastLength: Toast.LENGTH_LONG,
-                  timeInSecForIos: 1,
-                  fontSize: 16.0,
-                  gravity: ToastGravity.CENTER,
                   backgroundColor: GlobalVariables.toastColor,
-                  textColor: Colors.white,
+                  gravity: ToastGravity.CENTER,
                 );
                 Navigator.pushReplacement(
                   context,

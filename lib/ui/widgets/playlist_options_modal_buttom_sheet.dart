@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/playlist.dart';
+import 'package:myapp/toast_manager/toast_manager.dart';
 import 'package:myapp/ui/decorations/my_custom_icons.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/sort_modal_buttom_sheet.dart';
@@ -85,27 +85,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         onTap: () {
           downloadAll();
           Navigator.pop(context);
-          Fluttertoast.showToast(
-            msg: "Started downloading all songs",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIos: 1,
-            backgroundColor: GlobalVariables.pinkColor,
-            textColor: Colors.white,
-            fontSize: 16.0,
-          );
-          Future.delayed(
-              Duration(seconds: 2),
-              () => Fluttertoast.showToast(
-                    msg:
-                        "Don't worry! downloading only songs that aren't downloaded yet :D",
-                    toastLength: Toast.LENGTH_LONG,
-                    gravity: ToastGravity.BOTTOM,
-                    timeInSecForIos: 1,
-                    backgroundColor: GlobalVariables.pinkColor,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  ));
+          GlobalVariables.toastManager.makeToast(text: ToastManager.startedDownloadAllSongs);
         },
       );
     } else {
@@ -164,37 +144,9 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
           if (GlobalVariables.manageLocalSongs.currentDownloading.length == 0) {
             unDownloadAll();
             Navigator.pop(context);
-            Fluttertoast.showToast(
-              msg: "undownloaded all songs!",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIos: 1,
-              backgroundColor: GlobalVariables.pinkColor,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
-            Future.delayed(
-                Duration(seconds: 2),
-                () => Fluttertoast.showToast(
-                      msg:
-                          "Don't worry! undownloading only songs that aren downloaded yet :D",
-                      toastLength: Toast.LENGTH_LONG,
-                      gravity: ToastGravity.BOTTOM,
-                      timeInSecForIos: 1,
-                      backgroundColor: GlobalVariables.pinkColor,
-                      textColor: Colors.white,
-                      fontSize: 16.0,
-                    ));
+            GlobalVariables.toastManager.makeToast(text: ToastManager.undownloadAllSongs);
           } else {
-            Fluttertoast.showToast(
-              msg: "Can't undownload songs when download is in progress",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIos: 1,
-              backgroundColor: GlobalVariables.pinkColor,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
+            GlobalVariables.toastManager.makeToast(text: ToastManager.undownloadAllError);
           }
         },
       );
@@ -433,7 +385,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
 
   void downloadAll() {
     widget.playlist.songs.forEach((song) {
-      GlobalVariables.manageLocalSongs.checkIfFileExists(song).then((exists) {
+      GlobalVariables.manageLocalSongs.checkIfSongFileExists(song).then((exists) {
         if (!exists) {
           GlobalVariables.manageLocalSongs.downloadSong(song);
         }
@@ -443,7 +395,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
 
   void unDownloadAll() {
     widget.playlist.songs.forEach((song) {
-      GlobalVariables.manageLocalSongs.checkIfFileExists(song).then((exists) {
+      GlobalVariables.manageLocalSongs.checkIfSongFileExists(song).then((exists) {
         if (exists) {
           GlobalVariables.manageLocalSongs.deleteSongDirectory(song);
           GlobalVariables.currentUser.removeSongFromDownloadedPlaylist(song);

@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/communicate_with_native/music_control_notification.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
+import 'package:myapp/toast_manager/toast_manager.dart';
 import 'package:provider/provider.dart';
 
 enum PlaylistMode {
@@ -33,6 +33,7 @@ class AudioPlayerManager {
   Duration songDuration;
   Duration songPosition;
   bool isSongLoaded;
+  bool isSongActuallyPlaying;
   PreviousMode previousMode;
   AudioPlayerState audioPlayerState;
 
@@ -55,13 +56,14 @@ class AudioPlayerManager {
     _listenIfCompleted();
     _listenForStateChanges();
   }
-
+  //! TODO isSongActuallyPlaying notify
   Future<void> initSong(
       {@required Song song,
       @required Playlist playlist,
       @required PlaylistMode mode}) async {
     closeSong(closeSongMode: CloseSongMode.partly);
     isSongLoaded = false;
+    isSongActuallyPlaying = false;
     previousMode = PreviousMode.restart;
     currentSong = song;
     songPosition = Duration(seconds: 0);
@@ -71,7 +73,9 @@ class AudioPlayerManager {
 
     if (song.imageUrl == "") {
       if (GlobalVariables.isNetworkAvailable) {
-        GlobalVariables.apiService.getSongImageUrl(song, false).then((imageUrl) {
+        GlobalVariables.apiService
+            .getSongImageUrl(song, false)
+            .then((imageUrl) {
           if (imageUrl != null) {
             song.setImageUrl = imageUrl;
             if (song.title == currentSong.title) {
@@ -105,11 +109,11 @@ class AudioPlayerManager {
 
     playlistMode = mode;
     if (playlist != null) {
-      if (currentPlaylist != null) {
-        if (currentPlaylist != playlist && loopPlaylist != playlist) {
-          loopPlaylist = null;
-          shuffledPlaylist = null;
-        }
+      if (currentPlaylist != null &&
+          currentPlaylist != playlist &&
+          loopPlaylist != playlist) {
+        loopPlaylist = null;
+        shuffledPlaylist = null;
       }
       setCurrentPlaylist(playlist: playlist);
     } else {
@@ -144,7 +148,8 @@ class AudioPlayerManager {
 
   Future _playSong() async {
     int audioPlayerStatus;
-    bool exists = await GlobalVariables.manageLocalSongs.checkIfFileExists(currentSong);
+    bool exists = await GlobalVariables.manageLocalSongs
+        .checkIfSongFileExists(currentSong);
     if (exists &&
         GlobalVariables.currentUser
             .songExistsInDownloadedPlaylist(currentSong)) {
@@ -162,7 +167,7 @@ class AudioPlayerManager {
     }
     if (audioPlayerStatus == 1) {
       MusicControlNotification.makeNotification(currentSong, true, true);
-      isSongLoaded = true;
+      isSongLoaded = true; //! TODO actual song loaded
     } else {
       closeSong(closeSongMode: CloseSongMode.partly);
       isSongLoaded = true;
@@ -351,8 +356,8 @@ class AudioPlayerManager {
     _audioPlayerOnPositionChangedStream =
         audioPlayer.onAudioPositionChanged.listen((duration) {
       songPosition = duration;
+      isSongActuallyPlaying = true;
       if (duration.inSeconds - songPosition.inSeconds == 1) {
-        print(songPosition.inSeconds);
         // if (songPosition.inSeconds % 5 == 0) {
         //   if (audioPlayer.state == AudioPlayerState.PLAYING) {
         //     MusicControlNotification.makeNotification(
@@ -383,7 +388,8 @@ class AudioPlayerManager {
   void _listenForErrors() {
     audioPlayer.onPlayerError.listen((eror) {
       closeSong(closeSongMode: CloseSongMode.completely);
-      _makeToast(text: "Media Player error occurred");
+      GlobalVariables.toastManager
+          .makeToast(text: ToastManager.mediaPlayerError);
       print("MediaPlayerError: $eror");
     });
   }
@@ -405,27 +411,17 @@ class AudioPlayerManager {
     });
   }
 
-  void _makeToast({@required String text}) {
-    Fluttertoast.showToast(
-      msg: text,
-      toastLength: Toast.LENGTH_SHORT,
-      timeInSecForIos: 1,
-      fontSize: 16.0,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: GlobalVariables.pinkColor,
-      textColor: Colors.white,
-    );
-  }
-
   Future<bool> _checkIfReadyToPlay() async {
-    bool exists = await GlobalVariables.manageLocalSongs.checkIfFileExists(currentSong);
+    bool exists = await GlobalVariables.manageLocalSongs
+        .checkIfSongFileExists(currentSong);
     if (exists &&
         GlobalVariables.currentUser
             .songExistsInDownloadedPlaylist(currentSong)) {
       return true;
     } else {
       if (GlobalVariables.isNetworkAvailable) {
-        _songStreamUrl = await GlobalVariables.apiService.getSongPlayUrl(currentSong);
+        _songStreamUrl =
+            await GlobalVariables.apiService.getSongPlayUrl(currentSong);
         if (_songStreamUrl != null) {
           return true;
         } else {

@@ -376,18 +376,18 @@ class _SignUpPageState extends State<SignUpPage> {
               width: 60.0,
               height: 60.0,
               alignment: AlignmentDirectional.center,
-              child: new Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  new Center(
-                    child: new SizedBox(
+                  Center(
+                    child: SizedBox(
                       height: 50.0,
                       width: 50.0,
-                      child: new CircularProgressIndicator(
+                      child: CircularProgressIndicator(
                         value: null,
                         strokeWidth: 3.0,
-                        valueColor: new AlwaysStoppedAnimation<Color>(
+                        valueColor: AlwaysStoppedAnimation<Color>(
                             GlobalVariables.pinkColor),
                       ),
                     ),

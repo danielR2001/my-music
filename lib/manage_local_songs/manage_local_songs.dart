@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
+import 'package:myapp/toast_manager/toast_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -16,10 +15,10 @@ class ManageLocalSongs {
   Directory externalDir;
   Directory fullSongDownloadDir;
 
-  ManageLocalSongs(){
+  ManageLocalSongs() {
     initDirs();
   }
-  
+
   Future<void> initDirs() async {
     externalDir = await getExternalStorageDirectory();
     fullSongDownloadDir = await new Directory(
@@ -37,9 +36,15 @@ class ManageLocalSongs {
     }
   }
 
-  Future<bool> checkIfFileExists(Song song) async {
+  Future<bool> checkIfSongFileExists(Song song) async {
     File file =
         File("${fullSongDownloadDir.path}/${song.songId}/${song.songId}.mp3");
+    return file.exists();
+  }
+
+  Future<bool> checkIfImageFileExists(Song song) async {
+    File file =
+        File("${fullSongDownloadDir.path}/${song.songId}/${song.songId}.png");
     return file.exists();
   }
 
@@ -84,24 +89,27 @@ class ManageLocalSongs {
             });
           } on DioError catch (e) {
             if (e.message == "cancelled") {
-              _makeToast(text: "Download cancelled");
+              //!TODO some error when downloading (maybe downloading song without image)
+              GlobalVariables.toastManager.makeToast(text: ToastManager.downloadCancelled);
             } else {
               print(e);
-              _makeToast(text: "Something went wrong");
+              currentDownloading.remove(song);
+              cancelTokensMap.remove(song);
+              GlobalVariables.toastManager.makeToast(text: ToastManager.somethingWentWrong);
             }
           } catch (e) {
             print(e);
             currentDownloading.remove(song);
             cancelTokensMap.remove(song);
-            _makeToast(text: "Something went wrong");
+            GlobalVariables.toastManager.makeToast(text: ToastManager.somethingWentWrong);
           }
         } else {
           currentDownloading.remove(song);
-          _makeToast(text: "Something went wrong");
+          GlobalVariables.toastManager.makeToast(text: ToastManager.somethingWentWrong);
         }
       });
     } else {
-      _makeToast(text: "No internet connection");
+      GlobalVariables.toastManager.makeToast(text: ToastManager.noNetworkConnection);
     }
   }
 
@@ -202,15 +210,4 @@ class ManageLocalSongs {
     await new Directory('${fullSongDownloadDir.path}').delete(recursive: true);
   }
 
-  void _makeToast({String text}) {
-    Fluttertoast.showToast(
-      msg: text,
-      toastLength: Toast.LENGTH_SHORT,
-      timeInSecForIos: 1,
-      fontSize: 16.0,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: GlobalVariables.pinkColor,
-      textColor: Colors.white,
-    );
-  }
 }

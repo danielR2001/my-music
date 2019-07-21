@@ -1,61 +1,61 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:html/dom.dart' as html;
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:dio/dio.dart';
+import 'package:myapp/toast_manager/toast_manager.dart';
 
 class ApiService {
   static final String searchUrl = 'https://mp3-tut.com/search?query=';
   static final String siteUrl = 'https://mp3-tut.com';
   static final String playUrl = 'https://music.xn--41a.ws';
-  static final String imageSearchUrl = 'https://free-mp3-download.net/search.php?s=';
-  static final String artistIdUrl = 'https://www.bbc.co.uk/music/search.json?q=';
-  static final String artistInfoSearchUrl = 'https://www.bbc.co.uk/music/artists/';
-  static final String lyricsSearchUrl = 'https://genius.com/api/search/multi?q=';
-  static final String noNetworkConnection = "No network connection";
-  static final String somethingWentWrong = "Something went wrong";
-  static final String badNetworkConnection = "Bad network connection";
-  static final String artistImageUrl = "https://ichef.bbci.co.uk/images/ic/960x540/";
-  
-  //CancelToken songSearchCancelToken = CancelToken(); //TODO add cancel search
-  //bool searchCompleted = false;
-  Future<Map<String, List<Song>>> getSearchResults(String searchStr) async {
-    // if (!searchCompleted) {
-    //   songSearchCancelToken.cancel();
-    //   songSearchCancelToken = CancelToken();
-    // }
+  static final String imageSearchUrl =
+      'https://free-mp3-download.net/search.php?s=';
+  static final String artistIdUrl =
+      'https://www.bbc.co.uk/music/search.json?q=';
+  static final String artistInfoSearchUrl =
+      'https://www.bbc.co.uk/music/artists/';
+  static final String lyricsSearchUrl =
+      'https://genius.com/api/search/multi?q=';
+  static final String artistImageUrl =
+      "https://ichef.bbci.co.uk/images/ic/960x540/";
+
+  bool searchCompleted = true;
+  CancelToken songSearchCancelToken = CancelToken(); //TODO add cancel search
+
+  Future<List<Song>> getSearchResults(String searchStr) async {
+    if (!searchCompleted) {
+      songSearchCancelToken.cancel("cancelled");
+      songSearchCancelToken = CancelToken();
+    }
+    searchCompleted = false;
     var responseList;
     try {
       Response response = await Dio().get(
         searchUrl + searchStr,
-        //cancelToken: songSearchCancelToken,
+        cancelToken: songSearchCancelToken,
       );
       print('Search For Results completed');
-      //searchCompleted = true;
+      searchCompleted = true;
       var elements = parse(response.data)?.getElementsByClassName("list-view");
       var html = elements[0].outerHtml;
       html = html.replaceAll('\n', '');
       responseList = html.split('<div class="play-button-container">');
       responseList.removeAt(0);
-      Map<String, List<Song>> resultsMap = Map();
-      resultsMap[searchStr] =
-          _buildSearchResult(responseList, searchUrl + searchStr + "/");
-      return resultsMap;
+      return _buildSearchResult(responseList, searchUrl + searchStr + "/");
     } on DioError catch (e) {
-      if (e.message != "cancelled") {
-        print(e);
-        _makeToast(text: noNetworkConnection);
+      if (e.message == "cancelled") {
+        return List();
       }
-      //searchCompleted = true;
+      searchCompleted = true;
       return null;
     } catch (e) {
       print(e);
-      _makeToast(text: somethingWentWrong);
-      //searchCompleted = true;
+      GlobalVariables.toastManager
+          .makeToast(text: ToastManager.somethingWentWrong);
+      searchCompleted = true;
       return null;
     }
   }
@@ -87,11 +87,13 @@ class ApiService {
       return streamUrl;
     } on DioError catch (e) {
       print(e);
-      _makeToast(text: noNetworkConnection);
+      GlobalVariables.toastManager
+          .makeToast(text: ToastManager.noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      _makeToast(text: somethingWentWrong);
+      GlobalVariables.toastManager
+          .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }
   }
@@ -120,11 +122,13 @@ class ApiService {
       }
     } on DioError catch (e) {
       print(e);
-      _makeToast(text: badNetworkConnection);
+      GlobalVariables.toastManager
+          .makeToast(text: ToastManager.badNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      _makeToast(text: somethingWentWrong);
+      GlobalVariables.toastManager
+          .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }
   }
@@ -148,11 +152,13 @@ class ApiService {
       }
     } on DioError catch (e) {
       print(e);
-      _makeToast(text: noNetworkConnection);
+      GlobalVariables.toastManager
+          .makeToast(text: ToastManager.noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      _makeToast(text: somethingWentWrong);
+      GlobalVariables.toastManager
+          .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }
   }
@@ -183,11 +189,13 @@ class ApiService {
       }
     } on DioError catch (e) {
       print(e);
-      _makeToast(text: noNetworkConnection);
+      GlobalVariables.toastManager
+          .makeToast(text: ToastManager.noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      _makeToast(text: somethingWentWrong);
+      GlobalVariables.toastManager
+          .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }
   }
@@ -200,11 +208,13 @@ class ApiService {
       return _buildLyrics(document);
     } on DioError catch (e) {
       print(e);
-      _makeToast(text: noNetworkConnection);
+      GlobalVariables.toastManager
+          .makeToast(text: ToastManager.noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      _makeToast(text: somethingWentWrong);
+      GlobalVariables.toastManager
+          .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }
   }
@@ -396,15 +406,5 @@ class ApiService {
     lyrics = lyrics.trimRight();
     lyrics = lyrics.trimLeft();
     return lyrics;
-  }
-
-  void _makeToast({String text}) {
-    Fluttertoast.showToast(
-      msg: text,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: GlobalVariables.pinkColor,
-      textColor: Colors.white,
-    );
   }
 }

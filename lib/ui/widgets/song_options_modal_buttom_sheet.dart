@@ -7,12 +7,12 @@ import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
+import 'package:myapp/toast_manager/toast_manager.dart';
 import 'package:myapp/ui/decorations/my_custom_icons.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/artists_pick_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
 import 'package:provider/provider.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 enum SongModalSheetMode {
   regular,
@@ -42,7 +42,9 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
       if (widget.song.imageUrl != "") {
         checkForIntenetConnetionForNetworkImage();
       } else {
-        GlobalVariables.apiService.getSongImageUrl(widget.song, false).then((imageUrl) {
+        GlobalVariables.apiService
+            .getSongImageUrl(widget.song, false)
+            .then((imageUrl) {
           if (mounted) {
             if (imageUrl != null) {
               setState(() {
@@ -129,7 +131,9 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
           AutoSizeText(
             widget.song.title,
             style: TextStyle(
-                color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold),
+                color: Colors.white,
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
             maxLines: 1,
           ),
@@ -172,7 +176,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
       child: widget.song.imageUrl.length == 0 || imageProvider == null
           ? Icon(
               Icons.music_note,
-              color: GlobalVariables.pinkColor,
+              color: Colors.grey[300],
               size: 40,
             )
           : Image(
@@ -221,11 +225,14 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                     if (GlobalVariables.audioPlayerManager.currentSong.songId ==
                         widget.song.songId) {
                       GlobalVariables.audioPlayerManager.loopPlaylist = null;
-                      GlobalVariables.audioPlayerManager.shuffledPlaylist = null;
+                      GlobalVariables.audioPlayerManager.shuffledPlaylist =
+                          null;
                       GlobalVariables.audioPlayerManager.currentPlaylist = null;
                     } else {
-                      GlobalVariables.audioPlayerManager.loopPlaylist = widget.playlist;
-                      GlobalVariables.audioPlayerManager.shuffledPlaylist = null;
+                      GlobalVariables.audioPlayerManager.loopPlaylist =
+                          widget.playlist;
+                      GlobalVariables.audioPlayerManager.shuffledPlaylist =
+                          null;
                       GlobalVariables.audioPlayerManager.setCurrentPlaylist();
                     }
                   }
@@ -246,7 +253,8 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   }
 
   Widget drawDownloadSong(BuildContext context) {
-    if (!GlobalVariables.currentUser.songExistsInDownloadedPlaylist(widget.song) &&
+    if (!GlobalVariables.currentUser
+            .songExistsInDownloadedPlaylist(widget.song) &&
         !GlobalVariables.manageLocalSongs.isSongDownloading(widget.song)) {
       return downloadWidget(context);
     } else {
@@ -278,58 +286,35 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             ),
           ),
           onTap: () {
-            GlobalVariables.manageLocalSongs.checkIfStoragePermissionGranted()
-                .then((permissonGranted) {
+            GlobalVariables.manageLocalSongs
+                .checkIfStoragePermissionGranted()
+                .then((permissonGranted) async {
               if (permissonGranted) {
-                GlobalVariables.manageLocalSongs.checkIfFileExists(widget.song)
-                    .then((exists) async {
-                  if (!exists) {
-                    if (Provider.of<PageNotifier>(
-                                GlobalVariables.homePageContext)
-                            .currentPlaylistPagePlaylist !=
-                        null) {
-                      if (Provider.of<PageNotifier>(
-                                  GlobalVariables.homePageContext)
-                              .currentPlaylistPagePlaylist
-                              .name ==
-                          GlobalVariables.currentUser.downloadedSongsPlaylist.name) {
-                        Provider.of<PageNotifier>(
-                                    GlobalVariables.homePageContext)
-                                .setCurrentPlaylistPagePlaylist =
-                            GlobalVariables.currentUser.downloadedSongsPlaylist;
-                      }
-                    }
-                    if (widget.song.imageUrl == "") {
-                      String imageUrl =
-                          await GlobalVariables.apiService.getSongImageUrl(widget.song, false);
-                      if (imageUrl != null) {
-                        widget.song.setImageUrl = imageUrl;
-                      }
-                    }
-                    GlobalVariables.manageLocalSongs.downloadSong(widget.song);
-                    Navigator.of(context, rootNavigator: true).pop('dialog');
-                  } else {
-                    Fluttertoast.showToast(
-                      msg: "Song is already exists!",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      timeInSecForIos: 1,
-                      backgroundColor: GlobalVariables.pinkColor,
-                      textColor: Colors.white,
-                      fontSize: 16.0,
-                    );
+                if (Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                        .currentPlaylistPagePlaylist !=
+                    null) {
+                  if (Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                          .currentPlaylistPagePlaylist
+                          .name ==
+                      GlobalVariables
+                          .currentUser.downloadedSongsPlaylist.name) {
+                    Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                            .setCurrentPlaylistPagePlaylist =
+                        GlobalVariables.currentUser.downloadedSongsPlaylist;
                   }
-                });
+                }
+                if (widget.song.imageUrl == "") {
+                  String imageUrl = await GlobalVariables.apiService
+                      .getSongImageUrl(widget.song, false);
+                  if (imageUrl != null) {
+                    widget.song.setImageUrl = imageUrl;
+                  }
+                }
+                GlobalVariables.manageLocalSongs.downloadSong(widget.song);
+                Navigator.of(context, rootNavigator: true).pop('dialog');
               } else {
-                Fluttertoast.showToast(
-                  msg: "You need to enable access to storage!",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                  timeInSecForIos: 1,
-                  backgroundColor: GlobalVariables.pinkColor,
-                  textColor: Colors.white,
-                  fontSize: 16.0,
-                );
+                GlobalVariables.toastManager
+                    .makeToast(text: ToastManager.enableAccessToStorage);
               }
             });
           },
@@ -358,10 +343,14 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             ),
           ),
           onTap: () {
-            GlobalVariables.manageLocalSongs.checkIfFileExists(widget.song).then((exists) {
+            GlobalVariables.manageLocalSongs
+                .checkIfSongFileExists(widget.song)
+                .then((exists) {
               if (exists) {
-                GlobalVariables.manageLocalSongs.deleteSongDirectory(widget.song);
-                GlobalVariables.currentUser.removeSongFromDownloadedPlaylist(widget.song);
+                GlobalVariables.manageLocalSongs
+                    .deleteSongDirectory(widget.song);
+                GlobalVariables.currentUser
+                    .removeSongFromDownloadedPlaylist(widget.song);
                 if (Provider.of<PageNotifier>(GlobalVariables.homePageContext)
                         .currentPlaylistPagePlaylist
                         .name ==
@@ -372,33 +361,21 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                 }
                 if (GlobalVariables.audioPlayerManager.currentSong != null) {
                   if (widget.song.songId ==
-                          GlobalVariables.audioPlayerManager.currentSong.songId &&
+                          GlobalVariables
+                              .audioPlayerManager.currentSong.songId &&
                       widget.playlist.name ==
-                          GlobalVariables.currentUser.downloadedSongsPlaylist.name) {
+                          GlobalVariables
+                              .currentUser.downloadedSongsPlaylist.name) {
                     GlobalVariables.audioPlayerManager.currentPlaylist = null;
                     GlobalVariables.audioPlayerManager.shuffledPlaylist = null;
                     GlobalVariables.audioPlayerManager.loopPlaylist = null;
                   }
                 }
-                Fluttertoast.showToast(
-                  msg: "song Undownloaded",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                  timeInSecForIos: 1,
-                  backgroundColor: GlobalVariables.pinkColor,
-                  textColor: Colors.white,
-                  fontSize: 16.0,
-                );
+                GlobalVariables.toastManager
+                    .makeToast(text: ToastManager.songUndownloaded);
               } else {
-                Fluttertoast.showToast(
-                  msg: "oops song is already undownloaded",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                  timeInSecForIos: 1,
-                  backgroundColor: GlobalVariables.pinkColor,
-                  textColor: Colors.white,
-                  fontSize: 16.0,
-                );
+                GlobalVariables.toastManager
+                    .makeToast(text: ToastManager.undownloadError);
               }
             });
             Navigator.pop(context);
@@ -552,7 +529,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
         widget.song.artist.contains("feat.")) {
       return widget.song.artist.split(RegExp(" feat. |\, |& |/"));
     } else {
-      List<String> artist = new List();
+      List<String> artist = List();
       artist.add(widget.song.artist);
       return artist;
     }
@@ -617,7 +594,9 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   }
 
   void checkForIntenetConnetionForNetworkImage() {
-    GlobalVariables.manageLocalSongs.checkIfFileExists(widget.song).then((exists) {
+    GlobalVariables.manageLocalSongs
+        .checkIfImageFileExists(widget.song)
+        .then((exists) {
       if (exists) {
         if (mounted) {
           File file = File(

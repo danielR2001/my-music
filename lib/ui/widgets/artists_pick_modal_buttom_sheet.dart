@@ -83,15 +83,17 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
           List<Song> songs = List();
           Provider.of<PageNotifier>(context).setCurrentPlaylistPagePlaylist =
               null;
-          GlobalVariables.apiService.getSearchResults(widget.artists[index].name)
+          GlobalVariables.apiService
+              .getSearchResults(widget.artists[index].name)
               .then((results) {
-            if (results != null &&
-                results[widget.artists[index].name] != null) {
-              results[widget.artists[index].name].forEach((song) {
-                if (song.artist.toLowerCase().contains(
-                        widget.artists[index].name.toLowerCase()) ||
-                    song.title.toLowerCase().contains(
-                        widget.artists[index].name.toLowerCase())) {
+            if (results != null && results != null) {
+              results.forEach((song) {
+                if (song.artist
+                        .toLowerCase()
+                        .contains(widget.artists[index].name.toLowerCase()) ||
+                    song.title
+                        .toLowerCase()
+                        .contains(widget.artists[index].name.toLowerCase())) {
                   songs.add(song);
                 }
               });
@@ -119,7 +121,7 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
         widget.song.artist.contains("feat.")) {
       return widget.song.artist.split(RegExp(" feat. |\, |& |/"));
     } else {
-      List<String> artist = new List();
+      List<String> artist = List();
       artist.add(widget.song.artist);
       return artist;
     }

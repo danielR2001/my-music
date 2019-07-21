@@ -43,7 +43,7 @@ class _AccountPageState extends State<AccountPage> {
               gradient: LinearGradient(
                 colors: [
                   GlobalVariables.darkGreyColor,
-                  GlobalVariables.lightDarkGreyColor,
+                  GlobalVariables.lightGreyColor,
                   GlobalVariables.pinkColor,
                 ],
                 begin: FractionalOffset.bottomRight,
@@ -322,19 +322,19 @@ class _AccountPageState extends State<AccountPage> {
     }
     return name;
   }
-
+  //! TODO remove this method
   void checkForIntenetConnetionForNetworkImage() {
     if (!GlobalVariables.isOfflineMode) {
       GlobalVariables.currentUser.playlists.forEach((playlist) {
           if (playlist.songs.length > 0) {
-            GlobalVariables.manageLocalSongs.checkIfFileExists(playlist.songs[0])
+            GlobalVariables.manageLocalSongs.checkIfImageFileExists(playlist.songs[0])
                 .then((exists) {
               if (exists) {
                 File file = File(
                     "${GlobalVariables.manageLocalSongs.fullSongDownloadDir.path}/${playlist.songs[0].songId}/${playlist.songs[0].songId}.png");
                 setState(() {
                   imageProviders[playlist.songs[0].songId] =
-                      (FileImage(file));
+                      FileImage(file);
                 });
               } else {
                 if (GlobalVariables.isNetworkAvailable) {

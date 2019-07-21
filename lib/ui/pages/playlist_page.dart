@@ -117,7 +117,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
               flexibleSpace: FlexibleSpaceBar(
                 centerTitle: true,
                 titlePadding: EdgeInsets.only(),
-                title: drawCreatorName(),
+                title: drawPlaylistAndCreatorName(),
                 background: ShaderMask(
                   shaderCallback: (rect) {
                     return LinearGradient(
@@ -462,11 +462,12 @@ class _PlaylistPageState extends State<PlaylistPage> {
     );
   }
 
-  Widget drawCreatorName() {
+  Widget drawPlaylistAndCreatorName() {
     return Container(
       height: 50,
       width: 200,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           AutoSizeText(
             widget.playlist.name,
@@ -575,7 +576,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
   void checkForIntenetConnetionForNetworkImage() {
     if (widget.playlist.songs.length > 0) {
       GlobalVariables.manageLocalSongs
-          .checkIfFileExists(widget.playlist.songs[0])
+          .checkIfImageFileExists(widget.playlist.songs[0])
           .then((exists) {
         if (exists) {
           File file = File(
