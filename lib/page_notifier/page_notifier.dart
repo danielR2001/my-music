@@ -10,8 +10,8 @@ class PageNotifier with ChangeNotifier {
   Song currentSong;
 
   void addDownloaded(Song song) {
-    downloadedProgresses[song.getSongId] = 0;
-    downloadedTotals[song.getSongId] = 1;
+    downloadedProgresses[song.songId] = 0;
+    downloadedTotals[song.songId] = 1;
     notifyListeners();
   }
 
@@ -22,12 +22,13 @@ class PageNotifier with ChangeNotifier {
   }
 
   void updateDownloadedTotals(Song song, int updatedTotal) {
-    downloadedTotals[song.getSongId] = updatedTotal;
+    downloadedTotals[song.songId] = updatedTotal;
     notifyListeners();
   }
+  
 
   void updateDownloadedProgsses(Song song, int updatedProg) {
-    downloadedProgresses[song.getSongId] = updatedProg;
+    downloadedProgresses[song.songId] = updatedProg;
     notifyListeners();
   }
 

@@ -3,7 +3,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
@@ -119,31 +118,73 @@ class _DiscoverPageState extends State<DiscoverPage> {
     );
   }
 
-  Future syncAllPublicPlaylists() async {
-    await FirebaseDatabaseManager.buildPublicPlaylists();
-    checkForIntenetConnetionForNetworkImage();
+  //* widgets
+  Widget drawPublicPlaylistsListView() {
+    if (!GlobalVariables.isOfflineMode && needToReloadImages) {
+      checkForIntenetConnetionForNetworkImage();
+      needToReloadImages = false;
+    }
+    return Expanded(
+      child: ListView.builder(
+        itemCount: GlobalVariables.publicPlaylists.length,
+        itemBuilder: (BuildContext context, int index) {
+          Padding row;
+          Expanded padding1;
+          Expanded padding2;
+          if ((index + 1) % 2 != 0) {
+            padding1 =
+                drawPlaylists(GlobalVariables.publicPlaylists[index], context);
+            padding2 = index + 1 != GlobalVariables.publicPlaylists.length
+                ? drawPlaylists(
+                    GlobalVariables.publicPlaylists[index + 1], context)
+                : Expanded(child: Container());
+            row = Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                child: Row(
+                  children: <Widget>[
+                    padding1,
+                    SizedBox(
+                      width: 20,
+                    ),
+                    padding2
+                  ],
+                ));
+            return row;
+          } else {
+            return Container();
+          }
+        },
+      ),
+    );
   }
 
-  Expanded drawPlaylists(Playlist playlist, BuildContext context) {
-    String name = playlist.getName;
+  Widget drawPlaylists(Playlist playlist, BuildContext context) {
+    String title = playlist.name;
     bool drawSongImage = false;
-    if (playlist.getName.length > 15) {
-      int pos = playlist.getName.lastIndexOf("", 15);
+    if (playlist.name.length > 15) {
+      int pos = playlist.name.lastIndexOf("", 15);
       if (pos < 5) {
         pos = 15;
       }
-      name = playlist.getName.substring(0, pos) + "...";
+      title = playlist.name.substring(0, pos) + "...";
     } else {
-      name = playlist.getName;
+      title = playlist.name;
     }
-    if (playlist.getSongs.length > 0) {
+    if (playlist.songs.length > 0) {
       if (imageProviders.length != 0 &&
-          imageProviders[playlist.getSongs[0].getSongId] != null) {
+          imageProviders[playlist.songs[0].songId] != null) {
         drawSongImage = true;
       }
     }
     if (drawSongImage) {
-      return Expanded(
+      return drawPlaylist( playlist,  title);
+    } else {
+      return drawDefaultPlaylist(playlist,title);
+    }
+  }
+
+  Widget drawPlaylist(Playlist playlist, String title){
+    return Expanded(
         child: GestureDetector(
             child: Column(
               children: <Widget>[
@@ -171,7 +212,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                       ),
                     ],
                     image: DecorationImage(
-                      image: imageProviders[playlist.getSongs[0].getSongId],
+                      image: imageProviders[playlist.songs[0].songId],
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -180,7 +221,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                   height: 5,
                 ),
                 AutoSizeText(
-                  name,
+                  title,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 17.0,
@@ -192,10 +233,12 @@ class _DiscoverPageState extends State<DiscoverPage> {
             ),
             onTap: () {
               widget.onPush(playlistValues: createMap(playlist));
-            }),
+            },),
       );
-    } else {
-      return Expanded(
+  }
+
+  Widget drawDefaultPlaylist(Playlist playlist, String title){
+    return Expanded(
         child: GestureDetector(
             child: Column(
               children: <Widget>[
@@ -234,7 +277,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                   height: 5,
                 ),
                 AutoSizeText(
-                  name,
+                  title,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 17.0,
@@ -246,86 +289,55 @@ class _DiscoverPageState extends State<DiscoverPage> {
             ),
             onTap: () {
               widget.onPush(playlistValues: createMap(playlist));
-            }),
+            },),
       );
-    }
+  }
+  
+  //* methods
+  Future syncAllPublicPlaylists() async {
+    await FirebaseDatabaseManager.buildPublicPlaylists();
+    checkForIntenetConnetionForNetworkImage();
   }
 
   Map createMap(Playlist playlist) {
     Map<String, dynamic> playlistValues = Map();
-    if (playlist.getSongs.length > 0) {
+    if (playlist.songs.length > 0) {
       playlistValues['playlist'] = playlist;
     } else {
       playlistValues['playlist'] = playlist;
     }
-    playlistValues['playlistCreator'] = User(playlist.getCreator, null);
+    playlistValues['playlistCreator'] = User(playlist.creator, null);
     playlistValues['playlistModalSheetMode'] = PlaylistModalSheetMode.public;
     return playlistValues;
   }
 
   void checkForIntenetConnetionForNetworkImage() {
-     if (!GlobalVariables.isOfflineMode) {
-    GlobalVariables.publicPlaylists.forEach((playlist) {
-      if (playlist.getSongs.length > 0) {
-        ManageLocalSongs.checkIfFileExists(playlist.getSongs[0]).then((exists) {
-          if (exists) {
-            File file = File(
-                "${ManageLocalSongs.fullSongDownloadDir.path}/${playlist.getSongs[0].getSongId}/${playlist.getSongs[0].getSongId}.png");
-            setState(() {
-              imageProviders[playlist.getSongs[0].getSongId] =
-                  (FileImage(file));
-            });
-          } else {
-            if (GlobalVariables.isNetworkAvailable) {
+    if (!GlobalVariables.isOfflineMode) {
+      GlobalVariables.publicPlaylists.forEach((playlist) {
+        if (playlist.songs.length > 0) {
+          GlobalVariables.manageLocalSongs
+              .checkIfFileExists(playlist.songs[0])
+              .then((exists) {
+            if (exists) {
+              File file = File(
+                  "${GlobalVariables.manageLocalSongs.fullSongDownloadDir.path}/${playlist.songs[0].songId}/${playlist.songs[0].songId}.png");
               setState(() {
-                imageProviders[playlist.getSongs[0].getSongId] = NetworkImage(
-                  playlist.getSongs[0].getImageUrl,
-                );
+                imageProviders[playlist.songs[0].songId] = (FileImage(file));
               });
+            } else {
+              if (GlobalVariables.isNetworkAvailable) {
+                setState(() {
+                  imageProviders[playlist.songs[0].songId] = NetworkImage(
+                    playlist.songs[0].imageUrl,
+                  );
+                });
+              }
             }
-          }
-        });
-      }
-    });
-     }else{
-       needToReloadImages = true;
-     }
-  }
-
-  Widget drawPublicPlaylistsListView() {
-    if (!GlobalVariables.isOfflineMode && needToReloadImages) {
-      checkForIntenetConnetionForNetworkImage();
-      needToReloadImages = false;
+          });
+        }
+      });
+    } else {
+      needToReloadImages = true;
     }
-    return Expanded(
-      child: ListView.builder(
-        itemCount: GlobalVariables.publicPlaylists.length,
-        itemBuilder: (BuildContext context, int index) {
-          Padding row;
-          Expanded padding1;
-          Expanded padding2;
-          if ((index + 1) % 2 != 0) {
-            padding1 = drawPlaylists(GlobalVariables.publicPlaylists[index], context);
-            padding2 = index + 1 != GlobalVariables.publicPlaylists.length
-                ? drawPlaylists(GlobalVariables.publicPlaylists[index + 1], context)
-                : Expanded(child: Container());
-            row = Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                child: Row(
-                  children: <Widget>[
-                    padding1,
-                    SizedBox(
-                      width: 20,
-                    ),
-                    padding2
-                  ],
-                ));
-            return row;
-          } else {
-            return Container();
-          }
-        },
-      ),
-    );
   }
 }

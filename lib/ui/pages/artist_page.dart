@@ -8,7 +8,6 @@ import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
-import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:provider/provider.dart';
 
 class ArtistPage extends StatefulWidget {
@@ -75,7 +74,7 @@ class _ArtistPageState extends State<ArtistPage> {
               flexibleSpace: FlexibleSpaceBar(
                 centerTitle: true,
                 title: AutoSizeText(
-                  widget.artist.getName,
+                  widget.artist.name,
                   style: TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.bold,
@@ -95,10 +94,10 @@ class _ArtistPageState extends State<ArtistPage> {
                         Rect.fromLTRB(0, 0, rect.width, rect.height));
                   },
                   blendMode: BlendMode.dstIn,
-                  child: widget.artist.getImageUrl !=
+                  child: widget.artist.imageUrl !=
                           "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png"
                       ? Image.network(
-                          widget.artist.getImageUrl,
+                          widget.artist.imageUrl,
                           fit: BoxFit.cover,
                         )
                       : Image.network(
@@ -135,45 +134,46 @@ class _ArtistPageState extends State<ArtistPage> {
     );
   }
 
+  //* widgets
   Widget makeSliverList(Playlist playlist, BuildContext context) {
     if (playlist == null) {
       playlist = Playlist("temp");
     }
     return SliverList(
       delegate: SliverChildListDelegate(
-        List.generate(playlist.getSongs.length, (int index) {
+        List.generate(playlist.songs.length, (int index) {
           String title;
           String artist;
-          if (playlist.getSongs[index].getTitle.length > 28) {
-            int pos = playlist.getSongs[index].getTitle.lastIndexOf("", 28);
+          if (playlist.songs[index].title.length > 28) {
+            int pos = playlist.songs[index].title.lastIndexOf("", 28);
             if (pos < 20) {
               pos = 28;
             }
-            title = playlist.getSongs[index].getTitle.substring(0, pos) + "...";
+            title = playlist.songs[index].title.substring(0, pos) + "...";
           } else {
-            title = playlist.getSongs[index].getTitle;
+            title = playlist.songs[index].title;
           }
-          if (playlist.getSongs[index].getArtist.length > 36) {
-            int pos = playlist.getSongs[index].getArtist.lastIndexOf("", 36);
+          if (playlist.songs[index].artist.length > 36) {
+            int pos = playlist.songs[index].artist.lastIndexOf("", 36);
             if (pos < 26) {
               pos = 36;
             }
             artist =
-                playlist.getSongs[index].getArtist.substring(0, pos) + "...";
+                playlist.songs[index].artist.substring(0, pos) + "...";
           } else {
-            artist = playlist.getSongs[index].getArtist;
+            artist = playlist.songs[index].artist;
           }
           return ListTile(
             contentPadding: EdgeInsets.only(left: 20, right: 4),
             title: Text(
               title,
               style: TextStyle(
-                color: AudioPlayerManager.currentSong != null &&
-                        AudioPlayerManager.currentPlaylist != null
-                    ? AudioPlayerManager.loopPlaylist.getName ==
-                            playlist.getName
-                        ? AudioPlayerManager.currentSong.getSongId ==
-                                playlist.getSongs[index].getSongId
+                color: GlobalVariables.audioPlayerManager.currentSong != null &&
+                        GlobalVariables.audioPlayerManager.currentPlaylist != null
+                    ? GlobalVariables.audioPlayerManager.loopPlaylist.name ==
+                            playlist.name
+                        ? GlobalVariables.audioPlayerManager.currentSong.songId ==
+                                playlist.songs[index].songId
                             ? GlobalVariables.pinkColor
                             : Colors.white
                         : Colors.white
@@ -185,14 +185,14 @@ class _ArtistPageState extends State<ArtistPage> {
             subtitle: Text(
               artist,
               style: TextStyle(
-                color: AudioPlayerManager.currentSong != null &&
-                        AudioPlayerManager.currentPlaylist != null
-                    ? AudioPlayerManager.loopPlaylist.getName ==
-                            playlist.getName
+                color: GlobalVariables.audioPlayerManager.currentSong != null &&
+                        GlobalVariables.audioPlayerManager.currentPlaylist != null
+                    ? GlobalVariables.audioPlayerManager.loopPlaylist.name ==
+                            playlist.name
                         ? Provider.of<PageNotifier>(context)
                                     .currentSong
-                                    .getSongId ==
-                                playlist.getSongs[index].getSongId
+                                    .songId ==
+                                playlist.songs[index].songId
                             ? GlobalVariables.pinkColor
                             : Colors.grey
                         : Colors.grey
@@ -201,7 +201,7 @@ class _ArtistPageState extends State<ArtistPage> {
               ),
             ),
             trailing:
-                ManageLocalSongs.isSongDownloading(playlist.getSongs[index])
+                GlobalVariables.manageLocalSongs.isSongDownloading(playlist.songs[index])
                     ? Padding(
                         padding: EdgeInsets.only(right: 6),
                         child: CircularProgressIndicator(
@@ -213,12 +213,12 @@ class _ArtistPageState extends State<ArtistPage> {
                     : IconButton(
                         icon: Icon(
                           Icons.more_vert,
-                          color: AudioPlayerManager.currentSong != null &&
-                                  AudioPlayerManager.currentPlaylist != null
-                              ? AudioPlayerManager.loopPlaylist.getName ==
-                                      playlist.getName
-                                  ? AudioPlayerManager.currentSong.getSongId ==
-                                          playlist.getSongs[index].getSongId
+                          color: GlobalVariables.audioPlayerManager.currentSong != null &&
+                                  GlobalVariables.audioPlayerManager.currentPlaylist != null
+                              ? GlobalVariables.audioPlayerManager.loopPlaylist.name ==
+                                      playlist.name
+                                  ? GlobalVariables.audioPlayerManager.currentSong.songId ==
+                                          playlist.songs[index].songId
                                       ? GlobalVariables.pinkColor
                                       : Colors.white
                                   : Colors.white
@@ -227,33 +227,33 @@ class _ArtistPageState extends State<ArtistPage> {
                         iconSize: 30,
                         onPressed: () {
                           setState(() {
-                            showSongOptions(playlist.getSongs[index], playlist);
+                            showSongOptions(playlist.songs[index], playlist);
                           });
                         },
                       ),
             onTap: () {
-              if (AudioPlayerManager.isSongLoaded) {
-                if (AudioPlayerManager.currentSong != null &&
-                    AudioPlayerManager.currentPlaylist != null) {
-                  if (AudioPlayerManager.currentSong.getSongId ==
-                          playlist.getSongs[index].getSongId &&
-                      AudioPlayerManager.currentPlaylist.getName ==
-                          playlist.getName) {
+              if (GlobalVariables.audioPlayerManager.isSongLoaded) {
+                if (GlobalVariables.audioPlayerManager.currentSong != null &&
+                    GlobalVariables.audioPlayerManager.currentPlaylist != null) {
+                  if (GlobalVariables.audioPlayerManager.currentSong.songId ==
+                          playlist.songs[index].songId &&
+                      GlobalVariables.audioPlayerManager.currentPlaylist.name ==
+                          playlist.name) {
                     Navigator.push(
                       GlobalVariables.homePageContext,
                       MaterialPageRoute(
                           builder: (context) => MusicPlayerPage()),
                     );
                   } else {
-                    AudioPlayerManager.initSong(
-                      song: playlist.getSongs[index],
+                    GlobalVariables.audioPlayerManager.initSong(
+                      song: playlist.songs[index],
                       playlist: playlist,
                       mode: PlaylistMode.loop,
                     );
                   }
                 } else {
-                  AudioPlayerManager.initSong(
-                    song: playlist.getSongs[index],
+                  GlobalVariables.audioPlayerManager.initSong(
+                    song: playlist.songs[index],
                     playlist: playlist,
                     mode: PlaylistMode.loop,
                   );
@@ -266,6 +266,7 @@ class _ArtistPageState extends State<ArtistPage> {
     );
   }
 
+  //* methods
   void showSongOptions(Song song, Playlist currentPlaylist) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,

@@ -9,7 +9,8 @@ class Song {
   String _lyrics;
 
   Song(String title, String artist, String songId, String searchString,
-      String imageUrl, String pushId, {int dateAdded}) {
+      String imageUrl, String pushId,
+      {int dateAdded}) {
     _title = title;
     _artist = artist;
     _songId = songId;
@@ -18,31 +19,54 @@ class Song {
     _pushId = pushId;
     _dateAdded = dateAdded;
   }
+
   Song.fromSong(Song song) {
-    _title = song.getTitle;
-    _artist = song.getArtist;
-    _songId = song.getSongId;
-    _searchString = song.getSearchString;
-    _imageUrl = song.getImageUrl;
-    _pushId = song.getPushId;
-    _dateAdded = song.getDateAdded;
+    _title = song.title;
+    _artist = song.artist;
+    _songId = song.songId;
+    _searchString = song.searchString;
+    _imageUrl = song.imageUrl;
+    _pushId = song.pushId;
+    _dateAdded = song.dateAdded;
   }
 
-  String get getTitle => _title;
+  Song.fromJson(Map values) {
+    _title = values['title'];
+    _artist = values['artist'];
+    _songId = values['songId'];
+    _searchString = values['searchString'];
+    _imageUrl = values['imageUrl'];
+    _pushId = values['pushId'];
+    _dateAdded = values['dateAdded'];
+  }
 
-  String get getArtist => _artist;
+  toJson() {
+    return {
+      'title': _title,
+      'artist': _artist,
+      'songId': _songId,
+      'searchString': _searchString,
+      'imageUrl': _imageUrl,
+      'pushId': _pushId,
+      'dateAdded': _dateAdded,
+    };
+  }
 
-  String get getSongId => _songId;
+  String get title => _title;
 
-  String get getSearchString => _searchString;
+  String get artist => _artist;
 
-  String get getImageUrl => _imageUrl;
+  String get songId => _songId;
 
-  String get getPushId => _pushId;
+  String get searchString => _searchString;
 
-  int get getDateAdded => _dateAdded;
+  String get imageUrl => _imageUrl;
 
-  String get getLyrics => _lyrics;
+  String get pushId => _pushId;
+
+  int get dateAdded => _dateAdded;
+
+  String get lyrics => _lyrics;
 
   set setTitle(String value) => _title = value;
 
@@ -59,17 +83,4 @@ class Song {
   set setDateAdded(int value) => _dateAdded = value;
 
   set setLyrics(String value) => _lyrics = value;
-
-
-  toJson() {
-    return {
-      'title': _title,
-      'artist': _artist,
-      'songId': _songId,
-      'searchString': _searchString,
-      'imageUrl': _imageUrl,
-      'pushId': _pushId,
-      'dateAdded': _dateAdded,
-    };
-  }
 }

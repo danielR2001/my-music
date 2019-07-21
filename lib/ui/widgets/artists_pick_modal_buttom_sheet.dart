@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
@@ -37,7 +36,7 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
               itemCount: widget.artists.length,
               itemExtent: 70,
               itemBuilder: (BuildContext context, int index) {
-                return artistListTile(index, context);
+                return drawArtistListTile(index, context);
               },
             ),
           ),
@@ -46,19 +45,8 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
     );
   }
 
-  List<String> getArtists() {
-    if (widget.song.getArtist.contains(", ") ||
-        widget.song.getArtist.contains("&") ||
-        widget.song.getArtist.contains("feat.")) {
-      return widget.song.getArtist.split(RegExp(" feat. |\, |& |/"));
-    } else {
-      List<String> artist = new List();
-      artist.add(widget.song.getArtist);
-      return artist;
-    }
-  }
-
-  Padding artistListTile(int index, BuildContext context) {
+  //* widgets
+  Widget drawArtistListTile(int index, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 7),
       child: ListTile(
@@ -77,7 +65,7 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
                     width: 0.2,
                   ),
                   image: DecorationImage(
-                    image: NetworkImage(widget.artists[index].getImageUrl),
+                    image: NetworkImage(widget.artists[index].imageUrl),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -86,7 +74,7 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
           ),
         ),
         title: Text(
-          widget.artists[index].getName,
+          widget.artists[index].name,
           style: TextStyle(
             color: Colors.white,
           ),
@@ -95,20 +83,20 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
           List<Song> songs = List();
           Provider.of<PageNotifier>(context).setCurrentPlaylistPagePlaylist =
               null;
-          FetchData.getSearchResults(widget.artists[index].getName)
+          GlobalVariables.apiService.getSearchResults(widget.artists[index].name)
               .then((results) {
             if (results != null &&
-                results[widget.artists[index].getName] != null) {
-              results[widget.artists[index].getName].forEach((song) {
-                if (song.getArtist.toLowerCase().contains(
-                        widget.artists[index].getName.toLowerCase()) ||
-                    song.getTitle.toLowerCase().contains(
-                        widget.artists[index].getName.toLowerCase())) {
+                results[widget.artists[index].name] != null) {
+              results[widget.artists[index].name].forEach((song) {
+                if (song.artist.toLowerCase().contains(
+                        widget.artists[index].name.toLowerCase()) ||
+                    song.title.toLowerCase().contains(
+                        widget.artists[index].name.toLowerCase())) {
                   songs.add(song);
                 }
               });
               Playlist temp =
-                  Playlist(widget.artists[index].getName + " Top Hits");
+                  Playlist(widget.artists[index].name + " Top Hits");
               temp.setSongs = songs;
               Provider.of<PageNotifier>(context)
                   .setCurrentPlaylistPagePlaylist = temp;
@@ -122,5 +110,18 @@ class _ArtistsPickModalSheetState extends State<ArtistsPickModalSheet> {
         },
       ),
     );
+  }
+
+  //* methods
+  List<String> getArtists() {
+    if (widget.song.artist.contains(", ") ||
+        widget.song.artist.contains("&") ||
+        widget.song.artist.contains("feat.")) {
+      return widget.song.artist.split(RegExp(" feat. |\, |& |/"));
+    } else {
+      List<String> artist = new List();
+      artist.add(widget.song.artist);
+      return artist;
+    }
   }
 }

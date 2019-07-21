@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
@@ -50,10 +49,10 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
                     to--;
                   }
                   Song temp = Song.fromSong(
-                      AudioPlayerManager.currentPlaylist.getSongs[to]);
-                  AudioPlayerManager.currentPlaylist.getSongs[to] =
-                      AudioPlayerManager.currentPlaylist.getSongs[from];
-                  AudioPlayerManager.currentPlaylist.getSongs[from] = temp;
+                      GlobalVariables.audioPlayerManager.currentPlaylist.songs[to]);
+                  GlobalVariables.audioPlayerManager.currentPlaylist.songs[to] =
+                      GlobalVariables.audioPlayerManager.currentPlaylist.songs[from];
+                  GlobalVariables.audioPlayerManager.currentPlaylist.songs[from] = temp;
                   setState(() {});
                 },
               ),
@@ -64,7 +63,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
     );
   }
 
-  // Widgets
+  //* Widgets
   Widget drawTitle() {
     return ListTile(
       title: Text(
@@ -82,11 +81,11 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
   List<Widget> drawPlaylistQueueSongs() {
     List<Widget> songs = List();
     for (int i = 0;
-        i < AudioPlayerManager.currentPlaylist.getSongs.length;
+        i < GlobalVariables.audioPlayerManager.currentPlaylist.songs.length;
         i++) {
       Key key = Key("$i");
       songs.add(songItem(
-          AudioPlayerManager.currentPlaylist.getSongs[i], i + 1, context, key));
+          GlobalVariables.audioPlayerManager.currentPlaylist.songs[i], i + 1, context, key));
     }
     return songs;
   }
@@ -94,23 +93,23 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
   Widget songItem(Song song, int pos, BuildContext context, Key key) {
     String title;
     String artist;
-    if (song.getTitle.length > 25) {
-      int pos = song.getTitle.lastIndexOf("", 25);
+    if (song.title.length > 25) {
+      int pos = song.title.lastIndexOf("", 25);
       if (pos < 20) {
         pos = 25;
       }
-      title = song.getTitle.substring(0, pos) + "...";
+      title = song.title.substring(0, pos) + "...";
     } else {
-      title = song.getTitle;
+      title = song.title;
     }
-    if (song.getArtist.length > 30) {
-      int pos = song.getArtist.lastIndexOf("", 30);
+    if (song.artist.length > 30) {
+      int pos = song.artist.lastIndexOf("", 30);
       if (pos < 20) {
         pos = 30;
       }
-      artist = song.getArtist.substring(0, pos) + "...";
+      artist = song.artist.substring(0, pos) + "...";
     } else {
-      artist = song.getArtist;
+      artist = song.artist;
     }
     return ListTile(
       key: key,
@@ -124,8 +123,8 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
       title: Text(
         title,
         style: TextStyle(
-          color: Provider.of<PageNotifier>(context).currentSong.getSongId ==
-                  song.getSongId
+          color: Provider.of<PageNotifier>(context).currentSong.songId ==
+                  song.songId
               ? GlobalVariables.pinkColor
               : Colors.white,
           fontSize: 14,
@@ -135,14 +134,14 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
       subtitle: Text(
         artist,
         style: TextStyle(
-          color: Provider.of<PageNotifier>(context).currentSong.getSongId ==
-                  song.getSongId
+          color: Provider.of<PageNotifier>(context).currentSong.songId ==
+                  song.songId
               ? GlobalVariables.pinkColor
               : Colors.grey,
           fontSize: 12,
         ),
       ),
-      trailing: AudioPlayerManager.currentSong.getSongId != song.getSongId
+      trailing: GlobalVariables.audioPlayerManager.currentSong.songId != song.songId
           ? IconButton(
               icon: Icon(
                 Icons.clear,
@@ -150,7 +149,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
               ),
               onPressed: () {
                 setState(() {
-                  AudioPlayerManager.currentPlaylist.removeSong(song);
+                  GlobalVariables.audioPlayerManager.currentPlaylist.removeSong(song);
                 });
               },
             )
@@ -159,13 +158,13 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
               height: 0,
             ),
       onTap: () {
-        if (AudioPlayerManager.currentSong.getSongId != song.getSongId) {
-          if (AudioPlayerManager.isSongLoaded &&
-              AudioPlayerManager.songPosition != Duration(milliseconds: 0)) {
-            AudioPlayerManager.initSong(
+        if (GlobalVariables.audioPlayerManager.currentSong.songId != song.songId) {
+          if (GlobalVariables.audioPlayerManager.isSongLoaded &&
+              GlobalVariables.audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
+            GlobalVariables.audioPlayerManager.initSong(
               song: song,
-              playlist: AudioPlayerManager.currentPlaylist,
-              mode: AudioPlayerManager.playlistMode,
+              playlist: GlobalVariables.audioPlayerManager.currentPlaylist,
+              mode: GlobalVariables.audioPlayerManager.playlistMode,
             );
             setState(() {});
           }

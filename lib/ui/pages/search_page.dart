@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/fetch_data_from_internet/fetch_data_from_internet.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 
@@ -23,7 +22,9 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     if (GlobalVariables.lastSearch != null) {
-      FetchData.getSearchResults(GlobalVariables.lastSearch).then((results) {
+      GlobalVariables.apiService
+          .getSearchResults(GlobalVariables.lastSearch)
+          .then((results) {
         setState(() {
           if (results != null) {
             searchResults = results[GlobalVariables.lastSearch];
@@ -65,92 +66,9 @@ class _SearchPageState extends State<SearchPage> {
                 color: Colors.grey[700],
                 child: Row(
                   children: <Widget>[
-                    IconButton(
-                      iconSize: 35,
-                      icon: Icon(
-                        Icons.chevron_left,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    Flexible(
-                      child: Container(
-                        child: TextField(
-                          autofocus: true,
-                          textDirection: textDirection,
-                          controller: textEditingController,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                          cursorColor: GlobalVariables.pinkColor,
-                          decoration: InputDecoration.collapsed(
-                            hintText: hintText,
-                            hintStyle: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                            ),
-                          ),
-                          onChanged: (txt) {
-                            if (RegExp(r"^[א-ת0-9\$!?&\()\[\]/,\-#\+'= ]+$")
-                                .hasMatch(txt)) {
-                              setState(() {
-                                textDirection = TextDirection.rtl;
-                              });
-                            } else {
-                              setState(() {
-                                textDirection = TextDirection.ltr;
-                              });
-                            }
-                            if (txt != "") {
-                              FetchData.getSearchResults(txt).then((results) {
-                                setState(() {
-                                  if (results != null && results[txt] != null) {
-                                    searchResults = results[txt];
-                                    GlobalVariables.lastSearch = txt;
-                                    searchResultsPlaylist =
-                                        Playlist("Search Playlist");
-                                    searchResultsPlaylist.setSongs =
-                                        searchResults;
-                                    searchLength = searchResults.length;
-                                  }
-                                });
-                              });
-                            }
-                          },
-                          onSubmitted: (txt) =>
-                              FetchData.getSearchResults(txt).then((results) {
-                            setState(() {
-                              if (results != null && results[txt] != null) {
-                                searchResults = results[txt];
-                                GlobalVariables.lastSearch = txt;
-                                searchResultsPlaylist =
-                                    Playlist("Search Playlist");
-                                searchResultsPlaylist.setSongs = searchResults;
-                                searchLength = searchResults.length;
-                              }
-                            });
-                          }),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 4),
-                      child: IconButton(
-                        iconSize: 25,
-                        icon: Icon(
-                          Icons.clear,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            textEditingController.clear();
-                          });
-                        },
-                      ),
-                    ),
+                    drawBackButton(),
+                    drawSearchBar(),
+                    drawClearButton(),
                   ],
                 ),
               ),
@@ -159,7 +77,7 @@ class _SearchPageState extends State<SearchPage> {
                   itemCount: searchLength,
                   itemExtent: 60,
                   itemBuilder: (BuildContext context, int index) {
-                    return songSearchResult(searchResults[index], context);
+                    return drawSongSearchResult(searchResults[index], context);
                   },
                 ),
               ),
@@ -170,26 +88,118 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  ListTile songSearchResult(Song song, BuildContext context) {
+  //* widgets
+  Widget drawBackButton() {
+    return IconButton(
+      iconSize: 35,
+      icon: Icon(
+        Icons.chevron_left,
+        color: Colors.white,
+      ),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  Widget drawSearchBar() {
+    return Flexible(
+      child: Container(
+        child: TextField(
+          autofocus: true,
+          textDirection: textDirection,
+          controller: textEditingController,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+          ),
+          cursorColor: GlobalVariables.pinkColor,
+          decoration: InputDecoration.collapsed(
+            hintText: hintText,
+            hintStyle: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+          onChanged: (txt) {
+            if (RegExp(r"^[א-ת0-9\$!?&\()\[\]/,\-#\+'= ]+$").hasMatch(txt)) {
+              setState(() {
+                textDirection = TextDirection.rtl;
+              });
+            } else {
+              setState(() {
+                textDirection = TextDirection.ltr;
+              });
+            }
+            if (txt != "") {
+              GlobalVariables.apiService.getSearchResults(txt).then((results) {
+                setState(() {
+                  if (results != null && results[txt] != null) {
+                    searchResults = results[txt];
+                    GlobalVariables.lastSearch = txt;
+                    searchResultsPlaylist = Playlist("Search Playlist");
+                    searchResultsPlaylist.setSongs = searchResults;
+                    searchLength = searchResults.length;
+                  }
+                });
+              });
+            }
+          },
+          onSubmitted: (txt) =>
+              GlobalVariables.apiService.getSearchResults(txt).then((results) {
+            setState(() {
+              if (results != null && results[txt] != null) {
+                searchResults = results[txt];
+                GlobalVariables.lastSearch = txt;
+                searchResultsPlaylist = Playlist("Search Playlist");
+                searchResultsPlaylist.setSongs = searchResults;
+                searchLength = searchResults.length;
+              }
+            });
+          }),
+        ),
+      ),
+    );
+  }
+
+  Widget drawClearButton() {
+    return Padding(
+      padding: const EdgeInsets.only(right: 4),
+      child: IconButton(
+        iconSize: 25,
+        icon: Icon(
+          Icons.clear,
+          color: Colors.white,
+        ),
+        onPressed: () {
+          setState(() {
+            textEditingController.clear();
+          });
+        },
+      ),
+    );
+  }
+
+  Widget drawSongSearchResult(Song song, BuildContext context) {
     String title;
     String artist;
-    if (song.getTitle.length > 33) {
-      int pos = song.getTitle.lastIndexOf("", 33);
+    if (song.title.length > 33) {
+      int pos = song.title.lastIndexOf("", 33);
       if (pos < 25) {
         pos = 33;
       }
-      title = song.getTitle.substring(0, pos) + "...";
+      title = song.title.substring(0, pos) + "...";
     } else {
-      title = song.getTitle;
+      title = song.title;
     }
-    if (song.getArtist.length > 36) {
-      int pos = song.getArtist.lastIndexOf("", 36);
+    if (song.artist.length > 36) {
+      int pos = song.artist.lastIndexOf("", 36);
       if (pos < 26) {
         pos = 36;
       }
-      artist = song.getArtist.substring(0, pos) + "...";
+      artist = song.artist.substring(0, pos) + "...";
     } else {
-      artist = song.getArtist;
+      artist = song.artist;
     }
     return ListTile(
       contentPadding: EdgeInsets.only(left: 20, right: 4),
@@ -218,11 +228,11 @@ class _SearchPageState extends State<SearchPage> {
         },
       ),
       onTap: () async {
-        if (AudioPlayerManager.isSongLoaded) {
-          Playlist temp = Playlist(searchResultsPlaylist.getName);
-          temp.setSongs = searchResultsPlaylist.getSongs;
+        if (GlobalVariables.audioPlayerManager.isSongLoaded) {
+          Playlist temp = Playlist(searchResultsPlaylist.name);
+          temp.setSongs = searchResultsPlaylist.songs;
           FocusScope.of(context).requestFocus(FocusNode());
-          AudioPlayerManager.initSong(
+          GlobalVariables.audioPlayerManager.initSong(
             song: song,
             playlist: temp,
             mode: PlaylistMode.loop,
@@ -232,6 +242,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  //*methods
   void showMoreOptions(Song song) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/ui/pages/root_page.dart';
 import 'home_page.dart';
 
@@ -50,156 +49,22 @@ class _State extends State<LogInPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 10.0,
-                        top: 10.0,
-                      ),
-                      child: IconButton(
-                          alignment: Alignment.topLeft,
-                          icon: Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            final form = formKey.currentState;
-                            form.save();
-                            if (MediaQuery.of(context).viewInsets.bottom != 0) {
-                              SystemChannels.textInput
-                                  .invokeMethod('TextInput.hide')
-                                  .then((a) {
-                                Navigator.pop(
-                                  context,
-                                  false,
-                                );
-                              });
-                            } else {
-                              Navigator.pop(
-                                context,
-                                false,
-                              );
-                            }
-                          }),
-                    ),
+                    drawBackButton(),
                   ],
                 ),
+                drawWelcomeBack(),
                 Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 20,
-                  ),
-                  child: Text(
-                    "Welcome Back!",
-                    style: TextStyle(
-                      fontSize: 25.0,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 80),
+                  padding: const EdgeInsets.only(top: 80, right: 20, left: 20),
                   child: Column(
                     children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Form(
-                          key: formKey,
-                          child: Column(
-                            children: <Widget>[
-                              TextFormField(
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                ),
-                                cursorColor: GlobalVariables.pinkColor,
-                                decoration: InputDecoration(
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  labelText: "Email",
-                                  labelStyle: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  errorStyle: TextStyle(
-                                    color: GlobalVariables.pinkColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                keyboardType: TextInputType.emailAddress,
-                                initialValue:
-                                    loginInEmail != null ? loginInEmail : "",
-                                validator: (value) => value.isEmpty
-                                    ? 'Email can\'t be empty'
-                                    : null,
-                                onSaved: (value) => loginInEmail = value,
-                              ),
-                              TextFormField(
-                                obscureText: true,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                ),
-                                cursorColor: GlobalVariables.pinkColor,
-                                decoration: InputDecoration(
-                                  focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  labelText: "Password",
-                                  labelStyle: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  errorStyle: TextStyle(
-                                    color: GlobalVariables.pinkColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                initialValue: loginInPassword != null
-                                    ? loginInPassword
-                                    : "",
-                                validator: (value) => value.isEmpty
-                                    ? 'Password can\'t be empty'
-                                    : null,
-                                onSaved: (value) => loginInPassword = value,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 40, vertical: 20),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    FocusScope.of(context)
-                                        .requestFocus(FocusNode());
-                                    signInWithEmailAndPass();
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    height: 60.0,
-                                    decoration: BoxDecoration(
-                                      color: GlobalVariables.pinkColor,
-                                      borderRadius: BorderRadius.circular(40.0),
-                                    ),
-                                    child: Text(
-                                      "Log In",
-                                      style: TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                      Form(
+                        key: formKey,
+                        child: Column(
+                          children: <Widget>[
+                            drawEmailTextFiled(),
+                            drawPasswordTextFiled(),
+                            drawLoginButton(),
+                          ],
                         ),
                       ),
                     ],
@@ -213,6 +78,148 @@ class _State extends State<LogInPage> {
     );
   }
 
+  //* widgets
+  Widget drawBackButton() {
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 10.0,
+        top: 10.0,
+      ),
+      child: IconButton(
+          alignment: Alignment.topLeft,
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            final form = formKey.currentState;
+            form.save();
+            if (MediaQuery.of(context).viewInsets.bottom != 0) {
+              SystemChannels.textInput.invokeMethod('TextInput.hide').then((a) {
+                Navigator.pop(
+                  context,
+                  false,
+                );
+              });
+            } else {
+              Navigator.pop(
+                context,
+                false,
+              );
+            }
+          }),
+    );
+  }
+
+  Widget drawWelcomeBack() {
+    return Padding(
+      padding: const EdgeInsets.only(
+        bottom: 20,
+      ),
+      child: Text(
+        "Welcome Back!",
+        style: TextStyle(
+          fontSize: 25.0,
+          color: Colors.white,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget drawEmailTextFiled() {
+    return TextFormField(
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 18,
+      ),
+      cursorColor: GlobalVariables.pinkColor,
+      decoration: InputDecoration(
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: Colors.white,
+          ),
+        ),
+        labelText: "Email",
+        labelStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+        errorStyle: TextStyle(
+          color: GlobalVariables.pinkColor,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      keyboardType: TextInputType.emailAddress,
+      initialValue: loginInEmail != null ? loginInEmail : "",
+      validator: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
+      onSaved: (value) => loginInEmail = value,
+    );
+  }
+
+  Widget drawPasswordTextFiled() {
+    return TextFormField(
+      obscureText: true,
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 20,
+      ),
+      cursorColor: GlobalVariables.pinkColor,
+      decoration: InputDecoration(
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: Colors.white,
+          ),
+        ),
+        labelText: "Password",
+        labelStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+        errorStyle: TextStyle(
+          color: GlobalVariables.pinkColor,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      initialValue: loginInPassword != null ? loginInPassword : "",
+      validator: (value) => value.isEmpty ? 'Password can\'t be empty' : null,
+      onSaved: (value) => loginInPassword = value,
+    );
+  }
+
+  Widget drawLoginButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+          signInWithEmailAndPass();
+        },
+        child: Container(
+          alignment: Alignment.center,
+          height: 60.0,
+          decoration: BoxDecoration(
+            color: GlobalVariables.pinkColor,
+            borderRadius: BorderRadius.circular(40.0),
+          ),
+          child: Text(
+            "Log In",
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  //*methods
   void signInWithEmailAndPass() {
     final form = formKey.currentState;
     if (form.validate()) {
@@ -224,10 +231,11 @@ class _State extends State<LogInPage> {
           FirebaseDatabaseManager.syncUser(user.uid).then((user) {
             if (user != null) {
               GlobalVariables.currentUser = user;
-              ManageLocalSongs.checkIfStoragePermissionGranted()
+              GlobalVariables.manageLocalSongs
+                  .checkIfStoragePermissionGranted()
                   .then((permissionGranted) {
-                ManageLocalSongs.initDirs().then((a) {
-                  ManageLocalSongs.syncDownloaded();
+                GlobalVariables.manageLocalSongs.initDirs().then((a) {
+                  GlobalVariables.manageLocalSongs.syncDownloaded();
                   Navigator.of(context, rootNavigator: true).pop('dialog');
                   Navigator.pushReplacement(
                       context,

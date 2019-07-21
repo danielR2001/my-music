@@ -1,14 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/ui/decorations/my_custom_icons.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/sort_modal_buttom_sheet.dart';
-import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 
 enum PlaylistModalSheetMode {
   regular,
@@ -136,7 +134,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  PlaylistPickPage(song: null, songs: widget.playlist.getSongs),
+                  PlaylistPickPage(song: null, songs: widget.playlist.songs),
             ),
           );
         },
@@ -163,7 +161,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () {
-          if (ManageLocalSongs.currentDownloading.length == 0) {
+          if (GlobalVariables.manageLocalSongs.currentDownloading.length == 0) {
             unDownloadAll();
             Navigator.pop(context);
             Fluttertoast.showToast(
@@ -255,21 +253,21 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
         dense: true,
         leading: Icon(
-          widget.playlist.getIsPublic ? Icons.public : MyCustomIcons.private_icon,
+          widget.playlist.isPublic ? Icons.public : MyCustomIcons.private_icon,
           color: Colors.grey,
           size: 30,
         ),
         title: Text(
-          widget.playlist.getIsPublic ? "Public" : "Private",
+          widget.playlist.isPublic ? "Public" : "Private",
           style: TextStyle(
               color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () async {
           setState(() {
-            widget.playlist.setIsPublic = !widget.playlist.getIsPublic;
+            widget.playlist.setIsPublic = !widget.playlist.isPublic;
           });
           Playlist temp = widget.playlist;
-          if (widget.playlist.getIsPublic) {
+          if (widget.playlist.isPublic) {
             temp = await FirebaseDatabaseManager.addPublicPlaylist(
                 widget.playlist, false);
           } else {
@@ -341,63 +339,8 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               key: formKey,
               child: Column(
                 children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 20),
-                    child: Theme(
-                      data: ThemeData(
-                        hintColor: Colors.white,
-                      ),
-                      child: TextFormField(
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                        decoration: InputDecoration(
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.white,
-                            ),
-                          ),
-                          labelText: "New name",
-                          labelStyle: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 18,
-                          ),
-                        ),
-                        validator: (value) => value.isEmpty
-                            ? 'Playlist name can\'t be empty'
-                            : null,
-                        onSaved: (value) => _playlistNewName = value,
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 50,
-                        vertical: 20,
-                      ),
-                      child: Container(
-                        alignment: Alignment.center,
-                        height: 50.0,
-                        decoration: BoxDecoration(
-                          color: GlobalVariables.pinkColor,
-                          borderRadius: BorderRadius.circular(40.0),
-                        ),
-                        child: Text(
-                          "Rename",
-                          style: TextStyle(
-                              fontSize: 18.0,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                    onTap: () {
-                      changePlaylistName(context);
-                    },
-                  ),
+                  drawNewNameTextField(),
+                  drawRenameButton(),
                 ],
               ),
             ),
@@ -407,6 +350,69 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     );
   }
 
+  //* widgets
+  Widget drawNewNameTextField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Theme(
+        data: ThemeData(
+          hintColor: Colors.white,
+        ),
+        child: TextFormField(
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+          ),
+          decoration: InputDecoration(
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: Colors.white,
+              ),
+            ),
+            labelText: "New name",
+            labelStyle: TextStyle(
+              color: Colors.grey,
+              fontSize: 18,
+            ),
+          ),
+          validator: (value) =>
+              value.isEmpty ? 'Playlist name can\'t be empty' : null,
+          onSaved: (value) => _playlistNewName = value,
+        ),
+      ),
+    );
+  }
+
+  Widget drawRenameButton() {
+    return GestureDetector(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 50,
+          vertical: 20,
+        ),
+        child: Container(
+          alignment: Alignment.center,
+          height: 50.0,
+          decoration: BoxDecoration(
+            color: GlobalVariables.pinkColor,
+            borderRadius: BorderRadius.circular(40.0),
+          ),
+          child: Text(
+            "Rename",
+            style: TextStyle(
+                fontSize: 18.0,
+                color: Colors.white,
+                fontWeight: FontWeight.bold),
+          ),
+        ),
+      ),
+      onTap: () {
+        changePlaylistName(context);
+      },
+    );
+  }
+
+  //* methods
   void changePlaylistName(BuildContext context) {
     final form = formKey.currentState;
     if (form.validate()) {
@@ -414,10 +420,11 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
       FirebaseDatabaseManager.renamePlaylist(widget.playlist, _playlistNewName);
       widget.playlist.setName = _playlistNewName;
       GlobalVariables.currentUser.updatePlaylist(widget.playlist);
-      if (AudioPlayerManager.currentPlaylist != null) {
-        if (AudioPlayerManager.currentPlaylist.getPushId ==
-            widget.playlist.getPushId) {
-          AudioPlayerManager.currentPlaylist.setName = _playlistNewName;
+      if (GlobalVariables.audioPlayerManager.currentPlaylist != null) {
+        if (GlobalVariables.audioPlayerManager.currentPlaylist.pushId ==
+            widget.playlist.pushId) {
+          GlobalVariables.audioPlayerManager.currentPlaylist.setName =
+              _playlistNewName;
         }
       }
       Navigator.of(context, rootNavigator: true).pop('dialog');
@@ -425,25 +432,26 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
   }
 
   void downloadAll() {
-    widget.playlist.getSongs.forEach((song) {
-      ManageLocalSongs.checkIfFileExists(song).then((exists) {
+    widget.playlist.songs.forEach((song) {
+      GlobalVariables.manageLocalSongs.checkIfFileExists(song).then((exists) {
         if (!exists) {
-          ManageLocalSongs.downloadSong(song);
+          GlobalVariables.manageLocalSongs.downloadSong(song);
         }
       });
     });
   }
 
   void unDownloadAll() {
-    widget.playlist.getSongs.forEach((song) {
-      ManageLocalSongs.checkIfFileExists(song).then((exists) {
+    widget.playlist.songs.forEach((song) {
+      GlobalVariables.manageLocalSongs.checkIfFileExists(song).then((exists) {
         if (exists) {
-          ManageLocalSongs.deleteSongDirectory(song);
+          GlobalVariables.manageLocalSongs.deleteSongDirectory(song);
           GlobalVariables.currentUser.removeSongFromDownloadedPlaylist(song);
-          if (song.getSongId == AudioPlayerManager.currentSong.getSongId) {
-            AudioPlayerManager.currentPlaylist = null;
-            AudioPlayerManager.shuffledPlaylist = null;
-            AudioPlayerManager.loopPlaylist = null;
+          if (song.songId ==
+              GlobalVariables.audioPlayerManager.currentSong.songId) {
+            GlobalVariables.audioPlayerManager.currentPlaylist = null;
+            GlobalVariables.audioPlayerManager.shuffledPlaylist = null;
+            GlobalVariables.audioPlayerManager.loopPlaylist = null;
           }
         }
       });
@@ -456,7 +464,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(
-            "Hii " + GlobalVariables.currentUser.getName + "!",
+            "Hii " + GlobalVariables.currentUser.name + "!",
             style: TextStyle(
               color: Colors.white,
               fontSize: 16,
@@ -529,13 +537,21 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                       ),
                       onTap: () {
                         FirebaseDatabaseManager.removePlaylist(widget.playlist);
-                        GlobalVariables.currentUser.removePlaylist(widget.playlist);
-                        if (AudioPlayerManager.currentPlaylist != null) {
-                          if (AudioPlayerManager.currentPlaylist.getName ==
-                              AudioPlayerManager.currentPlaylist.getName) {
-                            AudioPlayerManager.loopPlaylist = null;
-                            AudioPlayerManager.shuffledPlaylist = null;
-                            AudioPlayerManager.currentPlaylist = null;
+                        GlobalVariables.currentUser
+                            .removePlaylist(widget.playlist);
+                        if (GlobalVariables
+                                .audioPlayerManager.currentPlaylist !=
+                            null) {
+                          if (GlobalVariables
+                                  .audioPlayerManager.currentPlaylist.name ==
+                              GlobalVariables
+                                  .audioPlayerManager.currentPlaylist.name) {
+                            GlobalVariables.audioPlayerManager.loopPlaylist =
+                                null;
+                            GlobalVariables
+                                .audioPlayerManager.shuffledPlaylist = null;
+                            GlobalVariables.audioPlayerManager.currentPlaylist =
+                                null;
                           }
                         }
                         Navigator.of(context, rootNavigator: true)

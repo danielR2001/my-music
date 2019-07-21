@@ -37,17 +37,17 @@ class WelcomePage extends StatelessWidget {
     index = rnd.nextInt(quotes.length);
     return Scaffold(
       body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.deepPurple,
-                GlobalVariables.pinkColor,
-              ],
-              begin: FractionalOffset.bottomRight,
-              stops: [0.4, 1.0],
-              end: FractionalOffset.topLeft,
-            ),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.deepPurple,
+              GlobalVariables.pinkColor,
+            ],
+            begin: FractionalOffset.bottomRight,
+            stops: [0.4, 1.0],
+            end: FractionalOffset.topLeft,
           ),
+        ),
         child: Column(
           children: <Widget>[
             Padding(
@@ -55,159 +55,167 @@ class WelcomePage extends StatelessWidget {
                 top: 70.0,
                 bottom: 25,
               ),
-              child: Container(
-                  height: 60,
-                  width: 60,
-                  child: Image(
-                    image: AssetImage("assets/images/app_logo.png"),
-                  ),),
+              child: drawAppLogo(),
             ),
-            Text(
-              "My Music",
-              style: TextStyle(
-                fontSize: 30.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            Padding(
-                  padding: const EdgeInsets.only(top: 25),
-                  child: Container(
-                    height: 1,
-                    width: 370,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 50),
-                          child: Text(
-                            quotes[index],
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            Text(
-                              authors[index],
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontStyle: FontStyle.italic,
-                              ),
-                              textAlign: TextAlign.start,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 25),
-                  child: Container(
-                    height: 1,
-                    width: 370,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40.0,
-                      vertical: 15.0,
-                    ),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LogInPage(),
-                            ));
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        height: 60.0,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(40.0),
-                        ),
-                        child: Text(
-                          "Log In",
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 40.0,
-                      right: 40.0,
-                      bottom: 25.0,
-                      top: 15,
-                    ),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SignUpPage(),
-                            ));
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        height: 60.0,
-                        decoration: BoxDecoration(
-                          color: GlobalVariables.pinkColor,
-                          borderRadius: BorderRadius.circular(40.0),
-                        ),
-                        child: Text(
-                          "Sign Up",
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              ),
+            drawAppName(),
+            drawSeperatingLine(),
+            drawFamousQuotes(index),
+            drawSeperatingLine(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                drawLoginButton(context),
+                drawSignInButton(context),
+              ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  //* widgets
+  Widget drawAppLogo() {
+    return Container(
+      height: 60,
+      width: 60,
+      child: Image(
+        image: AssetImage("assets/images/app_logo.png"),
+      ),
+    );
+  }
+
+  Widget drawAppName() {
+    return Text(
+      "My Music",
+      style: TextStyle(
+        fontSize: 30.0,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
+    );
+  }
+
+  Widget drawFamousQuotes(int index) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 50),
+              child: Text(
+                quotes[index],
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Text(
+                  authors[index],
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.start,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget drawLoginButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 40.0,
+        vertical: 15.0,
+      ),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LogInPage(),
+              ));
+        },
+        child: Container(
+          alignment: Alignment.center,
+          height: 60.0,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(40.0),
+          ),
+          child: Text(
+            "Log In",
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget drawSignInButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 40.0,
+        right: 40.0,
+        bottom: 25.0,
+        top: 15,
+      ),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SignUpPage(),
+              ));
+        },
+        child: Container(
+          alignment: Alignment.center,
+          height: 60.0,
+          decoration: BoxDecoration(
+            color: GlobalVariables.pinkColor,
+            borderRadius: BorderRadius.circular(40.0),
+          ),
+          child: Text(
+            "Sign Up",
+            style: TextStyle(
+              fontSize: 18.0,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget drawSeperatingLine() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 25),
+      child: Container(
+        height: 1,
+        width: 370,
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );

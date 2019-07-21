@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:myapp/communicate_with_native/get_image_dominant_color.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/audio_player/audio_player_manager.dart';
-import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/ui/decorations/my_custom_icons.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
@@ -126,7 +125,7 @@ class MusicPageState extends State<MusicPlayerPage> {
         color: Colors.white,
       ),
       onPressed: () {
-        if (AudioPlayerManager.currentSong != null) {
+        if (GlobalVariables.audioPlayerManager.currentSong != null) {
           showMoreOptions(context);
         }
       },
@@ -152,7 +151,7 @@ class MusicPageState extends State<MusicPlayerPage> {
           Column(
             children: <Widget>[
               Text(
-                AudioPlayerManager.currentPlaylist != null
+                GlobalVariables.audioPlayerManager.currentPlaylist != null
                     ? "Playing From:"
                     : "",
                 style: TextStyle(
@@ -165,8 +164,8 @@ class MusicPageState extends State<MusicPlayerPage> {
                 height: 5,
               ),
               AutoSizeText(
-                AudioPlayerManager.currentPlaylist != null
-                    ? AudioPlayerManager.currentPlaylist.getName
+                GlobalVariables.audioPlayerManager.currentPlaylist != null
+                    ? GlobalVariables.audioPlayerManager.currentPlaylist.name
                     : "",
                 style: TextStyle(
                   color: Colors.white,
@@ -258,8 +257,8 @@ class MusicPageState extends State<MusicPlayerPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
               child: Text(
-                AudioPlayerManager.currentSong.getLyrics != null
-                    ? AudioPlayerManager.currentSong.getLyrics
+                GlobalVariables.audioPlayerManager.currentSong.lyrics != null
+                    ? GlobalVariables.audioPlayerManager.currentSong.lyrics
                     : "We couldn't find lyrics for this song.",
                 style: TextStyle(
                   color: Colors.white,
@@ -298,7 +297,7 @@ class MusicPageState extends State<MusicPlayerPage> {
           ),
         ],
       ),
-      child: AudioPlayerManager.currentSong.getImageUrl.length == 0 ||
+      child: GlobalVariables.audioPlayerManager.currentSong.imageUrl.length == 0 ||
               imageProvider == null
           ? Icon(
               Icons.music_note,
@@ -320,7 +319,7 @@ class MusicPageState extends State<MusicPlayerPage> {
         child: Column(
           children: <Widget>[
             AutoSizeText(
-              AudioPlayerManager.currentSong.getTitle,
+              GlobalVariables.audioPlayerManager.currentSong.title,
               style: TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,
@@ -329,7 +328,7 @@ class MusicPageState extends State<MusicPlayerPage> {
               maxLines: 1,
             ),
             AutoSizeText(
-              AudioPlayerManager.currentSong.getArtist,
+              GlobalVariables.audioPlayerManager.currentSong.artist,
               style: TextStyle(
                 fontSize: 14.0,
                 color: Colors.grey,
@@ -357,20 +356,20 @@ class MusicPageState extends State<MusicPlayerPage> {
             ? _position.inSeconds <= _duration.inSeconds
                 ? _position.inSeconds.toDouble()
                 : 0.0
-            : AudioPlayerManager.songPosition != null
-                ? AudioPlayerManager.songPosition.inSeconds.toDouble()
+            : GlobalVariables.audioPlayerManager.songPosition != null
+                ? GlobalVariables.audioPlayerManager.songPosition.inSeconds.toDouble()
                 : 0.0,
         min: 0.0,
         max: _duration != null
             ? _duration.inSeconds.toDouble()
-            : AudioPlayerManager.songDuration != null
-                ? AudioPlayerManager.songDuration.inSeconds.toDouble()
+            : GlobalVariables.audioPlayerManager.songDuration != null
+                ? GlobalVariables.audioPlayerManager.songDuration.inSeconds.toDouble()
                 : 0.0,
         onChanged: (double value) {
           setState(() {
             value = value;
             _position = Duration(seconds: value.toInt());
-            AudioPlayerManager.songPosition = Duration(seconds: value.toInt());
+            GlobalVariables.audioPlayerManager.songPosition = Duration(seconds: value.toInt());
             seekToSecond(value.toInt());
           });
         },
@@ -393,8 +392,8 @@ class MusicPageState extends State<MusicPlayerPage> {
                     ? _position.inSeconds <= _duration.inSeconds
                         ? _position.toString().substring(checkSongLength(), 7)
                         : "00:00"
-                    : AudioPlayerManager.songPosition != null
-                        ? AudioPlayerManager.songPosition
+                    : GlobalVariables.audioPlayerManager.songPosition != null
+                        ? GlobalVariables.audioPlayerManager.songPosition
                             .toString()
                             .substring(checkSongLength(), 7)
                         : "00:00",
@@ -406,8 +405,8 @@ class MusicPageState extends State<MusicPlayerPage> {
               child: Text(
                 _duration != null
                     ? _duration.toString().substring(checkSongLength(), 7)
-                    : AudioPlayerManager.songDuration != null
-                        ? AudioPlayerManager.songDuration
+                    : GlobalVariables.audioPlayerManager.songDuration != null
+                        ? GlobalVariables.audioPlayerManager.songDuration
                             .toString()
                             .substring(checkSongLength(), 7)
                         : "00:00",
@@ -431,20 +430,20 @@ class MusicPageState extends State<MusicPlayerPage> {
         color: Colors.white,
       ),
       onPressed: () {
-        if (AudioPlayerManager.currentPlaylist != null &&
-            AudioPlayerManager.currentPlaylist.getSongs.length > 0 &&
-            AudioPlayerManager.isSongLoaded) {
+        if (GlobalVariables.audioPlayerManager.currentPlaylist != null &&
+            GlobalVariables.audioPlayerManager.currentPlaylist.songs.length > 0 &&
+            GlobalVariables.audioPlayerManager.isSongLoaded) {
           setState(() {
             _position = Duration(seconds: 0);
             _duration = _duration;
-            if (AudioPlayerManager.previousMode == PreviousMode.previous) {
+            if (GlobalVariables.audioPlayerManager.previousMode == PreviousMode.previous) {
               imageProvider = null;
             }
           });
           if (!flipCardKey.currentState.isFront) {
             flipCardKey.currentState.toggleCard();
           }
-          AudioPlayerManager.playPreviousSong();
+          GlobalVariables.audioPlayerManager.playPreviousSong();
           checkForIntenetConnetionForNetworkImage();
         }
       },
@@ -462,13 +461,13 @@ class MusicPageState extends State<MusicPlayerPage> {
           child: musicPlayerIcon,
         ),
         onTap: () {
-          if (AudioPlayerManager.isSongLoaded &&
-              AudioPlayerManager.songPosition != Duration(milliseconds: 0)) {
-            AudioPlayerManager.audioPlayer.state == AudioPlayerState.PLAYING
-                ? AudioPlayerManager.pauseSong(calledFromNative: false)
-                : AudioPlayerManager.audioPlayer.state ==
+          if (GlobalVariables.audioPlayerManager.isSongLoaded &&
+              GlobalVariables.audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
+            GlobalVariables.audioPlayerManager.audioPlayer.state == AudioPlayerState.PLAYING
+                ? GlobalVariables.audioPlayerManager.pauseSong(calledFromNative: false)
+                : GlobalVariables.audioPlayerManager.audioPlayer.state ==
                         AudioPlayerState.PAUSED
-                    ? AudioPlayerManager.resumeSong(calledFromNative: false)
+                    ? GlobalVariables.audioPlayerManager.resumeSong(calledFromNative: false)
                     : playSong();
           }
         },
@@ -486,9 +485,9 @@ class MusicPageState extends State<MusicPlayerPage> {
         color: Colors.white,
       ),
       onPressed: () {
-        if (AudioPlayerManager.currentPlaylist != null &&
-            AudioPlayerManager.currentPlaylist.getSongs.length > 0 &&
-            AudioPlayerManager.isSongLoaded) {
+        if (GlobalVariables.audioPlayerManager.currentPlaylist != null &&
+            GlobalVariables.audioPlayerManager.currentPlaylist.songs.length > 0 &&
+            GlobalVariables.audioPlayerManager.isSongLoaded) {
           setState(() {
             _position = Duration(seconds: 0);
             _duration = _duration;
@@ -497,7 +496,7 @@ class MusicPageState extends State<MusicPlayerPage> {
           if (!flipCardKey.currentState.isFront) {
             flipCardKey.currentState.toggleCard();
           }
-          AudioPlayerManager.playNextSong();
+          GlobalVariables.audioPlayerManager.playNextSong();
           checkForIntenetConnetionForNetworkImage();
         }
       },
@@ -511,12 +510,12 @@ class MusicPageState extends State<MusicPlayerPage> {
         splashColor: Colors.grey,
         icon: playlistModeIcon,
         onPressed: () {
-          AudioPlayerManager.playlistMode == PlaylistMode.loop
-              ? AudioPlayerManager.playlistMode = PlaylistMode.shuffle
-              : AudioPlayerManager.playlistMode = PlaylistMode.loop;
-          AudioPlayerManager.shuffledPlaylist = null;
+          GlobalVariables.audioPlayerManager.playlistMode == PlaylistMode.loop
+              ? GlobalVariables.audioPlayerManager.playlistMode = PlaylistMode.shuffle
+              : GlobalVariables.audioPlayerManager.playlistMode = PlaylistMode.loop;
+          GlobalVariables.audioPlayerManager.shuffledPlaylist = null;
           changePlaylistModeIconState();
-          AudioPlayerManager.setCurrentPlaylist();
+          GlobalVariables.audioPlayerManager.setCurrentPlaylist();
         },
       ),
     );
@@ -562,8 +561,8 @@ class MusicPageState extends State<MusicPlayerPage> {
       context: context,
       builder: (builder) {
         return SongOptionsModalSheet(
-          AudioPlayerManager.currentSong,
-          AudioPlayerManager.currentPlaylist,
+          GlobalVariables.audioPlayerManager.currentSong,
+          GlobalVariables.audioPlayerManager.currentPlaylist,
           true,
           null,
         );
@@ -588,7 +587,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   void changePlaylistModeIconState() {
-    if (AudioPlayerManager.playlistMode == PlaylistMode.loop) {
+    if (GlobalVariables.audioPlayerManager.playlistMode == PlaylistMode.loop) {
       setState(
         () {
           playlistModeIcon = Icon(
@@ -635,14 +634,14 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   void initSong() {
-    posStream = AudioPlayerManager.audioPlayer.onAudioPositionChanged
+    posStream = GlobalVariables.audioPlayerManager.audioPlayer.onAudioPositionChanged
         .listen((Duration p) {
       if (mounted) {
         setState(() => _position = p);
       }
     });
 
-    durStream = AudioPlayerManager.audioPlayer.onDurationChanged.listen(
+    durStream = GlobalVariables.audioPlayerManager.audioPlayer.onDurationChanged.listen(
       (Duration d) {
         if (mounted) {
           setState(() => _duration = d);
@@ -650,7 +649,7 @@ class MusicPageState extends State<MusicPlayerPage> {
       },
     );
     completionStream =
-        AudioPlayerManager.audioPlayer.onPlayerCompletion.listen((a) {
+        GlobalVariables.audioPlayerManager.audioPlayer.onPlayerCompletion.listen((a) {
       checkForIntenetConnetionForNetworkImage();
       if (mounted) {
         if (!flipCardKey.currentState.isFront) {
@@ -663,8 +662,8 @@ class MusicPageState extends State<MusicPlayerPage> {
       }
     });
     changePlaylistModeIconState();
-    checkSongStatus(AudioPlayerManager.audioPlayer.state);
-    stateStream = AudioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
+    checkSongStatus(GlobalVariables.audioPlayerManager.audioPlayer.state);
+    stateStream = GlobalVariables.audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
       (AudioPlayerState state) {
         checkSongStatus(state);
       },
@@ -673,12 +672,12 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   void seekToSecond(int second) {
     Duration duration = new Duration(seconds: second);
-    AudioPlayerManager.seekTime(duration: duration);
+    GlobalVariables.audioPlayerManager.seekTime(duration: duration);
   }
 
   int checkSongLength() {
-    if (AudioPlayerManager.songDuration != null) {
-      if (AudioPlayerManager.songDuration.inMinutes < 59) {
+    if (GlobalVariables.audioPlayerManager.songDuration != null) {
+      if (GlobalVariables.audioPlayerManager.songDuration.inMinutes < 59) {
         return 2;
       } else {
         return 0;
@@ -690,12 +689,12 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   void checkForIntenetConnetionForNetworkImage() {
     generateBackgroundColors();
-    if (AudioPlayerManager.currentSong.getImageUrl != "") {
-      ManageLocalSongs.checkIfFileExists(AudioPlayerManager.currentSong)
+    if (GlobalVariables.audioPlayerManager.currentSong.imageUrl != "") {
+      GlobalVariables.manageLocalSongs.checkIfFileExists(GlobalVariables.audioPlayerManager.currentSong)
           .then((exists) {
         if (exists) {
           File file = File(
-              "${ManageLocalSongs.fullSongDownloadDir.path}/${AudioPlayerManager.currentSong.getSongId}/${AudioPlayerManager.currentSong.getSongId}.png");
+              "${GlobalVariables.manageLocalSongs.fullSongDownloadDir.path}/${GlobalVariables.audioPlayerManager.currentSong.songId}/${GlobalVariables.audioPlayerManager.currentSong.songId}.png");
           if (mounted) {
             setState(() {
               imageProvider = FileImage(file);
@@ -706,7 +705,7 @@ class MusicPageState extends State<MusicPlayerPage> {
             if (mounted) {
               setState(() {
                 imageProvider = NetworkImage(
-                  AudioPlayerManager.currentSong.getImageUrl,
+                  GlobalVariables.audioPlayerManager.currentSong.imageUrl,
                 );
               });
             }
@@ -718,30 +717,30 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   void playSong() {
     checkForIntenetConnetionForNetworkImage();
-    AudioPlayerManager.initSong(
-      song: AudioPlayerManager.currentSong,
-      playlist: AudioPlayerManager.currentPlaylist,
-      mode: AudioPlayerManager.playlistMode,
+    GlobalVariables.audioPlayerManager.initSong(
+      song: GlobalVariables.audioPlayerManager.currentSong,
+      playlist: GlobalVariables.audioPlayerManager.currentPlaylist,
+      mode: GlobalVariables.audioPlayerManager.playlistMode,
     );
   }
 
   Future generateBackgroundColors() async {
-    if (AudioPlayerManager.currentSong.getImageUrl != "") {
+    if (GlobalVariables.audioPlayerManager.currentSong.imageUrl != "") {
       String dominantColor;
       ConnectivityResult connectivityResult =
           await Connectivity().checkConnectivity();
-      bool exists = await ManageLocalSongs.checkIfFileExists(
-          AudioPlayerManager.currentSong);
+      bool exists = await GlobalVariables.manageLocalSongs.checkIfFileExists(
+          GlobalVariables.audioPlayerManager.currentSong);
       if (exists) {
         dominantColor = await GetImageDominantColor.getDominantColor(
             imagePath:
-                "${ManageLocalSongs.fullSongDownloadDir.path}/${AudioPlayerManager.currentSong.getSongId}/${AudioPlayerManager.currentSong.getSongId}.png",
+                "${GlobalVariables.manageLocalSongs.fullSongDownloadDir.path}/${GlobalVariables.audioPlayerManager.currentSong.songId}/${GlobalVariables.audioPlayerManager.currentSong.songId}.png",
             isLocal: true);
       } else {
         if (connectivityResult == ConnectivityResult.mobile ||
             connectivityResult == ConnectivityResult.wifi) {
           dominantColor = await GetImageDominantColor.getDominantColor(
-              imagePath: AudioPlayerManager.currentSong.getImageUrl,
+              imagePath: GlobalVariables.audioPlayerManager.currentSong.imageUrl,
               isLocal: false);
         }
       }

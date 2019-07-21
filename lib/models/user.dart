@@ -3,36 +3,46 @@ import 'playlist.dart';
 
 class User {
   String _name;
-  String _firebaseUId;
+  String _firebaseUid;
   List<Playlist> _myPlaylists;
   Playlist _downloadedSongsPlaylist;
   String _userPushId;
 
-  User(String name, String firebaseUId,{String userPushId}) {
+  User(String name, String firebaseUId, {String userPushId}) {
     _name = name;
-    _firebaseUId = firebaseUId;
+    _firebaseUid = firebaseUId;
     _myPlaylists = List<Playlist>();
     _downloadedSongsPlaylist = Playlist("Downloaded");
     _userPushId = userPushId;
   }
-  
-  String get getName => _name;
 
-  String get getFirebaseUId => _firebaseUId;
+  User.fromJson(Map values) {
+    _name = values['userName'];
+    _firebaseUid = values['firebaseUid'];
+    _myPlaylists = List<Playlist>();
+    _downloadedSongsPlaylist = Playlist("Downloaded");
+  }
 
-  List<Playlist> get getPlaylists => _myPlaylists;
+  toJson() {
+    return {
+      'userName': _name,
+      'firebaseUid': _firebaseUid,
+    };
+  }
 
-  Playlist get getDownloadedSongsPlaylist => _downloadedSongsPlaylist;
+  String get name => _name;
 
-  String get getUserPushId => _userPushId;
+  String get firebaseUid => _firebaseUid;
+
+  List<Playlist> get playlists => _myPlaylists;
+
+  Playlist get downloadedSongsPlaylist => _downloadedSongsPlaylist;
+
+  String get userPushId => _userPushId;
 
   set setName(String value) => _name = value;
 
-  addNewPlaylist(Playlist playlist) => _myPlaylists.add(playlist);
-
-  removePlaylist(Playlist playlist) => _myPlaylists.remove(playlist);
-
-  set setFirebaseUId(String value) => _firebaseUId = value;
+  set setFirebaseUId(String value) => _firebaseUid = value;
 
   set setMyPlaylists(List<Playlist> value) => _myPlaylists = value;
 
@@ -41,36 +51,28 @@ class User {
   set setUserPushId(String value) => _userPushId = value;
 
   addSongToDownloadedPlaylist(Song value) =>
-      _downloadedSongsPlaylist.getSongs.add(value);
+      _downloadedSongsPlaylist.songs.add(value);
 
-  removeSongFromDownloadedPlaylist(Song value) =>
-      _downloadedSongsPlaylist.getSongs.removeWhere((song)=>song.getSongId ==value.getSongId);
+  removeSongFromDownloadedPlaylist(Song value) => _downloadedSongsPlaylist.songs
+      .removeWhere((song) => song.songId == value.songId);
+
+  addNewPlaylist(Playlist playlist) => _myPlaylists.add(playlist);
+
+  removePlaylist(Playlist playlist) => _myPlaylists.remove(playlist);
 
   bool songExistsInDownloadedPlaylist(Song song) {
     bool exists = false;
-    _downloadedSongsPlaylist.getSongs.forEach((downloadedSong) {
-      if (downloadedSong.getSongId == song.getSongId) {
+    _downloadedSongsPlaylist.songs.forEach((downloadedSong) {
+      if (downloadedSong.songId == song.songId) {
         exists = true;
       }
     });
     return exists;
   }
 
-  toJson() {
-    return {
-      'userName': _name,
-      'firebaseUId': _firebaseUId,
-    };
-  }
-
-  @override
-  String toString() {
-    return _name + "," + _firebaseUId;
-  }
-
   void updatePlaylist(Playlist playlist) {
     _myPlaylists.forEach((myPlaylist) {
-      if (myPlaylist.getName == playlist.getName) {
+      if (myPlaylist.name == playlist.name) {
         myPlaylist = playlist;
       }
     });

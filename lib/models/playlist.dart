@@ -11,19 +11,41 @@ class Playlist {
   String _creator;
   String _publicPlaylistPushId;
 
-  String get getName => _name;
+  Playlist(String name, {bool isPublic, String creator}) {
+    _name = name;
+    _isPublic = isPublic;
+    _creator = creator;
+    _songs = List<Song>();
+  }
 
-  List<Song> get getSongs => _songs;
+  Playlist.fromJson(Map values) {
+    _name = values['name'];
+    _creator = values['creator'];
+    _isPublic = values['isPublic'];
+    _songs = List<Song>();
+  }
 
-  String get getPushId => _pushId;
+  toJson() {
+    return {
+      'name': _name,
+      'isPublic': _isPublic,
+      'creator': _creator,
+    };
+  }
 
-  bool get getIsPublic => _isPublic;
+  String get name => _name;
 
-  SortType get getSortedType => _sortedType;
-  
-  String get getCreator => _creator;
+  List<Song> get songs => _songs;
 
-  String get getPublicPlaylistPushId => _publicPlaylistPushId;
+  String get pushId => _pushId;
+
+  bool get isPublic => _isPublic;
+
+  SortType get sortType => _sortedType;
+
+  String get creator => _creator;
+
+  String get publicPlaylistPushId => _publicPlaylistPushId;
 
   set setName(String value) => _name = value;
 
@@ -42,19 +64,4 @@ class Playlist {
   addNewSong(Song song) => _songs.add(song);
 
   removeSong(Song song) => _songs.remove(song);
-
-  Playlist(String name,{bool isPublic,String creator}) {
-    _name = name;
-    _isPublic = isPublic;
-    _songs = List<Song>();
-    _creator = creator;
-  }
-
-  toJson() {
-    return {
-      'name': _name,
-      'isPublic': _isPublic,
-      'creator' : _creator,
-    };
-  }
 }

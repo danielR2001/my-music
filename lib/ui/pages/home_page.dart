@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/audio_player/audio_player_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/ui/decorations/my_custom_icons.dart';
@@ -94,6 +93,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  //* widgets
   Widget buildOffstageNavigator(TabItem tabItem) {
     return Offstage(
       offstage: currentTab != tabItem,
@@ -104,16 +104,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void initSong() {
-    stateStream = AudioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
-      (AudioPlayerState state) {
-        setState(() {});
-      },
-    );
-  }
-
   Widget musicPlayerControl() {
-    if (AudioPlayerManager.currentSong != null) {
+    if (GlobalVariables.audioPlayerManager.currentSong != null) {
       return GestureDetector(
           child: Container(
             decoration: BoxDecoration(
@@ -125,7 +117,7 @@ class _HomePageState extends State<HomePage> {
             height: 45,
             child: Row(
               children: <Widget>[
-                AudioPlayerManager.audioPlayerState == AudioPlayerState.PLAYING
+                GlobalVariables.audioPlayerManager.audioPlayerState == AudioPlayerState.PLAYING
                     ? drawPlayingSoundBar()
                     : drawPausedSoundBar(),
                 Expanded(
@@ -139,7 +131,7 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           TextDecoration(
-                            txt: AudioPlayerManager.currentSong.getTitle,
+                            txt: GlobalVariables.audioPlayerManager.currentSong.title,
                             size: 14,
                             color: Colors.white,
                             txtMaxLength: 30,
@@ -148,7 +140,7 @@ class _HomePageState extends State<HomePage> {
                             makeBold: true,
                           ),
                           TextDecoration(
-                            txt: AudioPlayerManager.currentSong.getArtist,
+                            txt: GlobalVariables.audioPlayerManager.currentSong.artist,
                             size: 14,
                             color: Colors.grey,
                             txtMaxLength: 30,
@@ -163,22 +155,22 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Expanded(
                   child: IconButton(
-                    icon: AudioPlayerManager.audioPlayerState ==
+                    icon: GlobalVariables.audioPlayerManager.audioPlayerState ==
                             AudioPlayerState.PLAYING
                         ? drawPauseIcon()
                         : drawPlayIcon(),
                     iconSize: 20,
                     onPressed: () {
-                      if (AudioPlayerManager.isSongLoaded &&
-                          AudioPlayerManager.songPosition !=
+                      if (GlobalVariables.audioPlayerManager.isSongLoaded &&
+                          GlobalVariables.audioPlayerManager.songPosition !=
                               Duration(milliseconds: 0)) {
-                        AudioPlayerManager.audioPlayer.state ==
+                        GlobalVariables.audioPlayerManager.audioPlayer.state ==
                                 AudioPlayerState.PLAYING
-                            ? AudioPlayerManager.pauseSong(
+                            ? GlobalVariables.audioPlayerManager.pauseSong(
                                 calledFromNative: false)
-                            : AudioPlayerManager.audioPlayer.state ==
+                            : GlobalVariables.audioPlayerManager.audioPlayer.state ==
                                     AudioPlayerState.PAUSED
-                                ? AudioPlayerManager.resumeSong(
+                                ? GlobalVariables.audioPlayerManager.resumeSong(
                                     calledFromNative: false)
                                 : playSong();
                       }
@@ -195,14 +187,6 @@ class _HomePageState extends State<HomePage> {
     } else {
       return Container();
     }
-  }
-
-  void playSong() {
-    AudioPlayerManager.initSong(
-      song: AudioPlayerManager.currentSong,
-      playlist: AudioPlayerManager.currentPlaylist,
-      mode: AudioPlayerManager.playlistMode,
-    );
   }
 
   Widget drawPausedSoundBar() {
@@ -270,6 +254,23 @@ class _HomePageState extends State<HomePage> {
     return Icon(
       MyCustomIcons.play_icon,
       color: Colors.white,
+    );
+  }
+
+  //* methods
+  void initSong() {
+    stateStream = GlobalVariables.audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
+      (AudioPlayerState state) {
+        setState(() {});
+      },
+    );
+  }
+
+  void playSong() {
+    GlobalVariables.audioPlayerManager.initSong(
+      song: GlobalVariables.audioPlayerManager.currentSong,
+      playlist: GlobalVariables.audioPlayerManager.currentPlaylist,
+      mode: GlobalVariables.audioPlayerManager.playlistMode,
     );
   }
 }

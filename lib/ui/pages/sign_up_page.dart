@@ -56,48 +56,11 @@ class _SignUpPageState extends State<SignUpPage> {
                             left: 10.0,
                             top: 10.0,
                           ),
-                          child: IconButton(
-                              alignment: Alignment.topLeft,
-                              icon: Icon(
-                                Icons.arrow_back,
-                                color: Colors.white,
-                              ),
-                              onPressed: () {
-                                final form = formKey.currentState;
-                                form.save();
-                                if (MediaQuery.of(context).viewInsets.bottom !=
-                                    0) {
-                                  SystemChannels.textInput
-                                      .invokeMethod('TextInput.hide')
-                                      .then((a) {
-                                    Navigator.pop(
-                                      context,
-                                      false,
-                                    );
-                                  });
-                                } else {
-                                  Navigator.pop(
-                                    context,
-                                    false,
-                                  );
-                                }
-                              }),
+                          child: drawBackButton(),
                         ),
                       ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: 0,
-                      ),
-                      child: Text(
-                        "Hello! Let`s sign up",
-                        style: TextStyle(
-                          fontSize: 25.0,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
+                    drawLetsSignUp(),
                     Padding(
                       padding: const EdgeInsets.only(top: 80),
                       child: Column(
@@ -110,104 +73,10 @@ class _SignUpPageState extends State<SignUpPage> {
                               key: formKey,
                               child: Column(
                                 children: <Widget>[
-                                  TextFormField(
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                    ),
-                                    cursorColor: GlobalVariables.pinkColor,
-                                    decoration: InputDecoration(
-                                        focusedBorder: UnderlineInputBorder(
-                                          borderSide: BorderSide(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        labelText: "Email",
-                                        labelStyle: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        errorStyle: TextStyle(
-                                          color: GlobalVariables.pinkColor,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        fillColor: Colors.white),
-                                    onFieldSubmitted: (value) => print(value),
-                                    initialValue:
-                                        signUpEmail != null ? signUpEmail : "",
-                                    keyboardType: TextInputType.emailAddress,
-                                    validator: (value) => value.isEmpty
-                                        ? 'Email can\'t be empty'
-                                        : null,
-                                    onSaved: (value) => signUpEmail = value,
-                                  ),
-                                  TextFormField(
-                                    obscureText: true,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                    ),
-                                    cursorColor: GlobalVariables.pinkColor,
-                                    decoration: InputDecoration(
-                                      focusedBorder: UnderlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      labelText: "Password",
-                                      labelStyle: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      errorStyle: TextStyle(
-                                        color: GlobalVariables.pinkColor,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    initialValue: signUpPassword != null
-                                        ? signUpPassword
-                                        : "",
-                                    validator: (value) => value.isEmpty
-                                        ? 'Password can\'t be empty'
-                                        : null,
-                                    onSaved: (value) => signUpPassword = value,
-                                  ),
-                                  TextFormField(
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                    ),
-                                    cursorColor: GlobalVariables.pinkColor,
-                                    decoration: InputDecoration(
-                                      focusedBorder: UnderlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      labelText: "User name",
-                                      labelStyle: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      errorStyle: TextStyle(
-                                        color: GlobalVariables.pinkColor,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    initialValue:
-                                        userName != null ? userName : "",
-                                    validator: (value) => value.isEmpty
-                                        ? 'User name can\'t be empty'
-                                        : null,
-                                    onSaved: (value) => userName = value,
-                                  ),
-                                  signInButtonOrVerify()
+                                  drawEmailTextFiled(),
+                                  drawPasswordTextFiled(),
+                                  drawNameTextFiled(),
+                                  signInOrVerifyButton()
                                 ],
                               ),
                             ),
@@ -225,49 +94,147 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  void signInWithEmailAndPass() {
-    final form = formKey.currentState;
-    if (form.validate()) {
-      form.save();
-      if (signUpPassword.length >= 6 && checkForValidEmail(signUpEmail)) {
-        showLoadingBar();
-        FirebaseAuthentication.signInWithEmail(signUpEmail, signUpPassword)
-            .then(
-          (user) {
-            if (user != null) {
-              setState(() {
-                signIn = false;
-              });
-              Navigator.of(context, rootNavigator: true).pop('dialog');
-              showAlertDialog();
-            } else {
-              Navigator.of(context, rootNavigator: true).pop('dialog');
-              key.currentState.showSnackBar(
-                SnackBar(
-                  duration: Duration(seconds: 5),
-                  content: Text("This email is already in use!"),
-                ),
-              );
-            }
-          },
-        );
-      } else {
-        key.currentState.showSnackBar(
-          SnackBar(
-            duration: Duration(seconds: 5),
-            content: Text(
-                "Email is not valid! Or password is shorter than 6 symbols"),
+  //* widgets
+  Widget drawBackButton() {
+    return IconButton(
+      alignment: Alignment.topLeft,
+      icon: Icon(
+        Icons.arrow_back,
+        color: Colors.white,
+      ),
+      onPressed: () {
+        final form = formKey.currentState;
+        form.save();
+        if (MediaQuery.of(context).viewInsets.bottom != 0) {
+          SystemChannels.textInput.invokeMethod('TextInput.hide').then((a) {
+            Navigator.pop(
+              context,
+              false,
+            );
+          });
+        } else {
+          Navigator.pop(
+            context,
+            false,
+          );
+        }
+      },
+    );
+  }
+
+  Widget drawLetsSignUp() {
+    return Padding(
+      padding: const EdgeInsets.only(
+        bottom: 0,
+      ),
+      child: Text(
+        "Hello! Let`s sign up",
+        style: TextStyle(
+          fontSize: 25.0,
+          color: Colors.white,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget drawEmailTextFiled() {
+    return TextFormField(
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 18,
+      ),
+      cursorColor: GlobalVariables.pinkColor,
+      decoration: InputDecoration(
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.white,
+            ),
           ),
-        );
-      }
-    }
+          labelText: "Email",
+          labelStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+          errorStyle: TextStyle(
+            color: GlobalVariables.pinkColor,
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+          fillColor: Colors.white),
+      onFieldSubmitted: (value) => print(value),
+      initialValue: signUpEmail != null ? signUpEmail : "",
+      keyboardType: TextInputType.emailAddress,
+      validator: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
+      onSaved: (value) => signUpEmail = value,
+    );
   }
 
-  bool checkForValidEmail(String email) {
-    return RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
+  Widget drawPasswordTextFiled() {
+    return TextFormField(
+      obscureText: true,
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 18,
+      ),
+      cursorColor: GlobalVariables.pinkColor,
+      decoration: InputDecoration(
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: Colors.white,
+          ),
+        ),
+        labelText: "Password",
+        labelStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+        errorStyle: TextStyle(
+          color: GlobalVariables.pinkColor,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      initialValue: signUpPassword != null ? signUpPassword : "",
+      validator: (value) => value.isEmpty ? 'Password can\'t be empty' : null,
+      onSaved: (value) => signUpPassword = value,
+    );
   }
 
-  Padding signInButtonOrVerify() {
+  Widget drawNameTextFiled() {
+    return TextFormField(
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 18,
+      ),
+      cursorColor: GlobalVariables.pinkColor,
+      decoration: InputDecoration(
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(
+            color: Colors.white,
+          ),
+        ),
+        labelText: "User name",
+        labelStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+        errorStyle: TextStyle(
+          color: GlobalVariables.pinkColor,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      initialValue: userName != null ? userName : "",
+      validator: (value) => value.isEmpty ? 'User name can\'t be empty' : null,
+      onSaved: (value) => userName = value,
+    );
+  }
+
+  Widget signInOrVerifyButton() {
     if (signIn) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
@@ -320,6 +287,49 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
       );
     }
+  }
+
+  //* methods
+  void signInWithEmailAndPass() {
+    final form = formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      if (signUpPassword.length >= 6 && checkForValidEmail(signUpEmail)) {
+        showLoadingBar();
+        FirebaseAuthentication.signInWithEmail(signUpEmail, signUpPassword)
+            .then(
+          (user) {
+            if (user != null) {
+              setState(() {
+                signIn = false;
+              });
+              Navigator.of(context, rootNavigator: true).pop('dialog');
+              showAlertDialog();
+            } else {
+              Navigator.of(context, rootNavigator: true).pop('dialog');
+              key.currentState.showSnackBar(
+                SnackBar(
+                  duration: Duration(seconds: 5),
+                  content: Text("This email is already in use!"),
+                ),
+              );
+            }
+          },
+        );
+      } else {
+        key.currentState.showSnackBar(
+          SnackBar(
+            duration: Duration(seconds: 5),
+            content: Text(
+                "Email is not valid! Or password is shorter than 6 symbols"),
+          ),
+        );
+      }
+    }
+  }
+
+  bool checkForValidEmail(String email) {
+    return RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
   }
 
   void tryToSignIn() {

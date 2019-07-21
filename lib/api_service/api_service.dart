@@ -1,37 +1,44 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:html/dom.dart';
+import 'package:html/dom.dart' as html;
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:dio/dio.dart';
 
-class FetchData {
+class ApiService {
   static final String searchUrl = 'https://mp3-tut.com/search?query=';
   static final String siteUrl = 'https://mp3-tut.com';
   static final String playUrl = 'https://music.xn--41a.ws';
-  static final String imageSearchUrl =
-      'https://free-mp3-download.net/search.php?s=';
-  static final String artistIdUrl =
-      'https://www.bbc.co.uk/music/search.json?q=';
-  static final String artistInfoSearchUrl =
-      'https://www.bbc.co.uk/music/artists/';
-  static final String lyricsSearchUrl =
-      'https://genius.com/api/search/multi?q=';
+  static final String imageSearchUrl = 'https://free-mp3-download.net/search.php?s=';
+  static final String artistIdUrl = 'https://www.bbc.co.uk/music/search.json?q=';
+  static final String artistInfoSearchUrl = 'https://www.bbc.co.uk/music/artists/';
+  static final String lyricsSearchUrl = 'https://genius.com/api/search/multi?q=';
+  static final String noNetworkConnection = "No network connection";
+  static final String somethingWentWrong = "Something went wrong";
+  static final String badNetworkConnection = "Bad network connection";
+  static final String artistImageUrl = "https://ichef.bbci.co.uk/images/ic/960x540/";
+  
+  CancelToken songSearchCancelToken = CancelToken(); //TODO add cancel search
+  bool searchCompleted = false;
 
-  static Future<Map<String, List<Song>>> getSearchResults(
-      String searchStr) async {
+  Future<Map<String, List<Song>>> getSearchResults(String searchStr) async {
+    Dio().clear();
+    if (!searchCompleted) {
+      songSearchCancelToken.cancel();
+      songSearchCancelToken = CancelToken();
+    }
     var responseList;
     try {
       Response response = await Dio().get(
         searchUrl + searchStr,
+        cancelToken: songSearchCancelToken,
       );
       print('Search For Results completed');
-
-      var document = parse(response.data);
-      var elements = document.getElementsByClassName("list-view");
+      searchCompleted = true;
+      var elements = parse(response.data)?.getElementsByClassName("list-view");
       var html = elements[0].outerHtml;
       html = html.replaceAll('\n', '');
       responseList = html.split('<div class="play-button-container">');
@@ -41,33 +48,37 @@ class FetchData {
           _buildSearchResult(responseList, searchUrl + searchStr + "/");
       return resultsMap;
     } on DioError catch (e) {
-      print(e);
-      _makeToast(text: "No network connection");
+      if (e.message != "cancelled") {
+        print(e);
+        _makeToast(text: noNetworkConnection);
+      }
+      searchCompleted = true;
       return null;
     } catch (e) {
       print(e);
-      _makeToast(text: "Something went wrong");
+      _makeToast(text: somethingWentWrong);
+      searchCompleted = true;
       return null;
     }
   }
 
-  static Future<String> getSongPlayUrl(Song song) async {
+  Future<String> getSongPlayUrl(Song song) async {
     var responseList;
-    String songTitle = song.getTitle;
+    String songTitle = song.title;
     songTitle = _editSearchParams(songTitle, true, true);
     if (songTitle.contains(" ")) {
       songTitle = songTitle.replaceAll(" ", "+");
     }
     var encoded = Uri.encodeFull(songTitle);
-    String url = siteUrl + song.getSearchString + "+" + encoded;
+    String url = siteUrl + song.searchString + "+" + encoded;
     try {
       Response response = await Dio().get(url);
       print('song search completed');
-      var document = parse(response.data);
+      html.Document document = parse(response.data);
       var elements = document.getElementsByClassName("list-view");
-      var html = elements[0].outerHtml;
-      html = html.replaceAll('\n', '');
-      responseList = html.split('<div class="play-button-container">');
+      var html1 = elements[0].outerHtml;
+      html1 = html1.replaceAll('\n', '');
+      responseList = html1.split('<div class="play-button-container">');
       responseList.removeAt(0);
       String streamUrl = _buildStreamUrl(responseList, song);
       if (streamUrl != null) {
@@ -78,20 +89,20 @@ class FetchData {
       return streamUrl;
     } on DioError catch (e) {
       print(e);
-      _makeToast(text: "No network connection");
+      _makeToast(text: noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      _makeToast(text: "Something went wrong");
+      _makeToast(text: somethingWentWrong);
       return null;
     }
   }
 
-  static Future<String> getSongImageUrl(Song song, bool secondTry) async {
+  Future<String> getSongImageUrl(Song song, bool secondTry) async {
     String imageUrl;
-    String tempTitle = song.getTitle;
+    String tempTitle = song.title;
     tempTitle = _editSearchParams(tempTitle, true, true);
-    String tempArtist = song.getArtist;
+    String tempArtist = song.artist;
     tempArtist = _editSearchParams(tempArtist, secondTry, true);
     imageUrl = tempTitle + " " + tempArtist;
     var encoded = Uri.encodeFull(imageSearchUrl + imageUrl);
@@ -111,16 +122,16 @@ class FetchData {
       }
     } on DioError catch (e) {
       print(e);
-      _makeToast(text: "Bad network connection");
+      _makeToast(text: badNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      _makeToast(text: "Something went wrong");
+      _makeToast(text: somethingWentWrong);
       return null;
     }
   }
 
-  static Future<Artist> getArtistImageUrl(String artistName) async {
+  Future<Artist> getArtistImageUrl(String artistName) async {
     String name = artistName;
     if (artistName.contains(" ")) {
       name = name.replaceAll(" ", "+");
@@ -129,30 +140,28 @@ class FetchData {
       Response response = await Dio().get(
         artistIdUrl + name,
       );
-      print('Get Artist ImageUrl search completed');
+      print('get Artist ImageUrl search completed');
 
       List<dynamic> list = response.data['artists'];
       if (list.length > 0) {
-        return Artist(artistName,
-            "https://ichef.bbci.co.uk/images/ic/960x540/" + list[0]["image_id"]);
+        return Artist(artistName, artistImageUrl + list[0]["image_id"]);
       } else {
-        return Artist(artistName,
-            "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png");
+        return Artist(artistName, artistImageUrl + "p01bnb07.png");
       }
     } on DioError catch (e) {
       print(e);
-      _makeToast(text: "No network connection");
+      _makeToast(text: noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      _makeToast(text: "Something went wrong");
+      _makeToast(text: somethingWentWrong);
       return null;
     }
   }
 
-  static Future<String> getLyricsPageUrl(Song song) async {
-    String title = _editSearchParams(song.getTitle, true, true);
-    String artist = _editSearchParams(song.getArtist, false, false);
+  Future<String> getLyricsPageUrl(Song song) async {
+    String title = _editSearchParams(song.title, true, true);
+    String artist = _editSearchParams(song.artist, false, false);
     String searchStr = title + " " + artist;
     var encoded = Uri.encodeFull(lyricsSearchUrl + searchStr);
     var list;
@@ -176,33 +185,33 @@ class FetchData {
       }
     } on DioError catch (e) {
       print(e);
-      _makeToast(text: "No network connection");
+      _makeToast(text: noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      _makeToast(text: "Something went wrong");
+      _makeToast(text: somethingWentWrong);
       return null;
     }
   }
 
-  static Future<String> getSongLyrics(String url) async {
+  Future<String> getSongLyrics(String url) async {
     try {
       Response response = await Dio().get(url);
       print('lyrics search completed');
-      Document document = parse(response.data);
+      html.Document document = parse(response.data);
       return _buildLyrics(document);
     } on DioError catch (e) {
       print(e);
-      _makeToast(text: "No network connection");
+      _makeToast(text: noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      _makeToast(text: "Something went wrong");
+      _makeToast(text: somethingWentWrong);
       return null;
     }
   }
 
-  static String _getImageUrlFromResponse(List<dynamic> songValues) {
+  String _getImageUrlFromResponse(List<dynamic> songValues) {
     int index = 0;
     while (songValues[index]['title'].contains("8-Bit") ||
         songValues[index]['title'].contains("16-Bit")) {
@@ -212,7 +221,8 @@ class FetchData {
     return album['cover_big'];
   }
 
-  static String _editSearchParams(String str, bool isTitle, bool isImageUrl) {
+  //! FIX ME
+  String _editSearchParams(String str, bool isTitle, bool isImageUrl) {
     if (isImageUrl) {
       if (!RegExp(r"^[a-zA-Zа-яА-Яё0-9\$!?&\()\[\]'/$\. ]+$").hasMatch(str) &&
           isTitle) {
@@ -302,7 +312,7 @@ class FetchData {
     return str;
   }
 
-  static String _buildStreamUrl(List<String> list, Song song) {
+  String _buildStreamUrl(List<String> list, Song song) {
     String songId;
     String strSong;
     String stream;
@@ -312,7 +322,7 @@ class FetchData {
             list[i].indexOf('https://mp3-tut.com/musictutplay?id=') +
                 'https://mp3-tut.com/musictutplay?id='.length,
             list[i].indexOf('&amp;hash='));
-        if (songId == song.getSongId) {
+        if (songId == song.songId) {
           strSong = list[i];
           break;
         }
@@ -327,7 +337,7 @@ class FetchData {
     return stream;
   }
 
-  static List<Song> _buildSearchResult(List<String> list, String searchString) {
+  List<Song> _buildSearchResult(List<String> list, String searchString) {
     String imageUrl;
     String songTitle;
     String artist;
@@ -376,51 +386,24 @@ class FetchData {
     }
   }
 
-  static String _buildLyrics(Document document) {
-    List songBody;
+  String _buildLyrics(html.Document document) {
+    List<html.Element> songBody;
     String lyrics;
     songBody = document.getElementsByClassName("song_body-lyrics");
-    lyrics = songBody[0].innerHtml;
+    lyrics = songBody[0].text;
+    lyrics = lyrics.replaceAll("More on Genius", "");
     lyrics = lyrics.substring(
-        lyrics.indexOf("<!--sse-->") + "<!--sse-->".length,
-        lyrics.indexOf("<!--/sse-->"));
-    lyrics = lyrics.replaceAll("<br>", "\n");
-    lyrics = lyrics.replaceAll("<p>", "");
-    lyrics = lyrics.replaceAll("</p>", "");
-    lyrics = lyrics.trimLeft();
+        lyrics.indexOf("Lyrics") + "Lyrics".length, lyrics.length);
+    lyrics = lyrics.replaceAll("]", "]\n");
     lyrics = lyrics.trimRight();
-    while (lyrics.contains("<a href=")) {
-      lyrics = lyrics.replaceAll(
-          lyrics.substring(
-              lyrics.indexOf('<a href='),
-              lyrics.indexOf('pending-editorial-actions-count="') +
-                  'pending-editorial-actions-count="'.length +
-                  3),
-          "");
-    }
-    lyrics = lyrics.replaceAll("</a>", "");
-    if (lyrics.contains("&nbsp;")) {
-      lyrics = lyrics.replaceAll("&nbsp;", "");
-    }
-    if (lyrics.contains("amp;")) {
-      lyrics = lyrics.replaceAll("amp;", "");
-    }
-    if (lyrics.contains("<i>")) {
-      lyrics = lyrics.replaceAll("<i>", "");
-      lyrics = lyrics.replaceAll("</i>", "");
-    }
-    if (lyrics.contains(">")) {
-      lyrics = lyrics.replaceAll(">", "");
-    }
+    lyrics = lyrics.trimLeft();
     return lyrics;
   }
 
-  static void _makeToast({String text}) {
+  void _makeToast({String text}) {
     Fluttertoast.showToast(
       msg: text,
       toastLength: Toast.LENGTH_SHORT,
-      timeInSecForIos: 1,
-      fontSize: 16.0,
       gravity: ToastGravity.BOTTOM,
       backgroundColor: GlobalVariables.pinkColor,
       textColor: Colors.white,

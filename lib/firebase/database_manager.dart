@@ -39,14 +39,14 @@ class FirebaseDatabaseManager {
         keys.add(key);
         playlists.add(values["playlists"]);
 
-        User user = User(values["userName"], values["firebaseUId"]);
+        User user = User.fromJson(values);
         users.add(user);
       },
     );
 
     users.forEach(
       (user) {
-        if (user.getFirebaseUId == currentUserId) {
+        if (user.firebaseUid == currentUserId) {
           _userPushId = keys[i];
           tempUser = user;
           if (playlists[i] != null) {
@@ -63,9 +63,7 @@ class FirebaseDatabaseManager {
   static String addPlaylist(Playlist playlist) {
     var pushId = FirebaseDatabase.instance
         .reference()
-        .child(_usersDir)
-        .child(_userPushId)
-        .child(_playlistsDir)
+        .child('$_usersDir/$_userPushId/$_playlistsDir')
         .push();
     playlist.setPushId = pushId.key;
     pushId.set(playlist.toJson());
@@ -75,12 +73,9 @@ class FirebaseDatabaseManager {
   static void removePlaylist(Playlist playlist) {
     FirebaseDatabase.instance
         .reference()
-        .child(_usersDir)
-        .child(_userPushId)
-        .child(_playlistsDir)
-        .child(playlist.getPushId)
+        .child('$_usersDir/$_userPushId/$_playlistsDir/${playlist.pushId}')
         .remove();
-    if (playlist.getIsPublic) {
+    if (playlist.isPublic) {
       removeFromPublicPlaylist(playlist, true);
     }
   }
@@ -88,16 +83,13 @@ class FirebaseDatabaseManager {
   static void renamePlaylist(Playlist playlist, String newName) {
     FirebaseDatabase.instance
         .reference()
-        .child(_usersDir)
-        .child(_userPushId)
-        .child(_playlistsDir)
-        .child(playlist.getPushId)
+        .child('$_usersDir/$_userPushId/$_playlistsDir/${playlist.pushId}')
         .update({"name": newName});
-    if (playlist.getIsPublic) {
+    if (playlist.isPublic) {
       FirebaseDatabase.instance
           .reference()
           .child(_publicPlaylistsDir)
-          .child(playlist.getPublicPlaylistPushId)
+          .child(playlist.publicPlaylistPushId)
           .update({"name": newName});
     }
   }
@@ -105,26 +97,19 @@ class FirebaseDatabaseManager {
   static void changePlaylistPrivacy(Playlist playlist) {
     FirebaseDatabase.instance
         .reference()
-        .child(_usersDir)
-        .child(_userPushId)
-        .child(_playlistsDir)
-        .child(playlist.getPushId)
-        .update({"isPublic": playlist.getIsPublic});
+        .child('$_usersDir/$_userPushId/$_playlistsDir/${playlist.pushId}')
+        .update({"isPublic": playlist.isPublic});
   }
 
   static Song addSongToPlaylist(Playlist playlist, Song song) {
     var pushId = FirebaseDatabase.instance
         .reference()
-        .child(_usersDir)
-        .child(_userPushId)
-        .child(_playlistsDir)
-        .child(playlist.getPushId)
-        .child(_songsDir)
+        .child('$_usersDir/$_userPushId/$_playlistsDir/${playlist.pushId}/$_songsDir')
         .push();
     song.setPushId = pushId.key;
     pushId.set(song.toJson());
 
-    if (playlist.getIsPublic) {
+    if (playlist.isPublic) {
       song = _addSongToPublicPlaylist(playlist, song);
     }
 
@@ -134,14 +119,9 @@ class FirebaseDatabaseManager {
   static void removeSongFromPlaylist(Playlist playlist, Song song) {
     FirebaseDatabase.instance
         .reference()
-        .child(_usersDir)
-        .child(_userPushId)
-        .child(_playlistsDir)
-        .child(playlist.getPushId)
-        .child(_songsDir)
-        .child(song.getPushId)
+        .child('$_usersDir/$_userPushId/$_playlistsDir/${playlist.pushId}/$_songsDir/${song.pushId}')
         .remove();
-    if (playlist.getIsPublic) {
+    if (playlist.isPublic) {
       _removeSongFromPublicPlaylist(playlist, song);
     }
   }
@@ -153,33 +133,24 @@ class FirebaseDatabaseManager {
         .reference()
         .child(_publicPlaylistsDir)
         .once();
-    Map<dynamic, dynamic> values = snapshot.value;
+    Map values = snapshot.value;
     if (values != null) {
       values.forEach(
         (key, values) {
           if (key != "publicPlaylists") {
             tempMap = values["songs"];
-            tempPlaylist = Playlist(values['name'],
-                creator: values['creator'], isPublic: values['isPublic']);
+            tempPlaylist = Playlist.fromJson(values);
             tempPlaylist.setPublicPlaylistPushId = key;
             if (tempMap != null) {
-              tempMap.forEach((key, value) {
-                Song temp = Song(
-                  value['title'],
-                  value['artist'],
-                  value['songId'],
-                  value['searchString'],
-                  value['imageUrl'],
-                  value['pushId'],
-                  dateAdded: value['dateAdded'],
-                );
+              tempMap.forEach((key, value) { 
+                Song temp = Song.fromJson(value);
                 tempPlaylist.addNewSong(temp);
               });
             }
             List<Song> sortedPlaylist = List();
 
-            sortedPlaylist = tempPlaylist.getSongs;
-            sortedPlaylist.sort((a, b) => a.getTitle.compareTo(b.getTitle));
+            sortedPlaylist = tempPlaylist.songs;
+            sortedPlaylist.sort((a, b) => a.title.compareTo(b.title));
             
             tempPlaylist.setSongs = sortedPlaylist;
             tempPlaylist.setSortedType = SortType.title;
@@ -193,9 +164,9 @@ class FirebaseDatabaseManager {
 
   static Future<Playlist> addPublicPlaylist(
       Playlist playlist, bool creatingNewPlaylist) async {
-    Playlist temp = Playlist(playlist.getName,
-        creator: playlist.getCreator, isPublic: true);
-    temp.setPushId = playlist.getPushId;
+    Playlist temp = Playlist(playlist.name,
+        creator: playlist.creator, isPublic: true);
+    temp.setPushId = playlist.pushId;
 
     temp.setSongs = List();
     var pushId =
@@ -204,14 +175,11 @@ class FirebaseDatabaseManager {
     temp.setPublicPlaylistPushId = pushId.key;
     FirebaseDatabase.instance
         .reference()
-        .child(_usersDir)
-        .child(_userPushId)
-        .child(_playlistsDir)
-        .child(playlist.getPushId)
+        .child('$_usersDir/$_userPushId/$_playlistsDir/${playlist.pushId}')
         .update({"publicPlaylistPushId": pushId.key});
     await pushId.set(playlist.toJson());
     if (!creatingNewPlaylist) {
-      playlist.getSongs.forEach((song) {
+      playlist.songs.forEach((song) {
         _addSongToPublicPlaylist(playlist, song);
         temp.addNewSong(song);
       });
@@ -224,16 +192,12 @@ class FirebaseDatabaseManager {
       Playlist playlist, bool completeDelete) async {
     FirebaseDatabase.instance
         .reference()
-        .child(_publicPlaylistsDir)
-        .child(playlist.getPublicPlaylistPushId)
+        .child('$_publicPlaylistsDir/${playlist.publicPlaylistPushId}')
         .remove();
     if (!completeDelete) {
       FirebaseDatabase.instance
           .reference()
-          .child(_usersDir)
-          .child(_userPushId)
-          .child(_playlistsDir)
-          .child(playlist.getPushId)
+          .child('$_usersDir/$_userPushId/$_playlistsDir/${playlist.pushId}')
           .update({"publicPlaylistPushId": ""});
     }
   }
@@ -241,9 +205,7 @@ class FirebaseDatabaseManager {
   static Song _addSongToPublicPlaylist(Playlist playlist, Song song) {
     var pushId = FirebaseDatabase.instance
         .reference()
-        .child(_publicPlaylistsDir)
-        .child(playlist.getPublicPlaylistPushId)
-        .child(_songsDir)
+        .child('$_publicPlaylistsDir/${playlist.publicPlaylistPushId}/$_songsDir')
         .push();
     song.setPushId = pushId.key;
     pushId.set(song.toJson());
@@ -253,18 +215,15 @@ class FirebaseDatabaseManager {
   static void _removeSongFromPublicPlaylist(Playlist playlist, Song song) {
     Playlist publicPlaylist = GlobalVariables.publicPlaylists
         .where((temp) =>
-            temp.getName == playlist.getName &&
-            temp.getCreator == playlist.getCreator)
+            temp.name == playlist.name &&
+            temp.creator == playlist.creator)
         .elementAt(0);
-    Song publicPlaylistSong = publicPlaylist.getSongs
-        .where((temp) => temp.getSongId == song.getSongId)
+    Song publicPlaylistSong = publicPlaylist.songs
+        .where((temp) => temp.songId == song.songId)
         .elementAt(0);
     FirebaseDatabase.instance
         .reference()
-        .child(_publicPlaylistsDir)
-        .child(playlist.getPublicPlaylistPushId)
-        .child(_songsDir)
-        .child(publicPlaylistSong.getPushId)
+        .child('$_publicPlaylistsDir/${playlist.publicPlaylistPushId}/$_songsDir/${publicPlaylistSong.pushId}')
         .remove();
   }
 
@@ -273,31 +232,23 @@ class FirebaseDatabaseManager {
     Map tempMap;
     var snapshot = await FirebaseDatabase.instance
         .reference()
+        .child('$_publicPlaylistsDir/$playlistPushId')
         .child(_publicPlaylistsDir)
         .child(playlistPushId)
         .once();
     Map<dynamic, dynamic> values = snapshot.value;
-    playlist = Playlist(values["name"],
-        isPublic: values["isPublic"], creator: values["creator"]);
+    playlist = Playlist.fromJson(values);
     playlist.setPublicPlaylistPushId = snapshot.key;
     tempMap = values["songs"];
     if (tempMap != null) {
       tempMap.forEach((key, value) {
-        playlist.addNewSong(Song(
-          value['title'],
-          value['artist'],
-          value['songId'],
-          value['searchString'],
-          value['imageUrl'],
-          value['pushId'],
-          dateAdded: value['dateAdded'],
-        ));
+        playlist.addNewSong(Song.fromJson(value));
       });
     }
     List<Song> sortedPlaylist = List();
 
-    sortedPlaylist = playlist.getSongs;
-    sortedPlaylist.sort((a, b) => a.getTitle.compareTo(b.getTitle));
+    sortedPlaylist = playlist.songs;
+    sortedPlaylist.sort((a, b) => a.title.compareTo(b.title));
 
     playlist.setSongs = sortedPlaylist;
     playlist.setSortedType = SortType.title;
@@ -311,27 +262,18 @@ class FirebaseDatabaseManager {
     playlistMap.forEach(
       (key, value) {
         tempMap = value["songs"];
-        tempPlaylist = Playlist(value["name"],
-            creator: value['creator'], isPublic: value["isPublic"]);
+        tempPlaylist = Playlist.fromJson(value);
         tempPlaylist.setPushId = key;
         tempPlaylist.setPublicPlaylistPushId = value['publicPlaylistPushId'];
         if (tempMap != null) {
           tempMap.forEach((key, value) {
-            tempPlaylist.addNewSong(Song(
-              value['title'],
-              value['artist'],
-              value['songId'],
-              value['searchString'],
-              value['imageUrl'],
-              value['pushId'],
-              dateAdded: value['dateAdded'],
-            ));
+            tempPlaylist.addNewSong(Song.fromJson(value));
           });
         }
         List<Song> sortedPlaylist = List();
 
-        sortedPlaylist = tempPlaylist.getSongs;
-        sortedPlaylist.sort((a, b) => a.getDateAdded.compareTo(b.getDateAdded));
+        sortedPlaylist = tempPlaylist.songs;
+        sortedPlaylist.sort((a, b) => a.dateAdded.compareTo(b.dateAdded));
 
         tempPlaylist.setSongs = sortedPlaylist;
         tempPlaylist.setSortedType = SortType.recentlyAdded;
@@ -350,7 +292,7 @@ class FirebaseDatabaseManager {
         .listen((playlistMap) {
       _updatePublicPlaylist(playlistMap.snapshot.key).then((playlist) {
         GlobalVariables.publicPlaylists.removeWhere((temp) =>
-            temp.getPublicPlaylistPushId == playlist.getPublicPlaylistPushId);
+            temp.publicPlaylistPushId == playlist.publicPlaylistPushId);
         GlobalVariables.publicPlaylists.add(playlist);
       });
     });
@@ -360,7 +302,7 @@ class FirebaseDatabaseManager {
         .onChildRemoved
         .listen((playlistMap) {
       GlobalVariables.publicPlaylists.removeWhere(
-          (temp) => temp.getPublicPlaylistPushId == playlistMap.snapshot.key);
+          (temp) => temp.publicPlaylistPushId == playlistMap.snapshot.key);
     });
     onChildAdded = FirebaseDatabase.instance
         .reference()

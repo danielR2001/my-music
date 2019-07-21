@@ -6,7 +6,6 @@ import 'package:myapp/communicate_with_native/music_control_notification.dart';
 import 'package:myapp/firebase/authentication.dart';
 import 'package:myapp/firebase/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/manage_local_songs/manage_local_songs.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
@@ -115,7 +114,7 @@ class _AccountPageState extends State<AccountPage> {
                       title: Text(
                         GlobalVariables.currentUser != null
                             ? "My device" +
-                                "  (${GlobalVariables.currentUser.getDownloadedSongsPlaylist.getSongs.length})"
+                                "  (${GlobalVariables.currentUser.downloadedSongsPlaylist.songs.length})"
                             : "My device",
                         style: TextStyle(
                           fontSize: 17,
@@ -131,9 +130,9 @@ class _AccountPageState extends State<AccountPage> {
                         Provider.of<PageNotifier>(
                                     GlobalVariables.homePageContext)
                                 .setCurrentPlaylistPagePlaylist =
-                            GlobalVariables.currentUser.getDownloadedSongsPlaylist;
+                            GlobalVariables.currentUser.downloadedSongsPlaylist;
                         widget.onPush(
-                            createMap(GlobalVariables.currentUser.getDownloadedSongsPlaylist));
+                            createMap(GlobalVariables.currentUser.downloadedSongsPlaylist));
                       }),
                   SizedBox(
                     height: 20,
@@ -178,8 +177,8 @@ class _AccountPageState extends State<AccountPage> {
       );
     });
   }
-
-  Padding userPlaylists(Playlist playlist, BuildContext context, int index) {
+  //* widgets
+  Widget userPlaylists(Playlist playlist, BuildContext context, int index) {
     return Padding(
       padding: const EdgeInsets.only(
         top: 10,
@@ -187,11 +186,11 @@ class _AccountPageState extends State<AccountPage> {
         bottom: 10,
       ),
       child: ListTile(
-          leading: playlist.getSongs.length > 0
-              ? drawSongImage(playlist.getSongs[0], index)
+          leading: playlist.songs.length > 0
+              ? drawSongImage(playlist.songs[0], index)
               : drawSongImage(null, index),
           title: AutoSizeText(
-            cutPlaylistName(playlist) + "  (${playlist.getSongs.length})",
+            cutPlaylistName(playlist) + "  (${playlist.songs.length})",
             style: TextStyle(
               fontSize: 17,
               color: Colors.white,
@@ -211,21 +210,6 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-  Map createMap(Playlist playlist) {
-    Map<String, dynamic> playlistValues = Map();
-    if (playlist.getSongs.length > 0) {
-      playlistValues['playlist'] = playlist;
-    } else {
-      playlistValues['playlist'] = playlist;
-    }
-    playlistValues['playlistCreator'] = GlobalVariables.currentUser;
-    playlistValues['playlistModalSheetMode'] =
-        playlist.getPushId != GlobalVariables.currentUser.getDownloadedSongsPlaylist.getPushId
-            ? PlaylistModalSheetMode.regular
-            : PlaylistModalSheetMode.download;
-    return playlistValues;
-  }
-
   Widget showOrHidePlaylists() {
     if (openPlaylists) {
       if (!GlobalVariables.isOfflineMode && needToReloadImages) {
@@ -235,13 +219,13 @@ class _AccountPageState extends State<AccountPage> {
       return Expanded(
         child: ListView.builder(
           itemCount: GlobalVariables.currentUser != null
-              ? GlobalVariables.currentUser.getPlaylists != null
-                  ? GlobalVariables.currentUser.getPlaylists.length
+              ? GlobalVariables.currentUser.playlists != null
+                  ? GlobalVariables.currentUser.playlists.length
                   : 0
               : 0,
           itemBuilder: (BuildContext context, int index) {
             return userPlaylists(
-                GlobalVariables.currentUser.getPlaylists[index], context, index);
+                GlobalVariables.currentUser.playlists[index], context, index);
           },
         ),
       );
@@ -278,9 +262,9 @@ class _AccountPageState extends State<AccountPage> {
           ],
         ),
         child:
-            imageProviders.length != 0 && imageProviders[song.getSongId] != null
+            imageProviders.length != 0 && imageProviders[song.songId] != null
                 ? Image(
-                    image: imageProviders[song.getSongId],
+                    image: imageProviders[song.songId],
                     fit: BoxFit.cover,
                   )
                 : Icon(
@@ -324,39 +308,40 @@ class _AccountPageState extends State<AccountPage> {
     }
   }
 
+  //*methods
   String cutPlaylistName(Playlist playlist) {
     String name;
-    if (playlist.getName.length > 18) {
-      int pos = playlist.getName.lastIndexOf("", 18);
+    if (playlist.name.length > 18) {
+      int pos = playlist.name.lastIndexOf("", 18);
       if (pos < 10) {
         pos = 18;
       }
-      name = playlist.getName.substring(0, pos) + "...";
+      name = playlist.name.substring(0, pos) + "...";
     } else {
-      name = playlist.getName;
+      name = playlist.name;
     }
     return name;
   }
 
   void checkForIntenetConnetionForNetworkImage() {
     if (!GlobalVariables.isOfflineMode) {
-      GlobalVariables.currentUser.getPlaylists.forEach((playlist) {
-          if (playlist.getSongs.length > 0) {
-            ManageLocalSongs.checkIfFileExists(playlist.getSongs[0])
+      GlobalVariables.currentUser.playlists.forEach((playlist) {
+          if (playlist.songs.length > 0) {
+            GlobalVariables.manageLocalSongs.checkIfFileExists(playlist.songs[0])
                 .then((exists) {
               if (exists) {
                 File file = File(
-                    "${ManageLocalSongs.fullSongDownloadDir.path}/${playlist.getSongs[0].getSongId}/${playlist.getSongs[0].getSongId}.png");
+                    "${GlobalVariables.manageLocalSongs.fullSongDownloadDir.path}/${playlist.songs[0].songId}/${playlist.songs[0].songId}.png");
                 setState(() {
-                  imageProviders[playlist.getSongs[0].getSongId] =
+                  imageProviders[playlist.songs[0].songId] =
                       (FileImage(file));
                 });
               } else {
                 if (GlobalVariables.isNetworkAvailable) {
                   setState(() {
-                    imageProviders[playlist.getSongs[0].getSongId] =
+                    imageProviders[playlist.songs[0].songId] =
                         NetworkImage(
-                      playlist.getSongs[0].getImageUrl,
+                      playlist.songs[0].imageUrl,
                     );
                   });
                 }
@@ -376,7 +361,7 @@ class _AccountPageState extends State<AccountPage> {
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(
-            "Hii " + GlobalVariables.currentUser.getName + "!",
+            "Hii " + GlobalVariables.currentUser.name + "!",
             style: TextStyle(
                 color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
@@ -447,9 +432,9 @@ class _AccountPageState extends State<AccountPage> {
                       onTap: () {
                         GlobalVariables.publicPlaylists = List();
                         FirebaseDatabaseManager.cancelStreams().then((a) {
-                          ManageLocalSongs.deleteDownloadedDirectory();
+                          GlobalVariables.manageLocalSongs.deleteDownloadedDirectory();
                           FirebaseAuthentication.signOut().then((a) {
-                            AudioPlayerManager.closeSong(
+                            GlobalVariables.audioPlayerManager.closeSong(
                                 closeSongMode: CloseSongMode.completely);
                                 MusicControlNotification.removeNotification();
                             GlobalVariables.currentUser = null;
@@ -471,5 +456,20 @@ class _AccountPageState extends State<AccountPage> {
         );
       },
     );
+  }
+
+  Map createMap(Playlist playlist) {
+    Map<String, dynamic> playlistValues = Map();
+    if (playlist.songs.length > 0) {
+      playlistValues['playlist'] = playlist;
+    } else {
+      playlistValues['playlist'] = playlist;
+    }
+    playlistValues['playlistCreator'] = GlobalVariables.currentUser;
+    playlistValues['playlistModalSheetMode'] =
+        playlist.pushId != GlobalVariables.currentUser.downloadedSongsPlaylist.pushId
+            ? PlaylistModalSheetMode.regular
+            : PlaylistModalSheetMode.download;
+    return playlistValues;
   }
 }
