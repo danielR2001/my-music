@@ -14,10 +14,11 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.media.session.PlaybackState;
+import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import android.support.v4.media.session.MediaSessionCompat;
 
 import android.util.Log;
 
@@ -219,10 +220,32 @@ public class NotificationService extends Service {
 
         //ComponentName mediaButtonReceiver = new ComponentName(this ,RemoteControlReceiver.class);
         mediaSession = new MediaSessionCompat(this, "playback", null, null);// mediaButtonReceiver, null);
-        //mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | 
-        //                    MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-       // mediaSession.setCallback(this);
-       // mediaSession.setActive(true);
+    //     mediaSession.setCallback(new MediaSessionCompat.Callback() {
+    //         @Override
+    //         public void onPlay() {
+    //             super.onPlay();
+    //             Log.d("hiiii","play!");
+    //         }
+
+    //         @Override
+    //         public void onPause() {
+    //             super.onPause();
+    //             Log.d("hiiii","pause!");
+    //         }
+    //     });
+    //     mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | 
+    //                         MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+    //    // mediaSession.setCallback(this);
+    //    // Set up what actions you support and the state of your player
+    //     mediaSession.setState(
+    //         new PlaybackState.Builder()
+    //         .setActions(PlaybackState.ACTION_PLAY |
+    //                     PlaybackState.ACTION_PAUSE |
+    //                     PlaybackState.ACTION_PLAY_PAUSE)
+    //         .setState(PlaybackState.STATE_PLAYING,
+    //                     0, 
+    //                     1));
+    //     mediaSession.setActive(true);
 
     }
 

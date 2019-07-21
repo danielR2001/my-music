@@ -21,23 +21,21 @@ class ApiService {
   static final String badNetworkConnection = "Bad network connection";
   static final String artistImageUrl = "https://ichef.bbci.co.uk/images/ic/960x540/";
   
-  CancelToken songSearchCancelToken = CancelToken(); //TODO add cancel search
-  bool searchCompleted = false;
-
+  //CancelToken songSearchCancelToken = CancelToken(); //TODO add cancel search
+  //bool searchCompleted = false;
   Future<Map<String, List<Song>>> getSearchResults(String searchStr) async {
-    Dio().clear();
-    if (!searchCompleted) {
-      songSearchCancelToken.cancel();
-      songSearchCancelToken = CancelToken();
-    }
+    // if (!searchCompleted) {
+    //   songSearchCancelToken.cancel();
+    //   songSearchCancelToken = CancelToken();
+    // }
     var responseList;
     try {
       Response response = await Dio().get(
         searchUrl + searchStr,
-        cancelToken: songSearchCancelToken,
+        //cancelToken: songSearchCancelToken,
       );
       print('Search For Results completed');
-      searchCompleted = true;
+      //searchCompleted = true;
       var elements = parse(response.data)?.getElementsByClassName("list-view");
       var html = elements[0].outerHtml;
       html = html.replaceAll('\n', '');
@@ -52,12 +50,12 @@ class ApiService {
         print(e);
         _makeToast(text: noNetworkConnection);
       }
-      searchCompleted = true;
+      //searchCompleted = true;
       return null;
     } catch (e) {
       print(e);
       _makeToast(text: somethingWentWrong);
-      searchCompleted = true;
+      //searchCompleted = true;
       return null;
     }
   }

@@ -233,8 +233,6 @@ class FirebaseDatabaseManager {
     var snapshot = await FirebaseDatabase.instance
         .reference()
         .child('$_publicPlaylistsDir/$playlistPushId')
-        .child(_publicPlaylistsDir)
-        .child(playlistPushId)
         .once();
     Map<dynamic, dynamic> values = snapshot.value;
     playlist = Playlist.fromJson(values);
