@@ -42,7 +42,6 @@ class MusicControlNotification {
   }
 
   static Future<void> removeNotification() async {
-  
     print("removing notification");
     try {
       await platform.invokeMethod('removeNotification');
@@ -55,11 +54,15 @@ class MusicControlNotification {
     switch (methodCall.method) {
       case 'playOrPause':
         if (GlobalVariables.audioPlayerManager.isSongLoaded &&
-            GlobalVariables.audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
-          GlobalVariables.audioPlayerManager.audioPlayer.state == AudioPlayerState.PLAYING
-              ? GlobalVariables.audioPlayerManager.pauseSong(calledFromNative: false)
-              : GlobalVariables.audioPlayerManager.audioPlayer.state == AudioPlayerState.PAUSED
-                  ? GlobalVariables.audioPlayerManager.resumeSong(calledFromNative: false)
+            GlobalVariables.audioPlayerManager.isSongActuallyPlaying) {
+          GlobalVariables.audioPlayerManager.audioPlayer.state ==
+                  AudioPlayerState.PLAYING
+              ? GlobalVariables.audioPlayerManager
+                  .pauseSong(calledFromNative: false)
+              : GlobalVariables.audioPlayerManager.audioPlayer.state ==
+                      AudioPlayerState.PAUSED
+                  ? GlobalVariables.audioPlayerManager
+                      .resumeSong(calledFromNative: false)
                   : _playSong();
         }
         break;

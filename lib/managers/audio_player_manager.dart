@@ -7,7 +7,7 @@ import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/communicate_with_native/music_control_notification.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/toast_manager/toast_manager.dart';
+import 'package:myapp/managers/toast_manager.dart';
 import 'package:provider/provider.dart';
 
 enum PlaylistMode {
@@ -167,7 +167,7 @@ class AudioPlayerManager {
     }
     if (audioPlayerStatus == 1) {
       MusicControlNotification.makeNotification(currentSong, true, true);
-      isSongLoaded = true; //! TODO actual song loaded
+      isSongLoaded = true; 
     } else {
       closeSong(closeSongMode: CloseSongMode.partly);
       isSongLoaded = true;

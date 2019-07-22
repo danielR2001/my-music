@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/api_service/api_service.dart';
-import 'package:myapp/audio_player/audio_player_manager.dart';
-import 'package:myapp/manage_local_songs/manage_local_songs.dart';
+import 'package:myapp/api/api_service.dart';
+import 'package:myapp/managers/audio_player_manager.dart';
+import 'package:myapp/managers/local_songs_manager.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/user.dart';
-import 'package:myapp/toast_manager/toast_manager.dart';
+import 'package:myapp/managers/toast_manager.dart';
 
 class GlobalVariables{
   static const Color lightGreyColor = Color(0xFF222222);

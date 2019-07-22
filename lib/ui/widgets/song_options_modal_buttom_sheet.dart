@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/database/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/toast_manager/toast_manager.dart';
+import 'package:myapp/managers/toast_manager.dart';
 import 'package:myapp/ui/decorations/my_custom_icons.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/artists_pick_modal_buttom_sheet.dart';
@@ -176,7 +176,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
       child: widget.song.imageUrl.length == 0 || imageProvider == null
           ? Icon(
               Icons.music_note,
-              color: Colors.grey[300],
+              color: GlobalVariables.pinkColor,
               size: 40,
             )
           : Image(
