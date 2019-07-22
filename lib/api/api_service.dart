@@ -5,7 +5,7 @@ import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:dio/dio.dart';
-import 'package:myapp/toast_manager/toast_manager.dart';
+import 'package:myapp/managers/toast_manager.dart';
 
 class ApiService {
   static final String searchUrl = 'https://mp3-tut.com/search?query=';
@@ -230,8 +230,8 @@ class ApiService {
   }
 
   //! FIX ME
-  String _editSearchParams(String str, bool isTitle, bool isImageUrl) {
-    if (isImageUrl) {
+  String _editSearchParams(String str, bool isTitle, bool isHebrewCheck) {
+    if (isHebrewCheck) {
       if (!RegExp(r"^[a-zA-Zа-яА-Яё0-9\$!?&\()\[\]'/$\. ]+$").hasMatch(str) &&
           isTitle) {
         if (str.contains("(")) {
@@ -298,8 +298,14 @@ class ApiService {
         str = str.replaceAll("&", "");
       }
     }
+    if (str.contains("   ")) {
+      str = str.replaceAll("   ", " ");
+    }
+    if (str.contains("  ")) {
+      str = str.replaceAll("  ", " ");
+    }
     if (str.contains(".")) {
-      str = str.replaceAll(" .", " ");
+      str = str.replaceAll(".", " ");
     }
     if (str.contains("?")) {
       str = str.replaceAll("?", "");
@@ -309,12 +315,6 @@ class ApiService {
     }
     if (str.contains("-")) {
       str = str.replaceAll("-", " ");
-    }
-    if (str.contains("   ")) {
-      str = str.replaceAll("   ", " ");
-    }
-    if (str.contains("  ")) {
-      str = str.replaceAll("  ", " ");
     }
     str = str.trimRight();
     return str;
@@ -401,7 +401,7 @@ class ApiService {
     lyrics = songBody[0].text;
     lyrics = lyrics.replaceAll("More on Genius", "");
     lyrics = lyrics.substring(
-        lyrics.indexOf("Lyrics") + "Lyrics".length, lyrics.length);
+        lyrics.lastIndexOf("Lyrics") + "Lyrics".length, lyrics.length);
     lyrics = lyrics.replaceAll("]", "]\n");
     lyrics = lyrics.trimRight();
     lyrics = lyrics.trimLeft();

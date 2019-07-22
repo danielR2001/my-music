@@ -117,7 +117,8 @@ class _HomePageState extends State<HomePage> {
             height: 45,
             child: Row(
               children: <Widget>[
-                GlobalVariables.audioPlayerManager.audioPlayerState == AudioPlayerState.PLAYING
+                GlobalVariables.audioPlayerManager.audioPlayerState ==
+                        AudioPlayerState.PLAYING
                     ? drawPlayingSoundBar()
                     : drawPausedSoundBar(),
                 Expanded(
@@ -131,7 +132,8 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           TextDecoration(
-                            txt: GlobalVariables.audioPlayerManager.currentSong.title,
+                            txt: GlobalVariables
+                                .audioPlayerManager.currentSong.title,
                             size: 14,
                             color: Colors.white,
                             txtMaxLength: 30,
@@ -140,7 +142,8 @@ class _HomePageState extends State<HomePage> {
                             makeBold: true,
                           ),
                           TextDecoration(
-                            txt: GlobalVariables.audioPlayerManager.currentSong.artist,
+                            txt: GlobalVariables
+                                .audioPlayerManager.currentSong.artist,
                             size: 14,
                             color: Colors.grey,
                             txtMaxLength: 30,
@@ -162,16 +165,17 @@ class _HomePageState extends State<HomePage> {
                     iconSize: 20,
                     onPressed: () {
                       if (GlobalVariables.audioPlayerManager.isSongLoaded &&
-                          GlobalVariables.audioPlayerManager.songPosition !=
-                              Duration(milliseconds: 0)) {
+                          GlobalVariables
+                              .audioPlayerManager.isSongActuallyPlaying) {
                         GlobalVariables.audioPlayerManager.audioPlayer.state ==
                                 AudioPlayerState.PLAYING
-                            ? GlobalVariables.audioPlayerManager.pauseSong(
-                                calledFromNative: false)
-                            : GlobalVariables.audioPlayerManager.audioPlayer.state ==
+                            ? GlobalVariables.audioPlayerManager
+                                .pauseSong(calledFromNative: false)
+                            : GlobalVariables
+                                        .audioPlayerManager.audioPlayer.state ==
                                     AudioPlayerState.PAUSED
-                                ? GlobalVariables.audioPlayerManager.resumeSong(
-                                    calledFromNative: false)
+                                ? GlobalVariables.audioPlayerManager
+                                    .resumeSong(calledFromNative: false)
                                 : playSong();
                       }
                     },
@@ -259,7 +263,9 @@ class _HomePageState extends State<HomePage> {
 
   //* methods
   void initSong() {
-    stateStream = GlobalVariables.audioPlayerManager.audioPlayer.onPlayerStateChanged.listen(
+    stateStream = GlobalVariables
+        .audioPlayerManager.audioPlayer.onPlayerStateChanged
+        .listen(
       (AudioPlayerState state) {
         setState(() {});
       },

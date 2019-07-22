@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:myapp/firebase/authentication.dart';
-import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/database/authentication.dart';
+import 'package:myapp/database/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/user.dart';
-import 'package:myapp/toast_manager/toast_manager.dart';
+import 'package:myapp/managers/toast_manager.dart';
 import 'welcome_page.dart';
 import 'home_page.dart';
 

@@ -7,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/communicate_with_native/get_image_dominant_color.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/audio_player/audio_player_manager.dart';
+import 'package:myapp/managers/audio_player_manager.dart';
 import 'package:myapp/ui/decorations/my_custom_icons.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
@@ -485,8 +485,7 @@ class MusicPageState extends State<MusicPlayerPage> {
         ),
         onTap: () {
           if (GlobalVariables.audioPlayerManager.isSongLoaded &&
-              GlobalVariables.audioPlayerManager.songPosition !=
-                  Duration(milliseconds: 0)) {
+              GlobalVariables.audioPlayerManager.isSongActuallyPlaying) {
             GlobalVariables.audioPlayerManager.audioPlayer.state ==
                     AudioPlayerState.PLAYING
                 ? GlobalVariables.audioPlayerManager

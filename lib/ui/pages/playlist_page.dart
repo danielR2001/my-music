@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/audio_player/audio_player_manager.dart';
+import 'package:myapp/managers/audio_player_manager.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/ui/decorations/my_custom_icons.dart';
@@ -156,12 +156,17 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 widget.playlistModalSheetMode == PlaylistModalSheetMode.public
                     ? widget.playlist
                     : Provider.of<PageNotifier>(GlobalVariables.homePageContext)
-                                .currentPlaylistPagePlaylist
-                                .pushId ==
-                            widget.playlist.pushId
+                                .currentPlaylistPagePlaylist !=
+                            null
                         ? Provider.of<PageNotifier>(
-                                GlobalVariables.homePageContext)
-                            .currentPlaylistPagePlaylist
+                                        GlobalVariables.homePageContext)
+                                    .currentPlaylistPagePlaylist
+                                    .pushId ==
+                                widget.playlist.pushId
+                            ? Provider.of<PageNotifier>(
+                                    GlobalVariables.homePageContext)
+                                .currentPlaylistPagePlaylist
+                            : widget.playlist
                         : widget.playlist,
                 context)
           ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:myapp/firebase/authentication.dart';
-import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/database/authentication.dart';
+import 'package:myapp/database/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/user.dart';
 import 'home_page.dart';

@@ -3,7 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/toast_manager/toast_manager.dart';
+import 'package:myapp/managers/toast_manager.dart';
+import 'package:myapp/ui/widgets/sort_modal_buttom_sheet.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -90,26 +91,31 @@ class ManageLocalSongs {
           } on DioError catch (e) {
             if (e.message == "cancelled") {
               //!TODO some error when downloading (maybe downloading song without image)
-              GlobalVariables.toastManager.makeToast(text: ToastManager.downloadCancelled);
+              GlobalVariables.toastManager
+                  .makeToast(text: ToastManager.downloadCancelled);
             } else {
               print(e);
               currentDownloading.remove(song);
               cancelTokensMap.remove(song);
-              GlobalVariables.toastManager.makeToast(text: ToastManager.somethingWentWrong);
+              GlobalVariables.toastManager
+                  .makeToast(text: ToastManager.somethingWentWrong);
             }
           } catch (e) {
             print(e);
             currentDownloading.remove(song);
             cancelTokensMap.remove(song);
-            GlobalVariables.toastManager.makeToast(text: ToastManager.somethingWentWrong);
+            GlobalVariables.toastManager
+                .makeToast(text: ToastManager.somethingWentWrong);
           }
         } else {
           currentDownloading.remove(song);
-          GlobalVariables.toastManager.makeToast(text: ToastManager.somethingWentWrong);
+          GlobalVariables.toastManager
+              .makeToast(text: ToastManager.somethingWentWrong);
         }
       });
     } else {
-      GlobalVariables.toastManager.makeToast(text: ToastManager.noNetworkConnection);
+      GlobalVariables.toastManager
+          .makeToast(text: ToastManager.noNetworkConnection);
     }
   }
 
@@ -143,7 +149,7 @@ class ManageLocalSongs {
             .create(recursive: true);
     File file = File('${songDirectory.path}/${song.songId}.txt');
     file.writeAsString(
-        "${song.title}*/*${song.artist}*/*${song.songId}*/*${song.searchString}*/*${song.imageUrl}");
+        "${song.title}*/*${song.artist}*/*${song.songId}*/*${song.searchString}*/*${song.imageUrl}*/*${DateTime.now().millisecondsSinceEpoch}");
     file.create();
   }
 
@@ -169,6 +175,7 @@ class ManageLocalSongs {
 
   void syncDownloaded() async {
     List<File> files = List();
+    List<Song> songs = List();
     try {
       var songsDirList = fullSongDownloadDir.list();
       await for (FileSystemEntity d in songsDirList) {
@@ -184,30 +191,38 @@ class ManageLocalSongs {
     } catch (e) {
       print(e.toString());
     }
-    List<Song> updatedDownloadedList = List();
-    files.forEach((file) {
+    for (var file in files) {
       if (file.path.contains(".txt")) {
-        readSongInfoFile(file.path.substring(
+        await readSongInfoFile(file.path.substring(
                 file.path.lastIndexOf("/"), file.path.lastIndexOf(".txt")))
             .then((song) {
-          GlobalVariables.currentUser.downloadedSongsPlaylist.addNewSong(song);
+          songs.add(song);
         });
       }
-    });
+    }
+    songs.sort((a, b) => a.dateAdded.compareTo(b.dateAdded));
     GlobalVariables.currentUser.downloadedSongsPlaylist.setSongs =
-        updatedDownloadedList;
+        songs;
+    GlobalVariables.currentUser.downloadedSongsPlaylist.setSortedType =
+        SortType.recentlyAdded;
   }
 
   Future<Song> readSongInfoFile(String songId) async {
     File file = File('${fullSongDownloadDir.path}/$songId/$songId.txt');
     String fileString = await file.readAsString();
     List<String> songAttributes = fileString.split("*/*");
-    return Song(songAttributes[0], songAttributes[1], songAttributes[2],
-        songAttributes[3], songAttributes[4], "");
+    return Song(
+      songAttributes[0],
+      songAttributes[1],
+      songAttributes[2],
+      songAttributes[3],
+      songAttributes[4],
+      "",
+      dateAdded: int.parse(songAttributes[5]),
+    );
   }
 
   Future<void> deleteDownloadedDirectory() async {
     await new Directory('${fullSongDownloadDir.path}').delete(recursive: true);
   }
-
 }

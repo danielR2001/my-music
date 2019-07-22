@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/audio_player/audio_player_manager.dart';
+import 'package:myapp/managers/audio_player_manager.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 
 class SearchPage extends StatefulWidget {

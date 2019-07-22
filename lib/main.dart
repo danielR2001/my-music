@@ -1,16 +1,16 @@
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/api_service/api_service.dart';
+import 'package:myapp/api/api_service.dart';
 import 'package:myapp/communicate_with_native/music_control_notification.dart';
-import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/database/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
-import 'package:myapp/manage_local_songs/manage_local_songs.dart';
+import 'package:myapp/managers/local_songs_manager.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/toast_manager/toast_manager.dart';
+import 'package:myapp/managers/toast_manager.dart';
 import 'package:myapp/ui/decorations/portrait_mode_mixin.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
-import 'package:myapp/audio_player/audio_player_manager.dart';
+import 'package:myapp/managers/audio_player_manager.dart';
 import 'package:myapp/ui/pages/root_page.dart';
 import 'package:provider/provider.dart';
 

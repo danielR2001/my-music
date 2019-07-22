@@ -2,12 +2,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:myapp/audio_player/audio_player_manager.dart';
-import 'package:myapp/firebase/database_manager.dart';
+import 'package:myapp/managers/audio_player_manager.dart';
+import 'package:myapp/database/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/playlist.dart';
-import 'package:myapp/toast_manager/toast_manager.dart';
+import 'package:myapp/managers/toast_manager.dart';
 
 class PlaylistPickPage extends StatefulWidget {
   final song;
