@@ -21,7 +21,7 @@ public class LoadImageFromUrl extends AsyncTask<String, Void, Bitmap> {
     private String imageUrl;
     private boolean isPlaying;
     private String localPath;
-    private AsyncResponse delegate = null;//Call back interface 
+    private AsyncResponse delegate = null;// Call back interface
 
     public LoadImageFromUrl(final String title, final String artist, String imageUrl, final Context context,
             boolean isPlaying, String localPath, AsyncResponse asyncResponse) {
@@ -49,21 +49,19 @@ public class LoadImageFromUrl extends AsyncTask<String, Void, Bitmap> {
             if (new File(localPath).exists()) {
                 return BitmapFactory.decodeFile(this.localPath);
             } else {
-                if (this.imageUrl != null) {
-                    if (!this.imageUrl.equals("")) {
-                        try {
-                            URL url = new URL(this.imageUrl);
-                            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                            connection.setDoInput(true);
-                            connection.connect();
-                            InputStream in = connection.getInputStream();
-                            return BitmapFactory.decodeStream(in);
-                        } catch (MalformedURLException e) {
-                            Log.d("load Image Thread", "Failed loading image!!!");
+                if (this.imageUrl != null && !this.imageUrl.equals("")) {
+                    try {
+                        URL url = new URL(this.imageUrl);
+                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                        connection.setDoInput(true);
+                        connection.connect();
+                        InputStream in = connection.getInputStream();
+                        return BitmapFactory.decodeStream(in);
+                    } catch (MalformedURLException e) {
+                        Log.d("load Image Thread", "Failed loading image!!!");
 
-                        } catch (IOException e) {
-                            Log.d("load Image Thread", "Failed loading image!!!");
-                        }
+                    } catch (IOException e) {
+                        Log.d("load Image Thread", "Failed loading image!!!");
                     }
                 }
             }
@@ -85,9 +83,9 @@ public class LoadImageFromUrl extends AsyncTask<String, Void, Bitmap> {
         return null;
     }
 
-    @Override 
-    protected void onPostExecute(Bitmap bitmap) { 
-        super.onPostExecute(bitmap); 
-        delegate.processFinish(bitmap); 
-    } 
+    @Override
+    protected void onPostExecute(Bitmap bitmap) {
+        super.onPostExecute(bitmap);
+        delegate.processFinish(bitmap);
+    }
 }

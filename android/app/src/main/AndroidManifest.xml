@@ -26,6 +26,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <service android:name="com.daniel.mymusic.NotificationService" />
+        <receiver android:name=".ActionReceiver" />
+        <service
+            android:name=".AppCloseDetectorService"
+            android:stopWithTask="false" >
+        </service>
     </application>
 </manifest>

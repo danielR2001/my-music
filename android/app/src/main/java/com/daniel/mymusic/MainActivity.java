@@ -24,18 +24,20 @@ public class MainActivity extends FlutterActivity {
   private static final String CHANNEL2 = "flutter.native/dominantColor";
   public static MethodChannel channel1;
   public static MethodChannel channel2;
+  private MediaNotificationManager mediaNotificationManager ;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     GeneratedPluginRegistrant.registerWith(this);
-    
+
     channel1 = new MethodChannel(getFlutterView(), CHANNEL1);
     channel1.setMethodCallHandler(new MethodChannel.MethodCallHandler() {
       @Override
       public void onMethodCall(MethodCall call, MethodChannel.Result result) {
         if (call.method.equals("startService")) {
-          StartService();
+          startService(new Intent(getApplicationContext(), AppCloseDetectorService.class));
+          mediaNotificationManager = new MediaNotificationManager(getApplicationContext());
           result.success(true);
         } else if (call.method.equals("makeNotification")) {
           String title = call.argument("title");
@@ -46,25 +48,24 @@ public class MainActivity extends FlutterActivity {
           boolean loadImage = call.argument("loadImage");
           if (loadImage) {
             try {
-              LoadImageFromUrl loadImageFromUrl=new LoadImageFromUrl(title, artist, imageUrl, getApplicationContext(), isPlaying, localPath, new AsyncResponse() { 
+              LoadImageFromUrl loadImageFromUrl = new LoadImageFromUrl(title, artist, imageUrl, getApplicationContext(), isPlaying, localPath, new AsyncResponse() { 
                 @Override 
                 public void processFinish(Bitmap bitmap) { 
                   if(bitmap !=null){
-                    NotificationService.makeNotification(title, artist, bitmap, getApplicationContext(), isPlaying, imageUrl);
+                    mediaNotificationManager.makeNotification(title, artist, bitmap, isPlaying, imageUrl, true);
                     Log.d("load Image Thread", "image loading success");
                   }else{
-                    NotificationService.makeNotification(title, artist, null, getApplicationContext(), isPlaying, imageUrl);
+                    mediaNotificationManager.makeNotification(title, artist, null, isPlaying, imageUrl, true);
                     Log.d("load Image Thread", "image loading failed");
                   }
                 } 
               }); 
               loadImageFromUrl.execute();
             } catch (Exception e) {
-              NotificationService.makeNotification(title, artist, null, getApplicationContext(), isPlaying, imageUrl);
+              mediaNotificationManager.makeNotification(title, artist, null, isPlaying, imageUrl, true);
             }
           } else {
-            NotificationService.makeNotification(title, artist, NotificationService.imageBitmap,
-                getApplicationContext(), isPlaying, imageUrl);
+            mediaNotificationManager.makeNotification(title, artist, null, isPlaying, imageUrl, false);
           }
         }else if (call.method.equals("removeNotification")) {
           NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -82,7 +83,7 @@ public class MainActivity extends FlutterActivity {
           boolean isLocal = call.argument("isLocal");
           if (isLocal) {
             try {
-              LoadImageFromUrl loadImageFromUrl = new LoadImageFromUrl(null, imagePath, new AsyncResponse() { 
+              new LoadImageFromUrl(null, imagePath, new AsyncResponse() { 
                 @Override 
                 public void processFinish(Bitmap bitmap) { 
                   if(bitmap !=null){
@@ -93,14 +94,13 @@ public class MainActivity extends FlutterActivity {
                     Log.d("load Image Thread", "image loading failed");
                   }
                 } 
-              }); 
-              loadImageFromUrl.execute();
+              }).execute(); 
             } catch (Exception e) {
               result.success(null);
             }
           } else {
             try {
-              LoadImageFromUrl loadImageFromUrl=new LoadImageFromUrl(imagePath, null, new AsyncResponse() { 
+              new LoadImageFromUrl(imagePath, null, new AsyncResponse() { 
                 @Override 
                 public void processFinish(Bitmap bitmap) { 
                   if(bitmap !=null){
@@ -111,8 +111,7 @@ public class MainActivity extends FlutterActivity {
                     Log.d("load Image Thread", "image loading failed");
                   }
                 } 
-              }); 
-              loadImageFromUrl.execute();
+              }).execute();
             } catch (Exception e) {
               result.success(null);
             }
@@ -120,12 +119,6 @@ public class MainActivity extends FlutterActivity {
         }
       }
     });
-  }
-
-  private void StartService() {
-    Intent serviceIntent = new Intent(getApplicationContext(), NotificationService.class);
-    serviceIntent.setAction(Constants.STARTFOREGROUND_ACTION);
-    startService(serviceIntent);
   }
 
   public static String getImageDominantColor(Bitmap bitmap) {
@@ -142,20 +135,16 @@ public class MainActivity extends FlutterActivity {
     if (paletteDominantColor == 0) {
       paletteDominantColor = palette.getDominantColor(0);
     }
-    if (paletteDominantColor != 0) {
-      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+    if (paletteDominantColor != 0 && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
         Color color = Color.valueOf(paletteDominantColor);
         int red = (int) (color.red() * 255);
         int green = (int) (color.green() * 255);
         int blue = (int) (color.blue() * 255);
         hex = String.format("#%02x%02x%02x", red, green, blue);
-      } else {
-        return null;
-      }
+        return hex;
     } else {
       return null;
     }
-    return hex;
   }
 
 }
