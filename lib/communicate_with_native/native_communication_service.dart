@@ -4,22 +4,20 @@ import 'package:flutter/services.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/song.dart';
 
-class MusicControlNotification {
-  static const platform = const MethodChannel('flutter.native/notifications');
+class NativeCommunicationService {
+  //static const _channel = const MethodChannel('com.daniel/myMusic')..setMethodCallHandler(_handlePlatformCalls);
+  static final MethodChannel _channel =
+      const MethodChannel('com.daniel/myMusic')
+        ..setMethodCallHandler(_handlePlatformCalls);
   static BuildContext context;
 
-  static Future<bool> startService(BuildContext contxt) async {
-    context = contxt;
-    bool response;
+  static Future<void> startService() async {
+    print("starting service");
     try {
-      final bool result = await platform.invokeMethod('startService');
-      response = result;
-      platform.setMethodCallHandler(_myUtilsHandler);
+      await _channel.invokeMethod('startService');
     } on PlatformException catch (e) {
       print("error invoking method from native: $e");
-      response = false;
     }
-    return response;
   }
 
   static Future<void> makeNotification(
@@ -28,7 +26,7 @@ class MusicControlNotification {
         "${GlobalVariables.manageLocalSongs.fullSongDownloadDir.path}/${song.songId}/${song.songId}.png";
     print("making notification");
     try {
-      await platform.invokeMethod('makeNotification', {
+      await _channel.invokeMethod('makeNotification', {
         "title": song.title,
         "artist": song.artist,
         "imageUrl": song.imageUrl,
@@ -44,13 +42,30 @@ class MusicControlNotification {
   static Future<void> removeNotification() async {
     print("removing notification");
     try {
-      await platform.invokeMethod('removeNotification');
+      await _channel.invokeMethod('removeNotification');
     } on PlatformException catch (e) {
       print("error invoking method from native: $e");
     }
   }
 
-  static Future<dynamic> _myUtilsHandler(MethodCall methodCall) async {
+  static Future<String> getDominantColor(
+      {String imagePath, bool isLocal}) async {
+    String response;
+    print("getting dominantColor");
+    try {
+      String result = await _channel.invokeMethod('getDominantColor', {
+        "imagePath": imagePath,
+        "isLocal": isLocal,
+      });
+      response = result;
+    } on PlatformException catch (e) {
+      print("error invoking method from native: $e");
+      response = null;
+    }
+    return response;
+  }
+
+  static Future<dynamic> _handlePlatformCalls(MethodCall methodCall) async {
     switch (methodCall.method) {
       case 'playOrPause':
         if (GlobalVariables.audioPlayerManager.isSongLoaded &&

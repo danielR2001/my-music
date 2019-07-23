@@ -2,7 +2,6 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/api/api_service.dart';
-import 'package:myapp/communicate_with_native/music_control_notification.dart';
 import 'package:myapp/database/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/managers/local_songs_manager.dart';
@@ -13,6 +12,8 @@ import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:myapp/managers/audio_player_manager.dart';
 import 'package:myapp/ui/pages/root_page.dart';
 import 'package:provider/provider.dart';
+
+import 'communicate_with_native/native_communication_service.dart';
 
 void main() => runApp(MyApp());
 
@@ -49,7 +50,7 @@ class MyApp extends StatelessWidget with PortraitModeMixin {
     FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
     FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
 
-    MusicControlNotification.startService(context);
+    NativeCommunicationService.startService();
     
     ConnectivityResult connectivityResult =
         await Connectivity().checkConnectivity();

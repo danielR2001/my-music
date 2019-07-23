@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/communicate_with_native/native_communication_service.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/communicate_with_native/music_control_notification.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/managers/toast_manager.dart';
 import 'package:provider/provider.dart';
@@ -81,10 +81,10 @@ class AudioPlayerManager {
             if (song.title == currentSong.title) {
               currentSong = song;
               if (audioPlayer.state == AudioPlayerState.PLAYING) {
-                MusicControlNotification.makeNotification(
+                NativeCommunicationService.makeNotification(
                     currentSong, true, true);
               } else {
-                MusicControlNotification.makeNotification(
+                NativeCommunicationService.makeNotification(
                     currentSong, false, true);
               }
             }
@@ -136,13 +136,13 @@ class AudioPlayerManager {
           isSongLoaded = true;
           songPosition = null;
           _firstSkippedSong = null;
-          MusicControlNotification.makeNotification(currentSong, false, true);
+          NativeCommunicationService.makeNotification(currentSong, false, true);
         }
       }
     } else {
       isSongLoaded = true;
       songPosition = null;
-      MusicControlNotification.makeNotification(currentSong, false, true);
+      NativeCommunicationService.makeNotification(currentSong, false, true);
     }
   }
 
@@ -166,27 +166,27 @@ class AudioPlayerManager {
       );
     }
     if (audioPlayerStatus == 1) {
-      MusicControlNotification.makeNotification(currentSong, true, true);
+      NativeCommunicationService.makeNotification(currentSong, true, true);
       isSongLoaded = true; 
     } else {
       closeSong(closeSongMode: CloseSongMode.partly);
       isSongLoaded = true;
       songPosition = null;
-      MusicControlNotification.makeNotification(currentSong, false, true);
+      NativeCommunicationService.makeNotification(currentSong, false, true);
     }
   }
 
   void resumeSong({@required bool calledFromNative}) {
     audioPlayer.resume();
     if (!calledFromNative) {
-      MusicControlNotification.makeNotification(currentSong, true, false);
+      NativeCommunicationService.makeNotification(currentSong, true, false);
     }
   }
 
   void pauseSong({@required bool calledFromNative}) {
     audioPlayer.pause();
     if (!calledFromNative) {
-      MusicControlNotification.makeNotification(currentSong, false, false);
+      NativeCommunicationService.makeNotification(currentSong, false, false);
     }
   }
 
@@ -360,10 +360,10 @@ class AudioPlayerManager {
       if (duration.inSeconds - songPosition.inSeconds == 1) {
         // if (songPosition.inSeconds % 5 == 0) {
         //   if (audioPlayer.state == AudioPlayerState.PLAYING) {
-        //     MusicControlNotification.makeNotification(
+        //     NativeCommunicationService.makeNotification(
         //         currentSong, true, false);
         //   } else {
-        //     MusicControlNotification.makeNotification(
+        //     NativeCommunicationService.makeNotification(
         //         currentSong, false, false);
         //   }
         // }
@@ -398,10 +398,10 @@ class AudioPlayerManager {
     _audioPlayerOnStateChangedStream =
         audioPlayer.onPlayerStateChanged.listen((state) {
       if (state == AudioPlayerState.PLAYING) {
-        MusicControlNotification.makeNotification(currentSong, true, false);
+        NativeCommunicationService.makeNotification(currentSong, true, false);
         audioPlayerState = AudioPlayerState.PLAYING;
       } else if (state == AudioPlayerState.PAUSED) {
-        MusicControlNotification.makeNotification(currentSong, false, false);
+        NativeCommunicationService.makeNotification(currentSong, false, false);
         audioPlayerState = AudioPlayerState.PAUSED;
       } else if (state == AudioPlayerState.STOPPED) {
         audioPlayerState = AudioPlayerState.STOPPED;

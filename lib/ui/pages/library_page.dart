@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/communicate_with_native/native_communication_service.dart';
 import 'package:myapp/managers/audio_player_manager.dart';
-import 'package:myapp/communicate_with_native/music_control_notification.dart';
 import 'package:myapp/database/authentication.dart';
 import 'package:myapp/database/database_manager.dart';
 import 'package:myapp/global_variables/global_variables.dart';
@@ -436,7 +436,7 @@ class _AccountPageState extends State<AccountPage> {
                           FirebaseAuthentication.signOut().then((a) {
                             GlobalVariables.audioPlayerManager.closeSong(
                                 closeSongMode: CloseSongMode.completely);
-                                MusicControlNotification.removeNotification();
+                                NativeCommunicationService.removeNotification();
                             GlobalVariables.currentUser = null;
                             Navigator.pushReplacement(
                                 context,

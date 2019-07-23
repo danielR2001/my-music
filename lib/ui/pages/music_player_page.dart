@@ -5,7 +5,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/communicate_with_native/get_image_dominant_color.dart';
+import 'package:myapp/communicate_with_native/native_communication_service.dart';
 import 'package:myapp/global_variables/global_variables.dart';
 import 'package:myapp/managers/audio_player_manager.dart';
 import 'package:myapp/ui/decorations/my_custom_icons.dart';
@@ -770,14 +770,14 @@ class MusicPageState extends State<MusicPlayerPage> {
           .checkIfSongFileExists(
               GlobalVariables.audioPlayerManager.currentSong);
       if (exists) {
-        dominantColor = await GetImageDominantColor.getDominantColor(
+        dominantColor = await NativeCommunicationService.getDominantColor(
             imagePath:
                 "${GlobalVariables.manageLocalSongs.fullSongDownloadDir.path}/${GlobalVariables.audioPlayerManager.currentSong.songId}/${GlobalVariables.audioPlayerManager.currentSong.songId}.png",
             isLocal: true);
       } else {
         if (connectivityResult == ConnectivityResult.mobile ||
             connectivityResult == ConnectivityResult.wifi) {
-          dominantColor = await GetImageDominantColor.getDominantColor(
+          dominantColor = await NativeCommunicationService.getDominantColor(
               imagePath:
                   GlobalVariables.audioPlayerManager.currentSong.imageUrl,
               isLocal: false);
