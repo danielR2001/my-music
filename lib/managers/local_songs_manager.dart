@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/custom_classes/custom_colors.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/managers/toast_manager.dart';

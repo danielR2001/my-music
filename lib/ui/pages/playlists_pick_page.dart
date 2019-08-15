@@ -4,7 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/managers/audio_player_manager.dart';
 import 'package:myapp/database/database_manager.dart';
-import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/custom_classes/custom_colors.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/managers/toast_manager.dart';

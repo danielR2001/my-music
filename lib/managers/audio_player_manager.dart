@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/communicate_with_native/native_communication_service.dart';
-import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
@@ -56,7 +56,6 @@ class AudioPlayerManager {
     _listenIfCompleted();
     _listenForStateChanges();
   }
-  //! TODO isSongActuallyPlaying notify
   Future<void> initSong(
       {@required Song song,
       @required Playlist playlist,
@@ -167,7 +166,7 @@ class AudioPlayerManager {
     }
     if (audioPlayerStatus == 1) {
       NativeCommunicationService.makeNotification(currentSong, true, true);
-      isSongLoaded = true; 
+      isSongLoaded = true;
     } else {
       closeSong(closeSongMode: CloseSongMode.partly);
       isSongLoaded = true;
@@ -355,19 +354,18 @@ class AudioPlayerManager {
   void _listenForPositionChanged() {
     _audioPlayerOnPositionChangedStream =
         audioPlayer.onAudioPositionChanged.listen((duration) {
+      if (songPosition.inSeconds % 5 == 0 &&
+          duration.inSeconds != songPosition.inSeconds) {
+        if (audioPlayer.state == AudioPlayerState.PLAYING) {
+          NativeCommunicationService.makeNotification(currentSong, true, false);
+        } else {
+          NativeCommunicationService.makeNotification(
+              currentSong, false, false);
+        }
+      }
+
       songPosition = duration;
       isSongActuallyPlaying = true;
-      if (duration.inSeconds - songPosition.inSeconds == 1) {
-        // if (songPosition.inSeconds % 5 == 0) {
-        //   if (audioPlayer.state == AudioPlayerState.PLAYING) {
-        //     NativeCommunicationService.makeNotification(
-        //         currentSong, true, false);
-        //   } else {
-        //     NativeCommunicationService.makeNotification(
-        //         currentSong, false, false);
-        //   }
-        // }
-      }
     });
   }
 

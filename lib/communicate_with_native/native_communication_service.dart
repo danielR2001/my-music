@@ -1,11 +1,10 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/custom_classes/custom_colors.dart';
 import 'package:myapp/models/song.dart';
 
 class NativeCommunicationService {
-  //static const _channel = const MethodChannel('com.daniel/myMusic')..setMethodCallHandler(_handlePlatformCalls);
   static final MethodChannel _channel =
       const MethodChannel('com.daniel/myMusic')
         ..setMethodCallHandler(_handlePlatformCalls);
@@ -22,16 +21,23 @@ class NativeCommunicationService {
 
   static Future<void> makeNotification(
       Song song, bool isPlaying, bool loadImage) async {
-    String localPath =
-        "${GlobalVariables.manageLocalSongs.fullSongDownloadDir.path}/${song.songId}/${song.songId}.png";
+    String imageUrl;
+    bool isLocal =
+        await GlobalVariables.manageLocalSongs.checkIfImageFileExists(song);
+    if (isLocal) {
+      imageUrl =
+          "${GlobalVariables.manageLocalSongs.fullSongDownloadDir.path}/${song.songId}/${song.songId}.png";
+    } else {
+      imageUrl = song.imageUrl;
+    }
     print("making notification");
     try {
       await _channel.invokeMethod('makeNotification', {
         "title": song.title,
         "artist": song.artist,
-        "imageUrl": song.imageUrl,
+        "imageUrl": imageUrl,
         "isPlaying": isPlaying,
-        "localPath": localPath,
+        "isLocal": isLocal,
         "loadImage": loadImage,
       });
     } on PlatformException catch (e) {

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/user.dart';

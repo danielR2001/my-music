@@ -34,87 +34,68 @@ public class MainActivity extends FlutterActivity {
       @Override
       public void onMethodCall(MethodCall call, MethodChannel.Result result) {
         switch (call.method) {
-          case "startService": {
-            startService(new Intent(getApplicationContext(), AppCloseDetectorService.class));
-            mediaNotificationManager = new MediaNotificationManager(getApplicationContext());
-            break;
-          }
-          case "makeNotification": {
-            String title = call.argument("title");
-            String artist = call.argument("artist");
-            String imageUrl = call.argument("imageUrl");
-            boolean isPlaying = call.argument("isPlaying");
-            String localPath = call.argument("localPath");
-            boolean loadImage = call.argument("loadImage");
-            if (loadImage) {
-              try {
-                new LoadImageFromUrl(title, artist, imageUrl, getApplicationContext(), isPlaying, localPath,
-                    new AsyncResponse() {
-                      @Override
-                      public void processFinish(Bitmap bitmap) {
-                        if (bitmap != null) {
-                          mediaNotificationManager.makeNotification(title, artist, bitmap, isPlaying, imageUrl, true);
-                          Log.d("load Image Thread", "image loading success");
-                        } else {
-                          mediaNotificationManager.makeNotification(title, artist, null, isPlaying, imageUrl, true);
-                          Log.d("load Image Thread", "image loading failed");
-                        }
-                      }
-                    }).execute();
-              } catch (Exception e) {
-                mediaNotificationManager.makeNotification(title, artist, null, isPlaying, imageUrl, true);
-              }
-            } else {
-              mediaNotificationManager.makeNotification(title, artist, null, isPlaying, imageUrl, false);
-            }
-            break;
-          }
-          case "removeNotification": {
-            NotificationManager mNotificationManager = (NotificationManager) getSystemService(
-                Context.NOTIFICATION_SERVICE);
-            mNotificationManager.cancel(0);
-            break;
-          }
-          case "getDominantColor": {
-            String imagePath = call.argument("imagePath");
-            boolean isLocal = call.argument("isLocal");
-            if (isLocal) {
-              try {
-                new LoadImageFromUrl(null, imagePath, new AsyncResponse() {
-                  @Override
-                  public void processFinish(Bitmap bitmap) {
-                    if (bitmap != null) {
-                      result.success(getImageDominantColor(bitmap));
-                      Log.d("load Image Thread", "image loading success");
-                    } else {
-                      result.success(null);
-                      Log.d("load Image Thread", "image loading failed");
-                    }
+        case "startService": {
+          startService(new Intent(getApplicationContext(), AppCloseDetectorService.class));
+          mediaNotificationManager = new MediaNotificationManager(getApplicationContext());
+          break;
+        }
+        case "makeNotification": {
+          String title = call.argument("title");
+          String artist = call.argument("artist");
+          String imageUrl = call.argument("imageUrl");
+          boolean isPlaying = call.argument("isPlaying");
+          boolean isLocal = call.argument("isLocal");
+          boolean loadImage = call.argument("loadImage");
+          if (loadImage) {
+            try {
+              new LoadImageFromUrl(imageUrl, isLocal, new AsyncResponse() {
+                @Override
+                public void processFinish(Bitmap bitmap) {
+                  if (bitmap != null) {
+                    mediaNotificationManager.makeNotification(title, artist, bitmap, isPlaying, imageUrl, true);
+                    Log.d("load Image Thread", "image loading success");
+                  } else {
+                    mediaNotificationManager.makeNotification(title, artist, null, isPlaying, imageUrl, true);
+                    Log.d("load Image Thread", "image loading failed");
                   }
-                }).execute();
-              } catch (Exception e) {
-                result.success(null);
-              }
-            } else {
-              try {
-                new LoadImageFromUrl(imagePath, null, new AsyncResponse() {
-                  @Override
-                  public void processFinish(Bitmap bitmap) {
-                    if (bitmap != null) {
-                      result.success(getImageDominantColor(bitmap));
-                      Log.d("load Image Thread", "image loading success");
-                    } else {
-                      result.success(null);
-                      Log.d("load Image Thread", "image loading failed");
-                    }
-                  }
-                }).execute();
-              } catch (Exception e) {
-                result.success(null);
-              }
+                }
+              }).execute();
+            } catch (Exception e) {
+              mediaNotificationManager.makeNotification(title, artist, null, isPlaying, imageUrl, true);
             }
-            break;
+          } else {
+            mediaNotificationManager.makeNotification(title, artist, null, isPlaying, imageUrl, false);
           }
+          break;
+        }
+        case "removeNotification": {
+          NotificationManager mNotificationManager = (NotificationManager) getSystemService(
+              Context.NOTIFICATION_SERVICE);
+          mNotificationManager.cancel(0);
+          break;
+        }
+        case "getDominantColor": {
+          String imagePath = call.argument("imagePath");
+          boolean isLocal = call.argument("isLocal");
+          try {
+            new LoadImageFromUrl(imagePath, isLocal, new AsyncResponse() {
+              @Override
+              public void processFinish(Bitmap bitmap) {
+                if (bitmap != null) {
+                  result.success(getImageDominantColor(bitmap));
+                  Log.d("load Image Thread", "image loading success");
+                } else {
+                  result.success(null);
+                  Log.d("load Image Thread", "image loading failed");
+                }
+              }
+            }).execute();
+          } catch (Exception e) {
+            result.success(null);
+          }
+
+          break;
+        }
         }
       }
     });

@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/managers/audio_player_manager.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/ui/decorations/my_custom_icons.dart';
+import 'package:myapp/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
@@ -579,7 +579,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
   }
 
   void checkForIntenetConnetionForNetworkImage() {
-    if (widget.playlist.songs.length > 0) {
+    if (widget.playlist.songs.length > 0 && widget.playlist.songs[0].imageUrl != "") {
       GlobalVariables.manageLocalSongs
           .checkIfImageFileExists(widget.playlist.songs[0])
           .then((exists) {
@@ -598,6 +598,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
             });
           }
         }
+      });
+    }else{
+      setState(() {
+        imageProvider = null;
       });
     }
   }

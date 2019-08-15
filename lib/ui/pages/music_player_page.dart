@@ -6,9 +6,9 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/communicate_with_native/native_communication_service.dart';
-import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/custom_classes/custom_colors.dart';
 import 'package:myapp/managers/audio_player_manager.dart';
-import 'package:myapp/ui/decorations/my_custom_icons.dart';
+import 'package:myapp/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'package:flip_card/flip_card.dart';
@@ -721,7 +721,6 @@ class MusicPageState extends State<MusicPlayerPage> {
     }
   }
 
-  //! TODO remove this method
   void checkForIntenetConnetionForNetworkImage() {
     generateBackgroundColors();
     if (GlobalVariables.audioPlayerManager.currentSong.imageUrl != "") {

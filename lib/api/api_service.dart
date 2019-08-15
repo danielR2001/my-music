@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:html/dom.dart' as html;
-import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/custom_classes/custom_colors.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:html/parser.dart' show parse;
@@ -22,23 +22,23 @@ class ApiService {
   static final String artistImageUrl =
       "https://ichef.bbci.co.uk/images/ic/960x540/";
 
-  bool searchCompleted = true;
-  CancelToken songSearchCancelToken = CancelToken(); //TODO add cancel search
+  bool _searchCompleted = true;
+  CancelToken _songSearchCancelToken = CancelToken(); 
 
   Future<List<Song>> getSearchResults(String searchStr) async {
-    if (!searchCompleted) {
-      songSearchCancelToken.cancel("cancelled");
-      songSearchCancelToken = CancelToken();
+    if (!_searchCompleted) {
+      _songSearchCancelToken.cancel("cancelled");
+      _songSearchCancelToken = CancelToken();
     }
-    searchCompleted = false;
+    _searchCompleted = false;
     var responseList;
     try {
       Response response = await Dio().get(
         searchUrl + searchStr,
-        cancelToken: songSearchCancelToken,
+        cancelToken: _songSearchCancelToken,
       );
       print('Search For Results completed');
-      searchCompleted = true;
+      _searchCompleted = true;
       var elements = parse(response.data)?.getElementsByClassName("list-view");
       var html = elements[0].outerHtml;
       html = html.replaceAll('\n', '');
@@ -49,13 +49,13 @@ class ApiService {
       if (e.message == "cancelled") {
         return List();
       }
-      searchCompleted = true;
+      _searchCompleted = true;
       return null;
     } catch (e) {
       print(e);
       GlobalVariables.toastManager
           .makeToast(text: ToastManager.somethingWentWrong);
-      searchCompleted = true;
+      _searchCompleted = true;
       return null;
     }
   }

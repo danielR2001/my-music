@@ -5,11 +5,11 @@ import 'package:myapp/communicate_with_native/native_communication_service.dart'
 import 'package:myapp/managers/audio_player_manager.dart';
 import 'package:myapp/database/authentication.dart';
 import 'package:myapp/database/database_manager.dart';
-import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/ui/decorations/my_custom_icons.dart';
+import 'package:myapp/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/welcome_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:provider/provider.dart';
@@ -322,7 +322,7 @@ class _AccountPageState extends State<AccountPage> {
     }
     return name;
   }
-  //! TODO remove this method
+  
   void checkForIntenetConnetionForNetworkImage() {
     if (!GlobalVariables.isOfflineMode) {
       GlobalVariables.currentUser.playlists.forEach((playlist) {

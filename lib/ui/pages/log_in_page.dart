@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:myapp/database/authentication.dart';
 import 'package:myapp/database/database_manager.dart';
-import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/custom_classes/custom_colors.dart';
 import 'package:myapp/ui/pages/root_page.dart';
 import 'home_page.dart';
 

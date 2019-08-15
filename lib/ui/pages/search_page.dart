@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/managers/audio_player_manager.dart';
@@ -146,7 +146,6 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget drawSearchBar() {
-    //! TODO fix bug
     return Flexible(
       child: Container(
         child: TextField(

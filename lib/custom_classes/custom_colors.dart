@@ -6,7 +6,7 @@ import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/managers/toast_manager.dart';
 
-class GlobalVariables{
+class GlobalVariables{ //! Change to CustomColors
   static const Color lightGreyColor = Color(0xFF222222);
   static const Color lightDarkGreyColor = Color(0xFF202021);
   static const Color darkGreyColor = Color(0xFF0f0f0f);

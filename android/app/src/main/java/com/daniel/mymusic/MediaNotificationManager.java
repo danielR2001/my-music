@@ -18,7 +18,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 public class MediaNotificationManager {
-    private final int notificationId = 0;
+    private final int notificationId = 1;
     private final String CHANNEL_ID = "Playback";
     private final int[] iconInts = { R.drawable.ic_pause, R.drawable.ic_play };
 
@@ -59,7 +59,7 @@ public class MediaNotificationManager {
         nextIntent.setAction(Constants.NEXT_ACTION);
         pnextIntent = PendingIntent.getBroadcast(this.context, 1, nextIntent, 0);
 
-        mediaSession = new MediaSessionCompat(this.context, "playback", null, null);//// mediaButtonReceiver, null);
+        mediaSession = new MediaSessionCompat(this.context, "playback");//// mediaButtonReceiver, null);
         //// ComponentName mediaButtonReceiver = new ComponentName(this
         //// ,RemoteControlReceiver.class);
         //// mediaSession.setCallback(new MediaSessionCompat.Callback() {
@@ -111,29 +111,47 @@ public class MediaNotificationManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CreateNotificationChannel();
             notificationManagerForOreo = NotificationManagerCompat.from(this.context);
-            notification = new NotificationCompat.Builder(this.context, CHANNEL_ID).setContentTitle(title)
-                    .setContentText(artist).setSmallIcon(R.drawable.app_logo_no_background)
-                    .setLargeIcon(this.imageBitmap).setShowWhen(false)
-                    .addAction(R.drawable.ic_previous, "", pprevIntent).addAction(iconInts[this.index], "", pplayIntent)
+            notification = new NotificationCompat.Builder(this.context, CHANNEL_ID)
+                    .setContentTitle(title)
+                    .setContentText(artist)
+                    .setSmallIcon(R.drawable.app_logo_no_background)
+                    .setLargeIcon(this.imageBitmap)
+                    .setShowWhen(false)
+                    .addAction(R.drawable.ic_previous, "", pprevIntent)
+                    .addAction(iconInts[this.index], "", pplayIntent)
                     .addAction(R.drawable.ic_next, "", pnextIntent)
                     .setStyle(new androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle()
                             .setShowActionsInCompactView(0, 1, 2).setMediaSession(mediaSession.getSessionToken()))
-                    .setContentIntent(pendingIntent).setTimeoutAfter(1800000).setColorized(true)
-                    .setCategory(Notification.CATEGORY_TRANSPORT).setWhen(System.currentTimeMillis()).build();
+                    .setContentIntent(pendingIntent)
+                    .setTimeoutAfter(1800000)
+                    .setColorized(true)
+                    .setPriority(notificationManager.IMPORTANCE_HIGH)
+                    .setCategory(Notification.CATEGORY_CALL)
+                    .setWhen(System.currentTimeMillis())
+                    .setOngoing(isPlaying)
+                    .build();
 
         } else {
             notificationManager = (NotificationManager) this.context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notification = new NotificationCompat.Builder(context).setContentTitle(title).setContentText(artist)
-                    .setSmallIcon(R.drawable.app_logo_no_background).setLargeIcon(this.imageBitmap).setSound(null)
-                    .setShowWhen(false).setColor(this.context.getResources().getColor(R.color.pink))
+            notification = new NotificationCompat.Builder(context)
+                    .setContentTitle(title)
+                    .setContentText(artist)
+                    .setSmallIcon(R.drawable.app_logo_no_background)
+                    .setLargeIcon(this.imageBitmap)
+                    .setSound(null)
+                    .setShowWhen(false).setColor(this.context.getResources()
+                    .getColor(R.color.pink))
                     .addAction(R.drawable.ic_previous, "Previous", pprevIntent)
                     .addAction(iconInts[index], index == 0 ? "Pause" : "Play", pplayIntent)
-                    .addAction(R.drawable.ic_next, "Next", pnextIntent).setContentIntent(pendingIntent)
-                    .setTimeoutAfter(1800000).setCategory(Notification.CATEGORY_TRANSPORT)
-                    .setWhen(System.currentTimeMillis()).setPriority(notificationManager.IMPORTANCE_MAX).build();
-        }
-        if (isPlaying) {
-            notification.flags |= Notification.FLAG_ONGOING_EVENT;
+                    .addAction(R.drawable.ic_next, "Next", pnextIntent)
+                    .setContentIntent(pendingIntent)
+                    .setTimeoutAfter(1800000)
+                    .setPriority(notificationManager.IMPORTANCE_HIGH)
+                    .setCategory(Notification.CATEGORY_CALL)
+                    .setWhen(System.currentTimeMillis())
+                    .setOngoing(isPlaying)
+                    .build();
+            
         }
         // startForeground(0, notification);
         notificationManager.notify(notificationId, notification);

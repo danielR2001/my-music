@@ -127,6 +127,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_exoplayer:
+    dependency: "direct main"
+    description:
+      name: flutter_exoplayer
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.2"
   flutter_statusbarcolor:
     dependency: "direct main"
     description:

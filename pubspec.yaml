@@ -26,6 +26,7 @@ dependencies:
   flip_card: ^0.3.0
   marquee_widget: ^0.7.7
   connectivity: ^0.4.3+4
+  flutter_exoplayer: ^0.0.2
 
 dev_dependencies:
   flutter_test:

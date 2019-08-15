@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/custom_classes/custom_colors.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/ui/decorations/my_custom_icons.dart';
+import 'package:myapp/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/widgets/buttom_navigation_bar.dart';
 import 'package:myapp/ui/widgets/sound_bar.dart';
 import 'package:myapp/tab_navigation/tab_navigator.dart';

@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/api/api_service.dart';
 import 'package:myapp/database/database_manager.dart';
-import 'package:myapp/global_variables/global_variables.dart';
+import 'package:myapp/custom_classes/custom_colors.dart';
 import 'package:myapp/managers/local_songs_manager.dart';
 import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:myapp/managers/toast_manager.dart';
