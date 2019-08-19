@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:myapp/custom_classes/custom_colors.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'sign_up_page.dart';
-import 'log_in_page.dart';
+import 'login_page.dart';
 
 class WelcomePage extends StatelessWidget {
   final List<String> quotes = [
@@ -41,7 +41,7 @@ class WelcomePage extends StatelessWidget {
           gradient: LinearGradient(
             colors: [
               Colors.deepPurple,
-              GlobalVariables.pinkColor,
+              CustomColors.pinkColor,
             ],
             begin: FractionalOffset.bottomRight,
             stops: [0.4, 1.0],
@@ -65,7 +65,7 @@ class WelcomePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 drawLoginButton(context),
-                drawSignInButton(context),
+                drawSignUpButton(context),
               ],
             ),
           ],
@@ -142,11 +142,10 @@ class WelcomePage extends StatelessWidget {
       ),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LogInPage(),
-              ));
+        Navigator.pushNamed(
+          context,
+          "/login",
+        );
         },
         child: Container(
           alignment: Alignment.center,
@@ -168,7 +167,7 @@ class WelcomePage extends StatelessWidget {
     );
   }
 
-  Widget drawSignInButton(BuildContext context) {
+  Widget drawSignUpButton(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
         left: 40.0,
@@ -178,17 +177,16 @@ class WelcomePage extends StatelessWidget {
       ),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SignUpPage(),
-              ));
+        Navigator.pushNamed(
+          context,
+          "/signup",
+        );
         },
         child: Container(
           alignment: Alignment.center,
           height: 60.0,
           decoration: BoxDecoration(
-            color: GlobalVariables.pinkColor,
+            color: CustomColors.pinkColor,
             borderRadius: BorderRadius.circular(40.0),
           ),
           child: Text(

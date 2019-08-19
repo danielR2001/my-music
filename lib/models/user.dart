@@ -7,6 +7,7 @@ class User {
   List<Playlist> _myPlaylists;
   Playlist _downloadedSongsPlaylist;
   String _userPushId;
+  bool _isOfflineMode;
 
   User(String name, String firebaseUId, {String userPushId}) {
     _name = name;
@@ -15,6 +16,13 @@ class User {
     _downloadedSongsPlaylist = Playlist("Downloaded");
     _userPushId = userPushId;
   }
+
+  User.initial()
+      : _firebaseUid = '',
+        _name = '',
+        _myPlaylists = List<Playlist>(),
+        _downloadedSongsPlaylist = Playlist("Downloaded"),
+        _userPushId = '';
 
   User.fromJson(Map values) {
     _name = values['userName'];
@@ -40,6 +48,8 @@ class User {
 
   String get userPushId => _userPushId;
 
+  bool get isOfflineMode => _isOfflineMode;
+
   set setName(String value) => _name = value;
 
   set setFirebaseUId(String value) => _firebaseUid = value;
@@ -49,6 +59,8 @@ class User {
   set setDownloadedSongs(Playlist value) => _downloadedSongsPlaylist = value;
 
   set setUserPushId(String value) => _userPushId = value;
+
+  set setIsOfflineMode(bool value) => _isOfflineMode = value;
 
   addSongToDownloadedPlaylist(Song value) =>
       _downloadedSongsPlaylist.songs.add(value);

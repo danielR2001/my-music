@@ -1,13 +1,12 @@
 import 'dart:async';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/custom_classes/custom_colors.dart';
-import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/custom_classes/custom_icons.dart';
+import 'package:myapp/core/view_models/page_models/home_model.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
+import 'package:myapp/ui/custom_classes/custom_icons.dart';
+import 'package:myapp/ui/pages/base_page.dart';
 import 'package:myapp/ui/widgets/buttom_navigation_bar.dart';
 import 'package:myapp/ui/widgets/sound_bar.dart';
-import 'package:myapp/tab_navigation/tab_navigator.dart';
-import 'package:provider/provider.dart';
+import 'package:myapp/core/tab_navigation/tab_navigator.dart';
 import 'music_player_page.dart';
 import 'package:myapp/ui/widgets/text_style.dart';
 
@@ -17,6 +16,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  HomeModel _model;
   Icon musicPlayerIcon = Icon(
     MyCustomIcons.pause_icon,
     color: Colors.white,
@@ -51,12 +51,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    GlobalVariables.homePageContext = context;
-    return ChangeNotifierProvider<PageNotifier>(
-      builder: (BuildContext context) {
-        return PageNotifier();
-      },
-      child: WillPopScope(
+    CustomColors.homePageContext = context;
+    return BasePage<HomeModel>(
+      onModelReady: (model) => _model = model,
+      builder: (context, model, child) => WillPopScope(
         onWillPop: () async {
           if (navigatorKeys[currentTab].currentState.canPop()) {
             await navigatorKeys[currentTab].currentState.maybePop();
@@ -70,7 +68,7 @@ class _HomePageState extends State<HomePage> {
           ]),
           bottomNavigationBar: Theme(
             data: Theme.of(context).copyWith(
-              canvasColor: GlobalVariables.lightGreyColor,
+              canvasColor: CustomColors.lightGreyColor,
               textTheme: Theme.of(context).textTheme.copyWith(
                     caption: TextStyle(
                       color: Colors.grey,
@@ -105,11 +103,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget musicPlayerControl() {
-    if (GlobalVariables.audioPlayerManager.currentSong != null) {
+    if (CustomColors.audioPlayerManager.currentSong != null) {
       return GestureDetector(
           child: Container(
             decoration: BoxDecoration(
-              color: GlobalVariables.lightGreyColor,
+              color: CustomColors.lightGreyColor,
               border: Border(
                 bottom: BorderSide(color: Colors.black, width: 0.5),
               ),
@@ -117,7 +115,7 @@ class _HomePageState extends State<HomePage> {
             height: 45,
             child: Row(
               children: <Widget>[
-                GlobalVariables.audioPlayerManager.audioPlayerState ==
+                CustomColors.audioPlayerManager.audioPlayerState ==
                         AudioPlayerState.PLAYING
                     ? drawPlayingSoundBar()
                     : drawPausedSoundBar(),
@@ -132,7 +130,7 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           TextDecoration(
-                            txt: GlobalVariables
+                            txt: CustomColors
                                 .audioPlayerManager.currentSong.title,
                             size: 14,
                             color: Colors.white,
@@ -142,7 +140,7 @@ class _HomePageState extends State<HomePage> {
                             makeBold: true,
                           ),
                           TextDecoration(
-                            txt: GlobalVariables
+                            txt: CustomColors
                                 .audioPlayerManager.currentSong.artist,
                             size: 14,
                             color: Colors.grey,
@@ -158,23 +156,23 @@ class _HomePageState extends State<HomePage> {
                 ),
                 Expanded(
                   child: IconButton(
-                    icon: GlobalVariables.audioPlayerManager.audioPlayerState ==
+                    icon: CustomColors.audioPlayerManager.audioPlayerState ==
                             AudioPlayerState.PLAYING
                         ? drawPauseIcon()
                         : drawPlayIcon(),
                     iconSize: 20,
                     onPressed: () {
-                      if (GlobalVariables.audioPlayerManager.isSongLoaded &&
-                          GlobalVariables
+                      if (CustomColors.audioPlayerManager.isSongLoaded &&
+                          CustomColors
                               .audioPlayerManager.isSongActuallyPlaying) {
-                        GlobalVariables.audioPlayerManager.audioPlayer.state ==
+                        CustomColors.audioPlayerManager.audioPlayer.state ==
                                 AudioPlayerState.PLAYING
-                            ? GlobalVariables.audioPlayerManager
+                            ? CustomColors.audioPlayerManager
                                 .pauseSong(calledFromNative: false)
-                            : GlobalVariables
+                            : CustomColors
                                         .audioPlayerManager.audioPlayer.state ==
                                     AudioPlayerState.PAUSED
-                                ? GlobalVariables.audioPlayerManager
+                                ? CustomColors.audioPlayerManager
                                     .resumeSong(calledFromNative: false)
                                 : playSong();
                       }
@@ -263,7 +261,7 @@ class _HomePageState extends State<HomePage> {
 
   //* methods
   void initSong() {
-    stateStream = GlobalVariables
+    stateStream = CustomColors
         .audioPlayerManager.audioPlayer.onPlayerStateChanged
         .listen(
       (AudioPlayerState state) {
@@ -273,10 +271,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void playSong() {
-    GlobalVariables.audioPlayerManager.initSong(
-      song: GlobalVariables.audioPlayerManager.currentSong,
-      playlist: GlobalVariables.audioPlayerManager.currentPlaylist,
-      mode: GlobalVariables.audioPlayerManager.playlistMode,
+    CustomColors.audioPlayerManager.initSong(
+      song: CustomColors.audioPlayerManager.currentSong,
+      playlist: CustomColors.audioPlayerManager.currentPlaylist,
+      mode: CustomColors.audioPlayerManager.playlistMode,
     );
   }
 }

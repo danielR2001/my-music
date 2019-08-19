@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:html/dom.dart' as html;
-import 'package:myapp/custom_classes/custom_colors.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:dio/dio.dart';
-import 'package:myapp/managers/toast_manager.dart';
+import 'package:myapp/core/utils/toast.dart';
 
-class ApiService {
+class ApiManager {
   static final String searchUrl = 'https://mp3-tut.com/search?query=';
   static final String siteUrl = 'https://mp3-tut.com';
   static final String playUrl = 'https://music.xn--41a.ws';
@@ -23,7 +23,7 @@ class ApiService {
       "https://ichef.bbci.co.uk/images/ic/960x540/";
 
   bool _searchCompleted = true;
-  CancelToken _songSearchCancelToken = CancelToken(); 
+  CancelToken _songSearchCancelToken = CancelToken();
 
   Future<List<Song>> getSearchResults(String searchStr) async {
     if (!_searchCompleted) {
@@ -53,7 +53,7 @@ class ApiService {
       return null;
     } catch (e) {
       print(e);
-      GlobalVariables.toastManager
+      CustomColors.toastManager
           .makeToast(text: ToastManager.somethingWentWrong);
       _searchCompleted = true;
       return null;
@@ -87,18 +87,19 @@ class ApiService {
       return streamUrl;
     } on DioError catch (e) {
       print(e);
-      GlobalVariables.toastManager
+      CustomColors.toastManager
           .makeToast(text: ToastManager.noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      GlobalVariables.toastManager
+      CustomColors.toastManager
           .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }
   }
 
-  Future<String> getSongImageUrl(Song song, bool secondTry) async {
+  Future<String> getSongImageUrl(Song song, {bool secondTry = false}) async {
+    secondTry ??= false;
     String imageUrl;
     String tempTitle = song.title;
     tempTitle = _editSearchParams(tempTitle, true, true);
@@ -115,19 +116,19 @@ class ApiService {
         return _getImageUrlFromResponse(list);
       } else {
         if (!secondTry) {
-          return getSongImageUrl(song, true);
+          return getSongImageUrl(song, secondTry: true);
         } else {
           return null;
         }
       }
     } on DioError catch (e) {
       print(e);
-      GlobalVariables.toastManager
+      CustomColors.toastManager
           .makeToast(text: ToastManager.badNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      GlobalVariables.toastManager
+      CustomColors.toastManager
           .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }
@@ -152,12 +153,12 @@ class ApiService {
       }
     } on DioError catch (e) {
       print(e);
-      GlobalVariables.toastManager
+      CustomColors.toastManager
           .makeToast(text: ToastManager.noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      GlobalVariables.toastManager
+      CustomColors.toastManager
           .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }
@@ -189,12 +190,12 @@ class ApiService {
       }
     } on DioError catch (e) {
       print(e);
-      GlobalVariables.toastManager
+      CustomColors.toastManager
           .makeToast(text: ToastManager.noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      GlobalVariables.toastManager
+      CustomColors.toastManager
           .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }
@@ -208,12 +209,12 @@ class ApiService {
       return _buildLyrics(document);
     } on DioError catch (e) {
       print(e);
-      GlobalVariables.toastManager
+      CustomColors.toastManager
           .makeToast(text: ToastManager.noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      GlobalVariables.toastManager
+      CustomColors.toastManager
           .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }

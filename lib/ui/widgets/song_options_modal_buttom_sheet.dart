@@ -1,14 +1,13 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/database/database_manager.dart';
-import 'package:myapp/custom_classes/custom_colors.dart';
+import 'package:myapp/core/database/firebase/database_manager.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/managers/toast_manager.dart';
-import 'package:myapp/custom_classes/custom_icons.dart';
+import 'package:myapp/core/utils/toast.dart';
+import 'package:myapp/ui/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/artists_pick_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
@@ -38,11 +37,11 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   @override
   void initState() {
     super.initState();
-    if (GlobalVariables.isNetworkAvailable) {
+    if (CustomColors.isNetworkAvailable) {
       if (widget.song.imageUrl != "") {
         checkForIntenetConnetionForNetworkImage();
       } else {
-        GlobalVariables.apiService
+        CustomColors.apiService
             .getSongImageUrl(widget.song, false)
             .then((imageUrl) {
           if (mounted) {
@@ -80,7 +79,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
         borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20.0),
             topRight: const Radius.circular(20.0)),
-        color: GlobalVariables.lightGreyColor,
+        color: CustomColors.lightGreyColor,
       ),
       child: Column(
         children: <Widget>[
@@ -158,8 +157,8 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            GlobalVariables.lightGreyColor,
-            GlobalVariables.darkGreyColor,
+            CustomColors.lightGreyColor,
+            CustomColors.darkGreyColor,
           ],
           begin: FractionalOffset.bottomLeft,
           stops: [0.3, 0.8],
@@ -176,7 +175,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
       child: widget.song.imageUrl.length == 0 || imageProvider == null
           ? Icon(
               Icons.music_note,
-              color: GlobalVariables.pinkColor,
+              color: CustomColors.pinkColor,
               size: 40,
             )
           : Image(
@@ -211,29 +210,29 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
               FirebaseDatabaseManager.removeSongFromPlaylist(
                   widget.playlist, widget.song);
               widget.playlist.removeSong(widget.song);
-              Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+              Provider.of<PageNotifier>(CustomColors.homePageContext)
                   .setCurrentPlaylistPagePlaylist = widget.playlist;
-              GlobalVariables.currentUser.updatePlaylist(widget.playlist);
-              if (GlobalVariables.audioPlayerManager.currentPlaylist != null) {
-                if (GlobalVariables.audioPlayerManager.currentPlaylist.pushId ==
+              CustomColors.currentUser.updatePlaylist(widget.playlist);
+              if (CustomColors.audioPlayerManager.currentPlaylist != null) {
+                if (CustomColors.audioPlayerManager.currentPlaylist.pushId ==
                     widget.playlist.pushId) {
                   if (widget.playlist.songs.length == 0) {
-                    GlobalVariables.audioPlayerManager.loopPlaylist = null;
-                    GlobalVariables.audioPlayerManager.shuffledPlaylist = null;
-                    GlobalVariables.audioPlayerManager.currentPlaylist = null;
+                    CustomColors.audioPlayerManager.loopPlaylist = null;
+                    CustomColors.audioPlayerManager.shuffledPlaylist = null;
+                    CustomColors.audioPlayerManager.currentPlaylist = null;
                   } else {
-                    if (GlobalVariables.audioPlayerManager.currentSong.songId ==
+                    if (CustomColors.audioPlayerManager.currentSong.songId ==
                         widget.song.songId) {
-                      GlobalVariables.audioPlayerManager.loopPlaylist = null;
-                      GlobalVariables.audioPlayerManager.shuffledPlaylist =
+                      CustomColors.audioPlayerManager.loopPlaylist = null;
+                      CustomColors.audioPlayerManager.shuffledPlaylist =
                           null;
-                      GlobalVariables.audioPlayerManager.currentPlaylist = null;
+                      CustomColors.audioPlayerManager.currentPlaylist = null;
                     } else {
-                      GlobalVariables.audioPlayerManager.loopPlaylist =
+                      CustomColors.audioPlayerManager.loopPlaylist =
                           widget.playlist;
-                      GlobalVariables.audioPlayerManager.shuffledPlaylist =
+                      CustomColors.audioPlayerManager.shuffledPlaylist =
                           null;
-                      GlobalVariables.audioPlayerManager.setCurrentPlaylist();
+                      CustomColors.audioPlayerManager.setCurrentPlaylist();
                     }
                   }
                 }
@@ -253,12 +252,12 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   }
 
   Widget drawDownloadSong(BuildContext context) {
-    if (!GlobalVariables.currentUser
+    if (!CustomColors.currentUser
             .songExistsInDownloadedPlaylist(widget.song) &&
-        !GlobalVariables.manageLocalSongs.isSongDownloading(widget.song)) {
+        !CustomColors.manageLocalSongs.isSongDownloading(widget.song)) {
       return downloadWidget(context);
     } else {
-      if (GlobalVariables.manageLocalSongs.isSongDownloading(widget.song)) {
+      if (CustomColors.manageLocalSongs.isSongDownloading(widget.song)) {
         return Container();
       } else {
         return unDownloadWidget(context);
@@ -286,34 +285,34 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             ),
           ),
           onTap: () {
-            GlobalVariables.manageLocalSongs
+            CustomColors.manageLocalSongs
                 .checkIfStoragePermissionGranted()
                 .then((permissonGranted) async {
               if (permissonGranted) {
-                if (Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                if (Provider.of<PageNotifier>(CustomColors.homePageContext)
                         .currentPlaylistPagePlaylist !=
                     null) {
-                  if (Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                  if (Provider.of<PageNotifier>(CustomColors.homePageContext)
                           .currentPlaylistPagePlaylist
                           .name ==
-                      GlobalVariables
+                      CustomColors
                           .currentUser.downloadedSongsPlaylist.name) {
-                    Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                    Provider.of<PageNotifier>(CustomColors.homePageContext)
                             .setCurrentPlaylistPagePlaylist =
-                        GlobalVariables.currentUser.downloadedSongsPlaylist;
+                        CustomColors.currentUser.downloadedSongsPlaylist;
                   }
                 }
                 if (widget.song.imageUrl == "") {
-                  String imageUrl = await GlobalVariables.apiService
+                  String imageUrl = await CustomColors.apiService
                       .getSongImageUrl(widget.song, false);
                   if (imageUrl != null) {
                     widget.song.setImageUrl = imageUrl;
                   }
                 }
-                GlobalVariables.manageLocalSongs.downloadSong(widget.song);
+                CustomColors.manageLocalSongs.downloadSong(widget.song);
                 Navigator.of(context, rootNavigator: true).pop('dialog');
               } else {
-                GlobalVariables.toastManager
+                CustomColors.toastManager
                     .makeToast(text: ToastManager.enableAccessToStorage);
               }
             });
@@ -343,38 +342,38 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             ),
           ),
           onTap: () {
-            GlobalVariables.manageLocalSongs
+            CustomColors.manageLocalSongs
                 .checkIfSongFileExists(widget.song)
                 .then((exists) {
               if (exists) {
-                GlobalVariables.manageLocalSongs
+                CustomColors.manageLocalSongs
                     .deleteSongDirectory(widget.song);
-                GlobalVariables.currentUser
+                CustomColors.currentUser
                     .removeSongFromDownloadedPlaylist(widget.song);
-                if (Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                if (Provider.of<PageNotifier>(CustomColors.homePageContext)
                         .currentPlaylistPagePlaylist
                         .name ==
-                    GlobalVariables.currentUser.downloadedSongsPlaylist.name) {
-                  Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                    CustomColors.currentUser.downloadedSongsPlaylist.name) {
+                  Provider.of<PageNotifier>(CustomColors.homePageContext)
                           .setCurrentPlaylistPagePlaylist =
-                      GlobalVariables.currentUser.downloadedSongsPlaylist;
+                      CustomColors.currentUser.downloadedSongsPlaylist;
                 }
-                if (GlobalVariables.audioPlayerManager.currentSong != null) {
+                if (CustomColors.audioPlayerManager.currentSong != null) {
                   if (widget.song.songId ==
-                          GlobalVariables
+                          CustomColors
                               .audioPlayerManager.currentSong.songId &&
                       widget.playlist.name ==
-                          GlobalVariables
+                          CustomColors
                               .currentUser.downloadedSongsPlaylist.name) {
-                    GlobalVariables.audioPlayerManager.currentPlaylist = null;
-                    GlobalVariables.audioPlayerManager.shuffledPlaylist = null;
-                    GlobalVariables.audioPlayerManager.loopPlaylist = null;
+                    CustomColors.audioPlayerManager.currentPlaylist = null;
+                    CustomColors.audioPlayerManager.shuffledPlaylist = null;
+                    CustomColors.audioPlayerManager.loopPlaylist = null;
                   }
                 }
-                GlobalVariables.toastManager
+                CustomColors.toastManager
                     .makeToast(text: ToastManager.songUndownloaded);
               } else {
-                GlobalVariables.toastManager
+                CustomColors.toastManager
                     .makeToast(text: ToastManager.undownloadError);
               }
             });
@@ -547,7 +546,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   }
 
   Future<Artist> builArtist(String artistName) async {
-    return await GlobalVariables.apiService.getArtistImageUrl(artistName);
+    return await CustomColors.apiService.getArtistImageUrl(artistName);
   }
 
   void showLoadingBar(BuildContext context) {
@@ -575,7 +574,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                         value: null,
                         strokeWidth: 3.0,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            GlobalVariables.pinkColor),
+                            CustomColors.pinkColor),
                       ),
                     ),
                   ),
@@ -594,19 +593,19 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   }
 
   void checkForIntenetConnetionForNetworkImage() {
-    GlobalVariables.manageLocalSongs
+    CustomColors.manageLocalSongs
         .checkIfImageFileExists(widget.song)
         .then((exists) {
       if (exists) {
         if (mounted) {
           File file = File(
-              "${GlobalVariables.manageLocalSongs.fullSongDownloadDir.path}/${widget.song.songId}/${widget.song.songId}.png");
+              "${CustomColors.manageLocalSongs._fullSongDownloadDir.path}/${widget.song.songId}/${widget.song.songId}.png");
           setState(() {
             imageProvider = FileImage(file);
           });
         }
       } else {
-        if (GlobalVariables.isNetworkAvailable) {
+        if (CustomColors.isNetworkAvailable) {
           if (mounted) {
             setState(() {
               imageProvider = NetworkImage(

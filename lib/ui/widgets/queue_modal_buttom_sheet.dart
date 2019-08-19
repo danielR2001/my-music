@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/custom_classes/custom_colors.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:provider/provider.dart';
 
 class QueueModalSheet extends StatefulWidget {
@@ -20,7 +19,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
         borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20.0),
             topRight: const Radius.circular(20.0)),
-        color: GlobalVariables.lightGreyColor,
+        color: CustomColors.lightGreyColor,
       ),
       child: Column(
         children: <Widget>[
@@ -41,7 +40,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
           ),
           Expanded(
             child: Theme(
-              data: Theme.of(context).copyWith(canvasColor: GlobalVariables.lightGreyColor),
+              data: Theme.of(context).copyWith(canvasColor: CustomColors.lightGreyColor),
               child: ReorderableListView(
                 children: drawPlaylistQueueSongs(),
                 onReorder: (from, to) {
@@ -49,10 +48,10 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
                     to--;
                   }
                   Song temp = Song.fromSong(
-                      GlobalVariables.audioPlayerManager.currentPlaylist.songs[to]);
-                  GlobalVariables.audioPlayerManager.currentPlaylist.songs[to] =
-                      GlobalVariables.audioPlayerManager.currentPlaylist.songs[from];
-                  GlobalVariables.audioPlayerManager.currentPlaylist.songs[from] = temp;
+                      CustomColors.audioPlayerManager.currentPlaylist.songs[to]);
+                  CustomColors.audioPlayerManager.currentPlaylist.songs[to] =
+                      CustomColors.audioPlayerManager.currentPlaylist.songs[from];
+                  CustomColors.audioPlayerManager.currentPlaylist.songs[from] = temp;
                   setState(() {});
                 },
               ),
@@ -81,11 +80,11 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
   List<Widget> drawPlaylistQueueSongs() {
     List<Widget> songs = List();
     for (int i = 0;
-        i < GlobalVariables.audioPlayerManager.currentPlaylist.songs.length;
+        i < CustomColors.audioPlayerManager.currentPlaylist.songs.length;
         i++) {
       Key key = Key("$i");
       songs.add(songItem(
-          GlobalVariables.audioPlayerManager.currentPlaylist.songs[i], i + 1, context, key));
+          CustomColors.audioPlayerManager.currentPlaylist.songs[i], i + 1, context, key));
     }
     return songs;
   }
@@ -125,7 +124,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
         style: TextStyle(
           color: Provider.of<PageNotifier>(context).currentSong.songId ==
                   song.songId
-              ? GlobalVariables.pinkColor
+              ? CustomColors.pinkColor
               : Colors.white,
           fontSize: 14,
           fontWeight: FontWeight.bold,
@@ -136,12 +135,12 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
         style: TextStyle(
           color: Provider.of<PageNotifier>(context).currentSong.songId ==
                   song.songId
-              ? GlobalVariables.pinkColor
+              ? CustomColors.pinkColor
               : Colors.grey,
           fontSize: 12,
         ),
       ),
-      trailing: GlobalVariables.audioPlayerManager.currentSong.songId != song.songId
+      trailing: CustomColors.audioPlayerManager.currentSong.songId != song.songId
           ? IconButton(
               icon: Icon(
                 Icons.clear,
@@ -149,7 +148,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
               ),
               onPressed: () {
                 setState(() {
-                  GlobalVariables.audioPlayerManager.currentPlaylist.removeSong(song);
+                  CustomColors.audioPlayerManager.currentPlaylist.removeSong(song);
                 });
               },
             )
@@ -158,13 +157,13 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
               height: 0,
             ),
       onTap: () {
-        if (GlobalVariables.audioPlayerManager.currentSong.songId != song.songId) {
-          if (GlobalVariables.audioPlayerManager.isSongLoaded &&
-              GlobalVariables.audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
-            GlobalVariables.audioPlayerManager.initSong(
+        if (CustomColors.audioPlayerManager.currentSong.songId != song.songId) {
+          if (CustomColors.audioPlayerManager.isSongLoaded &&
+              CustomColors.audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
+            CustomColors.audioPlayerManager.initSong(
               song: song,
-              playlist: GlobalVariables.audioPlayerManager.currentPlaylist,
-              mode: GlobalVariables.audioPlayerManager.playlistMode,
+              playlist: CustomColors.audioPlayerManager.currentPlaylist,
+              mode: CustomColors.audioPlayerManager.playlistMode,
             );
             setState(() {});
           }

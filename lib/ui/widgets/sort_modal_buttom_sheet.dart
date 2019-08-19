@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/custom_classes/custom_colors.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/page_notifier/page_notifier.dart';
 import 'package:provider/provider.dart';
 
 enum SortType {
@@ -30,7 +29,7 @@ class _SortModalSheetState extends State<SortModalSheet> {
         borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20.0),
             topRight: const Radius.circular(20.0)),
-        color: GlobalVariables.lightGreyColor,
+        color: CustomColors.lightGreyColor,
       ),
       height: widget.regularSort ? 240 : 180,
       child: Column(
@@ -79,7 +78,7 @@ class _SortModalSheetState extends State<SortModalSheet> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: ListTileTheme(
-        selectedColor: GlobalVariables.pinkColor,
+        selectedColor: CustomColors.pinkColor,
         textColor: Colors.white,
         child: ListTile(
           selected: widget.playlist.sortType == SortType.title,
@@ -94,7 +93,7 @@ class _SortModalSheetState extends State<SortModalSheet> {
             if (widget.playlist.sortType != SortType.title) {
               widget.playlist.setSongs = sortList(SortType.title);
               widget.playlist.setSortedType = SortType.title;
-              Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+              Provider.of<PageNotifier>(CustomColors.homePageContext)
                   .setCurrentPlaylistPagePlaylist = widget.playlist;
               setState(() {});
             }
@@ -108,7 +107,7 @@ class _SortModalSheetState extends State<SortModalSheet> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: ListTileTheme(
-        selectedColor: GlobalVariables.pinkColor,
+        selectedColor: CustomColors.pinkColor,
         textColor: Colors.white,
         child: ListTile(
           selected: widget.playlist.sortType == SortType.artist,
@@ -123,7 +122,7 @@ class _SortModalSheetState extends State<SortModalSheet> {
             if (widget.playlist.sortType != SortType.artist) {
               widget.playlist.setSongs = sortList(SortType.artist);
               widget.playlist.setSortedType = SortType.artist;
-              Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+              Provider.of<PageNotifier>(CustomColors.homePageContext)
                   .setCurrentPlaylistPagePlaylist = widget.playlist;
               setState(() {});
             }
@@ -137,7 +136,7 @@ class _SortModalSheetState extends State<SortModalSheet> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: ListTileTheme(
-        selectedColor: GlobalVariables.pinkColor,
+        selectedColor: CustomColors.pinkColor,
         textColor: Colors.white,
         child: ListTile(
           selected: widget.playlist.sortType == SortType.recentlyAdded,
@@ -152,7 +151,7 @@ class _SortModalSheetState extends State<SortModalSheet> {
             if (widget.playlist.sortType != SortType.recentlyAdded) {
               widget.playlist.setSongs = sortList(SortType.recentlyAdded);
               widget.playlist.setSortedType = SortType.recentlyAdded;
-              Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+              Provider.of<PageNotifier>(CustomColors.homePageContext)
                   .setCurrentPlaylistPagePlaylist = widget.playlist;
               setState(() {});
             }

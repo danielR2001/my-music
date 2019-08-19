@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:myapp/custom_classes/custom_colors.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
 
 class ToastManager {
   static final String noNetworkConnection = "No network connection";
@@ -22,7 +22,7 @@ class ToastManager {
       {@required String text,
       Toast toastLength = Toast.LENGTH_SHORT,
       ToastGravity gravity = ToastGravity.BOTTOM,
-      Color backgroundColor = GlobalVariables.pinkColor,
+      Color backgroundColor = CustomColors.pinkColor,
       Color textColor = Colors.white,
       double fontSize = 16}) {
     Fluttertoast.showToast(

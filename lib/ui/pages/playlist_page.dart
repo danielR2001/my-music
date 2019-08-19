@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/custom_classes/custom_colors.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/managers/audio_player_manager.dart';
+import 'package:myapp/core/services/audio_player_service.dart';
 import 'package:myapp/models/user.dart';
-import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/custom_classes/custom_icons.dart';
+import 'package:myapp/core/view_models/page_notifier/page_notifier.dart';
+import 'package:myapp/ui/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
@@ -47,7 +47,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          color: GlobalVariables.darkGreyColor,
+          color: CustomColors.darkGreyColor,
         ),
         child: CustomScrollView(
           controller: _scrollController,
@@ -62,11 +62,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
                             ? BoxDecoration()
                             : BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: GlobalVariables.lightGreyColor,
+                                color: CustomColors.lightGreyColor,
                               )
                         : BoxDecoration(
                             shape: BoxShape.circle,
-                            color: GlobalVariables.lightGreyColor,
+                            color: CustomColors.lightGreyColor,
                           ),
                     child: IconButton(
                       icon: Icon(
@@ -89,11 +89,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           ? BoxDecoration()
                           : BoxDecoration(
                               shape: BoxShape.circle,
-                              color: GlobalVariables.lightGreyColor,
+                              color: CustomColors.lightGreyColor,
                             )
                       : BoxDecoration(
                           shape: BoxShape.circle,
-                          color: GlobalVariables.lightGreyColor,
+                          color: CustomColors.lightGreyColor,
                         ),
                   child: IconButton(
                     icon: Icon(
@@ -109,9 +109,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
               automaticallyImplyLeading: false,
               backgroundColor: _scrollController.hasClients
                   ? _scrollController.offset > 270 - kToolbarHeight
-                      ? GlobalVariables.lightGreyColor
-                      : GlobalVariables.darkGreyColor
-                  : GlobalVariables.darkGreyColor,
+                      ? CustomColors.lightGreyColor
+                      : CustomColors.darkGreyColor
+                  : CustomColors.darkGreyColor,
               expandedHeight: 300,
               pinned: true,
               flexibleSpace: FlexibleSpaceBar(
@@ -125,7 +125,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                       stops: [0, 1],
                       end: FractionalOffset.bottomCenter,
                       colors: [
-                        GlobalVariables.darkGreyColor,
+                        CustomColors.darkGreyColor,
                         Colors.transparent
                       ],
                     ).createShader(
@@ -139,7 +139,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                         )
                       : Icon(
                           Icons.music_note,
-                          color: GlobalVariables.pinkColor,
+                          color: CustomColors.pinkColor,
                           size: 75,
                         ),
                 ),
@@ -155,16 +155,16 @@ class _PlaylistPageState extends State<PlaylistPage> {
             makeSliverList(
                 widget.playlistModalSheetMode == PlaylistModalSheetMode.public
                     ? widget.playlist
-                    : Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+                    : Provider.of<PageNotifier>(CustomColors.homePageContext)
                                 .currentPlaylistPagePlaylist !=
                             null
                         ? Provider.of<PageNotifier>(
-                                        GlobalVariables.homePageContext)
+                                        CustomColors.homePageContext)
                                     .currentPlaylistPagePlaylist
                                     .pushId ==
                                 widget.playlist.pushId
                             ? Provider.of<PageNotifier>(
-                                    GlobalVariables.homePageContext)
+                                    CustomColors.homePageContext)
                                 .currentPlaylistPagePlaylist
                             : widget.playlist
                         : widget.playlist,
@@ -217,7 +217,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 fontSize: 13,
               ),
             ),
-            trailing: GlobalVariables.manageLocalSongs
+            trailing: CustomColors.manageLocalSongs
                         .isSongDownloading(playlist.songs[index]) &&
                     widget.playlistModalSheetMode !=
                         PlaylistModalSheetMode.public
@@ -226,21 +226,21 @@ class _PlaylistPageState extends State<PlaylistPage> {
                     child: GestureDetector(
                       child: CircularProgressIndicator(
                         value: Provider.of<PageNotifier>(
-                                    GlobalVariables.homePageContext)
+                                    CustomColors.homePageContext)
                                 .downloadedProgresses[
                                     playlist.songs[index].songId]
                                 .toDouble() /
                             Provider.of<PageNotifier>(
-                                    GlobalVariables.homePageContext)
+                                    CustomColors.homePageContext)
                                 .downloadedTotals[playlist.songs[index].songId]
                                 .toDouble(),
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            GlobalVariables.pinkColor),
+                            CustomColors.pinkColor),
                         backgroundColor: Colors.pink[50],
                         strokeWidth: 4.0,
                       ),
                       onTap: () {
-                        GlobalVariables.manageLocalSongs
+                        CustomColors.manageLocalSongs
                             .cancelDownLoad(playlist.songs[index]);
                       },
                     ),
@@ -261,41 +261,41 @@ class _PlaylistPageState extends State<PlaylistPage> {
             onTap: () {
               String playlistPushId;
               bool openMusicPlayer = false;
-              if (GlobalVariables.audioPlayerManager.currentSong != null &&
-                  GlobalVariables.audioPlayerManager.currentPlaylist != null) {
-                if (GlobalVariables.audioPlayerManager.currentPlaylist.pushId !=
+              if (CustomColors.audioPlayerManager.currentSong != null &&
+                  CustomColors.audioPlayerManager.currentPlaylist != null) {
+                if (CustomColors.audioPlayerManager.currentPlaylist.pushId !=
                     null) {
                   playlistPushId =
-                      GlobalVariables.audioPlayerManager.currentPlaylist.pushId;
+                      CustomColors.audioPlayerManager.currentPlaylist.pushId;
                 } else {
-                  playlistPushId = GlobalVariables
+                  playlistPushId = CustomColors
                       .audioPlayerManager.currentPlaylist.publicPlaylistPushId;
                 }
 
                 if (playlist.pushId != null) {
                   if (playlist.pushId == playlistPushId) {
-                    if (GlobalVariables.audioPlayerManager.currentSong.songId ==
+                    if (CustomColors.audioPlayerManager.currentSong.songId ==
                         playlist.songs[index].songId) {
                       openMusicPlayer = true;
                     }
                   }
                 } else {
                   if (playlist.publicPlaylistPushId == playlistPushId) {
-                    if (GlobalVariables.audioPlayerManager.currentSong.songId ==
+                    if (CustomColors.audioPlayerManager.currentSong.songId ==
                         playlist.songs[index].songId) {
                       openMusicPlayer = true;
                     }
                   }
                 }
               }
-              if (GlobalVariables.audioPlayerManager.isSongLoaded) {
+              if (CustomColors.audioPlayerManager.isSongLoaded) {
                 if (openMusicPlayer) {
                   Navigator.push(
-                    GlobalVariables.homePageContext,
+                    CustomColors.homePageContext,
                     MaterialPageRoute(builder: (context) => MusicPlayerPage()),
                   );
                 } else {
-                  GlobalVariables.audioPlayerManager.initSong(
+                  CustomColors.audioPlayerManager.initSong(
                     song: playlist.songs[index],
                     playlist: playlist,
                     mode: PlaylistMode.loop,
@@ -314,10 +314,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
       width: 50,
       height: 50,
       decoration: BoxDecoration(
-        color: GlobalVariables.lightGreyColor,
+        color: CustomColors.lightGreyColor,
         shape: BoxShape.rectangle,
         border: Border.all(
-          color: GlobalVariables.lightGreyColor,
+          color: CustomColors.lightGreyColor,
           width: 0.4,
         ),
         image: DecorationImage(
@@ -337,21 +337,21 @@ class _PlaylistPageState extends State<PlaylistPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            GlobalVariables.lightGreyColor,
-            GlobalVariables.darkGreyColor,
+            CustomColors.lightGreyColor,
+            CustomColors.darkGreyColor,
           ],
           begin: FractionalOffset.bottomLeft,
           stops: [0.3, 0.8],
           end: FractionalOffset.topRight,
         ),
         border: Border.all(
-          color: GlobalVariables.lightGreyColor,
+          color: CustomColors.lightGreyColor,
           width: 0.4,
         ),
       ),
       child: Icon(
         Icons.music_note,
-        color: GlobalVariables.pinkColor,
+        color: CustomColors.pinkColor,
         size: 40,
       ),
     );
@@ -382,7 +382,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
-        color: GlobalVariables.pinkColor,
+        color: CustomColors.pinkColor,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -408,7 +408,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
         elevation: 6.0,
         onPressed: () {
           if (widget.playlist.songs.length > 0) {
-            GlobalVariables.audioPlayerManager.initSong(
+            CustomColors.audioPlayerManager.initSong(
               song: widget.playlist.songs[0],
               playlist: widget.playlist,
               mode: PlaylistMode.loop,
@@ -428,7 +428,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
-        color: GlobalVariables.pinkColor,
+        color: CustomColors.pinkColor,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -456,7 +456,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
           if (widget.playlist.songs.length > 0) {
             var rnd = Random();
             int randomNum = rnd.nextInt(widget.playlist.songs.length);
-            GlobalVariables.audioPlayerManager.initSong(
+            CustomColors.audioPlayerManager.initSong(
               song: widget.playlist.songs[randomNum],
               playlist: widget.playlist,
               mode: PlaylistMode.shuffle,
@@ -486,7 +486,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
             height: 1,
           ),
           AutoSizeText(
-            GlobalVariables.currentUser != null
+            CustomColors.currentUser != null
                 ? widget.playlistModalSheetMode !=
                         PlaylistModalSheetMode.download
                     ? "by: " + widget.playlistCreator.name
@@ -506,21 +506,21 @@ class _PlaylistPageState extends State<PlaylistPage> {
   //* methods
   Color setSongColor(Playlist playlist, Song song, bool returnWhite) {
     String playlistPushId;
-    if (GlobalVariables.audioPlayerManager.currentSong != null &&
-        GlobalVariables.audioPlayerManager.currentPlaylist != null) {
-      if (GlobalVariables.audioPlayerManager.currentPlaylist.pushId != null) {
+    if (CustomColors.audioPlayerManager.currentSong != null &&
+        CustomColors.audioPlayerManager.currentPlaylist != null) {
+      if (CustomColors.audioPlayerManager.currentPlaylist.pushId != null) {
         playlistPushId =
-            GlobalVariables.audioPlayerManager.currentPlaylist.pushId;
+            CustomColors.audioPlayerManager.currentPlaylist.pushId;
       } else {
-        playlistPushId = GlobalVariables
+        playlistPushId = CustomColors
             .audioPlayerManager.currentPlaylist.publicPlaylistPushId;
       }
 
       if (playlist.pushId != null) {
         if (playlist.pushId == playlistPushId) {
-          if (GlobalVariables.audioPlayerManager.currentSong.songId ==
+          if (CustomColors.audioPlayerManager.currentSong.songId ==
               song.songId) {
-            return GlobalVariables.pinkColor;
+            return CustomColors.pinkColor;
           } else {
             return returnWhite ? Colors.white : Colors.grey;
           }
@@ -529,9 +529,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
         }
       } else {
         if (playlist.publicPlaylistPushId == playlistPushId) {
-          if (GlobalVariables.audioPlayerManager.currentSong.songId ==
+          if (CustomColors.audioPlayerManager.currentSong.songId ==
               song.songId) {
-            return GlobalVariables.pinkColor;
+            return CustomColors.pinkColor;
           } else {
             return returnWhite ? Colors.white : Colors.grey;
           }
@@ -545,16 +545,16 @@ class _PlaylistPageState extends State<PlaylistPage> {
   }
 
   void showSongOptions(Song song, Playlist currentPlaylist) {
-    if (GlobalVariables.currentUser != null) {
+    if (CustomColors.currentUser != null) {
       SongModalSheetMode songModalSheetMode;
-      if (GlobalVariables.currentUser.playlists.contains(currentPlaylist)) {
+      if (CustomColors.currentUser.playlists.contains(currentPlaylist)) {
         songModalSheetMode = SongModalSheetMode.regular;
       } else {
         songModalSheetMode = SongModalSheetMode.download_public_search_artist;
       }
       showModalBottomSheet(
         backgroundColor: Colors.transparent,
-        context: GlobalVariables.homePageContext,
+        context: CustomColors.homePageContext,
         builder: (builder) {
           return SongOptionsModalSheet(
             song,
@@ -570,7 +570,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
   void showPlaylistOptions(Playlist currentPlaylist) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
-      context: GlobalVariables.homePageContext,
+      context: CustomColors.homePageContext,
       builder: (builder) {
         return PlaylistOptionsModalSheet(
             currentPlaylist, context, widget.playlistModalSheetMode);
@@ -580,17 +580,17 @@ class _PlaylistPageState extends State<PlaylistPage> {
 
   void checkForIntenetConnetionForNetworkImage() {
     if (widget.playlist.songs.length > 0 && widget.playlist.songs[0].imageUrl != "") {
-      GlobalVariables.manageLocalSongs
+      CustomColors.manageLocalSongs
           .checkIfImageFileExists(widget.playlist.songs[0])
           .then((exists) {
         if (exists) {
           File file = File(
-              "${GlobalVariables.manageLocalSongs.fullSongDownloadDir.path}/${widget.playlist.songs[0].songId}/${widget.playlist.songs[0].songId}.png");
+              "${CustomColors.manageLocalSongs._fullSongDownloadDir.path}/${widget.playlist.songs[0].songId}/${widget.playlist.songs[0].songId}.png");
           setState(() {
             imageProvider = (FileImage(file));
           });
         } else {
-          if (GlobalVariables.isNetworkAvailable) {
+          if (CustomColors.isNetworkAvailable) {
             setState(() {
               imageProvider = NetworkImage(
                 widget.playlist.songs[0].imageUrl,

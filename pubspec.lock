@@ -8,15 +8,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.2.0"
-  audioplayers:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "3a5f6adea54c23f100c7c4a1a748bb512f496ff7"
-      url: "git://github.com/danielR2001/audioplayers.git"
-    source: git
-    version: "0.13.0"
   auto_size_text:
     dependency: "direct main"
     description:
@@ -133,7 +124,7 @@ packages:
       name: flutter_exoplayer
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.2"
+    version: "0.3.0"
   flutter_statusbarcolor:
     dependency: "direct main"
     description:
@@ -153,6 +144,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.1.0"
+  get_it:
+    dependency: "direct main"
+    description:
+      name: get_it
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.3+2"
   html:
     dependency: "direct main"
     description:
@@ -189,12 +187,12 @@ packages:
     source: hosted
     version: "1.6.2"
   path_provider:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path_provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0"
+    version: "1.2.0"
   pedantic:
     dependency: transitive
     description:

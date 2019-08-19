@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:myapp/database/authentication.dart';
-import 'package:myapp/database/database_manager.dart';
-import 'package:myapp/custom_classes/custom_colors.dart';
-import 'package:myapp/models/user.dart';
-import 'home_page.dart';
-import 'root_page.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
+import 'package:myapp/ui/pages/base_page.dart';
+import 'package:myapp/core/view_models/page_models/sign_up_model.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -15,78 +12,83 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final formKey = GlobalKey<FormState>();
   final key = GlobalKey<ScaffoldState>();
+  SignUpModel _model;
+  bool signIn = true;
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () {
-        FocusScope.of(context).requestFocus(FocusNode());
-        final form = formKey.currentState;
-        form.save();
-        Navigator.pop(
-          context,
-          false,
-        );
-        return Future.value(false);
-      },
-      child: Scaffold(
-        key: key,
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.deepPurple,
-                GlobalVariables.pinkColor,
-              ],
-              begin: FractionalOffset.bottomRight,
-              stops: [0.4, 1.0],
-              end: FractionalOffset.topLeft,
+    return BasePage<SignUpModel>(
+      onModelReady: (model) => _model = model,
+      builder: (context, model, child) => WillPopScope(
+        onWillPop: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+          final form = formKey.currentState;
+          form.save();
+          Navigator.pop(
+            context,
+          );
+          return Future.value(false);
+        },
+        child: Scaffold(
+          key: key,
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.deepPurple,
+                  CustomColors.pinkColor,
+                ],
+                begin: FractionalOffset.bottomRight,
+                stops: [0.4, 1.0],
+                end: FractionalOffset.topLeft,
+              ),
             ),
-          ),
-          child: SafeArea(
-            child: ListView(
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 10.0,
-                            top: 10.0,
-                          ),
-                          child: drawBackButton(),
-                        ),
-                      ],
-                    ),
-                    drawLetsSignUp(),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 80),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
+            child: SafeArea(
+              child: ListView(
+                children: <Widget>[
+                  Column(
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Form(
-                              key: formKey,
-                              child: Column(
-                                children: <Widget>[
-                                  drawEmailTextFiled(),
-                                  drawPasswordTextFiled(),
-                                  drawNameTextFiled(),
-                                  signInOrVerifyButton()
-                                ],
-                              ),
+                            padding: const EdgeInsets.only(
+                              left: 10.0,
+                              top: 10.0,
                             ),
+                            child: drawBackButton(),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                )
-              ],
+                      drawLetsSignUp(),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 80),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child: Form(
+                                key: formKey,
+                                child: Column(
+                                  children: <Widget>[
+                                    drawEmailTextFiled(),
+                                    drawPasswordTextFiled(),
+                                    drawNameTextFiled(),
+                                    signInOrVerifyButton()
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
         ),
@@ -144,7 +146,7 @@ class _SignUpPageState extends State<SignUpPage> {
         color: Colors.white,
         fontSize: 18,
       ),
-      cursorColor: GlobalVariables.pinkColor,
+      cursorColor: CustomColors.pinkColor,
       decoration: InputDecoration(
           focusedBorder: UnderlineInputBorder(
             borderSide: BorderSide(
@@ -158,16 +160,16 @@ class _SignUpPageState extends State<SignUpPage> {
             fontWeight: FontWeight.bold,
           ),
           errorStyle: TextStyle(
-            color: GlobalVariables.pinkColor,
+            color: CustomColors.pinkColor,
             fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
           fillColor: Colors.white),
       onFieldSubmitted: (value) => print(value),
-      initialValue: signUpEmail != null ? signUpEmail : "",
+      initialValue: _model.email,
       keyboardType: TextInputType.emailAddress,
       validator: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
-      onSaved: (value) => signUpEmail = value,
+      onSaved: (value) => _model.setEmail = value,
     );
   }
 
@@ -178,7 +180,7 @@ class _SignUpPageState extends State<SignUpPage> {
         color: Colors.white,
         fontSize: 18,
       ),
-      cursorColor: GlobalVariables.pinkColor,
+      cursorColor: CustomColors.pinkColor,
       decoration: InputDecoration(
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(
@@ -192,14 +194,14 @@ class _SignUpPageState extends State<SignUpPage> {
           fontWeight: FontWeight.bold,
         ),
         errorStyle: TextStyle(
-          color: GlobalVariables.pinkColor,
+          color: CustomColors.pinkColor,
           fontSize: 14,
           fontWeight: FontWeight.bold,
         ),
       ),
-      initialValue: signUpPassword != null ? signUpPassword : "",
+      initialValue: _model.password,
       validator: (value) => value.isEmpty ? 'Password can\'t be empty' : null,
-      onSaved: (value) => signUpPassword = value,
+      onSaved: (value) => _model.setPassword = value,
     );
   }
 
@@ -209,7 +211,7 @@ class _SignUpPageState extends State<SignUpPage> {
         color: Colors.white,
         fontSize: 18,
       ),
-      cursorColor: GlobalVariables.pinkColor,
+      cursorColor: CustomColors.pinkColor,
       decoration: InputDecoration(
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(
@@ -223,14 +225,14 @@ class _SignUpPageState extends State<SignUpPage> {
           fontWeight: FontWeight.bold,
         ),
         errorStyle: TextStyle(
-          color: GlobalVariables.pinkColor,
+          color: CustomColors.pinkColor,
           fontSize: 14,
           fontWeight: FontWeight.bold,
         ),
       ),
-      initialValue: userName != null ? userName : "",
+      initialValue: _model.userName,
       validator: (value) => value.isEmpty ? 'User name can\'t be empty' : null,
-      onSaved: (value) => userName = value,
+      onSaved: (value) => _model.setUserName = value,
     );
   }
 
@@ -247,7 +249,7 @@ class _SignUpPageState extends State<SignUpPage> {
             alignment: Alignment.center,
             height: 60.0,
             decoration: BoxDecoration(
-              color: GlobalVariables.pinkColor,
+              color: CustomColors.pinkColor,
               borderRadius: BorderRadius.circular(40.0),
             ),
             child: Text(
@@ -266,13 +268,13 @@ class _SignUpPageState extends State<SignUpPage> {
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
         child: GestureDetector(
           onTap: () {
-            tryToSignIn();
+            checkIfVerified();
           },
           child: Container(
             alignment: Alignment.center,
             height: 60.0,
             decoration: BoxDecoration(
-              color: GlobalVariables.pinkColor,
+              color: CustomColors.pinkColor,
               borderRadius: BorderRadius.circular(40.0),
             ),
             child: Text(
@@ -287,80 +289,6 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
       );
     }
-  }
-
-  //* methods
-  void signInWithEmailAndPass() {
-    final form = formKey.currentState;
-    if (form.validate()) {
-      form.save();
-      if (signUpPassword.length >= 6 && checkForValidEmail(signUpEmail)) {
-        showLoadingBar();
-        FirebaseAuthentication.signInWithEmail(signUpEmail, signUpPassword)
-            .then(
-          (user) {
-            if (user != null) {
-              setState(() {
-                signIn = false;
-              });
-              Navigator.of(context, rootNavigator: true).pop('dialog');
-              showAlertDialog();
-            } else {
-              Navigator.of(context, rootNavigator: true).pop('dialog');
-              key.currentState.showSnackBar(
-                SnackBar(
-                  duration: Duration(seconds: 5),
-                  content: Text("This email is already in use!"),
-                ),
-              );
-            }
-          },
-        );
-      } else {
-        key.currentState.showSnackBar(
-          SnackBar(
-            duration: Duration(seconds: 5),
-            content: Text(
-                "Email is not valid! Or password is shorter than 6 symbols"),
-          ),
-        );
-      }
-    }
-  }
-
-  bool checkForValidEmail(String email) {
-    return RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
-  }
-
-  void tryToSignIn() {
-    showLoadingBar();
-    FirebaseAuthentication.userReload().then(
-      (isEmailVerified) {
-        if (isEmailVerified) {
-          FirebaseAuthentication.currentUser().then((user) {
-            GlobalVariables.currentUser = User(userName, user.uid);
-            FirebaseDatabaseManager.saveUser();
-            Navigator.of(context, rootNavigator: true).pop('dialog');
-            FirebaseDatabaseManager.syncUser(user.uid).then((a) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomePage(),
-                ),
-              );
-            });
-          });
-        } else {
-          Navigator.of(context, rootNavigator: true).pop('dialog');
-          key.currentState.showSnackBar(
-            SnackBar(
-              duration: Duration(seconds: 5),
-              content: Text("Email isn't verified!"),
-            ),
-          );
-        }
-      },
-    );
   }
 
   void showLoadingBar() {
@@ -388,7 +316,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         value: null,
                         strokeWidth: 3.0,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            GlobalVariables.pinkColor),
+                            CustomColors.pinkColor),
                       ),
                     ),
                   ),
@@ -401,13 +329,17 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
+  void hideLoadingBar() {
+    Navigator.of(context, rootNavigator: true).pop('dialog');
+  }
+
   void showAlertDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(
-            "Hii " + userName + "!",
+            "Hii " + _model.userName + "!",
             style: TextStyle(
               color: Colors.white,
               fontSize: 16,
@@ -429,5 +361,66 @@ class _SignUpPageState extends State<SignUpPage> {
         );
       },
     );
+  }
+
+  //* core
+  Future signInWithEmailAndPass() async {
+    final form = formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      if (_model.email.length >= 6 && checkForValidEmail(_model.email)) {
+        showLoadingBar();
+        bool response = await _model.signInWithEmail();
+        if (response) {
+          hideLoadingBar();
+          setState(() {
+            signIn = false;
+          });
+          showAlertDialog();
+        } else {
+          hideLoadingBar();
+          key.currentState.showSnackBar(
+            SnackBar(
+              duration: Duration(seconds: 5),
+              content: Text("This email is already in use!"),
+            ),
+          );
+        }
+      } else {
+        key.currentState.showSnackBar(
+          SnackBar(
+            duration: Duration(seconds: 5),
+            content: Text(
+                "Email is not valid! Or password is shorter than 6 symbols"),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> checkIfVerified() async {
+    showLoadingBar();
+    bool isEmailVerified = await _model.checkIfVerified();
+    if (isEmailVerified) {
+      await _model.signUp();
+      hideLoadingBar();
+
+      Navigator.pushNamed(
+        context,
+        "/home",
+      );
+    } else {
+      hideLoadingBar();
+      key.currentState.showSnackBar(
+        SnackBar(
+          duration: Duration(seconds: 5),
+          content: Text("Email isn't verified!"),
+        ),
+      );
+    }
+  }
+
+  bool checkForValidEmail(String email) {
+    return _model.checkForValidEmail(email);
   }
 }

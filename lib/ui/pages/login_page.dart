@@ -1,76 +1,80 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:myapp/database/authentication.dart';
-import 'package:myapp/database/database_manager.dart';
-import 'package:myapp/custom_classes/custom_colors.dart';
-import 'package:myapp/ui/pages/root_page.dart';
-import 'home_page.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
+import 'package:myapp/ui/pages/base_page.dart';
+import 'package:myapp/core/view_models/page_models/login_model.dart';
 
-class LogInPage extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   @override
   _State createState() => _State();
 }
 
-class _State extends State<LogInPage> {
+class _State extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
-  static final key = GlobalKey<ScaffoldState>();
+  final key = GlobalKey<ScaffoldState>();
+  LoginModel _model;
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () {
-        FocusScope.of(context).requestFocus(FocusNode());
-        final form = formKey.currentState;
-        form.save();
-        Navigator.pop(
-          context,
-          false,
-        );
-        return Future.value(false);
-      },
-      child: Scaffold(
-        resizeToAvoidBottomPadding: false,
-        key: key,
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Colors.deepPurple,
-                GlobalVariables.pinkColor,
-              ],
-              begin: FractionalOffset.bottomRight,
-              stops: [0.4, 1.0],
-              end: FractionalOffset.topLeft,
+    return BasePage<LoginModel>(
+      onModelReady: (model) => _model = model,
+      builder: (context, model, child) => WillPopScope(
+        onWillPop: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+          final form = formKey.currentState;
+          form.save();
+          Navigator.pop(
+            context,
+            false,
+          );
+          return Future.value(false);
+        },
+        child: Scaffold(
+          key: key,
+          resizeToAvoidBottomPadding: false,
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.deepPurple,
+                  CustomColors.pinkColor,
+                ],
+                begin: FractionalOffset.bottomRight,
+                stops: [0.4, 1.0],
+                end: FractionalOffset.topLeft,
+              ),
             ),
-          ),
-          child: SafeArea(
-            child: Column(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    drawBackButton(),
-                  ],
-                ),
-                drawWelcomeBack(),
-                Padding(
-                  padding: const EdgeInsets.only(top: 80, right: 20, left: 20),
-                  child: Column(
+            child: SafeArea(
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      Form(
-                        key: formKey,
-                        child: Column(
-                          children: <Widget>[
-                            drawEmailTextFiled(),
-                            drawPasswordTextFiled(),
-                            drawLoginButton(),
-                          ],
-                        ),
-                      ),
+                      drawBackButton(),
                     ],
                   ),
-                ),
-              ],
+                  drawWelcomeBack(),
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 80, right: 20, left: 20),
+                    child: Column(
+                      children: <Widget>[
+                        Form(
+                          key: formKey,
+                          child: Column(
+                            children: <Widget>[
+                              drawEmailTextFiled(),
+                              drawPasswordTextFiled(),
+                              drawLoginButton(),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -78,7 +82,7 @@ class _State extends State<LogInPage> {
     );
   }
 
-  //* widgets
+  //* ui
   Widget drawBackButton() {
     return Padding(
       padding: const EdgeInsets.only(
@@ -133,7 +137,7 @@ class _State extends State<LogInPage> {
         color: Colors.white,
         fontSize: 18,
       ),
-      cursorColor: GlobalVariables.pinkColor,
+      cursorColor: CustomColors.pinkColor,
       decoration: InputDecoration(
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(
@@ -147,15 +151,15 @@ class _State extends State<LogInPage> {
           fontWeight: FontWeight.bold,
         ),
         errorStyle: TextStyle(
-          color: GlobalVariables.pinkColor,
+          color: CustomColors.pinkColor,
           fontSize: 14,
           fontWeight: FontWeight.bold,
         ),
       ),
       keyboardType: TextInputType.emailAddress,
-      initialValue: loginInEmail != null ? loginInEmail : "",
+      initialValue: _model.password,
       validator: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
-      onSaved: (value) => loginInEmail = value,
+      onSaved: (value) => _model.setPassword = value,
     );
   }
 
@@ -166,7 +170,7 @@ class _State extends State<LogInPage> {
         color: Colors.white,
         fontSize: 20,
       ),
-      cursorColor: GlobalVariables.pinkColor,
+      cursorColor: CustomColors.pinkColor,
       decoration: InputDecoration(
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(
@@ -180,14 +184,14 @@ class _State extends State<LogInPage> {
           fontWeight: FontWeight.bold,
         ),
         errorStyle: TextStyle(
-          color: GlobalVariables.pinkColor,
+          color: CustomColors.pinkColor,
           fontSize: 14,
           fontWeight: FontWeight.bold,
         ),
       ),
-      initialValue: loginInPassword != null ? loginInPassword : "",
+      initialValue: _model.email,
       validator: (value) => value.isEmpty ? 'Password can\'t be empty' : null,
-      onSaved: (value) => loginInPassword = value,
+      onSaved: (value) => _model.setPassword = value,
     );
   }
 
@@ -197,13 +201,13 @@ class _State extends State<LogInPage> {
       child: GestureDetector(
         onTap: () {
           FocusScope.of(context).requestFocus(FocusNode());
-          signInWithEmailAndPass();
+          login();
         },
         child: Container(
           alignment: Alignment.center,
           height: 60.0,
           decoration: BoxDecoration(
-            color: GlobalVariables.pinkColor,
+            color: CustomColors.pinkColor,
             borderRadius: BorderRadius.circular(40.0),
           ),
           child: Text(
@@ -217,59 +221,6 @@ class _State extends State<LogInPage> {
         ),
       ),
     );
-  }
-
-  //*methods
-  void signInWithEmailAndPass() {
-    final form = formKey.currentState;
-    if (form.validate()) {
-      showLoadingBar();
-      form.save();
-      FirebaseAuthentication.logInWithEmail(loginInEmail, loginInPassword)
-          .then((user) {
-        if (user != null) {
-          FirebaseDatabaseManager.syncUser(user.uid).then((user) {
-            if (user != null) {
-              GlobalVariables.currentUser = user;
-              GlobalVariables.manageLocalSongs
-                  .checkIfStoragePermissionGranted()
-                  .then((permissionGranted) {
-                GlobalVariables.manageLocalSongs.initDirs().then((a) {
-                  GlobalVariables.manageLocalSongs.syncDownloaded();
-                  Navigator.of(context, rootNavigator: true).pop('dialog');
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomePage(),
-                      ));
-                });
-              });
-            } else {
-              Navigator.of(context, rootNavigator: true).pop('dialog');
-              key.currentState.showSnackBar(
-                SnackBar(
-                  duration: Duration(seconds: 10),
-                  content: Text(
-                      "You didn't verify your email account! So go verify your email and then click the continue button in the sign up page."),
-                ),
-              );
-            }
-          });
-        } else {
-          Navigator.of(context, rootNavigator: true).pop('dialog');
-          key.currentState.showSnackBar(
-            SnackBar(
-              duration: Duration(seconds: 5),
-              content: Text("Email or password is incorrect!"),
-            ),
-          );
-        }
-      });
-    }
-  }
-
-  bool checkForValidEmail(String email) {
-    return RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
   }
 
   void showLoadingBar() {
@@ -297,7 +248,7 @@ class _State extends State<LogInPage> {
                         value: null,
                         strokeWidth: 3.0,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                            GlobalVariables.pinkColor),
+                            CustomColors.pinkColor),
                       ),
                     ),
                   ),
@@ -308,5 +259,45 @@ class _State extends State<LogInPage> {
         );
       },
     );
+  }
+
+  void hideLoadingBar() {
+    Navigator.of(context, rootNavigator: true).pop('dialog');
+  }
+
+  //* core
+  Future login() async {
+    bool response;
+    final form = formKey.currentState;
+    if (form.validate()) {
+      showLoadingBar();
+      form.save();
+      FirebaseUser firebaseUser = await _model.signInWithEmailAndPassword();
+      if (firebaseUser != null) {
+        response = await _model.login(firebaseUser);
+      } else {
+        response = false;
+      }
+      if (response) {
+        hideLoadingBar();
+        Navigator.pushNamed(
+          context,
+          "/home",
+        );
+      } else {
+        hideLoadingBar();
+        key.currentState.showSnackBar(
+          SnackBar(
+            duration: Duration(seconds: 5),
+            content: Text(
+                "Email/password is incorrect! or you didn't verify your email"),
+          ),
+        );
+      }
+    }
+  }
+
+  bool checkForValidEmail(String email) {
+    return _model.checkForValidEmail(email);
   }
 }

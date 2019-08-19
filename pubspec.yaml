@@ -12,8 +12,8 @@ dependencies:
 
   flutter_statusbarcolor: ^0.2.0
   html: ^0.14.0+1
-  audioplayers: 
-    git: git://github.com/danielR2001/audioplayers.git
+  # audioplayers: 
+  #   git: git://github.com/danielR2001/audioplayers.git
   firebase_auth: ^0.11.1+7
   firebase_database: ^3.0.3
   dio: ^2.1.7 
@@ -26,7 +26,9 @@ dependencies:
   flip_card: ^0.3.0
   marquee_widget: ^0.7.7
   connectivity: ^0.4.3+4
-  flutter_exoplayer: ^0.0.2
+  get_it: ^1.0.3+2
+  path_provider: ^1.2.0
+  flutter_exoplayer: ^0.3.0
 
 dev_dependencies:
   flutter_test:

@@ -1,12 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/database/database_manager.dart';
-import 'package:myapp/custom_classes/custom_colors.dart';
+import 'package:myapp/core/database/firebase/database_manager.dart';
+import 'package:myapp/core/view_models/modal_sheet_models/playlist_options_model.dart';
+import 'package:myapp/models/user.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
-import 'package:myapp/managers/toast_manager.dart';
-import 'package:myapp/custom_classes/custom_icons.dart';
+import 'package:myapp/core/utils/toast.dart';
+import 'package:myapp/ui/custom_classes/custom_icons.dart';
+import 'package:myapp/ui/pages/base_page.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/sort_modal_buttom_sheet.dart';
+import 'package:provider/provider.dart';
 
 enum PlaylistModalSheetMode {
   regular,
@@ -27,6 +31,7 @@ class PlaylistOptionsModalSheet extends StatefulWidget {
 }
 
 class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
+  PlaylistOptionsModel _model;
   String _playlistNewName;
   double widgetsCount = 7;
   final formKey = GlobalKey<FormState>();
@@ -42,26 +47,29 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.topCenter,
-      height: 53 * widgetsCount,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.transparent),
-        borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(20.0),
-            topRight: const Radius.circular(20.0)),
-        color: GlobalVariables.lightGreyColor,
-      ),
-      child: Column(
-        children: <Widget>[
-          drawDownloadAll(),
-          drawUnDownloadAll(),
-          drawAddAllToPlayList(),
-          drawRenamePlaylist(),
-          drawSort(),
-          drawPlaylistPrivacy(),
-          drawDelete(),
-        ],
+    return BasePage<PlaylistOptionsModel>(
+      onModelReady: (model) => _model = model,
+      builder: (context, model, child) => Container(
+        alignment: Alignment.topCenter,
+        height: 53 * widgetsCount,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.transparent),
+          borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(20.0),
+              topRight: const Radius.circular(20.0)),
+          color: CustomColors.lightGreyColor,
+        ),
+        child: Column(
+          children: <Widget>[
+            drawDownloadAll(),
+            drawUnDownloadAll(),
+            drawAddAllToPlayList(),
+            drawRenamePlaylist(),
+            drawSort(),
+            drawPlaylistPrivacy(),
+            drawDelete(),
+          ],
+        ),
       ),
     );
   }
@@ -85,7 +93,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         onTap: () {
           downloadAll();
           Navigator.pop(context);
-          GlobalVariables.toastManager.makeToast(text: ToastManager.startedDownloadAllSongs);
+          _model.makeToast(ToastManager.startedDownloadAllSongs);
         },
       );
     } else {
@@ -141,12 +149,12 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () {
-          if (GlobalVariables.manageLocalSongs.currentDownloading.length == 0) {
+          if (CustomColors.manageLocalSongs._currentDownloading.length == 0) {
             unDownloadAll();
             Navigator.pop(context);
-            GlobalVariables.toastManager.makeToast(text: ToastManager.undownloadAllSongs);
+            _model.makeToast(ToastManager.undownloadAllSongs);
           } else {
-            GlobalVariables.toastManager.makeToast(text: ToastManager.undownloadAllError);
+            _model.makeToast(ToastManager.undownloadAllError);
           }
         },
       );
@@ -227,7 +235,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                 widget.playlist, false);
           }
           FirebaseDatabaseManager.changePlaylistPrivacy(temp);
-          GlobalVariables.currentUser.updatePlaylist(temp);
+          Provider.of<User>(context).updatePlaylist(temp);
         },
       );
     } else {
@@ -263,7 +271,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     Navigator.pop(context);
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
-      context: GlobalVariables.homePageContext,
+      context: context,
       builder: (builder) {
         return SortModalSheet(
           currentPlaylist,
@@ -285,7 +293,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               fontSize: 20,
             ),
           ),
-          backgroundColor: GlobalVariables.lightGreyColor,
+          backgroundColor: CustomColors.lightGreyColor,
           children: <Widget>[
             Form(
               key: formKey,
@@ -346,7 +354,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
           alignment: Alignment.center,
           height: 50.0,
           decoration: BoxDecoration(
-            color: GlobalVariables.pinkColor,
+            color: CustomColors.pinkColor,
             borderRadius: BorderRadius.circular(40.0),
           ),
           child: Text(
@@ -369,45 +377,17 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      FirebaseDatabaseManager.renamePlaylist(widget.playlist, _playlistNewName);
-      widget.playlist.setName = _playlistNewName;
-      GlobalVariables.currentUser.updatePlaylist(widget.playlist);
-      if (GlobalVariables.audioPlayerManager.currentPlaylist != null) {
-        if (GlobalVariables.audioPlayerManager.currentPlaylist.pushId ==
-            widget.playlist.pushId) {
-          GlobalVariables.audioPlayerManager.currentPlaylist.setName =
-              _playlistNewName;
-        }
-      }
+      _model.changePlaylistName(widget.playlist, _playlistNewName);
       Navigator.of(context, rootNavigator: true).pop('dialog');
     }
   }
 
   void downloadAll() {
-    widget.playlist.songs.forEach((song) {
-      GlobalVariables.manageLocalSongs.checkIfSongFileExists(song).then((exists) {
-        if (!exists) {
-          GlobalVariables.manageLocalSongs.downloadSong(song);
-        }
-      });
-    });
+    _model.downloadAll(widget.playlist.songs);
   }
 
   void unDownloadAll() {
-    widget.playlist.songs.forEach((song) {
-      GlobalVariables.manageLocalSongs.checkIfSongFileExists(song).then((exists) {
-        if (exists) {
-          GlobalVariables.manageLocalSongs.deleteSongDirectory(song);
-          GlobalVariables.currentUser.removeSongFromDownloadedPlaylist(song);
-          if (song.songId ==
-              GlobalVariables.audioPlayerManager.currentSong.songId) {
-            GlobalVariables.audioPlayerManager.currentPlaylist = null;
-            GlobalVariables.audioPlayerManager.shuffledPlaylist = null;
-            GlobalVariables.audioPlayerManager.loopPlaylist = null;
-          }
-        }
-      });
-    });
+    _model.unDownloadAll(widget.playlist.songs);
   }
 
   void showAlertDialog(BuildContext context) {
@@ -416,7 +396,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(
-            "Hii " + GlobalVariables.currentUser.name + "!",
+            "Hii " + Provider.of<User>(context).name + "!",
             style: TextStyle(
               color: Colors.white,
               fontSize: 16,
@@ -448,7 +428,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                         height: 50.0,
                         width: 90,
                         decoration: BoxDecoration(
-                          color: GlobalVariables.pinkColor,
+                          color: CustomColors.pinkColor,
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(
@@ -476,7 +456,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                         height: 50.0,
                         width: 90,
                         decoration: BoxDecoration(
-                          color: GlobalVariables.pinkColor,
+                          color: CustomColors.pinkColor,
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(
@@ -489,20 +469,18 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                       ),
                       onTap: () {
                         FirebaseDatabaseManager.removePlaylist(widget.playlist);
-                        GlobalVariables.currentUser
+                        Provider.of<User>(context)
                             .removePlaylist(widget.playlist);
-                        if (GlobalVariables
-                                .audioPlayerManager.currentPlaylist !=
+                        if (CustomColors.audioPlayerManager.currentPlaylist !=
                             null) {
-                          if (GlobalVariables
+                          if (CustomColors
                                   .audioPlayerManager.currentPlaylist.name ==
-                              GlobalVariables
+                              CustomColors
                                   .audioPlayerManager.currentPlaylist.name) {
-                            GlobalVariables.audioPlayerManager.loopPlaylist =
+                            CustomColors.audioPlayerManager.loopPlaylist = null;
+                            CustomColors.audioPlayerManager.shuffledPlaylist =
                                 null;
-                            GlobalVariables
-                                .audioPlayerManager.shuffledPlaylist = null;
-                            GlobalVariables.audioPlayerManager.currentPlaylist =
+                            CustomColors.audioPlayerManager.currentPlaylist =
                                 null;
                           }
                         }

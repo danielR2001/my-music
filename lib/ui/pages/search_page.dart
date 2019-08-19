@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/custom_classes/custom_colors.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/managers/audio_player_manager.dart';
+import 'package:myapp/core/services/audio_player_service.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 
 class SearchPage extends StatefulWidget {
@@ -22,11 +22,11 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   void initState() {
-    if (GlobalVariables.lastSearch != null) {
+    if (CustomColors.lastSearch != null) {
       loadingResults = true;
       noResultsFound = false;
-      GlobalVariables.apiService
-          .getSearchResults(GlobalVariables.lastSearch)
+      CustomColors.apiService
+          .getSearchResults(CustomColors.lastSearch)
           .then((results) {
         setState(() {
           if (results != null) {
@@ -119,7 +119,7 @@ class _SearchPageState extends State<SearchPage> {
                                 value: null,
                                 strokeWidth: 3.0,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    GlobalVariables.pinkColor),
+                                    CustomColors.pinkColor),
                               ),
                             ),
                           ),
@@ -156,7 +156,7 @@ class _SearchPageState extends State<SearchPage> {
               color: Colors.white,
               fontSize: 16,
             ),
-            cursorColor: GlobalVariables.pinkColor,
+            cursorColor: CustomColors.pinkColor,
             decoration: InputDecoration.collapsed(
               hintText: hintText,
               hintStyle: TextStyle(
@@ -179,7 +179,7 @@ class _SearchPageState extends State<SearchPage> {
                 });
               }
               if (txt != "") {
-                GlobalVariables.apiService
+                CustomColors.apiService
                     .getSearchResults(txt)
                     .then((results) {
                   setState(() {
@@ -187,7 +187,7 @@ class _SearchPageState extends State<SearchPage> {
                       if (results.length > 0) {
                         loadingResults = false;
                         searchResults = results;
-                        GlobalVariables.lastSearch = txt;
+                        CustomColors.lastSearch = txt;
                         searchResultsPlaylist = Playlist("Search Playlist");
                         searchResultsPlaylist.setSongs = searchResults;
                         searchLength = searchResults.length;
@@ -202,13 +202,13 @@ class _SearchPageState extends State<SearchPage> {
             onSubmitted: (txt) {
               loadingResults = true;
               noResultsFound = false;
-              GlobalVariables.apiService.getSearchResults(txt).then((results) {
+              CustomColors.apiService.getSearchResults(txt).then((results) {
                 setState(() {
                   if (results != null) {
                     if (results.length > 0) {
                       loadingResults = false;
                       searchResults = results;
-                      GlobalVariables.lastSearch = txt;
+                      CustomColors.lastSearch = txt;
                       searchResultsPlaylist = Playlist("Search Playlist");
                       searchResultsPlaylist.setSongs = searchResults;
                       searchLength = searchResults.length;
@@ -289,11 +289,11 @@ class _SearchPageState extends State<SearchPage> {
         },
       ),
       onTap: () async {
-        if (GlobalVariables.audioPlayerManager.isSongLoaded) {
+        if (CustomColors.audioPlayerManager.isSongLoaded) {
           Playlist temp = Playlist(searchResultsPlaylist.name);
           temp.setSongs = searchResultsPlaylist.songs;
           FocusScope.of(context).requestFocus(FocusNode());
-          GlobalVariables.audioPlayerManager.initSong(
+          CustomColors.audioPlayerManager.initSong(
             song: song,
             playlist: temp,
             mode: PlaylistMode.loop,
@@ -307,7 +307,7 @@ class _SearchPageState extends State<SearchPage> {
   void showMoreOptions(Song song) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
-      context: GlobalVariables.homePageContext,
+      context: CustomColors.homePageContext,
       builder: (builder) {
         return SongOptionsModalSheet(
           song,

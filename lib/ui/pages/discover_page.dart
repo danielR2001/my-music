@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/database/database_manager.dart';
-import 'package:myapp/custom_classes/custom_colors.dart';
+import 'package:myapp/core/database/firebase/database_manager.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
@@ -36,9 +36,9 @@ class _DiscoverPageState extends State<DiscoverPage> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    GlobalVariables.darkGreyColor,
-                    GlobalVariables.lightGreyColor,
-                    GlobalVariables.pinkColor,
+                    CustomColors.darkGreyColor,
+                    CustomColors.lightGreyColor,
+                    CustomColors.pinkColor,
                   ],
                   begin: FractionalOffset.bottomRight,
                   stops: [0.2, 0.7, 1.0],
@@ -120,23 +120,23 @@ class _DiscoverPageState extends State<DiscoverPage> {
 
   //* widgets
   Widget drawPublicPlaylistsListView() {
-    if (!GlobalVariables.isOfflineMode && needToReloadImages) {
+    if (!CustomColors.isOfflineMode && needToReloadImages) {
       checkForIntenetConnetionForNetworkImage();
       needToReloadImages = false;
     }
     return Expanded(
       child: ListView.builder(
-        itemCount: GlobalVariables.publicPlaylists.length,
+        itemCount: CustomColors.publicPlaylists.length,
         itemBuilder: (BuildContext context, int index) {
           Padding row;
           Expanded padding1;
           Expanded padding2;
           if ((index + 1) % 2 != 0) {
             padding1 =
-                drawPlaylists(GlobalVariables.publicPlaylists[index], context);
-            padding2 = index + 1 != GlobalVariables.publicPlaylists.length
+                drawPlaylists(CustomColors.publicPlaylists[index], context);
+            padding2 = index + 1 != CustomColors.publicPlaylists.length
                 ? drawPlaylists(
-                    GlobalVariables.publicPlaylists[index + 1], context)
+                    CustomColors.publicPlaylists[index + 1], context)
                 : Expanded(child: Container());
             row = Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -193,8 +193,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    GlobalVariables.lightGreyColor,
-                    GlobalVariables.darkGreyColor,
+                    CustomColors.lightGreyColor,
+                    CustomColors.darkGreyColor,
                   ],
                   begin: FractionalOffset.bottomLeft,
                   stops: [0.3, 0.8],
@@ -249,8 +249,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    GlobalVariables.lightGreyColor,
-                    GlobalVariables.darkGreyColor,
+                    CustomColors.lightGreyColor,
+                    CustomColors.darkGreyColor,
                   ],
                   begin: FractionalOffset.bottomLeft,
                   stops: [0.3, 0.8],
@@ -270,7 +270,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
               ),
               child: Icon(
                 Icons.music_note,
-                color: GlobalVariables.pinkColor,
+                color: CustomColors.pinkColor,
                 size: 75,
               ),
             ),
@@ -314,21 +314,21 @@ class _DiscoverPageState extends State<DiscoverPage> {
   }
 
   void checkForIntenetConnetionForNetworkImage() {
-    if (!GlobalVariables.isOfflineMode) {
-      GlobalVariables.publicPlaylists.forEach((playlist) {
+    if (!CustomColors.isOfflineMode) {
+      CustomColors.publicPlaylists.forEach((playlist) {
         if (playlist.songs.length > 0) {
           if (playlist.songs[0].imageUrl != "") {
-            GlobalVariables.manageLocalSongs
+            CustomColors.manageLocalSongs
                 .checkIfImageFileExists(playlist.songs[0])
                 .then((exists) {
               if (exists) {
                 File file = File(
-                    "${GlobalVariables.manageLocalSongs.fullSongDownloadDir.path}/${playlist.songs[0].songId}/${playlist.songs[0].songId}.png");
+                    "${CustomColors.manageLocalSongs._fullSongDownloadDir.path}/${playlist.songs[0].songId}/${playlist.songs[0].songId}.png");
                 setState(() {
                   imageProviders[playlist.songs[0].songId] = (FileImage(file));
                 });
               } else {
-                if (GlobalVariables.isNetworkAvailable) {
+                if (CustomColors.isNetworkAvailable) {
                   setState(() {
                     imageProviders[playlist.songs[0].songId] = NetworkImage(
                       playlist.songs[0].imageUrl,

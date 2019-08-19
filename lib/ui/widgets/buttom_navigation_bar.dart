@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/custom_classes/custom_icons.dart';
+import 'package:myapp/ui/custom_classes/custom_icons.dart';
 
 enum TabItem { discover, library }
 

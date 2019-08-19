@@ -1,14 +1,12 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/managers/audio_player_manager.dart';
-import 'package:myapp/custom_classes/custom_colors.dart';
+import 'package:myapp/core/view_models/page_models/artist_model.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/ui/pages/music_player_page.dart';
+import 'package:myapp/ui/pages/base_page.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
-import 'package:provider/provider.dart';
 
 class ArtistPage extends StatefulWidget {
   final Artist artist;
@@ -18,6 +16,11 @@ class ArtistPage extends StatefulWidget {
 }
 
 class _ArtistPageState extends State<ArtistPage> {
+  final String smallArtistImageUrl =
+      "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png";
+  final String bigArtistImageUrl =
+      "https://www.collegeatlas.org/wp-content/uploads/2014/06/Top-Party-Schools-main-image.jpg";
+  ArtistModel _model;
   ScrollController _scrollController;
   Color iconColor = Colors.white;
   _ArtistPageState();
@@ -28,110 +31,119 @@ class _ArtistPageState extends State<ArtistPage> {
   }
 
   @override
+  void dispose() {
+    _model.disposeModel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          color: GlobalVariables.darkGreyColor,
-        ),
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: <Widget>[
-            SliverAppBar(
-              leading: Padding(
-                padding: const EdgeInsets.all(6),
-                child: Container(
-                  decoration: _scrollController.hasClients
-                      ? _scrollController.offset > 300 - kToolbarHeight
-                          ? BoxDecoration()
-                          : BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: GlobalVariables.lightGreyColor,
-                            )
-                      : BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: GlobalVariables.lightGreyColor,
+    return BasePage<ArtistModel>(
+        onModelReady: (model) {
+          _model = model;
+          _model.initModel();
+          _model.loadArtistPlaylist();
+        },
+        builder: (context, model, child) => Scaffold(
+              body: Container(
+                decoration: BoxDecoration(
+                  color: CustomColors.darkGreyColor,
+                ),
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  slivers: <Widget>[
+                    SliverAppBar(
+                      leading: Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: Container(
+                          decoration: _scrollController.hasClients
+                              ? _scrollController.offset > 300 - kToolbarHeight
+                                  ? BoxDecoration()
+                                  : BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: CustomColors.lightGreyColor,
+                                    )
+                              : BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: CustomColors.lightGreyColor,
+                                ),
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.arrow_back,
+                              color: iconColor,
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
                         ),
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.arrow_back,
-                      color: iconColor,
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-              ),
-              automaticallyImplyLeading: false,
-              backgroundColor: _scrollController.hasClients
-                  ? _scrollController.offset > 270 - kToolbarHeight
-                      ? GlobalVariables.lightGreyColor
-                      : GlobalVariables.darkGreyColor
-                  : GlobalVariables.darkGreyColor,
-              expandedHeight: 300,
-              pinned: true,
-              flexibleSpace: FlexibleSpaceBar(
-                centerTitle: true,
-                title: AutoSizeText(
-                  widget.artist.name,
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                ),
-                background: ShaderMask(
-                  shaderCallback: (rect) {
-                    return LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        GlobalVariables.darkGreyColor,
-                        Colors.transparent
-                      ],
-                    ).createShader(
-                        Rect.fromLTRB(0, 0, rect.width, rect.height));
-                  },
-                  blendMode: BlendMode.dstIn,
-                  child: widget.artist.imageUrl !=
-                          "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png"
-                      ? Image.network(
-                          widget.artist.imageUrl,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.network(
-                          "https://www.collegeatlas.org/wp-content/uploads/2014/06/Top-Party-Schools-main-image.jpg",
-                          fit: BoxFit.cover,
+                      ),
+                      automaticallyImplyLeading: false,
+                      backgroundColor: _scrollController.hasClients
+                          ? _scrollController.offset > 270 - kToolbarHeight
+                              ? CustomColors.lightGreyColor
+                              : CustomColors.darkGreyColor
+                          : CustomColors.darkGreyColor,
+                      expandedHeight: 300,
+                      pinned: true,
+                      flexibleSpace: FlexibleSpaceBar(
+                        centerTitle: true,
+                        title: AutoSizeText(
+                          widget.artist.name,
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
                         ),
-                ),
-              ),
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
-                    child: Text(
-                      "Top Hits:",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        background: ShaderMask(
+                          shaderCallback: (rect) {
+                            return LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                CustomColors.darkGreyColor,
+                                Colors.transparent
+                              ],
+                            ).createShader(
+                                Rect.fromLTRB(0, 0, rect.width, rect.height));
+                          },
+                          blendMode: BlendMode.dstIn,
+                          child: widget.artist.imageUrl != smallArtistImageUrl
+                              ? Image.network(
+                                  widget.artist.imageUrl,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.network(
+                                  bigArtistImageUrl,
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
                       ),
                     ),
-                  )
-                ],
+                    SliverList(
+                      delegate: SliverChildListDelegate(
+                        [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 10),
+                            child: Text(
+                              "Top Hits:",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    makeSliverList(_model.pagePlaylist, context)
+                  ],
+                ),
               ),
-            ),
-            makeSliverList(
-                Provider.of<PageNotifier>(context).currentPlaylistPagePlaylist,
-                context)
-          ],
-        ),
-      ),
-    );
+            ));
   }
 
   //* widgets
@@ -158,8 +170,7 @@ class _ArtistPageState extends State<ArtistPage> {
             if (pos < 26) {
               pos = 36;
             }
-            artist =
-                playlist.songs[index].artist.substring(0, pos) + "...";
+            artist = playlist.songs[index].artist.substring(0, pos) + "...";
           } else {
             artist = playlist.songs[index].artist;
           }
@@ -168,15 +179,9 @@ class _ArtistPageState extends State<ArtistPage> {
             title: Text(
               title,
               style: TextStyle(
-                color: GlobalVariables.audioPlayerManager.currentSong != null &&
-                        GlobalVariables.audioPlayerManager.currentPlaylist != null
-                    ? GlobalVariables.audioPlayerManager.loopPlaylist.name ==
-                            playlist.name
-                        ? GlobalVariables.audioPlayerManager.currentSong.songId ==
-                                playlist.songs[index].songId
-                            ? GlobalVariables.pinkColor
-                            : Colors.white
-                        : Colors.white
+                color: _model.isPagePlaylistIsPlaying() &&
+                        _model.isSongPlaying(playlist.songs[index])
+                    ? CustomColors.pinkColor
                     : Colors.white,
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
@@ -185,79 +190,53 @@ class _ArtistPageState extends State<ArtistPage> {
             subtitle: Text(
               artist,
               style: TextStyle(
-                color: GlobalVariables.audioPlayerManager.currentSong != null &&
-                        GlobalVariables.audioPlayerManager.currentPlaylist != null
-                    ? GlobalVariables.audioPlayerManager.loopPlaylist.name ==
-                            playlist.name
-                        ? Provider.of<PageNotifier>(context)
-                                    .currentSong
-                                    .songId ==
-                                playlist.songs[index].songId
-                            ? GlobalVariables.pinkColor
-                            : Colors.grey
-                        : Colors.grey
+                color: _model.isPagePlaylistIsPlaying() &&
+                        _model.isSongPlaying(playlist.songs[index])
+                    ? CustomColors.pinkColor
                     : Colors.grey,
                 fontSize: 12,
               ),
             ),
-            trailing:
-                GlobalVariables.manageLocalSongs.isSongDownloading(playlist.songs[index])
-                    ? Padding(
-                        padding: EdgeInsets.only(right: 6),
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                              GlobalVariables.pinkColor),
-                          strokeWidth: 4.0,
-                        ),
-                      )
-                    : IconButton(
-                        icon: Icon(
-                          Icons.more_vert,
-                          color: GlobalVariables.audioPlayerManager.currentSong != null &&
-                                  GlobalVariables.audioPlayerManager.currentPlaylist != null
-                              ? GlobalVariables.audioPlayerManager.loopPlaylist.name ==
-                                      playlist.name
-                                  ? GlobalVariables.audioPlayerManager.currentSong.songId ==
-                                          playlist.songs[index].songId
-                                      ? GlobalVariables.pinkColor
-                                      : Colors.white
-                                  : Colors.white
-                              : Colors.white,
-                        ),
-                        iconSize: 30,
-                        onPressed: () {
-                          setState(() {
-                            showSongOptions(playlist.songs[index], playlist);
-                          });
-                        },
+            trailing: _model.isSongDownloading(playlist.songs[index])
+                ? Padding(
+                    padding: EdgeInsets.only(right: 6),
+                    child: GestureDetector(
+                      child: CircularProgressIndicator(
+                        value: _model.progress(playlist.songs[index].songId) /
+                            _model.total(playlist.songs[index].songId),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            CustomColors.pinkColor),
+                        strokeWidth: 4.0,
                       ),
-            onTap: () {
-              if (GlobalVariables.audioPlayerManager.isSongLoaded) {
-                if (GlobalVariables.audioPlayerManager.currentSong != null &&
-                    GlobalVariables.audioPlayerManager.currentPlaylist != null) {
-                  if (GlobalVariables.audioPlayerManager.currentSong.songId ==
-                          playlist.songs[index].songId &&
-                      GlobalVariables.audioPlayerManager.currentPlaylist.name ==
-                          playlist.name) {
-                    Navigator.push(
-                      GlobalVariables.homePageContext,
-                      MaterialPageRoute(
-                          builder: (context) => MusicPlayerPage()),
-                    );
-                  } else {
-                    GlobalVariables.audioPlayerManager.initSong(
-                      song: playlist.songs[index],
-                      playlist: playlist,
-                      mode: PlaylistMode.loop,
-                    );
-                  }
-                } else {
-                  GlobalVariables.audioPlayerManager.initSong(
-                    song: playlist.songs[index],
-                    playlist: playlist,
-                    mode: PlaylistMode.loop,
-                  );
-                }
+                      onTap: () {
+                        _model.cancelDownLoad(playlist.songs[index]);
+                      },
+                    ),
+                  )
+                : IconButton(
+                    icon: Icon(
+                      Icons.more_vert,
+                      color: _model.isPagePlaylistIsPlaying() &&
+                              _model.isSongPlaying(playlist.songs[index])
+                          ? CustomColors.pinkColor
+                          : Colors.white,
+                    ),
+                    iconSize: 30,
+                    onPressed: () {
+                      setState(() {
+                        showSongOptions(playlist.songs[index]);
+                      });
+                    },
+                  ),
+            onTap: () async {
+              if (_model.isPagePlaylistIsPlaying() &&
+                  _model.isSongPlaying(playlist.songs[index])) {
+                Navigator.pushNamed(
+                  context,
+                  "/musicPlayer",
+                );
+              } else {
+                await _model.play(index);
               }
             },
           );
@@ -267,14 +246,14 @@ class _ArtistPageState extends State<ArtistPage> {
   }
 
   //* methods
-  void showSongOptions(Song song, Playlist currentPlaylist) {
+  void showSongOptions(Song song) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
-      context: GlobalVariables.homePageContext,
+      context: context,
       builder: (builder) {
         return SongOptionsModalSheet(
           song,
-          currentPlaylist,
+          _model.pagePlaylist,
           false,
           SongModalSheetMode.download_public_search_artist,
         );

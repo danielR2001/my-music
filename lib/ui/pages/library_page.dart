@@ -1,15 +1,12 @@
 import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/communicate_with_native/native_communication_service.dart';
-import 'package:myapp/managers/audio_player_manager.dart';
-import 'package:myapp/database/authentication.dart';
-import 'package:myapp/database/database_manager.dart';
-import 'package:myapp/custom_classes/custom_colors.dart';
+import 'package:myapp/core/database/firebase/authentication_manager.dart';
+import 'package:myapp/core/database/firebase/database_manager.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/page_notifier/page_notifier.dart';
-import 'package:myapp/custom_classes/custom_icons.dart';
+import 'package:myapp/ui/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/welcome_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:provider/provider.dart';
@@ -42,9 +39,9 @@ class _AccountPageState extends State<AccountPage> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  GlobalVariables.darkGreyColor,
-                  GlobalVariables.lightGreyColor,
-                  GlobalVariables.pinkColor,
+                  CustomColors.darkGreyColor,
+                  CustomColors.lightGreyColor,
+                  CustomColors.pinkColor,
                 ],
                 begin: FractionalOffset.bottomRight,
                 stops: [0.2,0.7, 1.0],
@@ -112,9 +109,9 @@ class _AccountPageState extends State<AccountPage> {
                         size: 30,
                       ),
                       title: Text(
-                        GlobalVariables.currentUser != null
+                        CustomColors.currentUser != null
                             ? "My device" +
-                                "  (${GlobalVariables.currentUser.downloadedSongsPlaylist.songs.length})"
+                                "  (${CustomColors.currentUser.downloadedSongsPlaylist.songs.length})"
                             : "My device",
                         style: TextStyle(
                           fontSize: 17,
@@ -128,11 +125,11 @@ class _AccountPageState extends State<AccountPage> {
                       ),
                       onTap: () {
                         Provider.of<PageNotifier>(
-                                    GlobalVariables.homePageContext)
+                                    CustomColors.homePageContext)
                                 .setCurrentPlaylistPagePlaylist =
-                            GlobalVariables.currentUser.downloadedSongsPlaylist;
+                            CustomColors.currentUser.downloadedSongsPlaylist;
                         widget.onPush(
-                            createMap(GlobalVariables.currentUser.downloadedSongsPlaylist));
+                            createMap(CustomColors.currentUser.downloadedSongsPlaylist));
                       }),
                   SizedBox(
                     height: 20,
@@ -203,7 +200,7 @@ class _AccountPageState extends State<AccountPage> {
             color: Colors.white,
           ),
           onTap: () {
-            Provider.of<PageNotifier>(GlobalVariables.homePageContext)
+            Provider.of<PageNotifier>(CustomColors.homePageContext)
                 .setCurrentPlaylistPagePlaylist = playlist;
             widget.onPush(createMap(playlist));
           }),
@@ -212,20 +209,20 @@ class _AccountPageState extends State<AccountPage> {
 
   Widget showOrHidePlaylists() {
     if (openPlaylists) {
-      if (!GlobalVariables.isOfflineMode && needToReloadImages) {
+      if (!CustomColors.isOfflineMode && needToReloadImages) {
         checkForIntenetConnetionForNetworkImage();
         needToReloadImages = false;
       }
       return Expanded(
         child: ListView.builder(
-          itemCount: GlobalVariables.currentUser != null
-              ? GlobalVariables.currentUser.playlists != null
-                  ? GlobalVariables.currentUser.playlists.length
+          itemCount: CustomColors.currentUser != null
+              ? CustomColors.currentUser.playlists != null
+                  ? CustomColors.currentUser.playlists.length
                   : 0
               : 0,
           itemBuilder: (BuildContext context, int index) {
             return userPlaylists(
-                GlobalVariables.currentUser.playlists[index], context, index);
+                CustomColors.currentUser.playlists[index], context, index);
           },
         ),
       );
@@ -242,8 +239,8 @@ class _AccountPageState extends State<AccountPage> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              GlobalVariables.lightGreyColor,
-              GlobalVariables.darkGreyColor,
+              CustomColors.lightGreyColor,
+              CustomColors.darkGreyColor,
             ],
             begin: FractionalOffset.bottomLeft,
             stops: [0.3, 0.8],
@@ -269,7 +266,7 @@ class _AccountPageState extends State<AccountPage> {
                   )
                 : Icon(
                     Icons.music_note,
-                    color: GlobalVariables.pinkColor,
+                    color: CustomColors.pinkColor,
                     size: 30,
                   ),
       );
@@ -280,8 +277,8 @@ class _AccountPageState extends State<AccountPage> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              GlobalVariables.lightGreyColor,
-              GlobalVariables.darkGreyColor,
+              CustomColors.lightGreyColor,
+              CustomColors.darkGreyColor,
             ],
             begin: FractionalOffset.bottomLeft,
             stops: [0.3, 0.8],
@@ -301,7 +298,7 @@ class _AccountPageState extends State<AccountPage> {
         ),
         child: Icon(
           Icons.music_note,
-          color: GlobalVariables.pinkColor,
+          color: CustomColors.pinkColor,
           size: 30,
         ),
       );
@@ -324,20 +321,20 @@ class _AccountPageState extends State<AccountPage> {
   }
   
   void checkForIntenetConnetionForNetworkImage() {
-    if (!GlobalVariables.isOfflineMode) {
-      GlobalVariables.currentUser.playlists.forEach((playlist) {
+    if (!CustomColors.isOfflineMode) {
+      CustomColors.currentUser.playlists.forEach((playlist) {
           if (playlist.songs.length > 0) {
-            GlobalVariables.manageLocalSongs.checkIfImageFileExists(playlist.songs[0])
+            CustomColors.manageLocalSongs.checkIfImageFileExists(playlist.songs[0])
                 .then((exists) {
               if (exists) {
                 File file = File(
-                    "${GlobalVariables.manageLocalSongs.fullSongDownloadDir.path}/${playlist.songs[0].songId}/${playlist.songs[0].songId}.png");
+                    "${CustomColors.manageLocalSongs._fullSongDownloadDir.path}/${playlist.songs[0].songId}/${playlist.songs[0].songId}.png");
                 setState(() {
                   imageProviders[playlist.songs[0].songId] =
                       FileImage(file);
                 });
               } else {
-                if (GlobalVariables.isNetworkAvailable) {
+                if (CustomColors.isNetworkAvailable) {
                   setState(() {
                     imageProviders[playlist.songs[0].songId] =
                         NetworkImage(
@@ -361,7 +358,7 @@ class _AccountPageState extends State<AccountPage> {
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(
-            "Hii " + GlobalVariables.currentUser.name + "!",
+            "Hii " + CustomColors.currentUser.name + "!",
             style: TextStyle(
                 color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
@@ -390,7 +387,7 @@ class _AccountPageState extends State<AccountPage> {
                         height: 50.0,
                         width: 90,
                         decoration: BoxDecoration(
-                          color: GlobalVariables.pinkColor,
+                          color: CustomColors.pinkColor,
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(
@@ -418,7 +415,7 @@ class _AccountPageState extends State<AccountPage> {
                         height: 50.0,
                         width: 90,
                         decoration: BoxDecoration(
-                          color: GlobalVariables.pinkColor,
+                          color: CustomColors.pinkColor,
                           borderRadius: BorderRadius.circular(40.0),
                         ),
                         child: Text(
@@ -430,14 +427,14 @@ class _AccountPageState extends State<AccountPage> {
                         ),
                       ),
                       onTap: () {
-                        GlobalVariables.publicPlaylists = List();
+                        CustomColors.publicPlaylists = List();
                         FirebaseDatabaseManager.cancelStreams().then((a) {
-                          GlobalVariables.manageLocalSongs.deleteDownloadedDirectory();
-                          FirebaseAuthentication.signOut().then((a) {
-                            GlobalVariables.audioPlayerManager.closeSong(
+                          CustomColors.manageLocalSongs.deleteDownloadedDirectory();
+                          FirebaseAuthenticationManager.signOut().then((a) {
+                            CustomColors.audioPlayerManager.closeSong(
                                 closeSongMode: CloseSongMode.completely);
                                 NativeCommunicationService.removeNotification();
-                            GlobalVariables.currentUser = null;
+                            CustomColors.currentUser = null;
                             Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
@@ -465,9 +462,9 @@ class _AccountPageState extends State<AccountPage> {
     } else {
       playlistValues['playlist'] = playlist;
     }
-    playlistValues['playlistCreator'] = GlobalVariables.currentUser;
+    playlistValues['playlistCreator'] = CustomColors.currentUser;
     playlistValues['playlistModalSheetMode'] =
-        playlist.pushId != GlobalVariables.currentUser.downloadedSongsPlaylist.pushId
+        playlist.pushId != CustomColors.currentUser.downloadedSongsPlaylist.pushId
             ? PlaylistModalSheetMode.regular
             : PlaylistModalSheetMode.download;
     return playlistValues;
