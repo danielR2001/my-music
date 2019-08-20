@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:myapp/core/enums/sort_type.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/user.dart';
@@ -9,11 +10,7 @@ class FirebaseDatabaseManager {
   static final String _playlistsDir = "playlists";
   static final String _songsDir = "songs";
   static final String _publicPlaylistsDir = "publicPlaylists";
-  static StreamSubscription<Event> onChildChanged;
-  static StreamSubscription<Event> onChildAdded;
-  static StreamSubscription<Event> onChildRemoved;
   static String _userPushId;
-  static bool _firstCallChildAdded = true;
 
   Future<void> saveUser(User currentUser) async {
     var pushId = FirebaseDatabase.instance.reference().child(_usersDir).push();
@@ -157,7 +154,6 @@ class FirebaseDatabaseManager {
           }
         },
       );
-      _listenToPublicPlaylistsChange();
     }
     return tempPlaylist; // may return null
   }
@@ -274,51 +270,24 @@ class FirebaseDatabaseManager {
     return playlists;
   }
 
-  void _listenToPublicPlaylistsChange() {
-    int index = 0;
-    onChildChanged = FirebaseDatabase.instance
+  Stream<Event> onChildChanged() {
+    return FirebaseDatabase.instance
         .reference()
         .child(_publicPlaylistsDir)
-        .onChildChanged
-        .listen((playlistMap) {
-      _updatePublicPlaylist(playlistMap.snapshot.key).then((playlist) {
-        CustomColors.publicPlaylists.removeWhere((temp) =>
-            temp.publicPlaylistPushId == playlist.publicPlaylistPushId);
-        CustomColors.publicPlaylists.add(playlist);
-      });
-    });
-    onChildRemoved = FirebaseDatabase.instance
-        .reference()
-        .child(_publicPlaylistsDir)
-        .onChildRemoved
-        .listen((playlistMap) {
-      CustomColors.publicPlaylists.removeWhere(
-          (temp) => temp.publicPlaylistPushId == playlistMap.snapshot.key);
-    });
-    onChildAdded = FirebaseDatabase.instance
-        .reference()
-        .child(_publicPlaylistsDir)
-        .onChildAdded
-        .listen((playlistMap) {
-      if (!_firstCallChildAdded &&
-          playlistMap.snapshot.key != "publicPlaylists") {
-        _updatePublicPlaylist(playlistMap.snapshot.key).then((playlist) {
-          CustomColors.publicPlaylists.add(playlist);
-        });
-      } else {
-        if (index == CustomColors.publicPlaylists.length - 1) {
-          _firstCallChildAdded = false;
-        } else {
-          index++;
-        }
-      }
-    });
+        .onChildChanged;
   }
 
-  Future<void> cancelStreams() async {
-    _firstCallChildAdded = true;
-    await onChildAdded.cancel();
-    await onChildChanged.cancel();
-    await onChildRemoved.cancel();
+  Stream<Event> onChildRemoved() {
+    return FirebaseDatabase.instance
+        .reference()
+        .child(_publicPlaylistsDir)
+        .onChildRemoved;
+  }
+
+    Stream<Event> onChildAdded() {
+    return FirebaseDatabase.instance
+        .reference()
+        .child(_publicPlaylistsDir)
+        .onChildAdded;
   }
 }

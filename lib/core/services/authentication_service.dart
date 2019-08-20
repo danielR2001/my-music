@@ -59,7 +59,6 @@ class AuthenticationService {
   }
 
   Future<void> logout() async {
-    await _firebaseDatabaseManager.cancelStreams();
     await _localDatabaseManager.deleteDownloadedDirectory();
     await _firebaseAuthenticationManager.signOut();
     await _audioPlayerService.releasePlaylist();

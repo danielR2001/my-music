@@ -34,14 +34,16 @@ class AudioPlayerService {
 
   set setPlaylistMode(PlaylistMode playlistMode) {
     _playlistMode = playlistMode;
-    //! TODO changed of current playlist
+
+    if(_playlistMode == PlaylistMode.loop) {
+      _currentPlaylist = Playlist.fromPlaylist(_loopPlaylist);
+    }else if(_playlistMode == PlaylistMode.shuffle) {
+      _shuffledPlaylist = _createShuffledPlaylist();
+      _currentPlaylist = Playlist.fromPlaylist(shuffledPlaylist);
+    }
   }
 
   set setCurrentPlaylist(Playlist playlist) => _currentPlaylist = playlist;
-
-  set setShuffledPlaylist(Playlist playlist) => _shuffledPlaylist = playlist;
-
-  set setLoopPlaylist(Playlist playlist) => _loopPlaylist = playlist;
 
   void initAudioPlayerService() {
     audioPlayerManager.initAudioPlayerManager();
@@ -53,6 +55,8 @@ class AudioPlayerService {
     //! TODO handle init playlist url search!
     List<String> urls;
     List<AudioNotification> audioNotifications;
+
+    _loopPlaylist = Playlist.fromPlaylist(_currentPlaylist);
     await _playPlaylist(urls, audioNotifications, index, repeatMode);
   }
 
@@ -103,22 +107,8 @@ class AudioPlayerService {
         .elementAt(await audioPlayerManager.getCurrentIndex());
   }
 
-  void setCurrentPlaylist(Playlist playlist) {
-    if (loopPlaylist == null) {
-      _loopPlaylist = playlist;
-      audioPlayerManager.release();
-    }
-    if (playlistMode == PlaylistMode.loop) {
-      _currentPlaylist = loopPlaylist;
-    } else {
-      if (shuffledPlaylist == null) {
-        _createShuffledPlaylist();
-      }
-      _currentPlaylist = shuffledPlaylist;
-    }
-  }
-
-  void _createShuffledPlaylist() {
+  Playlist _createShuffledPlaylist() {
+    Playlist playlist;
     List<Song> shuffledlist = List();
     List<int> randomPosList = _createRandomPosList();
     int pos = 0;
@@ -126,8 +116,9 @@ class AudioPlayerService {
       shuffledlist.add(loopPlaylist.songs[randomPosList[pos]]);
       pos++;
     }
-    _shuffledPlaylist = Playlist(loopPlaylist.name);
-    shuffledPlaylist.setSongs = shuffledlist;
+    playlist = Playlist(loopPlaylist.name);
+    playlist.setSongs = shuffledlist;
+    return playlist;
   }
 
   List<int> _createRandomPosList() {

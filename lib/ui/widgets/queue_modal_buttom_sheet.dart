@@ -2,7 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/song.dart';
-import 'package:provider/provider.dart';
+
+import '../../core/view_models/modal_sheet_models/queue_model.dart';
+import '../pages/base_page.dart';
 
 class QueueModalSheet extends StatefulWidget {
   @override
@@ -10,54 +12,57 @@ class QueueModalSheet extends StatefulWidget {
 }
 
 class _QueueModalSheetState extends State<QueueModalSheet> {
+  QueueModel _model;
+  Song currentSong;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.topCenter,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.transparent),
-        borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(20.0),
-            topRight: const Radius.circular(20.0)),
-        color: CustomColors.lightGreyColor,
-      ),
-      child: Column(
-        children: <Widget>[
-          drawTitle(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 5),
-            child: Container(
-              height: 1,
-              //width: 350,
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.grey,
+    return BasePage<QueueModel>(
+      onModelReady: (model) async {
+        _model = model;
+        currentSong = await _model.getCurrentSong();
+      },
+      builder: (context, model, child) => Container(
+        alignment: Alignment.topCenter,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.transparent),
+          borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(20.0),
+              topRight: const Radius.circular(20.0)),
+          color: CustomColors.lightGreyColor,
+        ),
+        child: Column(
+          children: <Widget>[
+            drawTitle(),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 5),
+              child: Container(
+                height: 1,
+                //width: 350,
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: Theme(
-              data: Theme.of(context).copyWith(canvasColor: CustomColors.lightGreyColor),
-              child: ReorderableListView(
-                children: drawPlaylistQueueSongs(),
-                onReorder: (from, to) {
-                  if (to > from) {
-                    to--;
-                  }
-                  Song temp = Song.fromSong(
-                      CustomColors.audioPlayerManager.currentPlaylist.songs[to]);
-                  CustomColors.audioPlayerManager.currentPlaylist.songs[to] =
-                      CustomColors.audioPlayerManager.currentPlaylist.songs[from];
-                  CustomColors.audioPlayerManager.currentPlaylist.songs[from] = temp;
-                  setState(() {});
-                },
+            Expanded(
+              child: Theme(
+                data: Theme.of(context)
+                    .copyWith(canvasColor: CustomColors.lightGreyColor),
+                child: ReorderableListView(
+                  children: drawPlaylistQueueSongs(),
+                  onReorder: (from, to) {
+                    //setState(() {
+                    _model.onReorder(to, from);
+                    //});
+                  },
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -79,12 +84,10 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
 
   List<Widget> drawPlaylistQueueSongs() {
     List<Widget> songs = List();
-    for (int i = 0;
-        i < CustomColors.audioPlayerManager.currentPlaylist.songs.length;
-        i++) {
+    for (int i = 0; i < _model.getCurrentPlaylist().songs.length; i++) {
       Key key = Key("$i");
-      songs.add(songItem(
-          CustomColors.audioPlayerManager.currentPlaylist.songs[i], i + 1, context, key));
+      songs.add(
+          songItem(_model.getCurrentPlaylist().songs[i], i + 1, context, key));
     }
     return songs;
   }
@@ -122,8 +125,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
       title: Text(
         title,
         style: TextStyle(
-          color: Provider.of<PageNotifier>(context).currentSong.songId ==
-                  song.songId
+          color: currentSong.songId == song.songId
               ? CustomColors.pinkColor
               : Colors.white,
           fontSize: 14,
@@ -133,14 +135,13 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
       subtitle: Text(
         artist,
         style: TextStyle(
-          color: Provider.of<PageNotifier>(context).currentSong.songId ==
-                  song.songId
+          color: currentSong.songId == song.songId
               ? CustomColors.pinkColor
               : Colors.grey,
           fontSize: 12,
         ),
       ),
-      trailing: CustomColors.audioPlayerManager.currentSong.songId != song.songId
+      trailing: currentSong.songId != song.songId
           ? IconButton(
               icon: Icon(
                 Icons.clear,
@@ -148,7 +149,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
               ),
               onPressed: () {
                 setState(() {
-                  CustomColors.audioPlayerManager.currentPlaylist.removeSong(song);
+                  _model.removeSongFromPlaylist(song);
                 });
               },
             )
@@ -157,17 +158,9 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
               height: 0,
             ),
       onTap: () {
-        if (CustomColors.audioPlayerManager.currentSong.songId != song.songId) {
-          if (CustomColors.audioPlayerManager.isSongLoaded &&
-              CustomColors.audioPlayerManager.songPosition != Duration(milliseconds: 0)) {
-            CustomColors.audioPlayerManager.initSong(
-              song: song,
-              playlist: CustomColors.audioPlayerManager.currentPlaylist,
-              mode: CustomColors.audioPlayerManager.playlistMode,
-            );
-            setState(() {});
-          }
-        }
+        //setState(() {
+        _model.seekIndex(_model.getCurrentPlaylist().songs.indexOf(song));
+        //});
       },
     );
   }

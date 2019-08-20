@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:myapp/core/database/firebase/database_manager.dart';
 import 'package:myapp/locater.dart';
 import 'package:myapp/models/playlist.dart';
@@ -20,12 +21,12 @@ class FirebaseDatabaseService {
     return await _firebaseDatabaseManager.addPlaylist(playlist);
   }
 
-  void removePlaylist(Playlist playlist) {
-    _firebaseDatabaseManager.removePlaylist(playlist);
+  Future<void> removePlaylist(Playlist playlist) async {
+    await _firebaseDatabaseManager.removePlaylist(playlist);
   }
 
-  void renamePlaylist(Playlist playlist, String newName) {
-    _firebaseDatabaseManager.removePlaylist(playlist);
+  Future<void> renamePlaylist(Playlist playlist, String newName) async {
+    await _firebaseDatabaseManager.removePlaylist(playlist);
   }
 
   Future<void> changePlaylistPrivacy(Playlist playlist) async {
@@ -52,7 +53,15 @@ class FirebaseDatabaseService {
         playlist, completeDelete);
   }
 
-  Future<void> cancelStreams() async {
-    await _firebaseDatabaseManager.cancelStreams();
+  Stream<Event> onChildChanged() {
+    return _firebaseDatabaseManager.onChildChanged();
+  }
+
+  Stream<Event> onChildRemoved() {
+    return _firebaseDatabaseManager.onChildRemoved();
+  }
+
+    Stream<Event> onChildAdded() {
+    return _firebaseDatabaseManager.onChildAdded();
   }
 }

@@ -6,6 +6,7 @@ import 'package:myapp/models/song.dart';
 class ApiService {
   final ApiManager _apiManager = locator<ApiManager>();
 
+  //all functions may return null = ERROR
   Future<List<Song>> getSearchResults(String searchStr) async {
     return await _apiManager.getSearchResults(searchStr);
   }

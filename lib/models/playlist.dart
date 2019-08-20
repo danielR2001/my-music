@@ -1,11 +1,11 @@
-import 'package:myapp/ui/widgets/sort_modal_buttom_sheet.dart';
+import 'package:myapp/core/enums/sort_type.dart';
 
 import 'song.dart';
 
 class Playlist {
   String _name;
   List<Song> _songs;
-  SortType _sortedType;
+  SortType _sortType;
   String _pushId;
   bool _isPublic;
   String _creator;
@@ -16,6 +16,16 @@ class Playlist {
     _isPublic = isPublic;
     _creator = creator;
     _songs = List<Song>();
+  }
+
+  Playlist.fromPlaylist(Playlist playlist) {
+    _name = playlist.name;
+    _isPublic = playlist.isPublic;
+    _creator = playlist.creator;
+    _songs = playlist.songs;
+    _publicPlaylistPushId = playlist._publicPlaylistPushId;
+    _pushId = playlist.pushId;
+    _sortType = playlist.sortType;
   }
 
   Playlist.fromJson(Map values) {
@@ -41,7 +51,7 @@ class Playlist {
 
   bool get isPublic => _isPublic;
 
-  SortType get sortType => _sortedType;
+  SortType get sortType => _sortType;
 
   String get creator => _creator;
 
@@ -55,13 +65,13 @@ class Playlist {
 
   set setIsPublic(bool value) => _isPublic = value;
 
-  set setSortedType(SortType value) => _sortedType = value;
+  set setSortedType(SortType value) => _sortType = value;
 
   set setCreator(String value) => _creator = value;
 
   set setPublicPlaylistPushId(String value) => _publicPlaylistPushId = value;
 
-  addNewSong(Song song) => _songs.add(song);
+  void addNewSong(Song song) => _songs.add(song);
 
-  removeSong(Song song) => _songs.remove(song);
+  void removeSong(Song song) => _songs.remove(song);
 }

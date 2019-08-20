@@ -80,8 +80,6 @@ class LocalDatabaseManager {
       _downloadSongImage(song);
     }
     _downloadSongInfo(song);
-    //CustomColors.apiService.getSongPlayUrl(song).then((downloadUrl) async {
-    //if (downloadUrl != null) {
     _currentDownloading.add(song);
     try {
       await _dio.download(
@@ -91,7 +89,7 @@ class LocalDatabaseManager {
         _downloadTotalsController.add(generateResultMap(song.songId, total));
         if (prog == total) {
           _downloadStopsController.add(generateResultMap(song.songId, true));
-          print("song: ${song.songId}, download completed!");
+          print("song: ${song.songId}, download completed!"); //! TODO add to current user! or not
         }
       });
     } on DioError catch (e) {
@@ -112,12 +110,6 @@ class LocalDatabaseManager {
       _downloadErorsController
           .add(generateResultMap(song.songId, DownloadError.Unknown));
     }
-    // } else {
-    //   currentDownloading.remove(song);
-    //   CustomColors.toastManager
-    //       .makeToast(text: ToastManager.somethingWentWrong);
-    //  }
-    // });
   }
 
   Future<void> cancelDownLoad(Song song) async {

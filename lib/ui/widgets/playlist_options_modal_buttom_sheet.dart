@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/core/database/firebase/database_manager.dart';
 import 'package:myapp/core/view_models/modal_sheet_models/playlist_options_model.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
@@ -91,7 +90,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () {
-          downloadAll();
+          _model.downloadAll(widget.playlist.songs);
           Navigator.pop(context);
           _model.makeToast(ToastManager.startedDownloadAllSongs);
         },
@@ -149,8 +148,8 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () {
-          if (CustomColors.manageLocalSongs._currentDownloading.length == 0) {
-            unDownloadAll();
+          if (_model.getCurrentDownloading().length == 0) {
+            _model.unDownloadAll(widget.playlist);
             Navigator.pop(context);
             _model.makeToast(ToastManager.undownloadAllSongs);
           } else {
@@ -226,15 +225,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
           setState(() {
             widget.playlist.setIsPublic = !widget.playlist.isPublic;
           });
-          Playlist temp = widget.playlist;
-          if (widget.playlist.isPublic) {
-            temp = await FirebaseDatabaseManager.addPublicPlaylist(
-                widget.playlist, false);
-          } else {
-            FirebaseDatabaseManager.removeFromPublicPlaylist(
-                widget.playlist, false);
-          }
-          FirebaseDatabaseManager.changePlaylistPrivacy(temp);
+          final Playlist temp = await _model.changePlaylistPrivacy(widget.playlist);
           Provider.of<User>(context).updatePlaylist(temp);
         },
       );
@@ -373,21 +364,14 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
   }
 
   //* methods
-  void changePlaylistName(BuildContext context) {
+  Future<void> changePlaylistName(BuildContext context) async {
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      _model.changePlaylistName(widget.playlist, _playlistNewName);
+      final Playlist temp = await _model.changePlaylistName(widget.playlist, _playlistNewName);
+      Provider.of<User>(context).updatePlaylist(temp);
       Navigator.of(context, rootNavigator: true).pop('dialog');
     }
-  }
-
-  void downloadAll() {
-    _model.downloadAll(widget.playlist.songs);
-  }
-
-  void unDownloadAll() {
-    _model.unDownloadAll(widget.playlist.songs);
   }
 
   void showAlertDialog(BuildContext context) {
@@ -468,22 +452,8 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                         ),
                       ),
                       onTap: () {
-                        FirebaseDatabaseManager.removePlaylist(widget.playlist);
-                        Provider.of<User>(context)
-                            .removePlaylist(widget.playlist);
-                        if (CustomColors.audioPlayerManager.currentPlaylist !=
-                            null) {
-                          if (CustomColors
-                                  .audioPlayerManager.currentPlaylist.name ==
-                              CustomColors
-                                  .audioPlayerManager.currentPlaylist.name) {
-                            CustomColors.audioPlayerManager.loopPlaylist = null;
-                            CustomColors.audioPlayerManager.shuffledPlaylist =
-                                null;
-                            CustomColors.audioPlayerManager.currentPlaylist =
-                                null;
-                          }
-                        }
+                        _model.removePlaylist(widget.playlist);
+                        Provider.of<User>(context).removePlaylist(widget.playlist); //! TODO maybe wrong
                         Navigator.of(context, rootNavigator: true)
                             .pop('dialog');
                         Navigator.of(context, rootNavigator: true)

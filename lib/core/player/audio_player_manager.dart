@@ -2,11 +2,6 @@ import 'dart:async';
 import 'package:flutter_exoplayer/audio_notification.dart';
 import 'package:flutter_exoplayer/audioplayer.dart';
 
-enum PlaylistMode {
-  shuffle,
-  loop,
-}
-
 class AudioPlayerManager {
   AudioPlayer _audioPlayer;
 

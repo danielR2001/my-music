@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/core/services/api_service.dart';
@@ -20,14 +22,28 @@ class PlaylistOptionsModel extends BaseModel {
   final AudioPlayerService _audioPlayerService = locator<AudioPlayerService>();
   final ApiService _apiService = locator<ApiService>();
 
-  void changePlaylistName(Playlist playlist, String newName) {
-    _firebaseDatabaseService.renamePlaylist(playlist, newName);
+  StreamSubscription onPlayerIndexChangedStream;
+
+  void initModel() {
+    onPlayerIndexChangedStream =
+        _audioPlayerService.onPlayerIndexChangedStream().listen((index) {
+      notifyListeners();
+    });
+  }
+
+  void disposeModel() {
+    onPlayerIndexChangedStream.cancel();
+  }
+
+  Future<Playlist> changePlaylistName(Playlist playlist, String newName) async {
+    await _firebaseDatabaseService.renamePlaylist(playlist, newName);
     playlist.setName = newName;
     if (_audioPlayerService.currentPlaylist != null) {
       if (_audioPlayerService.currentPlaylist.pushId == playlist.pushId) {
         _audioPlayerService.currentPlaylist.setName = newName;
       }
     }
+    return playlist;
   }
 
   void downloadAll(List<Song> songs) {
@@ -42,16 +58,15 @@ class PlaylistOptionsModel extends BaseModel {
     });
   }
 
-  void unDownloadAll(List<Song> songs) {
-    songs.forEach((song) async {
+  void unDownloadAll(Playlist playlist) {
+    playlist.songs.forEach((song) async {
       bool exists = await _localDatabaseService.checkIfSongFileExists(song);
       if (exists) {
         await _localDatabaseService.deleteSongDirectory(song);
         Song currentSong = await _audioPlayerService.getCurrentSong();
-        if (song.songId == currentSong.songId) {
-          _audioPlayerService.setCurrentPlaylist = null;
-          _audioPlayerService.setShuffledPlaylist = null;
-          _audioPlayerService.setLoopPlaylist = null;
+        if (playlist.pushId == _audioPlayerService.currentPlaylist.pushId &&
+            song.songId == currentSong.songId) {
+          _audioPlayerService.releasePlaylist();
         }
       }
     });
@@ -59,16 +74,26 @@ class PlaylistOptionsModel extends BaseModel {
 
   void removePlaylist(Playlist playlist) {
     _firebaseDatabaseService.removePlaylist(playlist);
-    // Provider.of<User>(context)
-    //     .removePlaylist(widget.playlist);
     if (_audioPlayerService.currentPlaylist != null) {
       if (_audioPlayerService.currentPlaylist.name ==
           _audioPlayerService.currentPlaylist.name) {
-        _audioPlayerService.setLoopPlaylist = null;
-        _audioPlayerService.setShuffledPlaylist = null;
-        _audioPlayerService.setCurrentPlaylist = null;
+        _audioPlayerService.releasePlaylist();
       }
     }
+  }
+
+  Future<Playlist> changePlaylistPrivacy(Playlist playlist) async {
+    if (playlist.isPublic) {
+      playlist =
+          await _firebaseDatabaseService.addPublicPlaylist(playlist, false);
+    } else {
+      _firebaseDatabaseService.removeFromPublicPlaylist(playlist, false);
+    }
+    return playlist;
+  }
+
+  List<Song> getCurrentDownloading() {
+    return _localDatabaseService.currentDownloading;
   }
 
   void makeToast(String text,

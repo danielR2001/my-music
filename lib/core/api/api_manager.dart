@@ -53,8 +53,6 @@ class ApiManager {
       return null;
     } catch (e) {
       print(e);
-      CustomColors.toastManager
-          .makeToast(text: ToastManager.somethingWentWrong);
       _searchCompleted = true;
       return null;
     }
@@ -87,13 +85,9 @@ class ApiManager {
       return streamUrl;
     } on DioError catch (e) {
       print(e);
-      CustomColors.toastManager
-          .makeToast(text: ToastManager.noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      CustomColors.toastManager
-          .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }
   }
@@ -123,13 +117,9 @@ class ApiManager {
       }
     } on DioError catch (e) {
       print(e);
-      CustomColors.toastManager
-          .makeToast(text: ToastManager.badNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      CustomColors.toastManager
-          .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }
   }
@@ -153,13 +143,9 @@ class ApiManager {
       }
     } on DioError catch (e) {
       print(e);
-      CustomColors.toastManager
-          .makeToast(text: ToastManager.noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      CustomColors.toastManager
-          .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }
   }
@@ -190,13 +176,9 @@ class ApiManager {
       }
     } on DioError catch (e) {
       print(e);
-      CustomColors.toastManager
-          .makeToast(text: ToastManager.noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      CustomColors.toastManager
-          .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }
   }
@@ -209,13 +191,9 @@ class ApiManager {
       return _buildLyrics(document);
     } on DioError catch (e) {
       print(e);
-      CustomColors.toastManager
-          .makeToast(text: ToastManager.noNetworkConnection);
       return null;
     } catch (e) {
       print(e);
-      CustomColors.toastManager
-          .makeToast(text: ToastManager.somethingWentWrong);
       return null;
     }
   }
