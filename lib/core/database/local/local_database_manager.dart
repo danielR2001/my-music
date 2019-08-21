@@ -40,6 +40,8 @@ class LocalDatabaseManager {
 
   List<Song> get currentDownloading => _currentDownloading;
 
+    Directory get fullSongDownloadDir => _fullSongDownloadDir;
+
   Future<void> initDirs() async {
     _externalDir = await getExternalStorageDirectory();
     _fullSongDownloadDir = await new Directory(

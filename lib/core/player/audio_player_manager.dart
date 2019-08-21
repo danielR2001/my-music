@@ -62,8 +62,8 @@ class AudioPlayerManager {
     return _audioPlayer.onPlayerCompletion;
   }
 
-  Stream<void> onPlayerStateChangeStream() {
-    return _audioPlayer.onPlayerCompletion;
+  Stream<PlayerState> onPlayerStateChangeStream() {
+    return _audioPlayer.onPlayerStateChanged;
   }
 
   Stream<Duration> onPlayerPositionChangedStream() {

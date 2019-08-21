@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/core/communicate_with_native/native_communication_service.dart';
-import 'package:myapp/ui/custom_classes/custom_colors.dart';
+import 'package:flutter_exoplayer/audioplayer.dart';
 import 'package:myapp/core/services/audio_player_service.dart';
+import 'package:myapp/core/view_models/page_models/music_player_model.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/ui/custom_classes/custom_icons.dart';
+import 'package:myapp/ui/pages/base_page.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'package:flip_card/flip_card.dart';
@@ -19,97 +19,83 @@ class MusicPlayerPage extends StatefulWidget {
 }
 
 class MusicPageState extends State<MusicPlayerPage> {
-  Duration _position;
-  Duration _duration;
+  MusicPlayerModel _model;
   Icon playlistModeIcon;
   Icon musicPlayerIcon;
-  StreamSubscription<AudioPlayerState> stateStream;
-  StreamSubscription<Duration> posStream;
-  StreamSubscription<Duration> durStream;
-  StreamSubscription<void> completionStream;
   ImageProvider imageProvider;
   GlobalKey<FlipCardState> flipCardKey = GlobalKey<FlipCardState>();
   Color backgroundColor = CustomColors.darkGreyColor;
 
   @override
-  void initState() {
-    super.initState();
-    checkForIntenetConnetionForNetworkImage();
-    initSong();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    posStream.cancel();
-    durStream.cancel();
-    stateStream.cancel();
-    completionStream.cancel();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: GestureDetector(
-        onTap: () {},
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                CustomColors.darkGreyColor,
-                backgroundColor,
-              ],
-              begin: FractionalOffset.bottomCenter,
-              stops: [0.22, 1.0],
-              end: FractionalOffset.topCenter,
-            ),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 10, bottom: 20),
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Row(
-                      children: <Widget>[
-                        drawBackButton(),
-                        drawPlaylistName(),
-                        drawPlaylistMoreMenu(),
-                      ],
-                    ),
-                  ),
-                  drawSongImageLyricsFlipCard(),
-                  drawSongTitleArtist(),
-                  CustomColors.audioPlayerManager.isSongActuallyPlaying
-                      ? drawSongPositionSlider()
-                      : drawLoadingSlider(),
-                  drawSongPositionAndDuration(),
-                  Container(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: <Widget>[
-                            drawPreviousButton(),
-                            drawPlayButton(),
-                            drawNextButton(),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      drawPlaylistModeButton(),
-                      Expanded(
-                        child: Container(),
-                      ),
-                      drawPlaylistQueue(),
-                    ],
-                  ),
+    return BasePage<MusicPlayerModel>(
+      onModelReady: (model) {
+        _model = model;
+        _model.setCurrentSong();
+                _model.initPlayerStreamSubsciptions();
+      },
+      builder: (context, model, child) => Scaffold(
+        body: GestureDetector(
+          onTap: () {},
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  CustomColors.darkGreyColor,
+                  backgroundColor,
                 ],
+                begin: FractionalOffset.bottomCenter,
+                stops: [0.22, 1.0],
+                end: FractionalOffset.topCenter,
+              ),
+            ),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 20),
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        children: <Widget>[
+                          drawBackButton(),
+                          drawPlaylistName(),
+                          drawSongOptionsMenu(),
+                        ],
+                      ),
+                    ),
+                    drawSongImageLyricsFlipCard(),
+                    drawSongTitleArtist(),
+                    _model.playerState == PlayerState.BUFFERING
+                        ? drawLoadingSlider()
+                        : drawSongPositionSlider(),
+                    drawSongPositionAndDuration(),
+                    Container(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: <Widget>[
+                              drawPreviousButton(),
+                              drawPlayButton(),
+                              drawNextButton(),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        drawPlaylistModeButton(),
+                        Expanded(
+                          child: Container(),
+                        ),
+                        drawPlaylistQueue(),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -119,7 +105,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   // Widgets
-  Widget drawPlaylistMoreMenu() {
+  Widget drawSongOptionsMenu() {
     return IconButton(
       iconSize: 30,
       icon: Icon(
@@ -127,9 +113,7 @@ class MusicPageState extends State<MusicPlayerPage> {
         color: Colors.white,
       ),
       onPressed: () {
-        if (CustomColors.audioPlayerManager.currentSong != null) {
-          showMoreOptions(context);
-        }
+        showMoreOptions(context);
       },
     );
   }
@@ -153,9 +137,7 @@ class MusicPageState extends State<MusicPlayerPage> {
           Column(
             children: <Widget>[
               Text(
-                CustomColors.audioPlayerManager.currentPlaylist != null
-                    ? "Playing From:"
-                    : "",
+                _model.currentPlaylist != null ? "Playing From:" : "",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 13,
@@ -166,8 +148,8 @@ class MusicPageState extends State<MusicPlayerPage> {
                 height: 5,
               ),
               AutoSizeText(
-                CustomColors.audioPlayerManager.currentPlaylist != null
-                    ? CustomColors.audioPlayerManager.currentPlaylist.name
+                _model.currentPlaylist != null
+                    ? _model.currentPlaylist.name
                     : "",
                 style: TextStyle(
                   color: Colors.white,
@@ -259,8 +241,8 @@ class MusicPageState extends State<MusicPlayerPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
               child: Text(
-                CustomColors.audioPlayerManager.currentSong.lyrics != null
-                    ? CustomColors.audioPlayerManager.currentSong.lyrics
+                _model.currentSong.lyrics != null
+                    ? _model.currentSong.lyrics
                     : "We couldn't find lyrics for this song.",
                 style: TextStyle(
                   color: Colors.white,
@@ -299,18 +281,16 @@ class MusicPageState extends State<MusicPlayerPage> {
           ),
         ],
       ),
-      child:
-          CustomColors.audioPlayerManager.currentSong.imageUrl.length == 0 ||
-                  imageProvider == null
-              ? Icon(
-                  Icons.music_note,
-                  color: CustomColors.pinkColor,
-                  size: 120,
-                )
-              : Image(
-                  image: imageProvider,
-                  fit: BoxFit.contain,
-                ),
+      child: _model.currentSong.imageUrl.length == 0 || imageProvider == null
+          ? Icon(
+              Icons.music_note,
+              color: CustomColors.pinkColor,
+              size: 120,
+            )
+          : Image(
+              image: imageProvider,
+              fit: BoxFit.contain,
+            ),
     );
   }
 
@@ -322,7 +302,7 @@ class MusicPageState extends State<MusicPlayerPage> {
         child: Column(
           children: <Widget>[
             AutoSizeText(
-              CustomColors.audioPlayerManager.currentSong.title,
+              _model.currentSong.title,
               style: TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,
@@ -331,7 +311,7 @@ class MusicPageState extends State<MusicPlayerPage> {
               maxLines: 1,
             ),
             AutoSizeText(
-              CustomColors.audioPlayerManager.currentSong.artist,
+              _model.currentSong.artist,
               style: TextStyle(
                 fontSize: 14.0,
                 color: Colors.grey,
@@ -355,29 +335,11 @@ class MusicPageState extends State<MusicPlayerPage> {
         overlayColor: Colors.transparent,
       ),
       child: Slider(
-        value: _position != null && _duration != null
-            ? _position.inSeconds <= _duration.inSeconds
-                ? _position.inSeconds.toDouble()
-                : 0.0
-            : CustomColors.audioPlayerManager.songPosition != null
-                ? CustomColors.audioPlayerManager.songPosition.inSeconds
-                    .toDouble()
-                : 0.0,
+        value: _model.position.inMilliseconds.toDouble(),
         min: 0.0,
-        max: _duration != null
-            ? _duration.inSeconds.toDouble()
-            : CustomColors.audioPlayerManager.songDuration != null
-                ? CustomColors.audioPlayerManager.songDuration.inSeconds
-                    .toDouble()
-                : 0.0,
+        max: _model.duration.inMilliseconds.toDouble(),
         onChanged: (double value) {
-          setState(() {
-            value = value;
-            _position = Duration(seconds: value.toInt());
-            CustomColors.audioPlayerManager.songPosition =
-                Duration(seconds: value.toInt());
-            seekToSecond(value.toInt());
-          });
+          _model.seekPlayerPosition(value);
         },
       ),
     );
@@ -409,28 +371,14 @@ class MusicPageState extends State<MusicPlayerPage> {
           children: <Widget>[
             Expanded(
               child: Text(
-                _position != null && _duration != null
-                    ? _position.inSeconds <= _duration.inSeconds
-                        ? _position.toString().substring(checkSongLength(), 7)
-                        : "00:00"
-                    : CustomColors.audioPlayerManager.songPosition != null
-                        ? CustomColors.audioPlayerManager.songPosition
-                            .toString()
-                            .substring(checkSongLength(), 7)
-                        : "00:00",
+                _model.positionText,
                 textAlign: TextAlign.left,
                 style: TextStyle(color: Colors.white, fontSize: 13),
               ),
             ),
             Expanded(
               child: Text(
-                _duration != null
-                    ? _duration.toString().substring(checkSongLength(), 7)
-                    : CustomColors.audioPlayerManager.songDuration != null
-                        ? CustomColors.audioPlayerManager.songDuration
-                            .toString()
-                            .substring(checkSongLength(), 7)
-                        : "00:00",
+                _model.durationText,
                 textAlign: TextAlign.right,
                 style: TextStyle(color: Colors.white, fontSize: 13),
               ),
@@ -451,24 +399,10 @@ class MusicPageState extends State<MusicPlayerPage> {
         color: Colors.white,
       ),
       onPressed: () {
-        if (CustomColors.audioPlayerManager.currentPlaylist != null &&
-            CustomColors.audioPlayerManager.currentPlaylist.songs.length >
-                0 &&
-            CustomColors.audioPlayerManager.isSongLoaded) {
-          setState(() {
-            _position = Duration(seconds: 0);
-            _duration = _duration;
-            if (CustomColors.audioPlayerManager.previousMode ==
-                PreviousMode.previous) {
-              imageProvider = null;
-            }
-          });
-          if (!flipCardKey.currentState.isFront) {
-            flipCardKey.currentState.toggleCard();
-          }
-          CustomColors.audioPlayerManager.playPreviousSong();
-          checkForIntenetConnetionForNetworkImage();
+        if (!flipCardKey.currentState.isFront) {
+          flipCardKey.currentState.toggleCard();
         }
+        _model.playPreviousSong();
       },
     );
   }
@@ -481,21 +415,12 @@ class MusicPageState extends State<MusicPlayerPage> {
           width: 80,
           height: 80,
           alignment: Alignment.center,
-          child: musicPlayerIcon,
+          child: _model.playerState == PlayerState.PLAYING
+              ? drawPauseIcon()
+              : drawPlayIcon(),
         ),
         onTap: () {
-          if (CustomColors.audioPlayerManager.isSongLoaded &&
-              CustomColors.audioPlayerManager.isSongActuallyPlaying) {
-            CustomColors.audioPlayerManager.audioPlayer.state ==
-                    AudioPlayerState.PLAYING
-                ? CustomColors.audioPlayerManager
-                    .pauseSong(calledFromNative: false)
-                : CustomColors.audioPlayerManager.audioPlayer.state ==
-                        AudioPlayerState.PAUSED
-                    ? CustomColors.audioPlayerManager
-                        .resumeSong(calledFromNative: false)
-                    : playSong();
-          }
+          _model.resume();
         },
       ),
     );
@@ -511,21 +436,7 @@ class MusicPageState extends State<MusicPlayerPage> {
         color: Colors.white,
       ),
       onPressed: () {
-        if (CustomColors.audioPlayerManager.currentPlaylist != null &&
-            CustomColors.audioPlayerManager.currentPlaylist.songs.length >
-                0 &&
-            CustomColors.audioPlayerManager.isSongLoaded) {
-          setState(() {
-            _position = Duration(seconds: 0);
-            _duration = _duration;
-            imageProvider = null;
-          });
-          if (!flipCardKey.currentState.isFront) {
-            flipCardKey.currentState.toggleCard();
-          }
-          CustomColors.audioPlayerManager.playNextSong();
-          checkForIntenetConnetionForNetworkImage();
-        }
+        _model.playNextSong();
       },
     );
   }
@@ -535,16 +446,11 @@ class MusicPageState extends State<MusicPlayerPage> {
       padding: const EdgeInsets.only(left: 20),
       child: IconButton(
         splashColor: Colors.grey,
-        icon: playlistModeIcon,
+        icon: _model.playlistMode == PlaylistMode.loop
+            ? drawLoopIcon()
+            : drawShuffleIcon(),
         onPressed: () {
-          CustomColors.audioPlayerManager.playlistMode == PlaylistMode.loop
-              ? CustomColors.audioPlayerManager.playlistMode =
-                  PlaylistMode.shuffle
-              : CustomColors.audioPlayerManager.playlistMode =
-                  PlaylistMode.loop;
-          CustomColors.audioPlayerManager.shuffledPlaylist = null;
-          changePlaylistModeIconState();
-          CustomColors.audioPlayerManager.setCurrentPlaylist();
+          _model.setCurrentPlaylist();
         },
       ),
     );
@@ -583,6 +489,22 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
   }
 
+  Widget drawLoopIcon() {
+    return playlistModeIcon = Icon(
+      MyCustomIcons.repeat_icon,
+      color: Colors.white,
+      size: 22,
+    );
+  }
+
+  Widget drawShuffleIcon() {
+    return playlistModeIcon = Icon(
+      MyCustomIcons.shuffle_icon,
+      color: Colors.white,
+      size: 22,
+    );
+  }
+
   //methods
   void showMoreOptions(BuildContext context) {
     showModalBottomSheet(
@@ -590,8 +512,8 @@ class MusicPageState extends State<MusicPlayerPage> {
       context: context,
       builder: (builder) {
         return SongOptionsModalSheet(
-          CustomColors.audioPlayerManager.currentSong,
-          CustomColors.audioPlayerManager.currentPlaylist,
+          _model.currentSong,
+          _model.currentPlaylist,
           true,
           null,
         );
@@ -599,211 +521,15 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
   }
 
-  void changePlayingIconState(bool isPlaying) {
-    if (isPlaying) {
-      setState(
-        () {
-          musicPlayerIcon = drawPauseIcon();
-        },
-      );
-    } else {
-      setState(
-        () {
-          musicPlayerIcon = drawPlayIcon();
-        },
-      );
+  Future<void> generateBackgroundColors() async {
+    Color color = await _model.generateBackgroundColor();
+    if(color == null) {
+      color = CustomColors.pinkColor;
     }
-  }
-
-  void changePlaylistModeIconState() {
-    if (CustomColors.audioPlayerManager.playlistMode == PlaylistMode.loop) {
-      setState(
-        () {
-          playlistModeIcon = Icon(
-            MyCustomIcons.repeat_icon,
-            color: Colors.white,
-            size: 22,
-          );
-        },
-      );
-    } else {
-      setState(
-        () {
-          playlistModeIcon = Icon(
-            MyCustomIcons.shuffle_icon,
-            color: Colors.white,
-            size: 22,
-          );
-        },
-      );
-    }
-  }
-
-  void checkSongStatus(AudioPlayerState state) {
-    if (state == AudioPlayerState.PLAYING) {
-      checkForIntenetConnetionForNetworkImage();
-      changePlayingIconState(true);
-    } else if (state == AudioPlayerState.PAUSED) {
-      changePlayingIconState(false);
-    } else if (state == AudioPlayerState.STOPPED) {
-      if (mounted) {
-        setState(() {
-          _position = Duration(seconds: 0);
-        });
-      }
-      changePlayingIconState(false);
-    } else if (state == AudioPlayerState.COMPLETED) {
-      if (mounted) {
-        setState(() {
-          _position = Duration(seconds: 0);
-        });
-      }
-      changePlayingIconState(false);
-    }
-  }
-
-  void initSong() {
-    posStream = CustomColors
-        .audioPlayerManager.audioPlayer.onAudioPositionChanged
-        .listen((Duration p) {
-      if (mounted) {
-        setState(() => _position = p);
-      }
-    });
-
-    durStream =
-        CustomColors.audioPlayerManager.audioPlayer.onDurationChanged.listen(
-      (Duration d) {
-        if (mounted) {
-          setState(() => _duration = d);
-        }
-      },
-    );
-    completionStream = CustomColors
-        .audioPlayerManager.audioPlayer.onPlayerCompletion
-        .listen((a) {
-      checkForIntenetConnetionForNetworkImage();
-      if (mounted) {
-        if (!flipCardKey.currentState.isFront) {
-          flipCardKey.currentState.toggleCard();
-        }
-        setState(() {
-          imageProvider = null;
-          _position = Duration(seconds: 0);
-        });
-      }
-    });
-    changePlaylistModeIconState();
-    checkSongStatus(CustomColors.audioPlayerManager.audioPlayer.state);
-    stateStream = CustomColors
-        .audioPlayerManager.audioPlayer.onPlayerStateChanged
-        .listen(
-      (AudioPlayerState state) {
-        checkSongStatus(state);
-      },
-    );
-  }
-
-  void seekToSecond(int second) {
-    CustomColors.audioPlayerManager
-        .seekTime(duration: Duration(seconds: second));
-  }
-
-  int checkSongLength() {
-    if (CustomColors.audioPlayerManager.songDuration != null) {
-      if (CustomColors.audioPlayerManager.songDuration.inMinutes < 59) {
-        return 2;
-      } else {
-        return 0;
-      }
-    } else {
-      return 2;
-    }
-  }
-
-  void checkForIntenetConnetionForNetworkImage() {
-    generateBackgroundColors();
-    if (CustomColors.audioPlayerManager.currentSong.imageUrl != "") {
-      CustomColors.manageLocalSongs
-          .checkIfImageFileExists(
-              CustomColors.audioPlayerManager.currentSong)
-          .then((exists) {
-        if (exists) {
-          File file = File(
-              "${CustomColors.manageLocalSongs._fullSongDownloadDir.path}/${CustomColors.audioPlayerManager.currentSong.songId}/${CustomColors.audioPlayerManager.currentSong.songId}.png");
-          if (mounted) {
-            setState(() {
-              imageProvider = FileImage(file);
-            });
-          }
-        } else {
-          if (CustomColors.isNetworkAvailable) {
-            if (mounted) {
-              setState(() {
-                imageProvider = NetworkImage(
-                  CustomColors.audioPlayerManager.currentSong.imageUrl,
-                );
-              });
-            }
-          }
-        }
+    if(mounted){
+      setState(() {
+        backgroundColor = color;
       });
-    }
-  }
-
-  void playSong() {
-    checkForIntenetConnetionForNetworkImage();
-    CustomColors.audioPlayerManager.initSong(
-      song: CustomColors.audioPlayerManager.currentSong,
-      playlist: CustomColors.audioPlayerManager.currentPlaylist,
-      mode: CustomColors.audioPlayerManager.playlistMode,
-    );
-  }
-
-  Future generateBackgroundColors() async {
-    if (CustomColors.audioPlayerManager.currentSong.imageUrl != "") {
-      String dominantColor;
-      ConnectivityResult connectivityResult =
-          await Connectivity().checkConnectivity();
-      bool exists = await CustomColors.manageLocalSongs
-          .checkIfSongFileExists(
-              CustomColors.audioPlayerManager.currentSong);
-      if (exists) {
-        dominantColor = await NativeCommunicationService.getDominantColor(
-            imagePath:
-                "${CustomColors.manageLocalSongs._fullSongDownloadDir.path}/${CustomColors.audioPlayerManager.currentSong.songId}/${CustomColors.audioPlayerManager.currentSong.songId}.png",
-            isLocal: true);
-      } else {
-        if (connectivityResult == ConnectivityResult.mobile ||
-            connectivityResult == ConnectivityResult.wifi) {
-          dominantColor = await NativeCommunicationService.getDominantColor(
-              imagePath:
-                  CustomColors.audioPlayerManager.currentSong.imageUrl,
-              isLocal: false);
-        }
-      }
-
-      if (dominantColor != null) {
-        dominantColor = dominantColor.replaceAll("#", "");
-        dominantColor = "0xff" + dominantColor;
-        if (mounted) {
-          setState(() {
-            backgroundColor = Color(int.parse(dominantColor));
-          });
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            backgroundColor = CustomColors.pinkColor;
-          });
-        }
-      }
-    } else {
-      if (mounted) {
-        setState(() {
-          backgroundColor = CustomColors.pinkColor;
-        });
-      }
     }
   }
 

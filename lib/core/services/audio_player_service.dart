@@ -138,7 +138,7 @@ class AudioPlayerService {
     return audioPlayerManager.onPlayerCompletionStream();
   }
 
-  Stream<void> onPlayerStateChangeStream() {
+  Stream<PlayerState> onPlayerStateChangeStream() {
     return audioPlayerManager.onPlayerStateChangeStream();
   }
 

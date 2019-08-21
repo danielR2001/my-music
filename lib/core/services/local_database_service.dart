@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:myapp/core/database/local/local_database_manager.dart';
 import 'package:myapp/locater.dart';
 import 'package:myapp/models/song.dart';
@@ -20,6 +21,8 @@ class LocalDatabaseService {
       _localDatabaseManager.downloadErorController.stream;
 
   List<Song> get currentDownloading => _localDatabaseManager.currentDownloading;
+
+  Directory get fullSongDownloadDir => _localDatabaseManager.fullSongDownloadDir;
 
   Future<void> initDirs() async {
     await _localDatabaseManager.initDirs();
