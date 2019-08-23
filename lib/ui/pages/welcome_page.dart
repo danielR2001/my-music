@@ -2,8 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
-import 'sign_up_page.dart';
-import 'login_page.dart';
 
 class WelcomePage extends StatelessWidget {
   final List<String> quotes = [

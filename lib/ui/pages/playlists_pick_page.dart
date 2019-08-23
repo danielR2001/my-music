@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -9,7 +11,7 @@ import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/models/playlist.dart';
-import 'package:myapp/core/utils/toast.dart';
+import 'package:myapp/core/services/toast_service.dart';
 import 'package:myapp/ui/pages/base_page.dart';
 import 'package:provider/provider.dart';
 
@@ -118,11 +120,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: ListTile(
-        leading: playlist.songs.length > 0
-            ? playlist.songs[0].imageUrl.length > 0
-                ? drawSongImage(playlist.songs[0])
-                : drawDefaultSongImage()
-            : drawDefaultSongImage(),
+        leading: drawSongImageWidget(playlist.songs[0].imageUrl),
         title: Text(
           playlist.name,
           style: TextStyle(
@@ -140,7 +138,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                 Navigator.pop(context);
                 Navigator.of(context, rootNavigator: true).pop('dialog');
                 _model.makeToast(
-                  ToastManager.songAddedToPlaylist + "${playlist.name}",
+                  ToastService.songAddedToPlaylist + "${playlist.name}",
                   toastLength: Toast.LENGTH_LONG,
                   fontSize: 18,
                   backgroundColor: CustomColors.toastColor,
@@ -152,9 +150,9 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
             addAllSongToPlaylist(playlist);
             Navigator.pop(context);
             hideLoadingBar();
-            _model.makeToast(ToastManager.somethingWentWrong);
+            _model.makeToast(ToastService.somethingWentWrong);
             _model.makeToast(
-              ToastManager.songAddedToPlaylist + "${playlist.name}",
+              ToastService.songAddedToPlaylist + "${playlist.name}",
               toastLength: Toast.LENGTH_LONG,
               fontSize: 18,
               backgroundColor: CustomColors.toastColor,
@@ -166,59 +164,98 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     );
   }
 
-  Widget drawSongImage(Song song) {
+  Widget drawSongImageWidget(String imageUrl) {
     return Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
-        color: CustomColors.lightGreyColor,
-        shape: BoxShape.rectangle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey[850],
-            blurRadius: 0.3,
-            spreadRadius: 0.2,
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              CustomColors.lightGreyColor,
+              CustomColors.darkGreyColor,
+            ],
+            begin: FractionalOffset.bottomLeft,
+            stops: [0.3, 0.8],
+            end: FractionalOffset.topRight,
           ),
-        ],
-        image: DecorationImage(
-          fit: BoxFit.fill,
-          image: NetworkImage(
-            song.imageUrl,
-          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey[850],
+              blurRadius: 0.3,
+              spreadRadius: 0.2,
+            ),
+          ],
         ),
-      ),
-    );
+        child: imageUrl != null
+            ? _model.isSongLocal(imageUrl)
+                ? Image(
+                    image: FileImage(File(imageUrl)),
+                    fit: BoxFit.contain,
+                  )
+                : Image(
+                    image: NetworkImage(imageUrl),
+                    fit: BoxFit.contain,
+                  )
+            : Icon(
+                Icons.music_note,
+                color: CustomColors.pinkColor,
+                size: 120,
+              ));
   }
 
-  Widget drawDefaultSongImage() {
-    return Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            CustomColors.lightGreyColor,
-            CustomColors.darkGreyColor,
-          ],
-          begin: FractionalOffset.bottomLeft,
-          stops: [0.3, 0.8],
-          end: FractionalOffset.topRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey[850],
-            blurRadius: 1.0,
-            spreadRadius: 0.5,
-          ),
-        ],
-      ),
-      child: Icon(
-        Icons.music_note,
-        color: CustomColors.pinkColor,
-        size: 40,
-      ),
-    );
-  }
+  // Widget drawSongImage(Song song) {
+  //   return Container(
+  //     width: 60,
+  //     height: 60,
+  //     decoration: BoxDecoration(
+  //       color: CustomColors.lightGreyColor,
+  //       shape: BoxShape.rectangle,
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.grey[850],
+  //           blurRadius: 0.3,
+  //           spreadRadius: 0.2,
+  //         ),
+  //       ],
+  //       image: DecorationImage(
+  //         fit: BoxFit.fill,
+  //         image: NetworkImage(
+  //           song.imageUrl,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  // Widget drawDefaultSongImage() {
+  // return Container(
+  //   width: 60,
+  //   height: 60,
+  //   decoration: BoxDecoration(
+  //     gradient: LinearGradient(
+  //       colors: [
+  //         CustomColors.lightGreyColor,
+  //         CustomColors.darkGreyColor,
+  //       ],
+  //       begin: FractionalOffset.bottomLeft,
+  //       stops: [0.3, 0.8],
+  //       end: FractionalOffset.topRight,
+  //     ),
+  //     boxShadow: [
+  //       BoxShadow(
+  //         color: Colors.grey[850],
+  //         blurRadius: 1.0,
+  //         spreadRadius: 0.5,
+  //       ),
+  //     ],
+  //   ),
+  //   child: Icon(
+  //     Icons.music_note,
+  //     color: CustomColors.pinkColor,
+  //     size: 40,
+  //   ),
+  // );
+  // }
 
   Widget drawNewPlaylistButton() {
     return GestureDetector(
@@ -290,51 +327,9 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
   //* methods
   Future<bool> addSongToPlaylist(
       Playlist playlist, Song song, bool addingAllSongs) async {
-    bool songAlreadyExistsInPlaylist = false;
-    Song updatedsong;
-    playlist.songs.forEach((playlistSong) {
-      if (playlistSong.songId == song.songId) {
-        songAlreadyExistsInPlaylist = true;
-      }
-    });
-    if (!songAlreadyExistsInPlaylist) {
-      if (song.imageUrl.length == 0) {
-        String imageUrl =
-            await CustomColors.apiService.getSongImageUrl(song, false);
-        if (imageUrl != null) {
-          song.setImageUrl = imageUrl;
-        }
-      }
-      if (CustomColors.audioPlayerManager.currentPlaylist != null
-          ? playlist.name ==
-              CustomColors.audioPlayerManager.currentPlaylist.name
-          : false) {
-        if (CustomColors.audioPlayerManager.playlistMode ==
-            PlaylistMode.shuffle) {
-          updatedsong = song;
-          updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
-          updatedsong =
-              FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
-          playlist.addNewSong(updatedsong);
-          CustomColors.currentUser.updatePlaylist(playlist);
-          CustomColors.audioPlayerManager.loopPlaylist = playlist;
-          CustomColors.audioPlayerManager.setCurrentPlaylist();
-        } else {
-          updatedsong = song;
-          updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
-          updatedsong =
-              FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
-          playlist.addNewSong(updatedsong);
-          CustomColors.currentUser.updatePlaylist(playlist);
-          CustomColors.audioPlayerManager.loopPlaylist = playlist;
-        }
-      } else {
-        updatedsong = song;
-        updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
-        updatedsong = FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
-        playlist.addNewSong(updatedsong);
-        CustomColors.currentUser.updatePlaylist(playlist);
-      }
+    playlist = await _model.addSongToPlaylist(playlist, song);
+    if (playlist != null) {
+      Provider.of<User>(context).updatePlaylist(playlist);
       return true;
     } else {
       if (!addingAllSongs) {
@@ -355,84 +350,27 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
   }
 
   Future<void> createNewPlatlist() async {
-    bool nameExists = false;
     final form = formKey.currentState;
-    Song updatedsong;
     if (form.validate()) {
       form.save();
-      if (_playlistName != "Search Playlist") {
-        CustomColors.currentUser.playlists.forEach((playlist) {
-          if (playlist.name == _playlistName) {
-            nameExists = true;
-          }
-        });
-        if (!nameExists) {
-          Navigator.of(context, rootNavigator: true).pop('dialog');
-          showLoadingBar(context);
-          Playlist playlist = Playlist(_playlistName,
-              creator: CustomColors.currentUser.name, isPublic: _isPublic);
-          playlist.setPushId = FirebaseDatabaseManager.addPlaylist(playlist);
-          if (playlist.isPublic) {
-            playlist =
-                await FirebaseDatabaseManager.addPublicPlaylist(playlist, true);
-          }
-          if (widget.song != null) {
-            if (widget.song.imageUrl.length == 0) {
-              String imageUrl = await CustomColors.apiService
-                  .getSongImageUrl(widget.song, false);
-              if (imageUrl != null) {
-                widget.song.setImageUrl = imageUrl;
-              }
-            }
-            updatedsong = widget.song;
-            updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
-            updatedsong = FirebaseDatabaseManager.addSongToPlaylist(
-                playlist, widget.song);
-            playlist.addNewSong(updatedsong);
-            CustomColors.currentUser.addNewPlaylist(playlist);
-          } else {
-            widget.songs.forEach((song) {
-              if (song.imageUrl == "") {
-                CustomColors.apiService
-                    .getSongImageUrl(song, false)
-                    .then((imageUrl) {
-                  if (imageUrl != null) {
-                    song.setImageUrl = imageUrl;
-                    updatedsong = FirebaseDatabaseManager.addSongToPlaylist(
-                        playlist, song);
-                    playlist.addNewSong(updatedsong);
-                  }
-                });
-              } else {
-                updatedsong =
-                    FirebaseDatabaseManager.addSongToPlaylist(playlist, song);
-                playlist.addNewSong(updatedsong);
-              }
-            });
-            CustomColors.currentUser.addNewPlaylist(playlist);
-          }
-          hideLoadingBar();
-          Navigator.pop(context);
-        } else {
-          hideLoadingBar();
-          scafKey.currentState.showSnackBar(
-            SnackBar(
-              duration: Duration(seconds: 5),
-              content: Text(
-                "Playlist With This Name Already Exists!",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          );
-        }
+      if (!_model.checkIfPlaylistNameValid(
+          _playlistName, Provider.of<User>(context).playlists)) {
+        Navigator.of(context, rootNavigator: true).pop('dialog');
+        showLoadingBar(context);
+        Playlist playlist = await _model.createNewPlatlist(
+            widget.song,
+            widget.songs,
+            _playlistName,
+            Provider.of<User>(context).name,
+            _isPublic);
+        Provider.of<User>(context).addNewPlaylist(playlist);
       } else {
+        hideLoadingBar();
         scafKey.currentState.showSnackBar(
           SnackBar(
             duration: Duration(seconds: 5),
             content: Text(
-              "Can't name playlist Search Playlist!",
+              "Playlist With This Name Already Exists!",
               style: TextStyle(
                 color: Colors.white,
               ),
@@ -556,8 +494,6 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
   }
 
   Future<void> addAllSongToPlaylist(Playlist playlist) async {
-    widget.songs.forEach((song) {
-      addSongToPlaylist(playlist, song, true);
-    });
+    _model.addAllSongsToPlaylist(playlist, widget.songs);
   }
 }

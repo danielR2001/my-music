@@ -32,18 +32,23 @@ class AudioPlayerService {
 
   PlaylistMode get playlistMode => _playlistMode;
 
-  set setPlaylistMode(PlaylistMode playlistMode) {
+  set setLoopPlaylist(Playlist playlist) => _loopPlaylist = playlist;
+
+  void setPlaylistMode(PlaylistMode playlistMode) {
     _playlistMode = playlistMode;
 
-    if(_playlistMode == PlaylistMode.loop) {
+    if (_playlistMode == PlaylistMode.loop) {
       _currentPlaylist = Playlist.fromPlaylist(_loopPlaylist);
-    }else if(_playlistMode == PlaylistMode.shuffle) {
+    } else if (_playlistMode == PlaylistMode.shuffle) {
       _shuffledPlaylist = _createShuffledPlaylist();
       _currentPlaylist = Playlist.fromPlaylist(shuffledPlaylist);
     }
   }
 
-  set setCurrentPlaylist(Playlist playlist) => _currentPlaylist = playlist;
+  set setCurrentPlaylist(Playlist playlist) {
+    _loopPlaylist = Playlist.fromPlaylist(playlist);
+    setPlaylistMode(_playlistMode);
+  }
 
   void initAudioPlayerService() {
     audioPlayerManager.initAudioPlayerManager();
@@ -57,6 +62,10 @@ class AudioPlayerService {
     List<AudioNotification> audioNotifications;
 
     _loopPlaylist = Playlist.fromPlaylist(_currentPlaylist);
+    setPlaylistMode(mode);
+    currentPlaylist.songs.forEach((song){
+      urls.add(song.playUrl);
+    });
     await _playPlaylist(urls, audioNotifications, index, repeatMode);
   }
 
@@ -94,6 +103,7 @@ class AudioPlayerService {
   Future<void> seekIndex(int index) async {
     await audioPlayerManager.seekIndex(index);
   }
+
   Future<void> playPreviousSong() async {
     await audioPlayerManager.previous();
   }

@@ -1,13 +1,14 @@
-import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/core/database/firebase/database_manager.dart';
+import 'package:myapp/core/view_models/modal_sheet_models/song_options_model.dart';
+import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/core/utils/toast.dart';
+import 'package:myapp/core/services/toast_service.dart';
 import 'package:myapp/ui/custom_classes/custom_icons.dart';
+import 'package:myapp/ui/pages/base_page.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/artists_pick_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
@@ -31,31 +32,9 @@ class SongOptionsModalSheet extends StatefulWidget {
 }
 
 class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
-  ImageProvider imageProvider;
+  SongOptionsModel _model;
   bool canceled = false;
   bool loadingArtists = false;
-  @override
-  void initState() {
-    super.initState();
-    if (CustomColors.isNetworkAvailable) {
-      if (widget.song.imageUrl != "") {
-        checkForIntenetConnetionForNetworkImage();
-      } else {
-        CustomColors.apiService
-            .getSongImageUrl(widget.song, false)
-            .then((imageUrl) {
-          if (mounted) {
-            if (imageUrl != null) {
-              setState(() {
-                widget.song.setImageUrl = imageUrl;
-                checkForIntenetConnetionForNetworkImage();
-              });
-            }
-          }
-        });
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,51 +50,57 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
     if (widget.isMusicPlayerMenu) {
       widgetsCount++;
     }
-    return Container(
-      alignment: Alignment.topCenter,
-      height: 190 + 50 * widgetsCount,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.transparent),
-        borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(20.0),
-            topRight: const Radius.circular(20.0)),
-        color: CustomColors.lightGreyColor,
-      ),
-      child: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 5),
-            child: drawSongImageWidget(),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                drawSongTitleArtist(),
-              ],
+    return BasePage<SongOptionsModel>(
+      onModelReady: (model) async {
+        _model = model;
+        await _model.loadImage(widget.song);
+      },
+      builder: (context, model, child) => Container(
+        alignment: Alignment.topCenter,
+        height: 190 + 50 * widgetsCount,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.transparent),
+          borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(20.0),
+              topRight: const Radius.circular(20.0)),
+          color: CustomColors.lightGreyColor,
+        ),
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 5),
+              child: drawSongImageWidget(),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 5),
-            child: Container(
-              height: 1,
-              width: 350,
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.grey,
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  drawSongTitleArtist(),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 5),
+              child: Container(
+                height: 1,
+                width: 350,
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          drawRemoveFromPlaylist(context),
-          drawDownloadSong(context),
-          drawAddToPlaylist(context),
-          drawQueue(context),
-          drawViewArtist(context),
-        ],
+            drawRemoveFromPlaylist(context),
+            drawDownloadSong(context),
+            drawAddToPlaylist(context),
+            drawQueue(context),
+            drawViewArtist(context),
+          ],
+        ),
       ),
     );
   }
@@ -172,15 +157,15 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
           ),
         ],
       ),
-      child: widget.song.imageUrl.length == 0 || imageProvider == null
-          ? Icon(
+      child: _model.imageProvider != null
+          ? Image(
+              image: _model.imageProvider,
+              fit: BoxFit.contain,
+            )
+          : Icon(
               Icons.music_note,
               color: CustomColors.pinkColor,
               size: 40,
-            )
-          : Image(
-              image: imageProvider,
-              fit: BoxFit.contain,
             ),
     );
   }
@@ -206,42 +191,12 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onTap: () {
-              FirebaseDatabaseManager.removeSongFromPlaylist(
-                  widget.playlist, widget.song);
+            onTap: () async {
+              await _model.removeSongFromPlaylist(widget.playlist, widget.song);
               widget.playlist.removeSong(widget.song);
-              Provider.of<PageNotifier>(CustomColors.homePageContext)
-                  .setCurrentPlaylistPagePlaylist = widget.playlist;
-              CustomColors.currentUser.updatePlaylist(widget.playlist);
-              if (CustomColors.audioPlayerManager.currentPlaylist != null) {
-                if (CustomColors.audioPlayerManager.currentPlaylist.pushId ==
-                    widget.playlist.pushId) {
-                  if (widget.playlist.songs.length == 0) {
-                    CustomColors.audioPlayerManager.loopPlaylist = null;
-                    CustomColors.audioPlayerManager.shuffledPlaylist = null;
-                    CustomColors.audioPlayerManager.currentPlaylist = null;
-                  } else {
-                    if (CustomColors.audioPlayerManager.currentSong.songId ==
-                        widget.song.songId) {
-                      CustomColors.audioPlayerManager.loopPlaylist = null;
-                      CustomColors.audioPlayerManager.shuffledPlaylist =
-                          null;
-                      CustomColors.audioPlayerManager.currentPlaylist = null;
-                    } else {
-                      CustomColors.audioPlayerManager.loopPlaylist =
-                          widget.playlist;
-                      CustomColors.audioPlayerManager.shuffledPlaylist =
-                          null;
-                      CustomColors.audioPlayerManager.setCurrentPlaylist();
-                    }
-                  }
-                }
-              }
-              if (widget.playlist.songs.length == 0) {
-                Navigator.pop(context);
-              } else {
-                Navigator.pop(context);
-              }
+              Provider.of<User>(context).updatePlaylist(widget.playlist);
+
+              Navigator.pop(context);
             },
           ),
         ),
@@ -252,12 +207,12 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   }
 
   Widget drawDownloadSong(BuildContext context) {
-    if (!CustomColors.currentUser
+    if (!Provider.of<User>(context)
             .songExistsInDownloadedPlaylist(widget.song) &&
-        !CustomColors.manageLocalSongs.isSongDownloading(widget.song)) {
+        !_model.isSongDownloading(widget.song)) {
       return downloadWidget(context);
     } else {
-      if (CustomColors.manageLocalSongs.isSongDownloading(widget.song)) {
+      if (_model.isSongDownloading(widget.song)) {
         return Container();
       } else {
         return unDownloadWidget(context);
@@ -284,38 +239,11 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          onTap: () {
-            CustomColors.manageLocalSongs
-                .checkIfStoragePermissionGranted()
-                .then((permissonGranted) async {
-              if (permissonGranted) {
-                if (Provider.of<PageNotifier>(CustomColors.homePageContext)
-                        .currentPlaylistPagePlaylist !=
-                    null) {
-                  if (Provider.of<PageNotifier>(CustomColors.homePageContext)
-                          .currentPlaylistPagePlaylist
-                          .name ==
-                      CustomColors
-                          .currentUser.downloadedSongsPlaylist.name) {
-                    Provider.of<PageNotifier>(CustomColors.homePageContext)
-                            .setCurrentPlaylistPagePlaylist =
-                        CustomColors.currentUser.downloadedSongsPlaylist;
-                  }
-                }
-                if (widget.song.imageUrl == "") {
-                  String imageUrl = await CustomColors.apiService
-                      .getSongImageUrl(widget.song, false);
-                  if (imageUrl != null) {
-                    widget.song.setImageUrl = imageUrl;
-                  }
-                }
-                CustomColors.manageLocalSongs.downloadSong(widget.song);
-                Navigator.of(context, rootNavigator: true).pop('dialog');
-              } else {
-                CustomColors.toastManager
-                    .makeToast(text: ToastManager.enableAccessToStorage);
-              }
-            });
+          onTap: () async {
+            if (!await _model.downloadSong(widget.song)) {
+              _model.makeToast(ToastService.enableAccessToStorage);
+            }
+            Navigator.pop(context);
           },
         ),
       ),
@@ -341,42 +269,12 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          onTap: () {
-            CustomColors.manageLocalSongs
-                .checkIfSongFileExists(widget.song)
-                .then((exists) {
-              if (exists) {
-                CustomColors.manageLocalSongs
-                    .deleteSongDirectory(widget.song);
-                CustomColors.currentUser
-                    .removeSongFromDownloadedPlaylist(widget.song);
-                if (Provider.of<PageNotifier>(CustomColors.homePageContext)
-                        .currentPlaylistPagePlaylist
-                        .name ==
-                    CustomColors.currentUser.downloadedSongsPlaylist.name) {
-                  Provider.of<PageNotifier>(CustomColors.homePageContext)
-                          .setCurrentPlaylistPagePlaylist =
-                      CustomColors.currentUser.downloadedSongsPlaylist;
-                }
-                if (CustomColors.audioPlayerManager.currentSong != null) {
-                  if (widget.song.songId ==
-                          CustomColors
-                              .audioPlayerManager.currentSong.songId &&
-                      widget.playlist.name ==
-                          CustomColors
-                              .currentUser.downloadedSongsPlaylist.name) {
-                    CustomColors.audioPlayerManager.currentPlaylist = null;
-                    CustomColors.audioPlayerManager.shuffledPlaylist = null;
-                    CustomColors.audioPlayerManager.loopPlaylist = null;
-                  }
-                }
-                CustomColors.toastManager
-                    .makeToast(text: ToastManager.songUndownloaded);
-              } else {
-                CustomColors.toastManager
-                    .makeToast(text: ToastManager.undownloadError);
-              }
-            });
+          onTap: () async {
+            if (await _model.unDownloadSong(widget.song)) {
+              _model.makeToast(ToastService.songUndownloaded);
+            } else {
+              _model.makeToast(ToastService.undownloadError);
+            }
             Navigator.pop(context);
           },
         ),
@@ -404,14 +302,13 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             ),
           ),
           onTap: () {
-            Navigator.push(
+            Navigator.pushNamed(
               context,
-              MaterialPageRoute(
-                builder: (context) => PlaylistPickPage(
-                  song: widget.song,
-                  songs: null,
-                ),
-              ),
+              "/playlistPickPage",
+              arguments: {
+                'song': widget.song,
+                'songs': null,
+              },
             );
           },
         ),
@@ -482,7 +379,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
           onTap: () {
             canceled = false;
             showLoadingBar(context);
-            buildArtistsList(getArtists()).then((artists) {
+            _model.buildArtistsList(getArtists()).then((artists) {
               if (!canceled && artists.length > 0) {
                 loadingArtists = true;
                 Navigator.of(context, rootNavigator: true).pop('dialog');
@@ -534,21 +431,6 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
     }
   }
 
-  Future<List<Artist>> buildArtistsList(List<String> artistsList) async {
-    List<Artist> artists = List();
-    for (int i = 0; i < artistsList.length; i++) {
-      Artist artist = await builArtist(artistsList[i]);
-      if (artist != null) {
-        artists.add(artist);
-      }
-    }
-    return artists;
-  }
-
-  Future<Artist> builArtist(String artistName) async {
-    return await CustomColors.apiService.getArtistImageUrl(artistName);
-  }
-
   void showLoadingBar(BuildContext context) {
     showDialog(
       context: context,
@@ -588,32 +470,6 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
       if (!loadingArtists) {
         canceled = true;
         Navigator.of(context, rootNavigator: true).pop('dialog');
-      }
-    });
-  }
-
-  void checkForIntenetConnetionForNetworkImage() {
-    CustomColors.manageLocalSongs
-        .checkIfImageFileExists(widget.song)
-        .then((exists) {
-      if (exists) {
-        if (mounted) {
-          File file = File(
-              "${CustomColors.manageLocalSongs._fullSongDownloadDir.path}/${widget.song.songId}/${widget.song.songId}.png");
-          setState(() {
-            imageProvider = FileImage(file);
-          });
-        }
-      } else {
-        if (CustomColors.isNetworkAvailable) {
-          if (mounted) {
-            setState(() {
-              imageProvider = NetworkImage(
-                widget.song.imageUrl,
-              );
-            });
-          }
-        }
       }
     });
   }

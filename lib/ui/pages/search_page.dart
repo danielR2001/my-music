@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/core/view_models/page_models/search_model.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
-import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/core/services/audio_player_service.dart';
+import 'package:myapp/ui/pages/base_page.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 
 class SearchPage extends StatefulWidget {
@@ -11,36 +11,10 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  int searchLength = 0;
-  List<Song> searchResults = List();
+  SearchModel _model;
   TextEditingController textEditingController = TextEditingController();
   String hintText = "Search";
-  Playlist searchResultsPlaylist;
   TextDirection textDirection = TextDirection.ltr;
-  bool loadingResults = false;
-  bool noResultsFound = false;
-
-  @override
-  void initState() {
-    if (CustomColors.lastSearch != null) {
-      loadingResults = true;
-      noResultsFound = false;
-      CustomColors.apiService
-          .getSearchResults(CustomColors.lastSearch)
-          .then((results) {
-        setState(() {
-          if (results != null) {
-            loadingResults = false;
-            searchResults = results;
-            searchResultsPlaylist = Playlist("Search Playlist");
-            searchResultsPlaylist.setSongs = searchResults;
-            searchLength = searchResults.length;
-          }
-        });
-      });
-    }
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -50,81 +24,89 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF141414),
-              Color(0xFF363636),
-            ],
-            begin: FractionalOffset.bottomCenter,
-            stops: [0.4, 1.0],
-            end: FractionalOffset.topCenter,
+    return BasePage<SearchModel>(
+      onModelReady: (model) {
+        _model = model;
+        if (_model.lastSearch != null) {
+          _model.getSearchResults(_model.lastSearch);
+        }
+      },
+      builder: (context, model, child) => Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFF141414),
+                Color(0xFF363636),
+              ],
+              begin: FractionalOffset.bottomCenter,
+              stops: [0.4, 1.0],
+              end: FractionalOffset.topCenter,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: <Widget>[
-              Container(
-                color: Colors.grey[700],
-                child: Row(
-                  children: <Widget>[
-                    drawBackButton(),
-                    drawSearchBar(),
-                    drawClearButton(),
-                  ],
+          child: SafeArea(
+            child: Column(
+              children: <Widget>[
+                Container(
+                  color: Colors.grey[700],
+                  child: Row(
+                    children: <Widget>[
+                      drawBackButton(),
+                      drawSearchBar(),
+                      drawClearButton(),
+                    ],
+                  ),
                 ),
-              ),
-              !loadingResults
-                  ? Expanded(
-                      child: ListView.builder(
-                        itemCount: searchLength,
-                        itemExtent: 60,
-                        itemBuilder: (BuildContext context, int index) {
-                          return drawSongSearchResult(
-                              searchResults[index], context);
-                        },
-                      ),
-                    )
-                  : noResultsFound
-                      ? Expanded(
-                          child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                              Text(
-                                "No results found!",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
+                !_model.loadingResults
+                    ? Expanded(
+                        child: ListView.builder(
+                          itemCount: _model.results.length,
+                          itemExtent: 60,
+                          itemBuilder: (BuildContext context, int index) {
+                            return drawSongSearchResult(
+                                _model.results[index], index);
+                          },
+                        ),
+                      )
+                    : _model.noResultsFound
+                        ? Expanded(
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                Text(
+                                  "No results found!",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                "please check your spelling, or try different key words.",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
+                                SizedBox(
+                                  height: 5,
                                 ),
-                              ),
-                            ]))
-                      : Expanded(
-                          child: Center(
-                            child: SizedBox(
-                              height: 50.0,
-                              width: 50.0,
-                              child: CircularProgressIndicator(
-                                value: null,
-                                strokeWidth: 3.0,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                    CustomColors.pinkColor),
+                                Text(
+                                  "please check your spelling, or try different key words.",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ]))
+                        : Expanded(
+                            child: Center(
+                              child: SizedBox(
+                                height: 50.0,
+                                width: 50.0,
+                                child: CircularProgressIndicator(
+                                  value: null,
+                                  strokeWidth: 3.0,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      CustomColors.pinkColor),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -149,76 +131,41 @@ class _SearchPageState extends State<SearchPage> {
     return Flexible(
       child: Container(
         child: TextField(
-            autofocus: true,
-            textDirection: textDirection,
-            controller: textEditingController,
-            style: TextStyle(
+          autofocus: true,
+          textDirection: textDirection,
+          controller: textEditingController,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+          ),
+          cursorColor: CustomColors.pinkColor,
+          decoration: InputDecoration.collapsed(
+            hintText: hintText,
+            hintStyle: TextStyle(
               color: Colors.white,
-              fontSize: 16,
+              fontSize: 18,
             ),
-            cursorColor: CustomColors.pinkColor,
-            decoration: InputDecoration.collapsed(
-              hintText: hintText,
-              hintStyle: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-              ),
-            ),
-            onChanged: (txt) {
-              searchLength = 0;
-              searchResults = List();
-              loadingResults = true;
-              noResultsFound = false;
-              if (RegExp(r"^[א-ת0-9\$!?&\()\[\]/,\-#\+'= ]+$").hasMatch(txt)) {
-                setState(() {
-                  textDirection = TextDirection.rtl;
-                });
-              } else {
-                setState(() {
-                  textDirection = TextDirection.ltr;
-                });
-              }
-              if (txt != "") {
-                CustomColors.apiService
-                    .getSearchResults(txt)
-                    .then((results) {
-                  setState(() {
-                    if (results != null) {
-                      if (results.length > 0) {
-                        loadingResults = false;
-                        searchResults = results;
-                        CustomColors.lastSearch = txt;
-                        searchResultsPlaylist = Playlist("Search Playlist");
-                        searchResultsPlaylist.setSongs = searchResults;
-                        searchLength = searchResults.length;
-                      }
-                    } else {
-                      noResultsFound = true;
-                    }
-                  });
-                });
-              }
-            },
-            onSubmitted: (txt) {
-              loadingResults = true;
-              noResultsFound = false;
-              CustomColors.apiService.getSearchResults(txt).then((results) {
-                setState(() {
-                  if (results != null) {
-                    if (results.length > 0) {
-                      loadingResults = false;
-                      searchResults = results;
-                      CustomColors.lastSearch = txt;
-                      searchResultsPlaylist = Playlist("Search Playlist");
-                      searchResultsPlaylist.setSongs = searchResults;
-                      searchLength = searchResults.length;
-                    }
-                  } else {
-                    noResultsFound = true;
-                  }
-                });
+          ),
+          onChanged: (txt) async {
+            if (RegExp(r"^[א-ת0-9\$!?&\()\[\]/,\-#\+'= ]+$").hasMatch(txt)) {
+              setState(() {
+                textDirection = TextDirection.rtl;
               });
-            }),
+            } else {
+              setState(() {
+                textDirection = TextDirection.ltr;
+              });
+            }
+            if (txt != "") {
+              await _model.getSearchResults(txt);
+            }
+          },
+          onSubmitted: (txt) async {
+            if (txt != "") {
+              await _model.getSearchResults(txt);
+            }
+          },
+        ),
       ),
     );
   }
@@ -241,7 +188,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget drawSongSearchResult(Song song, BuildContext context) {
+  Widget drawSongSearchResult(Song song, int index) {
     String title;
     String artist;
     if (song.title.length > 33) {
@@ -289,16 +236,7 @@ class _SearchPageState extends State<SearchPage> {
         },
       ),
       onTap: () async {
-        if (CustomColors.audioPlayerManager.isSongLoaded) {
-          Playlist temp = Playlist(searchResultsPlaylist.name);
-          temp.setSongs = searchResultsPlaylist.songs;
-          FocusScope.of(context).requestFocus(FocusNode());
-          CustomColors.audioPlayerManager.initSong(
-            song: song,
-            playlist: temp,
-            mode: PlaylistMode.loop,
-          );
-        }
+        await _model.play(index);
       },
     );
   }
@@ -307,11 +245,11 @@ class _SearchPageState extends State<SearchPage> {
   void showMoreOptions(Song song) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
-      context: CustomColors.homePageContext,
+      context: context,
       builder: (builder) {
         return SongOptionsModalSheet(
           song,
-          searchResultsPlaylist,
+          _model.searchResultsPlaylist,
           false,
           SongModalSheetMode.download_public_search_artist,
         );

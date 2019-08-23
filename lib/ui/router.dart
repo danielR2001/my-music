@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:myapp/models/artist.dart';
+import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/pages/artist_page.dart';
 import 'package:myapp/ui/pages/home_page.dart';
 import 'package:myapp/ui/pages/login_page.dart';
@@ -8,6 +9,8 @@ import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/pages/root_page.dart';
 import 'package:myapp/ui/pages/sign_up_page.dart';
 import 'package:myapp/ui/pages/welcome_page.dart';
+
+import 'pages/playlists_pick_page.dart';
 
 class Router {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -28,10 +31,23 @@ class Router {
       case "/artist":
         return MaterialPageRoute(builder: (_) {
           Artist artist;
-          if(args is Map){
+          if (args is Map) {
             artist = args['artist'];
           }
           return ArtistPage(artist);
+        });
+      case "/playlistPickPage":
+        return MaterialPageRoute(builder: (_) {
+          Song song;
+          List<Song> songs;
+          if (args is Map) {
+            song = args['song'];
+            songs = args['songs'];
+          }
+          return PlaylistPickPage(
+            song: song,
+            songs: songs,
+          );
         });
       default:
         return MaterialPageRoute(

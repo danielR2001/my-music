@@ -7,6 +7,7 @@ class Song {
   String _pushId;
   int _dateAdded;
   String _lyrics;
+  String _playUrl;
 
   Song(String title, String artist, String songId, String searchString,
       String imageUrl, String pushId,
@@ -28,6 +29,8 @@ class Song {
     _imageUrl = song.imageUrl;
     _pushId = song.pushId;
     _dateAdded = song.dateAdded;
+
+    _playUrl = song.playUrl;
   }
 
   Song.fromJson(Map values) {
@@ -68,6 +71,8 @@ class Song {
 
   String get lyrics => _lyrics;
 
+  String get playUrl => _playUrl;
+
   set setTitle(String value) => _title = value;
 
   set setArtist(String value) => _artist = value;
@@ -83,4 +88,6 @@ class Song {
   set setDateAdded(int value) => _dateAdded = value;
 
   set setLyrics(String value) => _lyrics = value;
+
+  set setPlayUrl(String url) => _playUrl = url;
 }

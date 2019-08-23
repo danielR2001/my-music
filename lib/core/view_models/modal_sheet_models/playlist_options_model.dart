@@ -6,7 +6,7 @@ import 'package:myapp/core/services/api_service.dart';
 import 'package:myapp/core/services/audio_player_service.dart';
 import 'package:myapp/core/services/database_service.dart';
 import 'package:myapp/core/services/local_database_service.dart';
-import 'package:myapp/core/utils/toast.dart';
+import 'package:myapp/core/services/toast_service.dart';
 import 'package:myapp/core/view_models/page_models/base_model.dart';
 import 'package:myapp/locater.dart';
 import 'package:myapp/models/playlist.dart';
@@ -14,7 +14,7 @@ import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 
 class PlaylistOptionsModel extends BaseModel {
-  final ToastManager _toastManager = locator<ToastManager>();
+  final ToastService _toastManager = locator<ToastService>();
   final FirebaseDatabaseService _firebaseDatabaseService =
       locator<FirebaseDatabaseService>();
   final LocalDatabaseService _localDatabaseService =

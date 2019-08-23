@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,19 +19,16 @@ class MusicPlayerPage extends StatefulWidget {
 
 class MusicPageState extends State<MusicPlayerPage> {
   MusicPlayerModel _model;
-  Icon playlistModeIcon;
-  Icon musicPlayerIcon;
-  ImageProvider imageProvider;
   GlobalKey<FlipCardState> flipCardKey = GlobalKey<FlipCardState>();
   Color backgroundColor = CustomColors.darkGreyColor;
 
   @override
   Widget build(BuildContext context) {
     return BasePage<MusicPlayerModel>(
-      onModelReady: (model) {
+      onModelReady: (model) async {
         _model = model;
-        _model.setCurrentSong();
-                _model.initPlayerStreamSubsciptions();
+        await _model.setCurrentSong();
+        _model.initPlayerStreamSubsciptions();
       },
       builder: (context, model, child) => Scaffold(
         body: GestureDetector(
@@ -281,14 +277,14 @@ class MusicPageState extends State<MusicPlayerPage> {
           ),
         ],
       ),
-      child: _model.currentSong.imageUrl.length == 0 || imageProvider == null
+      child: _model.imageProvider == null
           ? Icon(
               Icons.music_note,
               color: CustomColors.pinkColor,
               size: 120,
             )
           : Image(
-              image: imageProvider,
+              image: _model.imageProvider,
               fit: BoxFit.contain,
             ),
     );
@@ -490,7 +486,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   Widget drawLoopIcon() {
-    return playlistModeIcon = Icon(
+    return Icon(
       MyCustomIcons.repeat_icon,
       color: Colors.white,
       size: 22,
@@ -498,7 +494,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   Widget drawShuffleIcon() {
-    return playlistModeIcon = Icon(
+    return Icon(
       MyCustomIcons.shuffle_icon,
       color: Colors.white,
       size: 22,
@@ -523,10 +519,10 @@ class MusicPageState extends State<MusicPlayerPage> {
 
   Future<void> generateBackgroundColors() async {
     Color color = await _model.generateBackgroundColor();
-    if(color == null) {
+    if (color == null) {
       color = CustomColors.pinkColor;
     }
-    if(mounted){
+    if (mounted) {
       setState(() {
         backgroundColor = color;
       });

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 
-class ToastManager {
+class ToastService {
   static final String noNetworkConnection = "No network connection";
   static final String somethingWentWrong = "Something went wrong";
   static final String badNetworkConnection = "Bad network connection";

@@ -4,7 +4,7 @@ import 'package:myapp/core/view_models/modal_sheet_models/playlist_options_model
 import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
-import 'package:myapp/core/utils/toast.dart';
+import 'package:myapp/core/services/toast_service.dart';
 import 'package:myapp/ui/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/base_page.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
@@ -92,7 +92,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         onTap: () {
           _model.downloadAll(widget.playlist.songs);
           Navigator.pop(context);
-          _model.makeToast(ToastManager.startedDownloadAllSongs);
+          _model.makeToast(ToastService.startedDownloadAllSongs);
         },
       );
     } else {
@@ -151,9 +151,9 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
           if (_model.getCurrentDownloading().length == 0) {
             _model.unDownloadAll(widget.playlist);
             Navigator.pop(context);
-            _model.makeToast(ToastManager.undownloadAllSongs);
+            _model.makeToast(ToastService.undownloadAllSongs);
           } else {
-            _model.makeToast(ToastManager.undownloadAllError);
+            _model.makeToast(ToastService.undownloadAllError);
           }
         },
       );

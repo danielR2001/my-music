@@ -1,13 +1,15 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/core/services/audio_player_service.dart';
+import 'package:myapp/core/view_models/page_models/playlist_model.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/core/services/audio_player_service.dart';
 import 'package:myapp/models/user.dart';
-import 'package:myapp/core/view_models/page_notifier/page_notifier.dart';
 import 'package:myapp/ui/custom_classes/custom_icons.dart';
+import 'package:myapp/ui/pages/base_page.dart';
 import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
@@ -27,34 +29,58 @@ class PlaylistPage extends StatefulWidget {
 }
 
 class _PlaylistPageState extends State<PlaylistPage> {
+  PlaylistModel _model;
   ImageProvider imageProvider;
   Color iconColor = Colors.white;
   ScrollController _scrollController;
   @override
   void initState() {
     _scrollController = ScrollController()..addListener(() => setState(() {}));
-    checkForIntenetConnetionForNetworkImage();
     super.initState();
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          color: CustomColors.darkGreyColor,
-        ),
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: <Widget>[
-            SliverAppBar(
-              actions: <Widget>[
-                Padding(
+    return BasePage<PlaylistModel>(
+      onModelReady: (model) => _model = model,
+      builder: (context, model, child) => Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            color: CustomColors.darkGreyColor,
+          ),
+          child: CustomScrollView(
+            controller: _scrollController,
+            slivers: <Widget>[
+              SliverAppBar(
+                actions: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: Container(
+                      decoration: _scrollController.hasClients
+                          ? _scrollController.offset > 300 - kToolbarHeight
+                              ? BoxDecoration()
+                              : BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: CustomColors.lightGreyColor,
+                                )
+                          : BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: CustomColors.lightGreyColor,
+                            ),
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: iconColor,
+                        ),
+                        iconSize: 30,
+                        onPressed: () {
+                          showPlaylistOptions(widget.playlist);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+                leading: Padding(
                   padding: const EdgeInsets.all(6),
                   child: Container(
                     decoration: _scrollController.hasClients
@@ -70,106 +96,64 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           ),
                     child: IconButton(
                       icon: Icon(
-                        Icons.more_vert,
+                        Icons.arrow_back,
                         color: iconColor,
                       ),
-                      iconSize: 30,
                       onPressed: () {
-                        showPlaylistOptions(widget.playlist);
+                        Navigator.pop(context);
                       },
                     ),
                   ),
                 ),
-              ],
-              leading: Padding(
-                padding: const EdgeInsets.all(6),
-                child: Container(
-                  decoration: _scrollController.hasClients
-                      ? _scrollController.offset > 300 - kToolbarHeight
-                          ? BoxDecoration()
-                          : BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: CustomColors.lightGreyColor,
-                            )
-                      : BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: CustomColors.lightGreyColor,
-                        ),
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.arrow_back,
-                      color: iconColor,
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
+                automaticallyImplyLeading: false,
+                backgroundColor: _scrollController.hasClients
+                    ? _scrollController.offset > 270 - kToolbarHeight
+                        ? CustomColors.lightGreyColor
+                        : CustomColors.darkGreyColor
+                    : CustomColors.darkGreyColor,
+                expandedHeight: 300,
+                pinned: true,
+                flexibleSpace: FlexibleSpaceBar(
+                  centerTitle: true,
+                  titlePadding: EdgeInsets.only(),
+                  title: drawPlaylistAndCreatorName(),
+                  background: ShaderMask(
+                    shaderCallback: (rect) {
+                      return LinearGradient(
+                        begin: FractionalOffset.topCenter,
+                        stops: [0, 1],
+                        end: FractionalOffset.bottomCenter,
+                        colors: [
+                          CustomColors.darkGreyColor,
+                          Colors.transparent
+                        ],
+                      ).createShader(
+                          Rect.fromLTRB(0, 0, rect.width, rect.height));
                     },
+                    blendMode: BlendMode.dstIn,
+                    child: imageProvider != null
+                        ? Image(
+                            image: imageProvider,
+                            fit: BoxFit.cover,
+                          )
+                        : Icon(
+                            Icons.music_note,
+                            color: CustomColors.pinkColor,
+                            size: 75,
+                          ),
                   ),
                 ),
               ),
-              automaticallyImplyLeading: false,
-              backgroundColor: _scrollController.hasClients
-                  ? _scrollController.offset > 270 - kToolbarHeight
-                      ? CustomColors.lightGreyColor
-                      : CustomColors.darkGreyColor
-                  : CustomColors.darkGreyColor,
-              expandedHeight: 300,
-              pinned: true,
-              flexibleSpace: FlexibleSpaceBar(
-                centerTitle: true,
-                titlePadding: EdgeInsets.only(),
-                title: drawPlaylistAndCreatorName(),
-                background: ShaderMask(
-                  shaderCallback: (rect) {
-                    return LinearGradient(
-                      begin: FractionalOffset.topCenter,
-                      stops: [0, 1],
-                      end: FractionalOffset.bottomCenter,
-                      colors: [
-                        CustomColors.darkGreyColor,
-                        Colors.transparent
-                      ],
-                    ).createShader(
-                        Rect.fromLTRB(0, 0, rect.width, rect.height));
-                  },
-                  blendMode: BlendMode.dstIn,
-                  child: imageProvider != null
-                      ? Image(
-                          image: imageProvider,
-                          fit: BoxFit.cover,
-                        )
-                      : Icon(
-                          Icons.music_note,
-                          color: CustomColors.pinkColor,
-                          size: 75,
-                        ),
+              SliverList(
+                delegate: SliverChildListDelegate(
+                  [
+                    drawPlaylistButtons(),
+                  ],
                 ),
               ),
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  drawPlaylistButtons(),
-                ],
-              ),
-            ),
-            makeSliverList(
-                widget.playlistModalSheetMode == PlaylistModalSheetMode.public
-                    ? widget.playlist
-                    : Provider.of<PageNotifier>(CustomColors.homePageContext)
-                                .currentPlaylistPagePlaylist !=
-                            null
-                        ? Provider.of<PageNotifier>(
-                                        CustomColors.homePageContext)
-                                    .currentPlaylistPagePlaylist
-                                    .pushId ==
-                                widget.playlist.pushId
-                            ? Provider.of<PageNotifier>(
-                                    CustomColors.homePageContext)
-                                .currentPlaylistPagePlaylist
-                            : widget.playlist
-                        : widget.playlist,
-                context)
-          ],
+              makeSliverList(widget.playlist, context)
+            ],
+          ),
         ),
       ),
     );
@@ -182,30 +166,17 @@ class _PlaylistPageState extends State<PlaylistPage> {
         List.generate(playlist.songs.length, (int index) {
           String title;
           String artist;
-          if (playlist.songs[index].title.length > 33) {
-            int pos = playlist.songs[index].title.lastIndexOf("", 33);
-            if (pos < 25) {
-              pos = 33;
-            }
-            title = playlist.songs[index].title.substring(0, pos) + "...";
-          } else {
-            title = playlist.songs[index].title;
-          }
-          if (playlist.songs[index].artist.length > 36) {
-            int pos = playlist.songs[index].artist.lastIndexOf("", 36);
-            if (pos < 26) {
-              pos = 36;
-            }
-            artist = playlist.songs[index].artist.substring(0, pos) + "...";
-          } else {
-            artist = playlist.songs[index].artist;
-          }
+          title = _model.editSongTitle(playlist.songs[index].title);
+          artist = _model.editSongArtist(playlist.songs[index].artist);
           return ListTile(
             contentPadding: EdgeInsets.only(left: 20, right: 4),
             title: Text(
               title,
               style: TextStyle(
-                color: setSongColor(playlist, playlist.songs[index], true),
+                color: _model.isPagePlaylistIsPlaying() &&
+                        _model.isSongPlaying(playlist.songs[index])
+                    ? CustomColors.pinkColor
+                    : Colors.grey,
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
@@ -213,43 +184,39 @@ class _PlaylistPageState extends State<PlaylistPage> {
             subtitle: Text(
               artist,
               style: TextStyle(
-                color: setSongColor(playlist, playlist.songs[index], false),
+                color: _model.isPagePlaylistIsPlaying() &&
+                        _model.isSongPlaying(playlist.songs[index])
+                    ? CustomColors.pinkColor
+                    : Colors.grey,
                 fontSize: 13,
               ),
             ),
-            trailing: CustomColors.manageLocalSongs
-                        .isSongDownloading(playlist.songs[index]) &&
+            trailing: _model.isSongDownloading(playlist.songs[index]) &&
                     widget.playlistModalSheetMode !=
                         PlaylistModalSheetMode.public
                 ? Padding(
                     padding: EdgeInsets.only(right: 6),
                     child: GestureDetector(
                       child: CircularProgressIndicator(
-                        value: Provider.of<PageNotifier>(
-                                    CustomColors.homePageContext)
-                                .downloadedProgresses[
-                                    playlist.songs[index].songId]
-                                .toDouble() /
-                            Provider.of<PageNotifier>(
-                                    CustomColors.homePageContext)
-                                .downloadedTotals[playlist.songs[index].songId]
-                                .toDouble(),
+                        value: _model.progress(playlist.songs[index].songId) /
+                            _model.total(playlist.songs[index].songId),
                         valueColor: AlwaysStoppedAnimation<Color>(
                             CustomColors.pinkColor),
                         backgroundColor: Colors.pink[50],
                         strokeWidth: 4.0,
                       ),
                       onTap: () {
-                        CustomColors.manageLocalSongs
-                            .cancelDownLoad(playlist.songs[index]);
+                        _model.cancelDownLoad(playlist.songs[index]);
                       },
                     ),
                   )
                 : IconButton(
                     icon: Icon(
                       Icons.more_vert,
-                      color:
-                          setSongColor(playlist, playlist.songs[index], true),
+                      color: _model.isPagePlaylistIsPlaying() &&
+                              _model.isSongPlaying(playlist.songs[index])
+                          ? CustomColors.pinkColor
+                          : Colors.grey,
                     ),
                     iconSize: 30,
                     onPressed: () {
@@ -258,49 +225,15 @@ class _PlaylistPageState extends State<PlaylistPage> {
                       });
                     },
                   ),
-            onTap: () {
-              String playlistPushId;
-              bool openMusicPlayer = false;
-              if (CustomColors.audioPlayerManager.currentSong != null &&
-                  CustomColors.audioPlayerManager.currentPlaylist != null) {
-                if (CustomColors.audioPlayerManager.currentPlaylist.pushId !=
-                    null) {
-                  playlistPushId =
-                      CustomColors.audioPlayerManager.currentPlaylist.pushId;
-                } else {
-                  playlistPushId = CustomColors
-                      .audioPlayerManager.currentPlaylist.publicPlaylistPushId;
-                }
-
-                if (playlist.pushId != null) {
-                  if (playlist.pushId == playlistPushId) {
-                    if (CustomColors.audioPlayerManager.currentSong.songId ==
-                        playlist.songs[index].songId) {
-                      openMusicPlayer = true;
-                    }
-                  }
-                } else {
-                  if (playlist.publicPlaylistPushId == playlistPushId) {
-                    if (CustomColors.audioPlayerManager.currentSong.songId ==
-                        playlist.songs[index].songId) {
-                      openMusicPlayer = true;
-                    }
-                  }
-                }
-              }
-              if (CustomColors.audioPlayerManager.isSongLoaded) {
-                if (openMusicPlayer) {
-                  Navigator.push(
-                    CustomColors.homePageContext,
-                    MaterialPageRoute(builder: (context) => MusicPlayerPage()),
-                  );
-                } else {
-                  CustomColors.audioPlayerManager.initSong(
-                    song: playlist.songs[index],
-                    playlist: playlist,
-                    mode: PlaylistMode.loop,
-                  );
-                }
+            onTap: () async {
+              if (_model.isPagePlaylistIsPlaying() &&
+                  _model.isSongPlaying(playlist.songs[index])) {
+                Navigator.pushNamed(
+                  context,
+                  "/musicPlayer",
+                );
+              } else {
+                await _model.play(index, PlaylistMode.loop);
               }
             },
           );
@@ -310,6 +243,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
   }
 
   Widget drawSongImage(Song song) {
+    //!TODO change to one method
     return Container(
       width: 50,
       height: 50,
@@ -406,13 +340,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
           ],
         ),
         elevation: 6.0,
-        onPressed: () {
+        onPressed: () async {
           if (widget.playlist.songs.length > 0) {
-            CustomColors.audioPlayerManager.initSong(
-              song: widget.playlist.songs[0],
-              playlist: widget.playlist,
-              mode: PlaylistMode.loop,
-            );
+            await _model.play(0, PlaylistMode.loop);
           }
         },
       ),
@@ -456,11 +386,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
           if (widget.playlist.songs.length > 0) {
             var rnd = Random();
             int randomNum = rnd.nextInt(widget.playlist.songs.length);
-            CustomColors.audioPlayerManager.initSong(
-              song: widget.playlist.songs[randomNum],
-              playlist: widget.playlist,
-              mode: PlaylistMode.shuffle,
-            );
+            _model.play(randomNum, PlaylistMode.shuffle);
           }
         },
       ),
@@ -486,11 +412,8 @@ class _PlaylistPageState extends State<PlaylistPage> {
             height: 1,
           ),
           AutoSizeText(
-            CustomColors.currentUser != null
-                ? widget.playlistModalSheetMode !=
-                        PlaylistModalSheetMode.download
-                    ? "by: " + widget.playlistCreator.name
-                    : ""
+            widget.playlistModalSheetMode != PlaylistModalSheetMode.download
+                ? "by: " + widget.playlistCreator.name
                 : "",
             style: TextStyle(
               color: Colors.grey,
@@ -504,105 +427,36 @@ class _PlaylistPageState extends State<PlaylistPage> {
   }
 
   //* methods
-  Color setSongColor(Playlist playlist, Song song, bool returnWhite) {
-    String playlistPushId;
-    if (CustomColors.audioPlayerManager.currentSong != null &&
-        CustomColors.audioPlayerManager.currentPlaylist != null) {
-      if (CustomColors.audioPlayerManager.currentPlaylist.pushId != null) {
-        playlistPushId =
-            CustomColors.audioPlayerManager.currentPlaylist.pushId;
-      } else {
-        playlistPushId = CustomColors
-            .audioPlayerManager.currentPlaylist.publicPlaylistPushId;
-      }
-
-      if (playlist.pushId != null) {
-        if (playlist.pushId == playlistPushId) {
-          if (CustomColors.audioPlayerManager.currentSong.songId ==
-              song.songId) {
-            return CustomColors.pinkColor;
-          } else {
-            return returnWhite ? Colors.white : Colors.grey;
-          }
-        } else {
-          return returnWhite ? Colors.white : Colors.grey;
-        }
-      } else {
-        if (playlist.publicPlaylistPushId == playlistPushId) {
-          if (CustomColors.audioPlayerManager.currentSong.songId ==
-              song.songId) {
-            return CustomColors.pinkColor;
-          } else {
-            return returnWhite ? Colors.white : Colors.grey;
-          }
-        } else {
-          return returnWhite ? Colors.white : Colors.grey;
-        }
-      }
-    } else {
-      return returnWhite ? Colors.white : Colors.grey;
-    }
-  }
-
   void showSongOptions(Song song, Playlist currentPlaylist) {
-    if (CustomColors.currentUser != null) {
-      SongModalSheetMode songModalSheetMode;
-      if (CustomColors.currentUser.playlists.contains(currentPlaylist)) {
-        songModalSheetMode = SongModalSheetMode.regular;
-      } else {
-        songModalSheetMode = SongModalSheetMode.download_public_search_artist;
-      }
-      showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context: CustomColors.homePageContext,
-        builder: (builder) {
-          return SongOptionsModalSheet(
-            song,
-            currentPlaylist,
-            false,
-            songModalSheetMode,
-          );
-        },
-      );
+    SongModalSheetMode songModalSheetMode;
+    if (Provider.of<User>(context).playlists.contains(currentPlaylist)) {
+      songModalSheetMode = SongModalSheetMode.regular;
+    } else {
+      songModalSheetMode = SongModalSheetMode.download_public_search_artist;
     }
+    showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (builder) {
+        return SongOptionsModalSheet(
+          song,
+          currentPlaylist,
+          false,
+          songModalSheetMode,
+        );
+      },
+    );
   }
 
   void showPlaylistOptions(Playlist currentPlaylist) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
-      context: CustomColors.homePageContext,
+      context: context,
       builder: (builder) {
         return PlaylistOptionsModalSheet(
             currentPlaylist, context, widget.playlistModalSheetMode);
       },
     );
   }
-
-  void checkForIntenetConnetionForNetworkImage() {
-    if (widget.playlist.songs.length > 0 && widget.playlist.songs[0].imageUrl != "") {
-      CustomColors.manageLocalSongs
-          .checkIfImageFileExists(widget.playlist.songs[0])
-          .then((exists) {
-        if (exists) {
-          File file = File(
-              "${CustomColors.manageLocalSongs._fullSongDownloadDir.path}/${widget.playlist.songs[0].songId}/${widget.playlist.songs[0].songId}.png");
-          setState(() {
-            imageProvider = (FileImage(file));
-          });
-        } else {
-          if (CustomColors.isNetworkAvailable) {
-            setState(() {
-              imageProvider = NetworkImage(
-                widget.playlist.songs[0].imageUrl,
-              );
-            });
-          }
-        }
-      });
-    }else{
-      setState(() {
-        imageProvider = null;
-      });
-    }
-  }
+//!TODO load image
 }

@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'package:html/dom.dart' as html;
-import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:dio/dio.dart';
-import 'package:myapp/core/utils/toast.dart';
 
 class ApiManager {
   static final String searchUrl = 'https://mp3-tut.com/search?query=';

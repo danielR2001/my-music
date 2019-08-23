@@ -21,7 +21,6 @@ class _HomePageState extends State<HomePage> {
     MyCustomIcons.pause_icon,
     color: Colors.white,
   );
-  StreamSubscription<AudioPlayerState> stateStream;
   Expanded soundBar;
   TabItem currentTab = TabItem.discover;
   Map<TabItem, GlobalKey<NavigatorState>> navigatorKeys = {
@@ -37,21 +36,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  void initState() {
-    soundBar = drawPausedSoundBar();
-    initSong();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    stateStream.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    CustomColors.homePageContext = context;
     return BasePage<HomeModel>(
       onModelReady: (model) => _model = model,
       builder: (context, model, child) => WillPopScope(
@@ -174,7 +159,7 @@ class _HomePageState extends State<HomePage> {
                                     AudioPlayerState.PAUSED
                                 ? CustomColors.audioPlayerManager
                                     .resumeSong(calledFromNative: false)
-                                : playSong();
+                                : restartSong();
                       }
                     },
                   ),
@@ -270,11 +255,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void playSong() {
-    CustomColors.audioPlayerManager.initSong(
-      song: CustomColors.audioPlayerManager.currentSong,
-      playlist: CustomColors.audioPlayerManager.currentPlaylist,
-      mode: CustomColors.audioPlayerManager.playlistMode,
-    );
+  Future<void> restartSong() async {
+    await _model.restartSong();
   }
 }

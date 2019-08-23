@@ -3,8 +3,6 @@ import 'package:myapp/core/enums/sort_type.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:provider/provider.dart';
-
 import '../../core/view_models/modal_sheet_models/sort_model.dart';
 import '../pages/base_page.dart';
 

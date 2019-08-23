@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_exoplayer/audioplayer.dart';
 import 'package:myapp/core/services/audio_player_service.dart';
 import 'package:myapp/core/services/connectivity_service.dart';
+import 'package:myapp/core/services/image_loader_service.dart';
 import 'package:myapp/core/services/local_database_service.dart';
 import 'package:myapp/core/services/native_communication_service.dart';
 import 'package:myapp/core/view_models/page_models/base_model.dart';
@@ -18,6 +19,7 @@ class MusicPlayerModel extends BaseModel {
       locator<ConnectivityService>();
   final NativeCommunicationService _nativeCommunicationService =
       locator<NativeCommunicationService>();
+  final ImageLoaderService _imageLoaderService = locator<ImageLoaderService>();
 
   StreamSubscription<PlayerState> _onPlayerState;
   StreamSubscription<Duration> _onPlayerPosition;
@@ -28,6 +30,9 @@ class MusicPlayerModel extends BaseModel {
   Duration _position;
   Duration _duration;
   Song _currentSong;
+  ImageProvider _imageProvider;
+
+  ImageProvider get imageProvider => _imageProvider;
 
   PlayerState get playerState => _playerState;
 
@@ -47,6 +52,7 @@ class MusicPlayerModel extends BaseModel {
 
   Future<void> setCurrentSong() async {
     _currentSong = await _audioPlayerService.getCurrentSong();
+    await _loadImage(_currentSong);
     notifyListeners();
   }
 
@@ -69,6 +75,7 @@ class MusicPlayerModel extends BaseModel {
     _onPlayerIndex =
         _audioPlayerService.onPlayerIndexChangedStream().listen((index) {
       _currentSong = currentPlaylist.songs[index];
+      _loadImage(_currentSong);
       notifyListeners();
     });
   }
@@ -78,6 +85,11 @@ class MusicPlayerModel extends BaseModel {
     _onPlayerPosition.cancel();
     _onPlayerDuration..cancel();
     _onPlayerIndex.cancel();
+  }
+
+  Future<void> _loadImage(Song song) async {
+    _imageProvider = await _imageLoaderService.loadImage(song);
+    notifyListeners();
   }
 
   Future<void> seekPlayerPosition(double value) async {
@@ -104,10 +116,10 @@ class MusicPlayerModel extends BaseModel {
   }
 
   void setCurrentPlaylist() {
-    _audioPlayerService.setPlaylistMode =
+    _audioPlayerService.setPlaylistMode(
         _audioPlayerService.playlistMode == PlaylistMode.loop
             ? PlaylistMode.shuffle
-            : PlaylistMode.loop;
+            : PlaylistMode.loop);
   }
 //! TODO load image!
   // void checkForIntenetConnetionForNetworkImage() {
