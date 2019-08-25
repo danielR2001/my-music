@@ -118,12 +118,10 @@ class FirebaseDatabaseManager {
         .child(
             '$_usersDir/$_userPushId/$_playlistsDir/${playlist.pushId}/$_songsDir/${song.pushId}')
         .remove();
-    if (playlist.isPublic) {
-      await _removeSongFromPublicPlaylist(playlist, song);
-    }
   }
 
-  Future<Playlist> buildPublicPlaylists() async {
+  Future<List<Playlist>> buildPublicPlaylists() async {
+    final List<Playlist> publicPlaylists = List();
     Playlist tempPlaylist;
     Map tempMap;
     var snapshot = await FirebaseDatabase.instance
@@ -144,18 +142,19 @@ class FirebaseDatabaseManager {
                 tempPlaylist.addNewSong(temp);
               });
             }
-            //List<Song> sortedPlaylist = List();
+            List<Song> sortedPlaylist = List();
 
-            //sortedPlaylist = tempPlaylist.songs;
-            //sortedPlaylist.sort((a, b) => a.title.compareTo(b.title));
-            // tempPlaylist.setSongs = sortedPlaylist;
-            // tempPlaylist.setSortedType = SortType.title;
-            // CustomColors.publicPlaylists.add(tempPlaylist);
+            sortedPlaylist = tempPlaylist.songs;
+            sortedPlaylist.sort((a, b) => a.title.compareTo(b.title));
+            tempPlaylist.setSongs = sortedPlaylist;
+            tempPlaylist.setSortedType = SortType.title;
+
+            publicPlaylists.add(tempPlaylist);
           }
         },
       );
     }
-    return tempPlaylist; // may return null
+    return publicPlaylists; // may return null
   }
 
   Future<Playlist> addPublicPlaylist(
@@ -209,10 +208,11 @@ class FirebaseDatabaseManager {
     return song;
   }
 
-  Future<void> _removeSongFromPublicPlaylist(Playlist playlist, Song song) async {
+  Future<void> removeSongFromPublicPlaylist(User currentUser, Playlist playlist, Song song) async {
+    String songPublicPushid = currentUser.getSongPublicPushId(playlist, song);
     await FirebaseDatabase.instance.reference()
         .child(
-            '$_publicPlaylistsDir/${playlist.publicPlaylistPushId}/$_songsDir/${song.pushId}')
+            '$_publicPlaylistsDir/${playlist.publicPlaylistPushId}/$_songsDir/$songPublicPushid')
         .remove();
   }
 

@@ -26,10 +26,5 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <receiver android:name=".ActionReceiver" />
-        <service
-            android:name=".AppCloseDetectorService"
-            android:stopWithTask="false" >
-        </service>
     </application>
 </manifest>

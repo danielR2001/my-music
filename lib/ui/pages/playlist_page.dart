@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/core/services/audio_player_service.dart';
@@ -6,11 +5,9 @@ import 'package:myapp/core/view_models/page_models/playlist_model.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/core/services/audio_player_service.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/base_page.dart';
-import 'package:myapp/ui/pages/music_player_page.dart';
 import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
 import 'dart:math';
@@ -19,10 +16,9 @@ import 'package:provider/provider.dart';
 
 class PlaylistPage extends StatefulWidget {
   final Playlist playlist;
-  final User playlistCreator;
   final PlaylistModalSheetMode playlistModalSheetMode;
   PlaylistPage(
-      {this.playlist, this.playlistCreator, this.playlistModalSheetMode});
+      {this.playlist, this.playlistModalSheetMode});
 
   @override
   _PlaylistPageState createState() => _PlaylistPageState();
@@ -30,7 +26,6 @@ class PlaylistPage extends StatefulWidget {
 
 class _PlaylistPageState extends State<PlaylistPage> {
   PlaylistModel _model;
-  ImageProvider imageProvider;
   Color iconColor = Colors.white;
   ScrollController _scrollController;
   @override
@@ -42,7 +37,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
   @override
   Widget build(BuildContext context) {
     return BasePage<PlaylistModel>(
-      onModelReady: (model) => _model = model,
+      onModelReady: (model) {
+        _model = model;
+        _model.initModel(widget.playlist);
+      },
       builder: (context, model, child) => Scaffold(
         body: Container(
           decoration: BoxDecoration(
@@ -131,9 +129,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           Rect.fromLTRB(0, 0, rect.width, rect.height));
                     },
                     blendMode: BlendMode.dstIn,
-                    child: imageProvider != null
+                    child: _model.imageProvider != null
                         ? Image(
-                            image: imageProvider,
+                            image: _model.imageProvider,
                             fit: BoxFit.cover,
                           )
                         : Icon(
@@ -176,7 +174,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 color: _model.isPagePlaylistIsPlaying() &&
                         _model.isSongPlaying(playlist.songs[index])
                     ? CustomColors.pinkColor
-                    : Colors.grey,
+                    : Colors.white,
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
@@ -216,7 +214,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                       color: _model.isPagePlaylistIsPlaying() &&
                               _model.isSongPlaying(playlist.songs[index])
                           ? CustomColors.pinkColor
-                          : Colors.grey,
+                          : Colors.white,
                     ),
                     iconSize: 30,
                     onPressed: () {
@@ -413,7 +411,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
           ),
           AutoSizeText(
             widget.playlistModalSheetMode != PlaylistModalSheetMode.download
-                ? "by: " + widget.playlistCreator.name
+                ? "by: " + widget.playlist.creator
                 : "",
             style: TextStyle(
               color: Colors.grey,

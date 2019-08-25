@@ -50,10 +50,8 @@ class PlaylistOptionsModel extends BaseModel {
     songs.forEach((song) async {
       bool exists = await _localDatabaseService.checkIfSongFileExists(song);
       if (!exists) {
-        String downloadUrl = await _apiService.getSongPlayUrl(song);
-        if (downloadUrl != null) {
-          _localDatabaseService.downloadSong(downloadUrl, song);
-        }
+          _localDatabaseService.downloadSong(song);
+        
       }
     });
   }

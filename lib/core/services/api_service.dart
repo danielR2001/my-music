@@ -11,14 +11,6 @@ class ApiService {
     return await _apiManager.getSearchResults(searchStr);
   }
 
-  Future<String> getSongPlayUrl(Song song) async {
-    return await _apiManager.getSongPlayUrl(song);
-  }
-
-  Future<String> getSongImageUrl(Song song) async {
-    return await _apiManager.getSongImageUrl(song);
-  }
-
   Future<Artist> getArtistImageUrl(String artistName) async {
     return await _apiManager.getArtistImageUrl(artistName);
   }

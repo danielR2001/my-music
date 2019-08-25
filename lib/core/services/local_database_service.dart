@@ -40,8 +40,8 @@ class LocalDatabaseService {
     return await _localDatabaseManager.checkIfImageFileExists(song);
   }
 
-  Future<void> downloadSong(String downloadUrl, Song song) async {
-    await _localDatabaseManager.downloadSong(downloadUrl, song);
+  Future<void> downloadSong(Song song) async {
+    await _localDatabaseManager.downloadSong(song);
   }
 
   Future<void> cancelDownLoad(Song song) async {
@@ -56,9 +56,10 @@ class LocalDatabaseService {
     return _localDatabaseManager.isSongDownloading(song);
   }
 
-  Future<void> syncDownloaded() async {
+  Future<List<Song>> syncDownloaded() async {
     List<Song> songs = await _localDatabaseManager.syncDownloaded();
     songs.sort((a, b) => a.dateAdded.compareTo(b.dateAdded));
+    return songs;
     //! TODO sync current user!
     // Provider.of<User>(context)
     // CustomColors.currentUser.downloadedSongsPlaylist.setSongs = songs;

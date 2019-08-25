@@ -8,7 +8,7 @@ import 'package:dio/dio.dart';
 class ApiManager {
   static final String searchUrl = 'https://mp3-tut.com/search?query=';
   static final String siteUrl = 'https://mp3-tut.com';
-  static final String playUrl = 'https://music.xn--41a.ws';
+  static final String playUrl = 'https://download.mp3-tut.com/';
   static final String imageSearchUrl =
       'https://free-mp3-download.net/search.php?s=';
   static final String artistIdUrl =
@@ -38,11 +38,12 @@ class ApiManager {
       print('Search For Results completed');
       _searchCompleted = true;
       var elements = parse(response.data)?.getElementsByClassName("list-view");
-      var html = elements[0].outerHtml;
+      var html = elements[0].innerHtml;
       html = html.replaceAll('\n', '');
       responseList = html.split('<div class="play-button-container">');
       responseList.removeAt(0);
-      return _buildSearchResult(responseList, searchUrl + searchStr + "/");
+      return await _buildSearchResult(
+          responseList, searchUrl + searchStr + "/");
     } on DioError catch (e) {
       if (e.message == "cancelled") {
         return List();
@@ -56,46 +57,12 @@ class ApiManager {
     }
   }
 
-  Future<String> getSongPlayUrl(Song song) async {
-    var responseList;
-    String songTitle = song.title;
-    songTitle = _editSearchParams(songTitle, true, true);
-    if (songTitle.contains(" ")) {
-      songTitle = songTitle.replaceAll(" ", "+");
-    }
-    var encoded = Uri.encodeFull(songTitle);
-    String url = siteUrl + song.searchString + "+" + encoded;
-    try {
-      Response response = await Dio().get(url);
-      print('song search completed');
-      html.Document document = parse(response.data);
-      var elements = document.getElementsByClassName("list-view");
-      var html1 = elements[0].outerHtml;
-      html1 = html1.replaceAll('\n', '');
-      responseList = html1.split('<div class="play-button-container">');
-      responseList.removeAt(0);
-      String streamUrl = _buildStreamUrl(responseList, song);
-      if (streamUrl != null) {
-        if (streamUrl.contains("amp;")) {
-          streamUrl = streamUrl.replaceAll("amp;", "");
-        }
-      }
-      return streamUrl;
-    } on DioError catch (e) {
-      print(e);
-      return null;
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
-
-  Future<String> getSongImageUrl(Song song, {bool secondTry = false}) async {
+  Future<String> _getSongImageUrl(String title, String artist, {bool secondTry = false}) async {
     secondTry ??= false;
     String imageUrl;
-    String tempTitle = song.title;
+    String tempTitle = title;
     tempTitle = _editSearchParams(tempTitle, true, true);
-    String tempArtist = song.artist;
+    String tempArtist = artist;
     tempArtist = _editSearchParams(tempArtist, secondTry, true);
     imageUrl = tempTitle + " " + tempArtist;
     var encoded = Uri.encodeFull(imageSearchUrl + imageUrl);
@@ -108,7 +75,7 @@ class ApiManager {
         return _getImageUrlFromResponse(list);
       } else {
         if (!secondTry) {
-          return getSongImageUrl(song, secondTry: true);
+          return _getSongImageUrl(title,artist, secondTry: true);
         } else {
           return null;
         }
@@ -297,74 +264,18 @@ class ApiManager {
     return str;
   }
 
-  String _buildStreamUrl(List<String> list, Song song) {
-    String songId;
-    String strSong;
-    String stream;
-    if (list != null) {
-      for (int i = 0; i < list.length; i++) {
-        songId = list[i].substring(
-            list[i].indexOf('https://mp3-tut.com/musictutplay?id=') +
-                'https://mp3-tut.com/musictutplay?id='.length,
-            list[i].indexOf('&amp;hash='));
-        if (songId == song.songId) {
-          strSong = list[i];
-          break;
-        }
-      }
-
-      if (strSong != null) {
-        stream = strSong.substring(
-            strSong.indexOf('data-audiofile="') + 'data-audiofile="'.length,
-            strSong.indexOf('data-title='));
-      }
-    }
-    return stream;
-  }
-
-  List<Song> _buildSearchResult(List<String> list, String searchString) {
-    String imageUrl;
-    String songTitle;
-    String artist;
-    String songId;
-    String searchString;
+  Future<List<Song>> _buildSearchResult(
+      List<String> list, String searchString) async {
+    List<Future<Song>> futures = List();
     List<Song> songs = List();
     if (list.length > 0) {
-      list.forEach((item) {
-        if (item.contains("amp;")) {
-          item = item.replaceAll("amp;", "");
-        }
-        imageUrl = '';
-
-        searchString = item.substring(
-            item.indexOf('<div class="title"><a href=') +
-                '<div class="title"><a href='.length,
-            item.indexOf('</a></div'));
-        searchString = searchString.replaceRange(
-            searchString.indexOf(">"), searchString.length, "");
-        searchString = searchString.replaceAll('"', "");
-        if (searchString.contains("+%26amp%3B")) {
-          searchString = searchString.replaceAll("+%26amp%3B", "");
-        }
-
-        artist = item.substring(
-            item.indexOf('<div class="title"><a href=') +
-                '<div class="title"><a href='.length,
-            item.indexOf('</a></div'));
-        item = item.replaceFirst('<div class="title">', "");
-        artist = artist.substring(artist.indexOf('>') + 1, artist.length);
-
-        songTitle = item.substring(
-            item.indexOf('<div class="title">') + '<div class="title">'.length,
-            item.indexOf('</div>    </div>'));
-
-        songId = item.substring(
-            item.indexOf('https://mp3-tut.com/musictutplay?id=') +
-                'https://mp3-tut.com/musictutplay?id='.length,
-            item.indexOf('&hash='));
-
-        songs.add(Song(songTitle, artist, songId, searchString, imageUrl, ''));
-      });
+      if (list.length > 10) {
+        list = list.sublist(0, 10);
+      }
+      for (String item in list) {
+        futures.add(_buildSong(item));
+      }
+      songs = await Future.wait(futures, eagerError: true);
       return songs;
     } else {
       return null;
@@ -383,5 +294,47 @@ class ApiManager {
     lyrics = lyrics.trimRight();
     lyrics = lyrics.trimLeft();
     return lyrics;
+  }
+
+  Future<Song> _buildSong(String item) async {
+    String imageUrl;
+    String songTitle;
+    String artist;
+    String songId;
+    String searchString;
+    String playUrl;
+
+    searchString = item.substring(
+        item.indexOf('data-audiofile="') + 'data-audiofile="'.length,
+        item.indexOf('data-title='));
+    searchString = searchString.replaceFirst("amp;", "");
+    playUrl = await _getSongPlayUrl(searchString);
+    artist = item.substring(
+        item.indexOf('<div class="title"><a href=') +
+            '<div class="title"><a href='.length,
+        item.indexOf('</a></div'));
+    item = item.replaceFirst('<div class="title">', "");
+    artist = artist.substring(artist.indexOf('>') + 1, artist.length);
+
+    songTitle = item.substring(
+        item.indexOf('<div class="title">') + '<div class="title">'.length,
+        item.indexOf('</div>    </div>'));
+
+    songId = item.substring(
+        item.indexOf('https://mp3-tut.com/musictutplay?id=') +
+            'https://mp3-tut.com/musictutplay?id='.length,
+        item.indexOf('&amp;hash='));
+    imageUrl = await _getSongImageUrl(songTitle,artist);
+    return Song(songTitle, artist, songId, playUrl, imageUrl, '');
+  }
+
+  Future<String> _getSongPlayUrl(String url) async {
+    Response response =
+        await Dio().head(url, cancelToken: _songSearchCancelToken);
+    if (response.redirects.length == 2) {
+      return playUrl + response.redirects[1].location.path;
+    } else {
+      return playUrl + response.redirects[0].location.path;
+    }
   }
 }

@@ -9,7 +9,6 @@ import 'package:myapp/models/song.dart';
 import 'package:myapp/core/services/toast_service.dart';
 import 'package:myapp/ui/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/base_page.dart';
-import 'package:myapp/ui/pages/playlists_pick_page.dart';
 import 'package:myapp/ui/widgets/artists_pick_modal_buttom_sheet.dart';
 import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
 import 'package:provider/provider.dart';
@@ -54,6 +53,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
       onModelReady: (model) async {
         _model = model;
         await _model.loadImage(widget.song);
+        await _model.checkIfSongDirExists(widget.song);
       },
       builder: (context, model, child) => Container(
         alignment: Alignment.topCenter,
@@ -192,7 +192,8 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
               ),
             ),
             onTap: () async {
-              await _model.removeSongFromPlaylist(widget.playlist, widget.song);
+              await _model.removeSongFromPlaylist(
+                  Provider.of<User>(context), widget.playlist, widget.song);
               widget.playlist.removeSong(widget.song);
               Provider.of<User>(context).updatePlaylist(widget.playlist);
 
@@ -207,16 +208,14 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
   }
 
   Widget drawDownloadSong(BuildContext context) {
-    if (!Provider.of<User>(context)
-            .songExistsInDownloadedPlaylist(widget.song) &&
-        !_model.isSongDownloading(widget.song)) {
-      return downloadWidget(context);
-    } else {
+    if (_model.songExists) {
       if (_model.isSongDownloading(widget.song)) {
         return Container();
       } else {
         return unDownloadWidget(context);
       }
+    } else {
+      return downloadWidget(context);
     }
   }
 

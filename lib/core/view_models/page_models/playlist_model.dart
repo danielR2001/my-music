@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:myapp/core/database/local/local_database_manager.dart';
 import 'package:myapp/core/services/audio_player_service.dart';
+import 'package:myapp/core/services/image_loader_service.dart';
 import 'package:myapp/core/services/local_database_service.dart';
 import 'package:myapp/core/view_models/page_models/base_model.dart';
 import 'package:myapp/locater.dart';
@@ -12,6 +14,7 @@ class PlaylistModel extends BaseModel {
   final LocalDatabaseService _localDatabaseService =
       locator<LocalDatabaseService>();
   final AudioPlayerService _audioPlayerService = locator<AudioPlayerService>();
+    final ImageLoaderService _imageLoaderService = locator<ImageLoaderService>();
 
   StreamSubscription<Map<String, int>> _onDownloadProgresses;
 
@@ -27,6 +30,9 @@ class PlaylistModel extends BaseModel {
   Map<String, int> _totalsMap;
   Song _currentSong;
   Playlist _pagePlaylist;
+  ImageProvider _imageProvider;
+
+  ImageProvider get imageProvider => _imageProvider;
 
   Playlist get pagePlaylist => _pagePlaylist;
 
@@ -69,7 +75,17 @@ class PlaylistModel extends BaseModel {
   }
 
   bool isPagePlaylistIsPlaying() {
+    if(_audioPlayerService.currentPlaylist == null) return false;
     return _pagePlaylist.pushId == _audioPlayerService.currentPlaylist.pushId;
+  }
+
+  Future<void> loadImage(Playlist playlist) async {
+    if(playlist.songs.length != 0 ){ 
+    _imageProvider = await _imageLoaderService.loadImage(playlist.songs[0]);
+    }else{
+      _imageProvider = null;
+    }
+    notifyListeners();
   }
 
   Future<void> play(int index, PlaylistMode mode) async {
@@ -81,6 +97,7 @@ class PlaylistModel extends BaseModel {
     _playerIndexStream =
         _audioPlayerService.onPlayerIndexChangedStream().listen((index) {
       _currentSong = _audioPlayerService.currentPlaylist.songs.elementAt(index);
+      notifyListeners();;
     });
     _onDownloadProgresses =
         _localDatabaseService.onDownloadProgresses.listen((_progressMap) {
@@ -105,9 +122,11 @@ class PlaylistModel extends BaseModel {
     await _localDatabaseService.cancelDownLoad(song);
   }
 
-  Future<void> initModel() async {
+  Future<void> initModel(Playlist playlist) async {
+    _pagePlaylist = playlist;
     _currentSong = await _audioPlayerService.getCurrentSong();
     initStreams();
+    loadImage(playlist);
     notifyListeners();
   }
 

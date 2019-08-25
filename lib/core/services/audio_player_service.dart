@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter_exoplayer/audio_notification.dart';
 import 'package:flutter_exoplayer/audioplayer.dart';
 import 'package:myapp/core/player/audio_player_manager.dart';
+import 'package:myapp/core/services/api_service.dart';
+import 'package:myapp/core/services/local_database_service.dart';
 import 'package:myapp/locater.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
@@ -13,7 +15,9 @@ enum PlaylistMode {
 }
 
 class AudioPlayerService {
-  final AudioPlayerManager audioPlayerManager = locator<AudioPlayerManager>();
+  final AudioPlayerManager _audioPlayerManager = locator<AudioPlayerManager>();
+    final LocalDatabaseService _localDatabaseService = locator<LocalDatabaseService>();
+  final ApiService _apiService = locator<ApiService>();
 
   Playlist _currentPlaylist;
   Playlist _shuffledPlaylist;
@@ -30,7 +34,7 @@ class AudioPlayerService {
 
   PlayerState get playerState => _playerState;
 
-  PlaylistMode get playlistMode => _playlistMode;
+  PlaylistMode get playlistMode => _playlistMode; //! TODO add repeat mode change!
 
   set setLoopPlaylist(Playlist playlist) => _loopPlaylist = playlist;
 
@@ -51,17 +55,20 @@ class AudioPlayerService {
   }
 
   void initAudioPlayerService() {
-    audioPlayerManager.initAudioPlayerManager();
+    _audioPlayerManager.initAudioPlayerManager();
     // audioPlayerManager.logEnabled = true;
   }
 
   Future<void> initPlaylist(
       Playlist playlist, PlaylistMode mode, int index, bool repeatMode) async {
-    //! TODO handle init playlist url search!
-    List<String> urls;
-    List<AudioNotification> audioNotifications;
+    List<String> urls = List();
+    List<AudioNotification> audioNotifications = List();
 
-    _loopPlaylist = Playlist.fromPlaylist(_currentPlaylist);
+    for(Song song in playlist.songs){
+      bool isLocal = await _localDatabaseService.checkIfSongFileExists(song);
+      audioNotifications.add(AudioNotification(smallIconFileName: "ic_launcher", title: song.title, subTitle: song.artist, largeIconUrl: song.imageUrl, isLocal: isLocal));
+    }
+    _loopPlaylist = Playlist.fromPlaylist(playlist);
     setPlaylistMode(mode);
     currentPlaylist.songs.forEach((song){
       urls.add(song.playUrl);
@@ -74,47 +81,48 @@ class AudioPlayerService {
       List<AudioNotification> audioNotifications,
       int index,
       bool repeatMode) async {
-    await audioPlayerManager.play(urls, audioNotifications, index, repeatMode);
+    await _audioPlayerManager.play(urls, audioNotifications, index, repeatMode);
   }
 
   Future<void> resume() async {
-    await audioPlayerManager.resume();
+    await _audioPlayerManager.resume();
   }
 
   Future<void> pause() async {
-    await audioPlayerManager.pause();
+    await _audioPlayerManager.pause();
   }
 
   Future<void> stopPlaylist() async {
-    await audioPlayerManager.stop();
+    await _audioPlayerManager.stop();
   }
 
   Future<void> releasePlaylist() async {
     _currentPlaylist = null;
     _loopPlaylist = null;
     _shuffledPlaylist = null;
-    await audioPlayerManager.release();
+    await _audioPlayerManager.release();
   }
 
   Future<void> seekPosition(Duration duration) async {
-    await audioPlayerManager.seekPosition(duration);
+    await _audioPlayerManager.seekPosition(duration);
   }
 
   Future<void> seekIndex(int index) async {
-    await audioPlayerManager.seekIndex(index);
+    await _audioPlayerManager.seekIndex(index);
   }
 
   Future<void> playPreviousSong() async {
-    await audioPlayerManager.previous();
+    await _audioPlayerManager.previous();
   }
 
   Future<void> playNextSong() async {
-    await audioPlayerManager.next();
+    await _audioPlayerManager.next();
   }
 
   Future<Song> getCurrentSong() async {
+    if(_currentPlaylist == null) return null;
     return _currentPlaylist.songs
-        .elementAt(await audioPlayerManager.getCurrentIndex());
+        .elementAt(await _audioPlayerManager.getCurrentIndex());
   }
 
   Playlist _createShuffledPlaylist() {
@@ -145,26 +153,30 @@ class AudioPlayerService {
   }
 
   Stream<void> onPlayerCompletionStream() {
-    return audioPlayerManager.onPlayerCompletionStream();
+    return _audioPlayerManager.onPlayerCompletionStream();
   }
 
   Stream<PlayerState> onPlayerStateChangeStream() {
-    return audioPlayerManager.onPlayerStateChangeStream();
+    return _audioPlayerManager.onPlayerStateChangeStream();
   }
 
   Stream<Duration> onPlayerPositionChangedStream() {
-    return audioPlayerManager.onPlayerPositionChangedStream();
+    return _audioPlayerManager.onPlayerPositionChangedStream();
   }
 
   Stream<Duration> onPlayerDurationChangedStream() {
-    return audioPlayerManager.onPlayerDurationChangedStream();
+    return _audioPlayerManager.onPlayerDurationChangedStream();
   }
 
   Stream<int> onPlayerIndexChangedStream() {
-    return audioPlayerManager.onPlayerIndexChangedStream();
+    return _audioPlayerManager.onPlayerIndexChangedStream();
   }
 
   Future<void> dispose() async {
-    await audioPlayerManager.dispose();
+    await _audioPlayerManager.dispose();
+  }
+
+  void initAudioPlayerManager() {
+    _audioPlayerManager.initAudioPlayerManager();
   }
 }

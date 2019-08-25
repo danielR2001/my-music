@@ -20,8 +20,9 @@ class _RootPageState extends State<RootPage> {
   @override
   Widget build(BuildContext context) {
     return BasePage<RootModel>(
-        onModelReady: (model) {
+        onModelReady: (model) async {
           _model = model;
+          await _model.initApp();
           authenticateWithFirebase();
         },
         builder: (context, model, child) => Container());

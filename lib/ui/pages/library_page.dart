@@ -1,179 +1,167 @@
-import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/core/database/firebase/authentication_manager.dart';
-import 'package:myapp/core/database/firebase/database_manager.dart';
+import 'package:myapp/core/view_models/page_models/library_model.dart';
+import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/custom_classes/custom_icons.dart';
-import 'package:myapp/ui/pages/welcome_page.dart';
-import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
+import 'package:myapp/ui/pages/base_page.dart';
+import 'package:myapp/ui/router.dart';
 import 'package:provider/provider.dart';
 
-class AccountPage extends StatefulWidget {
-  AccountPage({this.onPush});
-  final ValueChanged<Map> onPush;
-
+class LibraryPage extends StatefulWidget {
   @override
-  _AccountPageState createState() => _AccountPageState();
+  _LibraryPageState createState() => _LibraryPageState();
 }
 
-class _AccountPageState extends State<AccountPage> {
+class _LibraryPageState extends State<LibraryPage> {
+  LibraryModel _model;
   bool openPlaylists = true;
-  Map<String, ImageProvider> imageProviders = Map();
-  bool needToReloadImages = false;
-  @override
-  void initState() {
-    super.initState();
-    checkForIntenetConnetionForNetworkImage();
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Navigator(onGenerateRoute: (RouteSettings settings) {
-      return MaterialPageRoute(
-        settings: settings,
-        builder: (BuildContext context) {
-          return Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  CustomColors.darkGreyColor,
-                  CustomColors.lightGreyColor,
-                  CustomColors.pinkColor,
-                ],
-                begin: FractionalOffset.bottomRight,
-                stops: [0.2,0.7, 1.0],
-                end: FractionalOffset.topLeft,
-              ),
-            ),
-            child: SafeArea(
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(left: 20),
-                          child: Text(
-                            "Your Library",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 5),
-                          child: IconButton(
-                            icon: Icon(
-                              MyCustomIcons.logout_icon,
-                              size: 22,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              showAlertDialog(context);
-                            },
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    flex: 0,
-                    child: Container(
-                      height: 20,
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  ListTile(
-                      leading: Icon(
-                        Icons.save_alt,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                      title: Text(
-                        CustomColors.currentUser != null
-                            ? "My device" +
-                                "  (${CustomColors.currentUser.downloadedSongsPlaylist.songs.length})"
-                            : "My device",
+    return BasePage<LibraryModel>(
+      onModelReady: (model) {
+        _model = model;
+        _model.initModel(Provider.of<User>(context));
+      },
+      builder: (context, model, child) => Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              CustomColors.darkGreyColor,
+              CustomColors.lightGreyColor,
+              CustomColors.pinkColor,
+            ],
+            begin: FractionalOffset.bottomRight,
+            stops: [0.2, 0.7, 1.0],
+            end: FractionalOffset.topLeft,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: Text(
+                        "Your Library",
                         style: TextStyle(
-                          fontSize: 17,
                           color: Colors.white,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      trailing: Icon(
-                        Icons.keyboard_arrow_right,
-                        color: Colors.white,
+                    ),
+                    Expanded(
+                      child: Container(),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 5),
+                      child: IconButton(
+                        icon: Icon(
+                          MyCustomIcons.logout_icon,
+                          size: 22,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          showAlertDialog(context);
+                        },
                       ),
-                      onTap: () {
-                        Provider.of<PageNotifier>(
-                                    CustomColors.homePageContext)
-                                .setCurrentPlaylistPagePlaylist =
-                            CustomColors.currentUser.downloadedSongsPlaylist;
-                        widget.onPush(
-                            createMap(CustomColors.currentUser.downloadedSongsPlaylist));
-                      }),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.queue_music,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                    title: Text(
-                      "My Playlists",
-                      style: TextStyle(
-                        fontSize: 17,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    trailing: IconButton(
-                      icon: openPlaylists
-                          ? Icon(
-                              Icons.keyboard_arrow_up,
-                              color: Colors.white,
-                            )
-                          : Icon(
-                              Icons.keyboard_arrow_down,
-                              color: Colors.white,
-                            ),
-                      onPressed: () {
-                        setState(() {
-                          openPlaylists = !openPlaylists;
-                        });
-                      },
-                    ),
-                  ),
-                  showOrHidePlaylists(),
-                ],
+                    )
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-      );
-    });
+              Expanded(
+                flex: 0,
+                child: Container(
+                  height: 20,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              ListTile(
+                  leading: Icon(
+                    Icons.save_alt,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                  title: Text(
+                    "My device" +
+                        "  (${Provider.of<User>(context).downloadedSongsPlaylist.songs.length})",
+                    style: TextStyle(
+                      fontSize: 17,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.keyboard_arrow_right,
+                    color: Colors.white,
+                  ),
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      "/playlist",
+                      arguments: _model.createMap(
+                          Provider.of<User>(context).downloadedSongsPlaylist),
+                    );
+                  }),
+              SizedBox(
+                height: 20,
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.queue_music,
+                  color: Colors.white,
+                  size: 30,
+                ),
+                title: Text(
+                  "My Playlists",
+                  style: TextStyle(
+                    fontSize: 17,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                trailing: IconButton(
+                  icon: openPlaylists
+                      ? Icon(
+                          Icons.keyboard_arrow_up,
+                          color: Colors.white,
+                        )
+                      : Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.white,
+                        ),
+                  onPressed: () {
+                    setState(() {
+                      openPlaylists = !openPlaylists;
+                    });
+                  },
+                ),
+              ),
+              showOrHidePlaylists(),
+            ],
+          ),
+        ),
+      ),
+    );
   }
+
   //* widgets
   Widget userPlaylists(Playlist playlist, BuildContext context, int index) {
     return Padding(
@@ -187,7 +175,7 @@ class _AccountPageState extends State<AccountPage> {
               ? drawSongImage(playlist.songs[0], index)
               : drawSongImage(null, index),
           title: AutoSizeText(
-            cutPlaylistName(playlist) + "  (${playlist.songs.length})",
+            _model.cutPlaylistName(playlist) + "  (${playlist.songs.length})",
             style: TextStyle(
               fontSize: 17,
               color: Colors.white,
@@ -200,29 +188,20 @@ class _AccountPageState extends State<AccountPage> {
             color: Colors.white,
           ),
           onTap: () {
-            Provider.of<PageNotifier>(CustomColors.homePageContext)
-                .setCurrentPlaylistPagePlaylist = playlist;
-            widget.onPush(createMap(playlist));
+            Navigator.pushNamed(context, "/playlist",
+                arguments: _model.createMap(playlist));
           }),
     );
   }
 
   Widget showOrHidePlaylists() {
     if (openPlaylists) {
-      if (!CustomColors.isOfflineMode && needToReloadImages) {
-        checkForIntenetConnetionForNetworkImage();
-        needToReloadImages = false;
-      }
       return Expanded(
         child: ListView.builder(
-          itemCount: CustomColors.currentUser != null
-              ? CustomColors.currentUser.playlists != null
-                  ? CustomColors.currentUser.playlists.length
-                  : 0
-              : 0,
+          itemCount: Provider.of<User>(context).playlists.length,
           itemBuilder: (BuildContext context, int index) {
             return userPlaylists(
-                CustomColors.currentUser.playlists[index], context, index);
+                Provider.of<User>(context).playlists[index], context, index);
           },
         ),
       );
@@ -258,17 +237,17 @@ class _AccountPageState extends State<AccountPage> {
             ),
           ],
         ),
-        child:
-            imageProviders.length != 0 && imageProviders[song.songId] != null
-                ? Image(
-                    image: imageProviders[song.songId],
-                    fit: BoxFit.cover,
-                  )
-                : Icon(
-                    Icons.music_note,
-                    color: CustomColors.pinkColor,
-                    size: 30,
-                  ),
+        child: _model.imageProviders.length != 0 &&
+                _model.imageProviders[song.songId] != null
+            ? Image(
+                image: _model.imageProviders[song.songId],
+                fit: BoxFit.cover,
+              )
+            : Icon(
+                Icons.music_note,
+                color: CustomColors.pinkColor,
+                size: 30,
+              ),
       );
     } else {
       return Container(
@@ -305,60 +284,13 @@ class _AccountPageState extends State<AccountPage> {
     }
   }
 
-  //*methods
-  String cutPlaylistName(Playlist playlist) {
-    String name;
-    if (playlist.name.length > 18) {
-      int pos = playlist.name.lastIndexOf("", 18);
-      if (pos < 10) {
-        pos = 18;
-      }
-      name = playlist.name.substring(0, pos) + "...";
-    } else {
-      name = playlist.name;
-    }
-    return name;
-  }
-  
-  void checkForIntenetConnetionForNetworkImage() {
-    if (!CustomColors.isOfflineMode) {
-      CustomColors.currentUser.playlists.forEach((playlist) {
-          if (playlist.songs.length > 0) {
-            CustomColors.manageLocalSongs.checkIfImageFileExists(playlist.songs[0])
-                .then((exists) {
-              if (exists) {
-                File file = File(
-                    "${CustomColors.manageLocalSongs._fullSongDownloadDir.path}/${playlist.songs[0].songId}/${playlist.songs[0].songId}.png");
-                setState(() {
-                  imageProviders[playlist.songs[0].songId] =
-                      FileImage(file);
-                });
-              } else {
-                if (CustomColors.isNetworkAvailable) {
-                  setState(() {
-                    imageProviders[playlist.songs[0].songId] =
-                        NetworkImage(
-                      playlist.songs[0].imageUrl,
-                    );
-                  });
-                }
-              }
-            });
-          }
-      
-      });
-    } else {
-      needToReloadImages = true;
-    }
-  }
-
   void showAlertDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(
-            "Hii " + CustomColors.currentUser.name + "!",
+            "Hii " + Provider.of<User>(context).name + "!",
             style: TextStyle(
                 color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
@@ -426,22 +358,8 @@ class _AccountPageState extends State<AccountPage> {
                               fontWeight: FontWeight.bold),
                         ),
                       ),
-                      onTap: () {
-                        CustomColors.publicPlaylists = List();
-                        FirebaseDatabaseManager.cancelStreams().then((a) {
-                          CustomColors.manageLocalSongs.deleteDownloadedDirectory();
-                          FirebaseAuthenticationManager.signOut().then((a) {
-                            CustomColors.audioPlayerManager.closeSong(
-                                closeSongMode: CloseSongMode.completely);
-                                NativeCommunicationService.removeNotification();
-                            CustomColors.currentUser = null;
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => WelcomePage(),
-                                ));
-                          });
-                        });
+                      onTap: () async {
+                        await _model.logOut();
                       },
                     ),
                   ),
@@ -453,20 +371,5 @@ class _AccountPageState extends State<AccountPage> {
         );
       },
     );
-  }
-
-  Map createMap(Playlist playlist) {
-    Map<String, dynamic> playlistValues = Map();
-    if (playlist.songs.length > 0) {
-      playlistValues['playlist'] = playlist;
-    } else {
-      playlistValues['playlist'] = playlist;
-    }
-    playlistValues['playlistCreator'] = CustomColors.currentUser;
-    playlistValues['playlistModalSheetMode'] =
-        playlist.pushId != CustomColors.currentUser.downloadedSongsPlaylist.pushId
-            ? PlaylistModalSheetMode.regular
-            : PlaylistModalSheetMode.download;
-    return playlistValues;
   }
 }

@@ -10,6 +10,7 @@ import 'package:myapp/locater.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
+import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 
 class SongOptionsModel extends BaseModel {
@@ -23,31 +24,32 @@ class SongOptionsModel extends BaseModel {
 
   ImageProvider _imageProvider;
 
+  bool _songExists = false;
+
   ImageProvider get imageProvider => _imageProvider;
+
+  bool get songExists => _songExists;
+
+  Future<void> checkIfSongDirExists(Song song) async{
+    _songExists = await _localDatabaseService.checkIfSongFileExists(song);
+    notifyListeners();
+  }
 
   Future<void> loadImage(Song song) async {
     _imageProvider = await _imageLoaderService.loadImage(song);
     notifyListeners();
   }
 
-  Future<Playlist> removeSongFromPlaylist(Playlist playlist, Song song) async {
+  Future<Playlist> removeSongFromPlaylist(User user, Playlist playlist, Song song) async {
     //! TODO remove live from pagePlaylist
-    await _firebaseDatabaseService.removeSongFromPlaylist(playlist, song);
+    await _firebaseDatabaseService.removeSongFromPlaylist(user, playlist, song);
     playlist.removeSong(song);
     return playlist;
   }
 
   Future<bool> downloadSong(Song song) async {
     if (await _localDatabaseService.checkIfStoragePermissionGranted()) {
-      String downloadUrl =
-          await _apiService.getSongPlayUrl(song); //! TODO maybe change
-      if (song.imageUrl == "") {
-        String imageUrl = await _apiService.getSongImageUrl(song);
-        if (imageUrl != null) {
-          song.setImageUrl = imageUrl;
-        }
-      }
-      await _localDatabaseService.downloadSong(downloadUrl, song);
+      await _localDatabaseService.downloadSong(song);
       return true;
     }
     return false;
@@ -55,12 +57,6 @@ class SongOptionsModel extends BaseModel {
 
   Future<bool> unDownloadSong(Song song) async {
     if (await _localDatabaseService.checkIfStoragePermissionGranted()) {
-      if (song.imageUrl == "") {
-        String imageUrl = await _apiService.getSongImageUrl(song);
-        if (imageUrl != null) {
-          song.setImageUrl = imageUrl;
-        }
-      }
       await _localDatabaseService.deleteSongDirectory(song);
       return true;
     }

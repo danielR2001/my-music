@@ -1,142 +1,127 @@
-import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:myapp/core/database/firebase/database_manager.dart';
+import 'package:myapp/core/view_models/page_models/discover_model.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/user.dart';
-import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
+import 'package:myapp/ui/pages/base_page.dart';
+import 'package:provider/provider.dart';
 
 class DiscoverPage extends StatefulWidget {
-  DiscoverPage({this.onPush});
-  final onPush;
-
   @override
   _DiscoverPageState createState() => _DiscoverPageState();
 }
 
 class _DiscoverPageState extends State<DiscoverPage> {
-  Map<String, ImageProvider> imageProviders = Map();
+  DiscoverModel _model;
   bool needToReloadImages = false;
   @override
-  void initState() {
-    syncAllPublicPlaylists();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Navigator(
-      onGenerateRoute: (RouteSettings settings) {
-        return MaterialPageRoute(
-          settings: settings,
-          builder: (BuildContext context) {
-            return Container(
-              alignment: Alignment(0.0, 0.0),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    CustomColors.darkGreyColor,
-                    CustomColors.lightGreyColor,
-                    CustomColors.pinkColor,
-                  ],
-                  begin: FractionalOffset.bottomRight,
-                  stops: [0.2, 0.7, 1.0],
-                  end: FractionalOffset.topLeft,
-                ),
-              ),
-              child: SafeArea(
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        top: 20,
-                        bottom: 10,
-                      ),
-                      child: Text(
-                        "Search",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        right: 8.0,
-                        left: 8.0,
-                        bottom: 5,
-                      ),
-                      child: Row(children: <Widget>[
-                        Expanded(
-                          child: Container(
-                            height: 50,
-                            child: RaisedButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              splashColor: Colors.transparent,
-                              color: Colors.white,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.search,
-                                    color: Colors.grey[700],
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    "Search artists or songs",
-                                    style: TextStyle(
-                                      color: Colors.grey[700],
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              elevation: 6.0,
-                              onPressed: () {
-                                widget.onPush();
-                              },
-                            ),
-                          ),
-                        ),
-                      ]),
-                    ),
-                    drawPublicPlaylistsListView()
-                  ],
-                ),
-              ),
-            );
-          },
-        );
+    return BasePage<DiscoverModel>(
+      onModelReady: (model) {
+        _model = model;
+        _model.initModel(Provider.of<User>(context));
       },
+      builder: (context, model, child) => Container(
+        alignment: Alignment(0.0, 0.0),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              CustomColors.darkGreyColor,
+              CustomColors.lightGreyColor,
+              CustomColors.pinkColor,
+            ],
+            begin: FractionalOffset.bottomRight,
+            stops: [0.2, 0.7, 1.0],
+            end: FractionalOffset.topLeft,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 20,
+                  bottom: 10,
+                ),
+                child: Text(
+                  "Search",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 8.0,
+                  left: 8.0,
+                  bottom: 5,
+                ),
+                child: Row(children: <Widget>[
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        splashColor: Colors.transparent,
+                        color: Colors.white,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(
+                              Icons.search,
+                              color: Colors.grey[700],
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "Search artists or songs",
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                        elevation: 6.0,
+                        onPressed: () {
+                          Navigator.pushNamed(
+                            context,
+                            "/search",
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ]),
+              ),
+              drawPublicPlaylistsListView()
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   //* widgets
   Widget drawPublicPlaylistsListView() {
-    if (!CustomColors.isOfflineMode && needToReloadImages) {
-      checkForIntenetConnetionForNetworkImage();
-      needToReloadImages = false;
-    }
     return Expanded(
       child: ListView.builder(
-        itemCount: CustomColors.publicPlaylists.length,
+        itemCount: _model.publicPlaylists.length,
         itemBuilder: (BuildContext context, int index) {
           Padding row;
           Expanded padding1;
           Expanded padding2;
           if ((index + 1) % 2 != 0) {
-            padding1 =
-                drawPlaylists(CustomColors.publicPlaylists[index], context);
-            padding2 = index + 1 != CustomColors.publicPlaylists.length
-                ? drawPlaylists(
-                    CustomColors.publicPlaylists[index + 1], context)
+            padding1 = drawPlaylists(_model.publicPlaylists[index], context);
+            padding2 = index + 1 != _model.publicPlaylists.length
+                ? drawPlaylists(_model.publicPlaylists[index + 1], context)
                 : Expanded(child: Container());
             row = Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -171,8 +156,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
       title = playlist.name;
     }
     if (playlist.songs.length > 0) {
-      if (imageProviders.length != 0 &&
-          imageProviders[playlist.songs[0].songId] != null) {
+      if (_model.imageProviders.length != 0 &&
+          _model.imageProviders[playlist.songs[0].songId] != null) {
         drawSongImage = true;
       }
     }
@@ -212,7 +197,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                   ),
                 ],
                 image: DecorationImage(
-                  image: imageProviders[playlist.songs[0].songId],
+                  image: _model.imageProviders[playlist.songs[0].songId],
                   fit: BoxFit.cover,
                 ),
               ),
@@ -232,7 +217,11 @@ class _DiscoverPageState extends State<DiscoverPage> {
           ],
         ),
         onTap: () {
-          widget.onPush(playlistValues: createMap(playlist));
+          Navigator.pushNamed(
+            context,
+            "/playlist",
+            arguments: _model.createMap(playlist),
+          );
         },
       ),
     );
@@ -289,63 +278,13 @@ class _DiscoverPageState extends State<DiscoverPage> {
           ],
         ),
         onTap: () {
-          widget.onPush(playlistValues: createMap(playlist));
+          Navigator.pushNamed(
+            context,
+            "/playlist",
+            arguments: _model.createMap(playlist),
+          );
         },
       ),
     );
-  }
-
-  //* methods
-  Future syncAllPublicPlaylists() async {
-    await FirebaseDatabaseManager.buildPublicPlaylists();
-    checkForIntenetConnetionForNetworkImage();
-  }
-
-  Map createMap(Playlist playlist) {
-    Map<String, dynamic> playlistValues = Map();
-    if (playlist.songs.length > 0) {
-      playlistValues['playlist'] = playlist;
-    } else {
-      playlistValues['playlist'] = playlist;
-    }
-    playlistValues['playlistCreator'] = User(playlist.creator, null);
-    playlistValues['playlistModalSheetMode'] = PlaylistModalSheetMode.public;
-    return playlistValues;
-  }
-
-  void checkForIntenetConnetionForNetworkImage() {
-    if (!CustomColors.isOfflineMode) {
-      CustomColors.publicPlaylists.forEach((playlist) {
-        if (playlist.songs.length > 0) {
-          if (playlist.songs[0].imageUrl != "") {
-            CustomColors.manageLocalSongs
-                .checkIfImageFileExists(playlist.songs[0])
-                .then((exists) {
-              if (exists) {
-                File file = File(
-                    "${CustomColors.manageLocalSongs._fullSongDownloadDir.path}/${playlist.songs[0].songId}/${playlist.songs[0].songId}.png");
-                setState(() {
-                  imageProviders[playlist.songs[0].songId] = (FileImage(file));
-                });
-              } else {
-                if (CustomColors.isNetworkAvailable) {
-                  setState(() {
-                    imageProviders[playlist.songs[0].songId] = NetworkImage(
-                      playlist.songs[0].imageUrl,
-                    );
-                  });
-                }
-              }
-            });
-          }else{
-            setState(() {
-             imageProviders[playlist.songs[0].songId] = null;
-            });
-          }
-        }
-      });
-    } else {
-      needToReloadImages = true;
-    }
   }
 }

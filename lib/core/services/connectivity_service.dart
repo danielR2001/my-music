@@ -8,7 +8,21 @@ class ConnectivityService {
 
   bool get isNetworkAvailable => _isNetworkAvailable;
 
-  void initNetworkConnectivityStream() {
+  Stream<ConnectivityResult> get connectivityStream =>
+      Connectivity().onConnectivityChanged;
+
+  Future initService() async {
+    ConnectivityResult connectivityResult =
+        await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      _isNetworkAvailable = false;
+    } else {
+      _isNetworkAvailable = true;
+    }
+    _initNetworkConnectivityStream();
+  }
+
+  void _initNetworkConnectivityStream() {
     _connectivityStreamSubscription =
         Connectivity().onConnectivityChanged.listen((connectivityResult) {
       if (connectivityResult == ConnectivityResult.none) {

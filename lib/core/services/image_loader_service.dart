@@ -18,7 +18,7 @@ class ImageLoaderService {
           "${_localDatabaseService.fullSongDownloadDir.path}/${song.songId}/${song.songId}.png");
       return FileImage(file);
     } else {
-      if (_connectivityService.isNetworkAvailable) {
+      if (_connectivityService.isNetworkAvailable && song.imageUrl != "") {
         return NetworkImage(
           song.imageUrl,
         );

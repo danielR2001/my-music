@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myapp/core/view_models/page_models/playlist_pick_model.dart';
-import 'package:myapp/core/services/audio_player_service.dart';
-import 'package:myapp/core/database/firebase/database_manager.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/song.dart';

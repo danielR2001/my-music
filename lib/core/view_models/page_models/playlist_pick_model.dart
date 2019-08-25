@@ -30,13 +30,6 @@ class PlaylistPickModel extends BaseModel {
       }
     });
     if (!songAlreadyExistsInPlaylist) {
-      if (song.imageUrl.length == 0) {
-        String imageUrl = await _apiService.getSongImageUrl(song);
-        if (imageUrl != null) {
-          song.setImageUrl = imageUrl;
-        }
-      }
-
       updatedsong = Song.fromSong(song);
       updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
       updatedsong =
@@ -74,23 +67,17 @@ class PlaylistPickModel extends BaseModel {
     return valid;
   }
 
-  Future<Playlist> createNewPlatlist(Song song, List<Song> songs,  String playlistName, String userName, bool isPublic) async {
+  Future<Playlist> createNewPlatlist(Song song, List<Song> songs,
+      String playlistName, String userName, bool isPublic) async {
     Song updatedsong;
-    Playlist playlist = Playlist(playlistName,
-        creator: userName, isPublic: isPublic);
-    playlist.setPushId =await _firebaseDatabaseService.addPlaylist(playlist);
+    Playlist playlist =
+        Playlist(playlistName, creator: userName, isPublic: isPublic);
+    playlist.setPushId = await _firebaseDatabaseService.addPlaylist(playlist);
     if (playlist.isPublic) {
       playlist =
           await _firebaseDatabaseService.addPublicPlaylist(playlist, true);
     }
     if (song != null) {
-      if (song.imageUrl.length == 0) {
-        String imageUrl =
-            await _apiService.getSongImageUrl(song);
-        if (imageUrl != null) {
-          song.setImageUrl = imageUrl;
-        }
-      }
       updatedsong = Song.fromSong(song);
       updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
       updatedsong =
@@ -98,22 +85,12 @@ class PlaylistPickModel extends BaseModel {
       playlist.addNewSong(updatedsong);
       return playlist;
     } else {
-      songs.forEach((song) async { //! TODO maybe fix it!
-        if (song.imageUrl == "") {
-          _apiService.getSongImageUrl(song).then((imageUrl) async {
-            Song updatedsong;
-            if (imageUrl != null) {
-              song.setImageUrl = imageUrl;
-              updatedsong =
-                  await _firebaseDatabaseService.addSongToPlaylist(playlist, song);
-              playlist.addNewSong(updatedsong);
-            }
-          });
-        } else {
-          updatedsong =
-            await  _firebaseDatabaseService.addSongToPlaylist(playlist, song);
-          playlist.addNewSong(updatedsong);
-        }
+      songs.forEach((song) async {
+        //! TODO maybe fix it!
+
+        updatedsong =
+            await _firebaseDatabaseService.addSongToPlaylist(playlist, song);
+        playlist.addNewSong(updatedsong);
       });
       return playlist;
     }

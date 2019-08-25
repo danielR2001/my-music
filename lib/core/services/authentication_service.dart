@@ -23,8 +23,9 @@ class AuthenticationService {
 
   Future<bool> login(FirebaseUser firebaseUser) async {
     if (_connectivityService.isNetworkAvailable) {
-      User user = await _firebaseDatabaseManager.syncUser(firebaseUser.uid);
+      User user = User.fromUser(await _firebaseDatabaseManager.syncUser(firebaseUser.uid));
       if (user != null) {
+        user.setDownloadedSongs = await _localDatabaseManager.syncDownloaded();
         userController.add(user);
         bool permissionGranted =
             await _localDatabaseManager.checkIfStoragePermissionGranted();
@@ -38,7 +39,9 @@ class AuthenticationService {
       }
     } else {
       //! TODO handle the offline toast
-      userController.add(User(firebaseUser.email, firebaseUser.uid));
+      User user = User(firebaseUser.email, firebaseUser.uid);
+      user.setDownloadedSongs = await _localDatabaseManager.syncDownloaded();
+      userController.add(user);
       bool permissionGranted =
           await _localDatabaseManager.checkIfStoragePermissionGranted();
       if (permissionGranted) {
@@ -52,9 +55,10 @@ class AuthenticationService {
   Future<void> signUp(String userName) async {
     FirebaseUser firebaseUser =
         await _firebaseAuthenticationManager.currentUser();
-    User currentUser = User(userName, firebaseUser.uid);
-    userController.add(currentUser);
-    _firebaseDatabaseManager.saveUser(currentUser);
+    User user = User(userName, firebaseUser.uid);
+          user.setDownloadedSongs = await _localDatabaseManager.syncDownloaded();
+    userController.add(user);
+    _firebaseDatabaseManager.saveUser(user);
     _firebaseDatabaseManager.syncUser(firebaseUser.uid);
   }
 

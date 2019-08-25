@@ -9,13 +9,13 @@ class Song {
   String _lyrics;
   String _playUrl;
 
-  Song(String title, String artist, String songId, String searchString,
+  Song(String title, String artist, String songId, String playUrl,
       String imageUrl, String pushId,
       {int dateAdded}) {
     _title = title;
     _artist = artist;
     _songId = songId;
-    _searchString = searchString;
+    _playUrl = playUrl;
     _imageUrl = imageUrl;
     _pushId = pushId;
     _dateAdded = dateAdded;

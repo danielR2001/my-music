@@ -17,7 +17,7 @@ class SortModel extends BaseModel {
     notifyListeners();
   }
 
-  List<Song> _sortList(SortType sortType, Playlist playlist) {
+  List<Song> _sortList(SortType sortType, Playlist playlist) { //! TODO actually sorting! 
     List<Song> sortedPlaylist = playlist.songs;
     if (sortType == SortType.recentlyAdded) {
       sortedPlaylist.sort((a, b) => a.dateAdded.compareTo(b.dateAdded));

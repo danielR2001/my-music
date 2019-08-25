@@ -159,7 +159,7 @@ class _State extends State<LoginPage> {
       keyboardType: TextInputType.emailAddress,
       initialValue: _model.password,
       validator: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
-      onSaved: (value) => _model.setPassword = value,
+      onSaved: (value) => _model.setEmail = value,
     );
   }
 

@@ -6,6 +6,7 @@ class User {
   String _firebaseUid;
   List<Playlist> _myPlaylists;
   Playlist _downloadedSongsPlaylist;
+  List<Playlist> _publicPlaylists;
   String _userPushId;
   bool _isOfflineMode;
 
@@ -14,7 +15,9 @@ class User {
     _firebaseUid = firebaseUId;
     _myPlaylists = List<Playlist>();
     _downloadedSongsPlaylist = Playlist("Downloaded");
+    _publicPlaylists = List<Playlist>();
     _userPushId = userPushId;
+    _isOfflineMode = false;
   }
 
   User.initial()
@@ -22,13 +25,24 @@ class User {
         _name = '',
         _myPlaylists = List<Playlist>(),
         _downloadedSongsPlaylist = Playlist("Downloaded"),
-        _userPushId = '';
+        _userPushId = '',
+        _publicPlaylists = List<Playlist>(),_isOfflineMode = false;
 
   User.fromJson(Map values) {
     _name = values['userName'];
     _firebaseUid = values['firebaseUid'];
     _myPlaylists = List<Playlist>();
-    _downloadedSongsPlaylist = Playlist("Downloaded");
+    _isOfflineMode = false;
+  }
+
+  User.fromUser(User user) {
+    _name = user.name;
+    _firebaseUid = user.firebaseUid;
+    _myPlaylists = user.playlists;
+    _downloadedSongsPlaylist = user.downloadedSongsPlaylist != null? user.downloadedSongsPlaylist: Playlist("Downloaded");
+    _publicPlaylists = user.publicPlaylists;
+    _userPushId = user.userPushId;
+    _isOfflineMode = user.isOfflineMode;
   }
 
   toJson() {
@@ -46,6 +60,8 @@ class User {
 
   Playlist get downloadedSongsPlaylist => _downloadedSongsPlaylist;
 
+  List<Playlist> get publicPlaylists => _publicPlaylists;
+
   String get userPushId => _userPushId;
 
   bool get isOfflineMode => _isOfflineMode;
@@ -56,17 +72,25 @@ class User {
 
   set setMyPlaylists(List<Playlist> value) => _myPlaylists = value;
 
-  set setDownloadedSongs(Playlist value) => _downloadedSongsPlaylist = value;
+  set setDownloadedSongs(List<Song> songs) => _downloadedSongsPlaylist.setSongs = songs;
 
   set setUserPushId(String value) => _userPushId = value;
 
   set setIsOfflineMode(bool value) => _isOfflineMode = value;
+
+  set setPublicPlaylists(List<Playlist> value) => _publicPlaylists = value;
 
   addSongToDownloadedPlaylist(Song value) =>
       _downloadedSongsPlaylist.songs.add(value);
 
   removeSongFromDownloadedPlaylist(Song value) => _downloadedSongsPlaylist.songs
       .removeWhere((song) => song.songId == value.songId);
+
+  addPlaylistToPublicPlaylists(Playlist value) => _publicPlaylists.add(value);
+
+  removePlaylistFromPublicPlaylists(Playlist value) =>
+      _publicPlaylists.removeWhere((playlist) =>
+          playlist.publicPlaylistPushId == value.publicPlaylistPushId);
 
   addNewPlaylist(Playlist playlist) => _myPlaylists.add(playlist);
 
@@ -80,6 +104,21 @@ class User {
       }
     });
     return exists;
+  }
+
+  bool playlistExistsInPublicPlaylist(Playlist value) {
+    bool exists = false;
+    _publicPlaylists.forEach((playlist) {
+      if (playlist.publicPlaylistPushId == value.publicPlaylistPushId) {
+        exists = true;
+      }
+    });
+    return exists;
+  }
+
+  String getSongPublicPushId(Playlist playlist, Song song) {
+    var temp = _publicPlaylists.where(
+        (value) => value.publicPlaylistPushId == playlist.publicPlaylistPushId);
   }
 
   void updatePlaylist(Playlist playlist) {

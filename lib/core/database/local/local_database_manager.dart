@@ -40,7 +40,7 @@ class LocalDatabaseManager {
 
   List<Song> get currentDownloading => _currentDownloading;
 
-    Directory get fullSongDownloadDir => _fullSongDownloadDir;
+  Directory get fullSongDownloadDir => _fullSongDownloadDir;
 
   Future<void> initDirs() async {
     _externalDir = await getExternalStorageDirectory();
@@ -71,7 +71,7 @@ class LocalDatabaseManager {
     return file.exists();
   }
 
-  Future<void> downloadSong(String downloadUrl, Song song) async {
+  Future<void> downloadSong(Song song) async {
     Directory songDirectory;
     CancelToken cancelToken = CancelToken();
     _cancelTokensMap[song] = cancelToken;
@@ -85,13 +85,14 @@ class LocalDatabaseManager {
     _currentDownloading.add(song);
     try {
       await _dio.download(
-          downloadUrl, "${songDirectory.path}/${song.songId}.mp3",
+          song.playUrl, "${songDirectory.path}/${song.songId}.mp3",
           cancelToken: cancelToken, onReceiveProgress: (prog, total) {
         _downloadProgressesController.add(generateResultMap(song.songId, prog));
         _downloadTotalsController.add(generateResultMap(song.songId, total));
         if (prog == total) {
           _downloadStopsController.add(generateResultMap(song.songId, true));
-          print("song: ${song.songId}, download completed!"); //! TODO add to current user! or not
+          print(
+              "song: ${song.songId}, download completed!"); //! TODO add to current user! or not
         }
       });
     } on DioError catch (e) {
@@ -219,8 +220,14 @@ class LocalDatabaseManager {
   }
 
   Map generateResultMap(String songId, dynamic result) {
-    Map<String, dynamic> resultMap = Map();
-    resultMap[songId] = result;
-    return resultMap;
+    if (result.runtimeType == int) {
+      Map<String, int> resultMap = Map();
+      resultMap[songId] = result;
+      return resultMap;
+    } else {
+      Map<String, DownloadError> resultMap = Map();
+      resultMap[songId] = result;
+      return resultMap;
+    }
   }
 }

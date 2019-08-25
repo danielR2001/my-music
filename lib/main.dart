@@ -10,17 +10,21 @@ import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:myapp/ui/router.dart';
 import 'package:provider/provider.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  setupLocator();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget with PortraitModeMixin {
   @override
   Widget build(BuildContext context) {
     init(context);
     super.build(context);
-    return StreamProvider<User> (
+    return StreamProvider<User>(
       initialData: User.initial(),
-      builder: (context) => locator<AuthenticationService>().userController.stream,
-          child: MaterialApp(
+      builder: (context) =>
+          locator<AuthenticationService>().userController.stream,
+      child: MaterialApp(
         title: 'My Music',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(

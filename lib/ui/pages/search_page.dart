@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/core/page_state/page_state.dart';
 import 'package:myapp/core/view_models/page_models/search_model.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/song.dart';
@@ -57,19 +58,22 @@ class _SearchPageState extends State<SearchPage> {
                     ],
                   ),
                 ),
-                !_model.loadingResults
-                    ? Expanded(
-                        child: ListView.builder(
-                          itemCount: _model.results.length,
-                          itemExtent: 60,
-                          itemBuilder: (BuildContext context, int index) {
-                            return drawSongSearchResult(
-                                _model.results[index], index);
-                          },
-                        ),
-                      )
-                    : _model.noResultsFound
+                _model.state == PageState.Idle
+                    ? !_model.noResultsFound
                         ? Expanded(
+                            child: ListView.builder(
+                              itemCount: _model.searchResultsPlaylist != null
+                                  ? _model.searchResultsPlaylist.songs.length
+                                  : 0,
+                              itemExtent: 60,
+                              itemBuilder: (BuildContext context, int index) {
+                                return drawSongSearchResult(
+                                    _model.searchResultsPlaylist.songs[index],
+                                    index);
+                              },
+                            ),
+                          )
+                        : Expanded(
                             child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -91,20 +95,20 @@ class _SearchPageState extends State<SearchPage> {
                                   ),
                                 ),
                               ]))
-                        : Expanded(
-                            child: Center(
-                              child: SizedBox(
-                                height: 50.0,
-                                width: 50.0,
-                                child: CircularProgressIndicator(
-                                  value: null,
-                                  strokeWidth: 3.0,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      CustomColors.pinkColor),
-                                ),
-                              ),
+                    : Expanded(
+                        child: Center(
+                          child: SizedBox(
+                            height: 50.0,
+                            width: 50.0,
+                            child: CircularProgressIndicator(
+                              value: null,
+                              strokeWidth: 3.0,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  CustomColors.pinkColor),
                             ),
                           ),
+                        ),
+                      ),
               ],
             ),
           ),
@@ -241,7 +245,6 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  //*methods
   void showMoreOptions(Song song) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,

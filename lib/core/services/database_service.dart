@@ -37,8 +37,18 @@ class FirebaseDatabaseService {
     return await _firebaseDatabaseManager.addSongToPlaylist(playlist, song);
   }
 
-  Future<void> removeSongFromPlaylist(Playlist playlist, Song song) async {
+  Future<void> removeSongFromPlaylist(
+      User user, Playlist playlist, Song song) async {
     await _firebaseDatabaseManager.removeSongFromPlaylist(playlist, song);
+    if (playlist.isPublic) {
+      await removeSongFromPublicPlaylist(user, playlist, song);
+    }
+  }
+
+  Future<void> removeSongFromPublicPlaylist(
+      User user, Playlist playlist, Song song) async {
+    await _firebaseDatabaseManager.removeSongFromPublicPlaylist(
+        user, playlist, song);
   }
 
   Future<Playlist> addPublicPlaylist(
@@ -61,7 +71,11 @@ class FirebaseDatabaseService {
     return _firebaseDatabaseManager.onChildRemoved();
   }
 
-    Stream<Event> onChildAdded() {
+  Stream<Event> onChildAdded() {
     return _firebaseDatabaseManager.onChildAdded();
+  }
+
+  Future<List<Playlist>> buildPublicPlaylists() async {
+    return await _firebaseDatabaseManager.buildPublicPlaylists();
   }
 }
