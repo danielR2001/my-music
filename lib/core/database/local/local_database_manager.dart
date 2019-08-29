@@ -25,6 +25,7 @@ class LocalDatabaseManager {
   Map<Song, CancelToken> _cancelTokensMap = Map();
   Directory _externalDir;
   Directory _fullSongDownloadDir;
+  Directory _appDir;
 
   StreamController<Map<String, int>> get downloadProgressesController =>
       _downloadProgressesController;
@@ -42,14 +43,26 @@ class LocalDatabaseManager {
 
   Directory get fullSongDownloadDir => _fullSongDownloadDir;
 
+  Directory get appDir => _appDir;
+
   Future<void> initDirs() async {
     _externalDir = await getExternalStorageDirectory();
     _fullSongDownloadDir = await new Directory(
             '${_externalDir.path}/Android/data/com.daniel.mymusic/downloaded/')
         .create(recursive: true);
+    _appDir = await new Directory(
+            '${_externalDir.path}/Android/data/com.daniel.mymusic/')
+        .create(recursive: true);
   }
 
-  Future<bool> checkIfStoragePermissionGranted() async {
+  Future<void> download() async {
+    bool permission = await _checkIfStoragePermissionGranted();
+    if (permission && !await checkIfDefaultImageFileExists()) {
+      //! TODO download default image!
+    }
+  }
+
+  Future<bool> _checkIfStoragePermissionGranted() async {
     Map<PermissionGroup, PermissionStatus> permissions =
         await PermissionHandler().requestPermissions([PermissionGroup.storage]);
     if (permissions[PermissionGroup.storage] == PermissionStatus.granted) {
@@ -59,60 +72,84 @@ class LocalDatabaseManager {
     }
   }
 
+  Future<bool> checkIfDefaultImageFileExists() async {
+    bool permission = await _checkIfStoragePermissionGranted();
+    if (permission) {
+      File file = File("${_appDir.path}/defaultImage.png");
+      return file.exists();
+    }
+    return false;
+  }
+
   Future<bool> checkIfSongFileExists(Song song) async {
-    File file =
-        File("${_fullSongDownloadDir.path}/${song.songId}/${song.songId}.mp3");
-    return file.exists();
+    bool permission = await _checkIfStoragePermissionGranted();
+    if (permission) {
+      File file = File(
+          "${_fullSongDownloadDir.path}/${song.songId}/${song.songId}.mp3");
+      return file.exists();
+    }
+    return false;
   }
 
   Future<bool> checkIfImageFileExists(Song song) async {
-    File file =
-        File("${_fullSongDownloadDir.path}/${song.songId}/${song.songId}.png");
-    return file.exists();
+    bool permission = await _checkIfStoragePermissionGranted();
+    if (permission) {
+      File file = File(
+          "${_fullSongDownloadDir.path}/${song.songId}/${song.songId}.png");
+      return file.exists();
+    }
+    return false;
   }
 
-  Future<void> downloadSong(Song song) async {
-    Directory songDirectory;
-    CancelToken cancelToken = CancelToken();
-    _cancelTokensMap[song] = cancelToken;
-    songDirectory =
-        await new Directory('${_fullSongDownloadDir.path}/${song.songId}')
-            .create(recursive: true);
-    if (song.imageUrl != "") {
-      _downloadSongImage(song);
-    }
-    _downloadSongInfo(song);
-    _currentDownloading.add(song);
-    try {
-      await _dio.download(
-          song.playUrl, "${songDirectory.path}/${song.songId}.mp3",
-          cancelToken: cancelToken, onReceiveProgress: (prog, total) {
-        _downloadProgressesController.add(generateResultMap(song.songId, prog));
-        _downloadTotalsController.add(generateResultMap(song.songId, total));
-        if (prog == total) {
-          _downloadStopsController.add(generateResultMap(song.songId, true));
-          print(
-              "song: ${song.songId}, download completed!"); //! TODO add to current user! or not
+  Future<bool> downloadSong(Song song) async {
+    bool permission = await _checkIfStoragePermissionGranted();
+    if (permission) {
+      Directory songDirectory;
+      CancelToken cancelToken = CancelToken();
+      _cancelTokensMap[song] = cancelToken;
+      songDirectory =
+          await new Directory('${_fullSongDownloadDir.path}/${song.songId}')
+              .create(recursive: true);
+      if (song.imageUrl != "") {
+        _downloadSongImage(song);
+      }
+      _downloadSongInfo(song);
+      _currentDownloading.add(song);
+      try {
+        await _dio.download(
+            song.playUrl, "${songDirectory.path}/${song.songId}.mp3",
+            cancelToken: cancelToken, onReceiveProgress: (prog, total) {
+          _downloadProgressesController
+              .add(generateResultMap(song.songId, prog));
+          _downloadTotalsController.add(generateResultMap(song.songId, total));
+          if (prog == total) {
+            _downloadStopsController.add(generateResultMap(song.songId, true));
+            print(
+                "song: ${song.songId}, download completed!"); //! TODO add to current user! or not
+          }
+        });
+      } on DioError catch (e) {
+        if (e.message == "cancelled") {
+          _downloadErorsController
+              .add(generateResultMap(song.songId, DownloadError.Cancceled));
+        } else {
+          print(e);
+          _currentDownloading.remove(song);
+          _cancelTokensMap.remove(song);
+          _downloadErorsController
+              .add(generateResultMap(song.songId, DownloadError.Unknown));
         }
-      });
-    } on DioError catch (e) {
-      if (e.message == "cancelled") {
-        _downloadErorsController
-            .add(generateResultMap(song.songId, DownloadError.Cancceled));
-      } else {
+      } catch (e) {
         print(e);
         _currentDownloading.remove(song);
         _cancelTokensMap.remove(song);
         _downloadErorsController
             .add(generateResultMap(song.songId, DownloadError.Unknown));
       }
-    } catch (e) {
-      print(e);
-      _currentDownloading.remove(song);
-      _cancelTokensMap.remove(song);
-      _downloadErorsController
-          .add(generateResultMap(song.songId, DownloadError.Unknown));
-    }
+      return true;
+    } 
+return false;
+    
   }
 
   Future<void> cancelDownLoad(Song song) async {
@@ -150,14 +187,20 @@ class LocalDatabaseManager {
     file.create();
   }
 
-  Future<void> deleteSongDirectory(Song song) async {
-    bool exists =
-        await Directory('${_fullSongDownloadDir.path}/${song.songId}').exists();
+  Future<bool> deleteSongDirectory(Song song) async {
+    bool permission = await _checkIfStoragePermissionGranted();
+    if (permission) {
+      bool exists =
+          await Directory('${_fullSongDownloadDir.path}/${song.songId}')
+              .exists();
 
-    if (exists) {
-      await new Directory('${_fullSongDownloadDir.path}/${song.songId}')
-          .delete(recursive: true);
+      if (exists) {
+        await new Directory('${_fullSongDownloadDir.path}/${song.songId}')
+            .delete(recursive: true);
+      }
+      return true;
     }
+    return false;
   }
 
   bool isSongDownloading(Song song) {
@@ -173,28 +216,31 @@ class LocalDatabaseManager {
   Future<List<Song>> syncDownloaded() async {
     List<File> files = List();
     List<Song> songs = List();
-    try {
-      var songsDirList = _fullSongDownloadDir.list();
-      await for (FileSystemEntity d in songsDirList) {
-        if (d is Directory) {
-          var songDirList = d.list();
-          await for (FileSystemEntity f in songDirList) {
-            if (f is File) {
-              files.add(f);
+    bool permission = await _checkIfStoragePermissionGranted();
+    if (permission) {
+      try {
+        var songsDirList = _fullSongDownloadDir.list();
+        await for (FileSystemEntity d in songsDirList) {
+          if (d is Directory) {
+            var songDirList = d.list();
+            await for (FileSystemEntity f in songDirList) {
+              if (f is File) {
+                files.add(f);
+              }
             }
           }
         }
+      } catch (e) {
+        print(e.toString());
       }
-    } catch (e) {
-      print(e.toString());
-    }
-    for (var file in files) {
-      if (file.path.contains(".txt")) {
-        await _readSongInfoFile(file.path.substring(
-                file.path.lastIndexOf("/"), file.path.lastIndexOf(".txt")))
-            .then((song) {
-          songs.add(song);
-        });
+      for (var file in files) {
+        if (file.path.contains(".txt")) {
+          await _readSongInfoFile(file.path.substring(
+                  file.path.lastIndexOf("/"), file.path.lastIndexOf(".txt")))
+              .then((song) {
+            songs.add(song);
+          });
+        }
       }
     }
     return songs;
@@ -216,7 +262,11 @@ class LocalDatabaseManager {
   }
 
   Future<void> deleteDownloadedDirectory() async {
-    await new Directory('${_fullSongDownloadDir.path}').delete(recursive: true);
+    bool permission = await _checkIfStoragePermissionGranted();
+    if (permission) {
+      await new Directory('${_fullSongDownloadDir.path}')
+          .delete(recursive: true);
+    }
   }
 
   Map generateResultMap(String songId, dynamic result) {

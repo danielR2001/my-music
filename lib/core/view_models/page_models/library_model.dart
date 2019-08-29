@@ -1,10 +1,8 @@
-import 'dart:io';
-
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/core/services/authentication_service.dart';
 import 'package:myapp/core/services/connectivity_service.dart';
-import 'package:myapp/core/services/local_database_service.dart';
+import 'package:myapp/core/services/image_loader_service.dart';
 import 'package:myapp/core/view_models/page_models/base_model.dart';
 import 'package:myapp/locater.dart';
 import 'package:myapp/models/playlist.dart';
@@ -14,15 +12,13 @@ import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
 class LibraryModel extends BaseModel {
   final ConnectivityService _connectivityService =
       locator<ConnectivityService>();
-  final LocalDatabaseService _localDatabaseService =
-      locator<LocalDatabaseService>();
   final AuthenticationService _authenticationService =
       locator<AuthenticationService>();
+  final ImageLoaderService _imageLoaderService = locator<ImageLoaderService>();
 
   List<Playlist> _playlists = List();
   bool _needToReloadImages = false;
   final Map<String, ImageProvider> _imageProviders = Map();
-  bool _isNetworkAvailable;
   User _currentUser;
 
   List<Playlist> get playlists => _playlists;
@@ -34,14 +30,9 @@ class LibraryModel extends BaseModel {
   void initModel(User user) {
     _currentUser = user;
     _playlists = List.from(user.playlists);
-    _connectivityService.initService();
-    _isNetworkAvailable = _connectivityService.isNetworkAvailable;
     loadImages();
     _connectivityService.connectivityStream.listen((connectivityResult) {
       if (connectivityResult == ConnectivityResult.none) {
-        _isNetworkAvailable = false;
-      } else {
-        _isNetworkAvailable = true;
         if (_needToReloadImages) {
           loadImages();
           _needToReloadImages = false;
@@ -50,34 +41,17 @@ class LibraryModel extends BaseModel {
     });
   }
 
-  void loadImages() {
+  Future<void> loadImages() async {
     if (!_currentUser.isOfflineMode) {
-      _playlists.forEach((playlist) {
+      for (Playlist playlist in _playlists) {
         if (playlist.songs.length > 0) {
-          if (playlist.songs[0].imageUrl != "") {
-            _localDatabaseService
-                .checkIfImageFileExists(playlist.songs[0])
-                .then((exists) {
-              if (exists) {
-                File file = File(
-                    "${_localDatabaseService.fullSongDownloadDir.path}/${playlist.songs[0].songId}/${playlist.songs[0].songId}.png");
-                _imageProviders[playlist.songs[0].songId] = (FileImage(file));
-                notifyListeners();
-              } else {
-                if (_isNetworkAvailable) {
-                  imageProviders[playlist.songs[0].songId] = NetworkImage(
-                    playlist.songs[0].imageUrl,
-                  );
-                  notifyListeners();
-                }
-              }
-            });
-          } else {
-            imageProviders[playlist.songs[0].songId] = null;
-            notifyListeners();
-          }
+          _imageProviders[playlist.songs[0].songId] =
+              await _imageLoaderService.loadImage(playlist.songs[0]);
+          notifyListeners();
+        }else{
+          _imageProviders[playlist.songs[0].songId] = null;
         }
-      });
+      }
     } else {
       _needToReloadImages = true;
     }

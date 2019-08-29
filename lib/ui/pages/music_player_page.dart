@@ -27,8 +27,7 @@ class MusicPageState extends State<MusicPlayerPage> {
     return BasePage<MusicPlayerModel>(
       onModelReady: (model) async {
         _model = model;
-        await _model.setCurrentSong();
-        _model.initPlayerStreamSubsciptions();
+        await _model.initModel();
       },
       builder: (context, model, child) => Scaffold(
         body: GestureDetector(
@@ -237,9 +236,9 @@ class MusicPageState extends State<MusicPlayerPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
               child: Text(
-                _model.currentSong.lyrics != null
+                _model.currentSong != null? _model.currentSong.lyrics != null
                     ? _model.currentSong.lyrics
-                    : "We couldn't find lyrics for this song.",
+                    : "We couldn't find lyrics for this song.":"",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -298,7 +297,7 @@ class MusicPageState extends State<MusicPlayerPage> {
         child: Column(
           children: <Widget>[
             AutoSizeText(
-              _model.currentSong.title,
+             _model.currentSong !=null? _model.currentSong.title:"",
               style: TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,
@@ -307,7 +306,7 @@ class MusicPageState extends State<MusicPlayerPage> {
               maxLines: 1,
             ),
             AutoSizeText(
-              _model.currentSong.artist,
+              _model.currentSong != null?_model.currentSong.artist:"",
               style: TextStyle(
                 fontSize: 14.0,
                 color: Colors.grey,

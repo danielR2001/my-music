@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:marquee_widget/marquee_widget.dart';
-
 //import 'package:myapp/ui/widgets/marquee_widget.dart';
 //import 'package:marquee_flutter/marquee_flutter.dart';
 class TextDecoration extends StatelessWidget {

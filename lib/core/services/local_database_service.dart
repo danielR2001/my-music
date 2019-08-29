@@ -28,10 +28,6 @@ class LocalDatabaseService {
     await _localDatabaseManager.initDirs();
   }
 
-  Future<bool> checkIfStoragePermissionGranted() async {
-    return await _localDatabaseManager.checkIfStoragePermissionGranted();
-  }
-
   Future<bool> checkIfSongFileExists(Song song) async {
     return await _localDatabaseManager.checkIfSongFileExists(song);
   }
@@ -40,16 +36,16 @@ class LocalDatabaseService {
     return await _localDatabaseManager.checkIfImageFileExists(song);
   }
 
-  Future<void> downloadSong(Song song) async {
-    await _localDatabaseManager.downloadSong(song);
+  Future<bool> downloadSong(Song song) async {
+    return await _localDatabaseManager.downloadSong(song);
   }
 
   Future<void> cancelDownLoad(Song song) async {
     await _localDatabaseManager.cancelDownLoad(song);
   }
 
-  Future<void> deleteSongDirectory(Song song) async {
-    await _localDatabaseManager.deleteSongDirectory(song);
+  Future<bool> deleteSongDirectory(Song song) async {
+   return await _localDatabaseManager.deleteSongDirectory(song);
   }
 
   bool isSongDownloading(Song song) {
@@ -69,6 +65,10 @@ class LocalDatabaseService {
 
   Future<void> deleteDownloadedDirectory() async {
     await _localDatabaseManager.deleteDownloadedDirectory();
+  }
+
+  String getDefaultImageUrl() {
+    return "${_localDatabaseManager.appDir.path}/defaultImage.png";
   }
 
 }

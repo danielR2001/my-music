@@ -15,11 +15,7 @@ class ApiService {
     return await _apiManager.getArtistImageUrl(artistName);
   }
 
-  Future<String> getLyricsPageUrl(Song song) async {
-    return await _apiManager.getLyricsPageUrl(song);
-  }
-
-  Future<String> getSongLyrics(String url) async {
-    return await _apiManager.getSongLyrics(url);
+  Future<String> getSongLyrics(Song song) async {
+    return await _apiManager.getSongLyrics(song);
   }
 }

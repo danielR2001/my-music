@@ -7,7 +7,6 @@ import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/base_page.dart';
-import 'package:myapp/ui/router.dart';
 import 'package:provider/provider.dart';
 
 class LibraryPage extends StatefulWidget {

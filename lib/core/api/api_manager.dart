@@ -57,7 +57,8 @@ class ApiManager {
     }
   }
 
-  Future<String> _getSongImageUrl(String title, String artist, {bool secondTry = false}) async {
+  Future<String> _getSongImageUrl(String title, String artist,
+      {bool secondTry = false}) async {
     secondTry ??= false;
     String imageUrl;
     String tempTitle = title;
@@ -75,7 +76,7 @@ class ApiManager {
         return _getImageUrlFromResponse(list);
       } else {
         if (!secondTry) {
-          return _getSongImageUrl(title,artist, secondTry: true);
+          return _getSongImageUrl(title, artist, secondTry: true);
         } else {
           return null;
         }
@@ -115,7 +116,7 @@ class ApiManager {
     }
   }
 
-  Future<String> getLyricsPageUrl(Song song) async {
+  Future<String> _getLyricsPageUrl(Song song) async {
     String title = _editSearchParams(song.title, true, true);
     String artist = _editSearchParams(song.artist, false, false);
     String searchStr = title + " " + artist;
@@ -148,7 +149,8 @@ class ApiManager {
     }
   }
 
-  Future<String> getSongLyrics(String url) async {
+  Future<String> getSongLyrics(Song song) async {
+    String url = await _getLyricsPageUrl(song);
     try {
       Response response = await Dio().get(url);
       print('lyrics search completed');
@@ -324,7 +326,7 @@ class ApiManager {
         item.indexOf('https://mp3-tut.com/musictutplay?id=') +
             'https://mp3-tut.com/musictutplay?id='.length,
         item.indexOf('&amp;hash='));
-    imageUrl = await _getSongImageUrl(songTitle,artist);
+    imageUrl = await _getSongImageUrl(songTitle, artist);
     return Song(songTitle, artist, songId, playUrl, imageUrl, '');
   }
 

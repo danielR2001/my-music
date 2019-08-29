@@ -64,9 +64,16 @@ class AudioPlayerService {
     List<String> urls = List();
     List<AudioNotification> audioNotifications = List();
 
+    releasePlaylist();
     for(Song song in playlist.songs){
       bool isLocal = await _localDatabaseService.checkIfSongFileExists(song);
-      audioNotifications.add(AudioNotification(smallIconFileName: "ic_launcher", title: song.title, subTitle: song.artist, largeIconUrl: song.imageUrl, isLocal: isLocal));
+      String imageUrl;
+      if(song.imageUrl != null) {
+        imageUrl = song.imageUrl;
+      }else{
+        imageUrl = _localDatabaseService.getDefaultImageUrl();
+      }
+      audioNotifications.add(AudioNotification(smallIconFileName: "app_logo_no_background", title: song.title, subTitle: song.artist, largeIconUrl: imageUrl, isLocal: isLocal));
     }
     _loopPlaylist = Playlist.fromPlaylist(playlist);
     setPlaylistMode(mode);
@@ -97,9 +104,6 @@ class AudioPlayerService {
   }
 
   Future<void> releasePlaylist() async {
-    _currentPlaylist = null;
-    _loopPlaylist = null;
-    _shuffledPlaylist = null;
     await _audioPlayerManager.release();
   }
 

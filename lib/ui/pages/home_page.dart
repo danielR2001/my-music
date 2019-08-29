@@ -1,17 +1,13 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_exoplayer/audioplayer.dart';
 import 'package:myapp/core/view_models/page_models/home_model.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/ui/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/base_page.dart';
-import 'package:myapp/ui/pages/discover_page.dart';
-import 'package:myapp/ui/pages/library_page.dart';
 import 'package:myapp/ui/router.dart';
 import 'package:myapp/ui/widgets/buttom_navigation_bar.dart';
 import 'package:myapp/ui/widgets/sound_bar.dart';
-import 'package:myapp/core/tab_navigation/tab_navigator.dart';
-import 'package:myapp/ui/widgets/text_style.dart';
+import 'package:myapp/ui/widgets/text_decoration.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -50,12 +46,12 @@ class _HomePageState extends State<HomePage> {
         child: Scaffold(
           body: currentTab == TabItem.discover
               ? Navigator(
-                  onGenerateRoute: SubRouter.generateRoute,
                   initialRoute: "/discover",
+                  onGenerateRoute: SubRouter.generateRoute,
                 )
               : Navigator(
                   initialRoute: "/library",
-                  onGenerateRoute: SubRouter.generateRoute,
+                  onGenerateRoute: SubRouter2.generateRoute,
                 ),
           bottomNavigationBar: Theme(
             data: Theme.of(context).copyWith(

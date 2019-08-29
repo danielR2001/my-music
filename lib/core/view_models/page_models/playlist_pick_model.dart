@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:myapp/core/services/api_service.dart';
 import 'package:myapp/core/services/audio_player_service.dart';
 import 'package:myapp/core/services/database_service.dart';
 import 'package:myapp/core/view_models/page_models/base_model.dart';
@@ -12,7 +11,6 @@ import 'package:myapp/ui/custom_classes/custom_colors.dart';
 
 class PlaylistPickModel extends BaseModel {
   final ToastService _toastManager = locator<ToastService>();
-  final ApiService _apiService = locator<ApiService>();
   final AudioPlayerService _audioPlayerService = locator<AudioPlayerService>();
   final FirebaseDatabaseService _firebaseDatabaseService =
       locator<FirebaseDatabaseService>();

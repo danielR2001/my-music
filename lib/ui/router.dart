@@ -3,7 +3,6 @@ import 'package:flutter/widgets.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/pages/artist_page.dart';
 import 'package:myapp/ui/pages/discover_page.dart';
 import 'package:myapp/ui/pages/home_page.dart';
@@ -74,10 +73,39 @@ class SubRouter {
     switch (settings.name) {
       case "/discover":
         return MaterialPageRoute(builder: (_) => DiscoverPage());
-      case "/library":
-        return MaterialPageRoute(builder: (_) => LibraryPage());
       case "/search":
         return MaterialPageRoute(builder: (_) => SearchPage());
+      case "/playlist":
+        return MaterialPageRoute(builder: (_) {
+          Playlist playlist;
+          PlaylistModalSheetMode playlistModalSheetMode;
+          if (args is Map) {
+            playlist = args['playlist'];
+            playlistModalSheetMode = args['playlistModalSheetMode'];
+          }
+          return PlaylistPage(
+            playlist: playlist,
+            playlistModalSheetMode: playlistModalSheetMode,
+          );
+        });
+      default:
+        return MaterialPageRoute(
+          builder: (_) => Scaffold(
+            body: Center(
+              child: Text("No route defined for ${settings.name}"),
+            ),
+          ),
+        );
+    }
+  }
+}
+
+class SubRouter2 {
+  static Route<dynamic> generateRoute(RouteSettings settings) {
+    final args = settings.arguments;
+    switch (settings.name) {
+      case "/library":
+        return MaterialPageRoute(builder: (_) => LibraryPage());
       case "/playlist":
         return MaterialPageRoute(builder: (_) {
           Playlist playlist;

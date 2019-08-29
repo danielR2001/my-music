@@ -48,19 +48,11 @@ class SongOptionsModel extends BaseModel {
   }
 
   Future<bool> downloadSong(Song song) async {
-    if (await _localDatabaseService.checkIfStoragePermissionGranted()) {
-      await _localDatabaseService.downloadSong(song);
-      return true;
-    }
-    return false;
-  }
+     return await _localDatabaseService.downloadSong(song);
 
+  }
   Future<bool> unDownloadSong(Song song) async {
-    if (await _localDatabaseService.checkIfStoragePermissionGranted()) {
-      await _localDatabaseService.deleteSongDirectory(song);
-      return true;
-    }
-    return false;
+      return await _localDatabaseService.deleteSongDirectory(song);
   }
 
   Future<List<Artist>> buildArtistsList(List<String> artistsList) async {

@@ -23,16 +23,14 @@ class AuthenticationService {
 
   Future<bool> login(FirebaseUser firebaseUser) async {
     if (_connectivityService.isNetworkAvailable) {
-      User user = User.fromUser(await _firebaseDatabaseManager.syncUser(firebaseUser.uid));
+      User user = User.fromUser(
+          await _firebaseDatabaseManager.syncUser(firebaseUser.uid));
       if (user != null) {
         user.setDownloadedSongs = await _localDatabaseManager.syncDownloaded();
         userController.add(user);
-        bool permissionGranted =
-            await _localDatabaseManager.checkIfStoragePermissionGranted();
-        if (permissionGranted) {
-          await _localDatabaseManager.initDirs();
-          _localDatabaseManager.syncDownloaded();
-        }
+        await _localDatabaseManager.initDirs();
+        _localDatabaseManager.syncDownloaded();
+
         return true;
       } else {
         return false;
@@ -42,12 +40,10 @@ class AuthenticationService {
       User user = User(firebaseUser.email, firebaseUser.uid);
       user.setDownloadedSongs = await _localDatabaseManager.syncDownloaded();
       userController.add(user);
-      bool permissionGranted =
-          await _localDatabaseManager.checkIfStoragePermissionGranted();
-      if (permissionGranted) {
-        await _localDatabaseManager.initDirs();
-        _localDatabaseManager.syncDownloaded();
-      }
+
+      await _localDatabaseManager.initDirs();
+      _localDatabaseManager.syncDownloaded();
+
       return true;
     }
   }
@@ -56,7 +52,7 @@ class AuthenticationService {
     FirebaseUser firebaseUser =
         await _firebaseAuthenticationManager.currentUser();
     User user = User(userName, firebaseUser.uid);
-          user.setDownloadedSongs = await _localDatabaseManager.syncDownloaded();
+    user.setDownloadedSongs = await _localDatabaseManager.syncDownloaded();
     userController.add(user);
     _firebaseDatabaseManager.saveUser(user);
     _firebaseDatabaseManager.syncUser(firebaseUser.uid);

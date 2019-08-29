@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_exoplayer/audioplayer.dart';
+import 'package:myapp/core/services/api_service.dart';
 import 'package:myapp/core/services/audio_player_service.dart';
 import 'package:myapp/core/services/connectivity_service.dart';
 import 'package:myapp/core/services/image_loader_service.dart';
@@ -20,6 +22,7 @@ class MusicPlayerModel extends BaseModel {
   final NativeCommunicationService _nativeCommunicationService =
       locator<NativeCommunicationService>();
   final ImageLoaderService _imageLoaderService = locator<ImageLoaderService>();
+    final ApiService _apiService= locator<ApiService>();
 
   StreamSubscription<PlayerState> _onPlayerState;
   StreamSubscription<Duration> _onPlayerPosition;
@@ -27,10 +30,12 @@ class MusicPlayerModel extends BaseModel {
   StreamSubscription<int> _onPlayerIndex;
 
   PlayerState _playerState;
-  Duration _position;
-  Duration _duration;
+  Duration _position = Duration(milliseconds: 0);
+  Duration _duration= Duration(milliseconds: 0);
   Song _currentSong;
   ImageProvider _imageProvider;
+
+  bool _isNetworkAvailable;
 
   ImageProvider get imageProvider => _imageProvider;
 
@@ -56,7 +61,15 @@ class MusicPlayerModel extends BaseModel {
     notifyListeners();
   }
 
-  void initPlayerStreamSubsciptions() {
+  Future<void> initModel() async {
+    await setCurrentSong();
+    _playerState = _audioPlayerService.playerState;
+    _isNetworkAvailable = _connectivityService.isNetworkAvailable;
+    loadImage();
+    initPlayerStreams();
+  }
+
+  void initPlayerStreams() {
     _onPlayerState =
         _audioPlayerService.onPlayerStateChangeStream().listen((state) {
       _playerState = state;
@@ -115,41 +128,40 @@ class MusicPlayerModel extends BaseModel {
     await _audioPlayerService.pause();
   }
 
+  Future<void> loadLyrics() async {
+    _currentSong.setLyrics = await _apiService.getSongLyrics(_currentSong);
+    notifyListeners();
+  }
+
   void setCurrentPlaylist() {
     _audioPlayerService.setPlaylistMode(
         _audioPlayerService.playlistMode == PlaylistMode.loop
             ? PlaylistMode.shuffle
             : PlaylistMode.loop);
   }
-//! TODO load image!
-  // void checkForIntenetConnetionForNetworkImage() {
-  //   generateBackgroundColors();
-  //   if (CustomColors.audioPlayerManager.currentSong.imageUrl != "") {
-  //     CustomColors.manageLocalSongs
-  //         .checkIfImageFileExists(CustomColors.audioPlayerManager.currentSong)
-  //         .then((exists) {
-  //       if (exists) {
-  //         File file = File(
-  //             "${CustomColors.manageLocalSongs._fullSongDownloadDir.path}/${CustomColors.audioPlayerManager.currentSong.songId}/${CustomColors.audioPlayerManager.currentSong.songId}.png");
-  //         if (mounted) {
-  //           setState(() {
-  //             imageProvider = FileImage(file);
-  //           });
-  //         }
-  //       } else {
-  //         if (CustomColors.isNetworkAvailable) {
-  //           if (mounted) {
-  //             setState(() {
-  //               imageProvider = NetworkImage(
-  //                 CustomColors.audioPlayerManager.currentSong.imageUrl,
-  //               );
-  //             });
-  //           }
-  //         }
-  //       }
-  //     });
-  //   }
-  // }
+
+  void loadImage() {
+    if (_currentSong.imageUrl != "") {
+      _localDatabaseService.checkIfImageFileExists(_currentSong).then((exists) {
+        if (exists) {
+          File file = File(
+              "${_localDatabaseService.fullSongDownloadDir.path}/${_currentSong.songId}/${_currentSong.songId}.png");
+          _imageProvider = FileImage(file);
+          notifyListeners();
+        } else {
+          if (_isNetworkAvailable) {
+            _imageProvider = NetworkImage(
+              _currentSong.imageUrl,
+            );
+            notifyListeners();
+          }
+        }
+      });
+    } else {
+      _imageProvider = null;
+      notifyListeners();
+    }
+  }
 
   Future<Color> generateBackgroundColor() async {
     if (_currentSong.imageUrl != "") {

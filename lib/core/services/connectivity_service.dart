@@ -11,7 +11,7 @@ class ConnectivityService {
   Stream<ConnectivityResult> get connectivityStream =>
       Connectivity().onConnectivityChanged;
 
-  Future initService() async {
+  Future<void> initService() async {
     ConnectivityResult connectivityResult =
         await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
