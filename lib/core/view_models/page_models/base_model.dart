@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:myapp/core/page_state/page_state.dart';
+import 'package:myapp/core/enums/page_state.dart';
 
 class BaseModel extends ChangeNotifier {
   PageState _state = PageState.Idle;

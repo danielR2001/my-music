@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:myapp/core/services/api_service.dart';
 import 'package:myapp/core/services/audio_player_service.dart';
 import 'package:myapp/core/services/database_service.dart';
 import 'package:myapp/core/services/local_database_service.dart';
@@ -20,7 +19,6 @@ class PlaylistOptionsModel extends BaseModel {
   final LocalDatabaseService _localDatabaseService =
       locator<LocalDatabaseService>();
   final AudioPlayerService _audioPlayerService = locator<AudioPlayerService>();
-  final ApiService _apiService = locator<ApiService>();
 
   StreamSubscription onPlayerIndexChangedStream;
 

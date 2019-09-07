@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:myapp/core/page_state/page_state.dart';
+import 'package:myapp/core/enums/page_state.dart';
 import 'package:myapp/locater.dart';
 import 'package:myapp/core/services/authentication_service.dart';
 import 'package:myapp/core/view_models/page_models/base_model.dart';

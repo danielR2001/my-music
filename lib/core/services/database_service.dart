@@ -63,18 +63,6 @@ class FirebaseDatabaseService {
         playlist, completeDelete);
   }
 
-  Stream<Event> onChildChanged() {
-    return _firebaseDatabaseManager.onChildChanged();
-  }
-
-  Stream<Event> onChildRemoved() {
-    return _firebaseDatabaseManager.onChildRemoved();
-  }
-
-  Stream<Event> onChildAdded() {
-    return _firebaseDatabaseManager.onChildAdded();
-  }
-
   Future<List<Playlist>> buildPublicPlaylists() async {
     return await _firebaseDatabaseManager.buildPublicPlaylists();
   }

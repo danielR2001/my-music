@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_exoplayer/audioplayer.dart';
 import 'package:myapp/core/services/api_service.dart';
@@ -8,10 +7,12 @@ import 'package:myapp/core/services/connectivity_service.dart';
 import 'package:myapp/core/services/image_loader_service.dart';
 import 'package:myapp/core/services/local_database_service.dart';
 import 'package:myapp/core/services/native_communication_service.dart';
+import 'package:myapp/core/services/tab_navigation_service.dart';
 import 'package:myapp/core/view_models/page_models/base_model.dart';
 import 'package:myapp/locater.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
+import 'package:myapp/ui/custom_classes/custom_colors.dart';
 
 class MusicPlayerModel extends BaseModel {
   final AudioPlayerService _audioPlayerService = locator<AudioPlayerService>();
@@ -22,7 +23,9 @@ class MusicPlayerModel extends BaseModel {
   final NativeCommunicationService _nativeCommunicationService =
       locator<NativeCommunicationService>();
   final ImageLoaderService _imageLoaderService = locator<ImageLoaderService>();
-    final ApiService _apiService= locator<ApiService>();
+  final ApiService _apiService = locator<ApiService>();
+  final TabNavigationService _tabNavigationService =
+      locator<TabNavigationService>();
 
   StreamSubscription<PlayerState> _onPlayerState;
   StreamSubscription<Duration> _onPlayerPosition;
@@ -31,11 +34,11 @@ class MusicPlayerModel extends BaseModel {
 
   PlayerState _playerState;
   Duration _position = Duration(milliseconds: 0);
-  Duration _duration= Duration(milliseconds: 0);
+  Duration _duration = Duration(milliseconds: 0);
   Song _currentSong;
   ImageProvider _imageProvider;
-
-  bool _isNetworkAvailable;
+  Color _backgroundColor = CustomColors.darkGreyColor;
+  bool _mounted;
 
   ImageProvider get imageProvider => _imageProvider;
 
@@ -45,9 +48,23 @@ class MusicPlayerModel extends BaseModel {
 
   Duration get duration => _duration;
 
-  String get durationText => _duration?.toString()?.split('.')?.first ?? '';
+  Color get backgroundColor => _backgroundColor;
 
-  String get positionText => _position?.toString()?.split('.')?.first ?? '';
+  String get durationText {
+    String durationTxt = _duration?.toString()?.split('.')?.first ?? '';
+    if (durationTxt.startsWith("0:")) {
+      durationTxt = durationTxt.substring(2, 7);
+    }
+    return durationTxt;
+  }
+
+  String get positionText {
+    String _positionTxt = _position?.toString()?.split('.')?.first ?? '';
+    if (_positionTxt.startsWith("0:")) {
+      _positionTxt = _positionTxt.substring(2, 7);
+    }
+    return _positionTxt;
+  }
 
   Playlist get currentPlaylist => _audioPlayerService.currentPlaylist;
 
@@ -55,24 +72,41 @@ class MusicPlayerModel extends BaseModel {
 
   PlaylistMode get playlistMode => _audioPlayerService.playlistMode;
 
+  GlobalKey<NavigatorState> get tabNavigatorKey =>
+      _tabNavigationService.tabNavigatorKey;
+
   Future<void> setCurrentSong() async {
     _currentSong = await _audioPlayerService.getCurrentSong();
-    await _loadImage(_currentSong);
     notifyListeners();
   }
 
   Future<void> initModel() async {
+    _mounted = false;
     await setCurrentSong();
+    _position = await _audioPlayerService.position;
+    _duration = await _audioPlayerService.duration;
     _playerState = _audioPlayerService.playerState;
-    _isNetworkAvailable = _connectivityService.isNetworkAvailable;
-    loadImage();
+    _generateBackgroundColor();
+    _loadImage();
+    _loadLyrics();
     initPlayerStreams();
+  }
+
+  Future<void> disposeModel() async {
+    _mounted = true;
+    await _onPlayerState.cancel();
+    await _onPlayerPosition.cancel();
+    await _onPlayerDuration.cancel();
+    await _onPlayerIndex.cancel();
   }
 
   void initPlayerStreams() {
     _onPlayerState =
         _audioPlayerService.onPlayerStateChangeStream().listen((state) {
       _playerState = state;
+      if (_playerState == PlayerState.COMPLETED) {
+        _position = Duration(seconds: 0);
+      }
       notifyListeners();
     });
     _onPlayerPosition =
@@ -88,28 +122,23 @@ class MusicPlayerModel extends BaseModel {
     _onPlayerIndex =
         _audioPlayerService.onPlayerIndexChangedStream().listen((index) {
       _currentSong = currentPlaylist.songs[index];
-      _loadImage(_currentSong);
+      _generateBackgroundColor();
+      _loadImage();
+      _loadLyrics();
       notifyListeners();
     });
   }
 
-  void disposePlayerStreamSubsciptions() {
-    _onPlayerState.cancel();
-    _onPlayerPosition.cancel();
-    _onPlayerDuration..cancel();
-    _onPlayerIndex.cancel();
-  }
-
-  Future<void> _loadImage(Song song) async {
-    _imageProvider = await _imageLoaderService.loadImage(song);
-    notifyListeners();
+  Future<void> _loadImage() async {
+    _imageProvider = await _imageLoaderService.loadImage(_currentSong);
+    if (!_mounted) {
+      notifyListeners();
+    }
   }
 
   Future<void> seekPlayerPosition(double value) async {
     await _audioPlayerService
         .seekPosition(Duration(milliseconds: value.toInt()));
-    //_position = Duration(milliseconds: value.toInt());
-    //notifyListeners();
   }
 
   Future<void> playPreviousSong() async {
@@ -128,9 +157,11 @@ class MusicPlayerModel extends BaseModel {
     await _audioPlayerService.pause();
   }
 
-  Future<void> loadLyrics() async {
+  Future<void> _loadLyrics() async {
     _currentSong.setLyrics = await _apiService.getSongLyrics(_currentSong);
-    notifyListeners();
+    if (!_mounted) {
+      notifyListeners();
+    }
   }
 
   void setCurrentPlaylist() {
@@ -140,30 +171,7 @@ class MusicPlayerModel extends BaseModel {
             : PlaylistMode.loop);
   }
 
-  void loadImage() {
-    if (_currentSong.imageUrl != "") {
-      _localDatabaseService.checkIfImageFileExists(_currentSong).then((exists) {
-        if (exists) {
-          File file = File(
-              "${_localDatabaseService.fullSongDownloadDir.path}/${_currentSong.songId}/${_currentSong.songId}.png");
-          _imageProvider = FileImage(file);
-          notifyListeners();
-        } else {
-          if (_isNetworkAvailable) {
-            _imageProvider = NetworkImage(
-              _currentSong.imageUrl,
-            );
-            notifyListeners();
-          }
-        }
-      });
-    } else {
-      _imageProvider = null;
-      notifyListeners();
-    }
-  }
-
-  Future<Color> generateBackgroundColor() async {
+  Future<void> _generateBackgroundColor() async {
     if (_currentSong.imageUrl != "") {
       String dominantColor;
       bool exists =
@@ -183,12 +191,15 @@ class MusicPlayerModel extends BaseModel {
       if (dominantColor != null) {
         dominantColor = dominantColor.replaceAll("#", "");
         dominantColor = "0xff" + dominantColor;
-        return Color(int.parse(dominantColor));
+        _backgroundColor = Color(int.parse(dominantColor));
       } else {
-        return null;
+        _backgroundColor = CustomColors.pinkColor;
       }
     } else {
-      return null;
+      _backgroundColor = CustomColors.pinkColor;
+    }
+    if (!_mounted) {
+      notifyListeners();
     }
   }
 }

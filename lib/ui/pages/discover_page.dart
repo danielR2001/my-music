@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/core/enums/page_state.dart';
 import 'package:myapp/core/view_models/page_models/discover_model.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
@@ -13,15 +14,11 @@ class DiscoverPage extends StatefulWidget {
 }
 
 class _DiscoverPageState extends State<DiscoverPage> {
-  DiscoverModel _model;
   bool needToReloadImages = false;
   @override
   Widget build(BuildContext context) {
     return BasePage<DiscoverModel>(
-      onModelReady: (model) {
-        _model = model;
-        _model.initModel(Provider.of<User>(context));
-      },
+      onModelReady: (model) => model.initModel(Provider.of<User>(context)),
       builder: (context, model, child) => Container(
         alignment: Alignment(0.0, 0.0),
         decoration: BoxDecoration(
@@ -101,7 +98,18 @@ class _DiscoverPageState extends State<DiscoverPage> {
                   ),
                 ]),
               ),
-              drawPublicPlaylistsListView()
+              model.state == PageState.Idle
+                  ? drawPublicPlaylistsListView(model)
+                  : Expanded(
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              CustomColors.pinkColor),
+                          backgroundColor: Colors.pink[50],
+                          strokeWidth: 5.0,
+                        ),
+                      ),
+                    ),
             ],
           ),
         ),
@@ -110,18 +118,18 @@ class _DiscoverPageState extends State<DiscoverPage> {
   }
 
   //* widgets
-  Widget drawPublicPlaylistsListView() {
+  Widget drawPublicPlaylistsListView(DiscoverModel model) {
     return Expanded(
       child: ListView.builder(
-        itemCount: _model.publicPlaylists.length,
+        itemCount: model.publicPlaylists.length,
         itemBuilder: (BuildContext context, int index) {
           Padding row;
           Expanded padding1;
           Expanded padding2;
           if ((index + 1) % 2 != 0) {
-            padding1 = drawPlaylists(_model.publicPlaylists[index], context);
-            padding2 = index + 1 != _model.publicPlaylists.length
-                ? drawPlaylists(_model.publicPlaylists[index + 1], context)
+            padding1 = drawPlaylists(model.publicPlaylists[index], context, model);
+            padding2 = index + 1 != model.publicPlaylists.length
+                ? drawPlaylists(model.publicPlaylists[index + 1], context, model)
                 : Expanded(child: Container());
             row = Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -143,9 +151,8 @@ class _DiscoverPageState extends State<DiscoverPage> {
     );
   }
 
-  Widget drawPlaylists(Playlist playlist, BuildContext context) {
+  Widget drawPlaylists(Playlist playlist, BuildContext context, DiscoverModel model) {
     String title = playlist.name;
-    bool drawSongImage = false;
     if (playlist.name.length > 15) {
       int pos = playlist.name.lastIndexOf("", 15);
       if (pos < 5) {
@@ -155,20 +162,14 @@ class _DiscoverPageState extends State<DiscoverPage> {
     } else {
       title = playlist.name;
     }
-    if (playlist.songs.length > 0) {
-      if (_model.imageProviders.length != 0 &&
-          _model.imageProviders[playlist.songs[0].songId] != null) {
-        drawSongImage = true;
-      }
-    }
-    if (drawSongImage) {
-      return drawPlaylist(playlist, title);
+    if (model.imageProviders[playlist.publicPlaylistPushId] != null) {
+      return drawPlaylist(playlist, model);
     } else {
-      return drawDefaultPlaylist(playlist, title);
+      return drawDefaultPlaylist(playlist, title, model);
     }
   }
 
-  Widget drawPlaylist(Playlist playlist, String title) {
+  Widget drawPlaylist(Playlist playlist, DiscoverModel model) {
     return Expanded(
       child: GestureDetector(
         child: Column(
@@ -197,7 +198,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                   ),
                 ],
                 image: DecorationImage(
-                  image: _model.imageProviders[playlist.songs[0].songId],
+                  image: model.imageProviders[playlist.publicPlaylistPushId],
                   fit: BoxFit.cover,
                 ),
               ),
@@ -206,7 +207,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
               height: 5,
             ),
             AutoSizeText(
-              title,
+              playlist.name,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 17.0,
@@ -220,14 +221,14 @@ class _DiscoverPageState extends State<DiscoverPage> {
           Navigator.pushNamed(
             context,
             "/playlist",
-            arguments: _model.createMap(playlist),
+            arguments: model.createMap(playlist),
           );
         },
       ),
     );
   }
 
-  Widget drawDefaultPlaylist(Playlist playlist, String title) {
+  Widget drawDefaultPlaylist(Playlist playlist, String title, DiscoverModel model) {
     return Expanded(
       child: GestureDetector(
         child: Column(
@@ -281,7 +282,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
           Navigator.pushNamed(
             context,
             "/playlist",
-            arguments: _model.createMap(playlist),
+            arguments: model.createMap(playlist),
           );
         },
       ),

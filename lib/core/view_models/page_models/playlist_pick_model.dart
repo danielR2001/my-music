@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:myapp/core/enums/page_state.dart';
 import 'package:myapp/core/services/audio_player_service.dart';
 import 'package:myapp/core/services/database_service.dart';
+import 'package:myapp/core/services/image_loader_service.dart';
 import 'package:myapp/core/view_models/page_models/base_model.dart';
 import 'package:myapp/core/services/toast_service.dart';
 import 'package:myapp/locater.dart';
@@ -14,9 +16,30 @@ class PlaylistPickModel extends BaseModel {
   final AudioPlayerService _audioPlayerService = locator<AudioPlayerService>();
   final FirebaseDatabaseService _firebaseDatabaseService =
       locator<FirebaseDatabaseService>();
+  final ImageLoaderService _imageLoaderService = locator<ImageLoaderService>();
 
-  bool isSongLocal(String imageUrl) {
-    return imageUrl.startsWith("/storage/emulated/0/");
+  final Map<String, ImageProvider> _imageProviders = Map();
+  List<Playlist> _playlists;
+
+  Map<String, ImageProvider> get imageProviders => _imageProviders;
+
+  Future<void> initModel(List<Playlist> playlists) async {
+    setState(PageState.Busy);
+    _playlists = playlists;
+    await _loadImages();
+    setState(PageState.Idle);
+  }
+
+  Future<void> _loadImages() async {
+    for (Playlist playlist in _playlists) {
+      if (playlist.songs.length > 0) {
+        _imageProviders[playlist.publicPlaylistPushId] =
+            await _imageLoaderService.loadImage(playlist.songs[0]);
+        notifyListeners();
+      } else {
+        _imageProviders[playlist.publicPlaylistPushId] = null;
+      }
+    }
   }
 
   Future<Playlist> addSongToPlaylist(Playlist playlist, Song song) async {
@@ -31,7 +54,7 @@ class PlaylistPickModel extends BaseModel {
       updatedsong = Song.fromSong(song);
       updatedsong.setDateAdded = DateTime.now().millisecondsSinceEpoch;
       updatedsong =
-          await _firebaseDatabaseService.addSongToPlaylist(playlist, song);
+          await _firebaseDatabaseService.addSongToPlaylist(playlist, updatedsong);
       playlist.addNewSong(updatedsong);
       if (_audioPlayerService.currentPlaylist != null
           ? playlist.pushId == _audioPlayerService.currentPlaylist.pushId

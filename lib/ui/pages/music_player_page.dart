@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +7,8 @@ import 'package:myapp/core/view_models/page_models/music_player_model.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/ui/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/base_page.dart';
-import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
-import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
+import 'package:myapp/ui/modal_sheets/queue_modal_buttom_sheet.dart';
+import 'package:myapp/ui/modal_sheets/song_options_modal_buttom_sheet.dart';
 import 'package:flip_card/flip_card.dart';
 
 class MusicPlayerPage extends StatefulWidget {
@@ -18,17 +17,13 @@ class MusicPlayerPage extends StatefulWidget {
 }
 
 class MusicPageState extends State<MusicPlayerPage> {
-  MusicPlayerModel _model;
   GlobalKey<FlipCardState> flipCardKey = GlobalKey<FlipCardState>();
-  Color backgroundColor = CustomColors.darkGreyColor;
 
   @override
   Widget build(BuildContext context) {
     return BasePage<MusicPlayerModel>(
-      onModelReady: (model) async {
-        _model = model;
-        await _model.initModel();
-      },
+      onModelReady: (model) async => await model.initModel(),
+      onModelDisposed: (model) => model.disposeModel(),
       builder: (context, model, child) => Scaffold(
         body: GestureDetector(
           onTap: () {},
@@ -37,7 +32,7 @@ class MusicPageState extends State<MusicPlayerPage> {
               gradient: LinearGradient(
                 colors: [
                   CustomColors.darkGreyColor,
-                  backgroundColor,
+                  model.backgroundColor,
                 ],
                 begin: FractionalOffset.bottomCenter,
                 stops: [0.22, 1.0],
@@ -54,17 +49,17 @@ class MusicPageState extends State<MusicPlayerPage> {
                       child: Row(
                         children: <Widget>[
                           drawBackButton(),
-                          drawPlaylistName(),
-                          drawSongOptionsMenu(),
+                          drawPlaylistName(model),
+                          drawSongOptionsMenu(model),
                         ],
                       ),
                     ),
-                    drawSongImageLyricsFlipCard(),
-                    drawSongTitleArtist(),
-                    _model.playerState == PlayerState.BUFFERING
+                    drawSongImageLyricsFlipCard(model),
+                    drawSongTitleArtist(model),
+                    model.playerState == PlayerState.BUFFERING
                         ? drawLoadingSlider()
-                        : drawSongPositionSlider(),
-                    drawSongPositionAndDuration(),
+                        : drawSongPositionSlider(model),
+                    drawSongPositionAndDuration(model),
                     Container(
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -72,9 +67,9 @@ class MusicPageState extends State<MusicPlayerPage> {
                         children: [
                           Row(
                             children: <Widget>[
-                              drawPreviousButton(),
-                              drawPlayButton(),
-                              drawNextButton(),
+                              drawPreviousButton(model),
+                              drawPlayButton(model),
+                              drawNextButton(model),
                             ],
                           ),
                         ],
@@ -82,7 +77,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                     ),
                     Row(
                       children: [
-                        drawPlaylistModeButton(),
+                        drawPlaylistModeButton(model),
                         Expanded(
                           child: Container(),
                         ),
@@ -100,7 +95,7 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   // Widgets
-  Widget drawSongOptionsMenu() {
+  Widget drawSongOptionsMenu(MusicPlayerModel model) {
     return IconButton(
       iconSize: 30,
       icon: Icon(
@@ -108,7 +103,7 @@ class MusicPageState extends State<MusicPlayerPage> {
         color: Colors.white,
       ),
       onPressed: () {
-        showMoreOptions(context);
+        showMoreOptions(context, model);
       },
     );
   }
@@ -124,7 +119,7 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
   }
 
-  Widget drawPlaylistName() {
+  Widget drawPlaylistName(MusicPlayerModel model) {
     return Expanded(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -132,7 +127,7 @@ class MusicPageState extends State<MusicPlayerPage> {
           Column(
             children: <Widget>[
               Text(
-                _model.currentPlaylist != null ? "Playing From:" : "",
+                model.currentPlaylist != null ? "Playing From:" : "",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 13,
@@ -143,9 +138,7 @@ class MusicPageState extends State<MusicPlayerPage> {
                 height: 5,
               ),
               AutoSizeText(
-                _model.currentPlaylist != null
-                    ? _model.currentPlaylist.name
-                    : "",
+                model.currentPlaylist != null ? model.currentPlaylist.name : "",
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -161,7 +154,7 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
   }
 
-  Widget drawSongImageLyricsFlipCard() {
+  Widget drawSongImageLyricsFlipCard(MusicPlayerModel model) {
     return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -173,8 +166,8 @@ class MusicPageState extends State<MusicPlayerPage> {
               key: flipCardKey,
               direction: FlipDirection.VERTICAL,
               flipOnTouch: true,
-              front: drawSongImageWidget(),
-              back: drawLyricsWidget(),
+              front: drawSongImageWidget(model),
+              back: drawLyricsWidget(model),
             ),
           ),
         ],
@@ -182,7 +175,7 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
   }
 
-  Widget drawLyricsWidget() {
+  Widget drawLyricsWidget(MusicPlayerModel model) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -236,9 +229,11 @@ class MusicPageState extends State<MusicPlayerPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
               child: Text(
-                _model.currentSong != null? _model.currentSong.lyrics != null
-                    ? _model.currentSong.lyrics
-                    : "We couldn't find lyrics for this song.":"",
+                model.currentSong != null
+                    ? model.currentSong.lyrics != null
+                        ? model.currentSong.lyrics
+                        : "We couldn't find lyrics for this song."
+                    : "",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -252,7 +247,7 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
   }
 
-  Widget drawSongImageWidget() {
+  Widget drawSongImageWidget(MusicPlayerModel model) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -276,20 +271,20 @@ class MusicPageState extends State<MusicPlayerPage> {
           ),
         ],
       ),
-      child: _model.imageProvider == null
+      child: model.imageProvider == null
           ? Icon(
               Icons.music_note,
               color: CustomColors.pinkColor,
               size: 120,
             )
           : Image(
-              image: _model.imageProvider,
+              image: model.imageProvider,
               fit: BoxFit.contain,
             ),
     );
   }
 
-  Widget drawSongTitleArtist() {
+  Widget drawSongTitleArtist(MusicPlayerModel model) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Container(
@@ -297,7 +292,7 @@ class MusicPageState extends State<MusicPlayerPage> {
         child: Column(
           children: <Widget>[
             AutoSizeText(
-             _model.currentSong !=null? _model.currentSong.title:"",
+              model.currentSong != null ? model.currentSong.title : "",
               style: TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,
@@ -306,7 +301,7 @@ class MusicPageState extends State<MusicPlayerPage> {
               maxLines: 1,
             ),
             AutoSizeText(
-              _model.currentSong != null?_model.currentSong.artist:"",
+              model.currentSong != null ? model.currentSong.artist : "",
               style: TextStyle(
                 fontSize: 14.0,
                 color: Colors.grey,
@@ -319,7 +314,7 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
   }
 
-  Widget drawSongPositionSlider() {
+  Widget drawSongPositionSlider(MusicPlayerModel model) {
     return SliderTheme(
       data: SliderThemeData(
         thumbShape: RoundSliderThumbShape(enabledThumbRadius: 5),
@@ -330,11 +325,11 @@ class MusicPageState extends State<MusicPlayerPage> {
         overlayColor: Colors.transparent,
       ),
       child: Slider(
-        value: _model.position.inMilliseconds.toDouble(),
+        value: model.position.inMilliseconds.toDouble(),
         min: 0.0,
-        max: _model.duration.inMilliseconds.toDouble(),
+        max: model.duration.inMilliseconds.toDouble(),
         onChanged: (double value) {
-          _model.seekPlayerPosition(value);
+          model.seekPlayerPosition(value);
         },
       ),
     );
@@ -355,7 +350,7 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
   }
 
-  Widget drawSongPositionAndDuration() {
+  Widget drawSongPositionAndDuration(MusicPlayerModel model) {
     return Container(
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -366,14 +361,14 @@ class MusicPageState extends State<MusicPlayerPage> {
           children: <Widget>[
             Expanded(
               child: Text(
-                _model.positionText,
+                model.positionText,
                 textAlign: TextAlign.left,
                 style: TextStyle(color: Colors.white, fontSize: 13),
               ),
             ),
             Expanded(
               child: Text(
-                _model.durationText,
+                model.durationText,
                 textAlign: TextAlign.right,
                 style: TextStyle(color: Colors.white, fontSize: 13),
               ),
@@ -384,7 +379,7 @@ class MusicPageState extends State<MusicPlayerPage> {
     );
   }
 
-  Widget drawPreviousButton() {
+  Widget drawPreviousButton(MusicPlayerModel model) {
     return IconButton(
       splashColor: Colors.grey,
       alignment: Alignment.center,
@@ -397,12 +392,12 @@ class MusicPageState extends State<MusicPlayerPage> {
         if (!flipCardKey.currentState.isFront) {
           flipCardKey.currentState.toggleCard();
         }
-        _model.playPreviousSong();
+        model.playPreviousSong();
       },
     );
   }
 
-  Widget drawPlayButton() {
+  Widget drawPlayButton(MusicPlayerModel model) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: GestureDetector(
@@ -410,18 +405,20 @@ class MusicPageState extends State<MusicPlayerPage> {
           width: 80,
           height: 80,
           alignment: Alignment.center,
-          child: _model.playerState == PlayerState.PLAYING
+          child: model.playerState == PlayerState.PLAYING
               ? drawPauseIcon()
               : drawPlayIcon(),
         ),
         onTap: () {
-          _model.resume();
+          model.playerState == PlayerState.PLAYING
+              ? model.pause()
+              : model.resume();
         },
       ),
     );
   }
 
-  Widget drawNextButton() {
+  Widget drawNextButton(MusicPlayerModel model) {
     return IconButton(
       splashColor: Colors.grey,
       alignment: Alignment.center,
@@ -431,21 +428,21 @@ class MusicPageState extends State<MusicPlayerPage> {
         color: Colors.white,
       ),
       onPressed: () {
-        _model.playNextSong();
+        model.playNextSong();
       },
     );
   }
 
-  Widget drawPlaylistModeButton() {
+  Widget drawPlaylistModeButton(MusicPlayerModel model) {
     return Padding(
       padding: const EdgeInsets.only(left: 20),
       child: IconButton(
         splashColor: Colors.grey,
-        icon: _model.playlistMode == PlaylistMode.loop
+        icon: model.playlistMode == PlaylistMode.loop
             ? drawLoopIcon()
             : drawShuffleIcon(),
         onPressed: () {
-          _model.setCurrentPlaylist();
+          model.setCurrentPlaylist();
         },
       ),
     );
@@ -501,31 +498,19 @@ class MusicPageState extends State<MusicPlayerPage> {
   }
 
   //methods
-  void showMoreOptions(BuildContext context) {
+  void showMoreOptions(BuildContext context, MusicPlayerModel model) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
-      context: context,
+      context: model.tabNavigatorKey.currentContext,
       builder: (builder) {
         return SongOptionsModalSheet(
-          _model.currentSong,
-          _model.currentPlaylist,
+          model.currentSong,
+          model.currentPlaylist,
           true,
           null,
         );
       },
     );
-  }
-
-  Future<void> generateBackgroundColors() async {
-    Color color = await _model.generateBackgroundColor();
-    if (color == null) {
-      color = CustomColors.pinkColor;
-    }
-    if (mounted) {
-      setState(() {
-        backgroundColor = color;
-      });
-    }
   }
 
   void showQueueModalBottomSheet(BuildContext context) {

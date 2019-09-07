@@ -12,8 +12,8 @@ import 'package:myapp/core/services/image_loader_service.dart';
 import 'package:myapp/core/services/local_database_service.dart';
 import 'package:myapp/core/services/audio_player_service.dart';
 import 'package:myapp/core/services/native_communication_service.dart';
+import 'package:myapp/core/services/tab_navigation_service.dart';
 import 'package:myapp/core/services/toast_service.dart';
-import 'package:myapp/core/view_models/modal_sheet_models/artist_pick_model.dart';
 import 'package:myapp/core/view_models/modal_sheet_models/playlist_options_model.dart';
 import 'package:myapp/core/view_models/modal_sheet_models/queue_model.dart';
 import 'package:myapp/core/view_models/modal_sheet_models/song_options_model.dart';
@@ -46,7 +46,6 @@ void setupLocator() {
   locator.registerFactory(() => PlaylistPickModel());
   locator.registerFactory(() => SearchModel());
 
-  locator.registerFactory(() => ArtistPickModel());
   locator.registerFactory(() => PlaylistOptionsModel());
   locator.registerFactory(() => QueueModel());
   locator.registerFactory(() => SongOptionsModel());
@@ -76,4 +75,6 @@ void setupLocator() {
   locator.registerLazySingleton(() => ImageLoaderService());
   //Toast
   locator.registerLazySingleton(() => ToastService());
+  //Tab navigation
+    locator.registerLazySingleton(() => TabNavigationService());
 }

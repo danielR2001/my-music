@@ -1,10 +1,10 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/core/enums/page_state.dart';
 import 'package:myapp/core/view_models/page_models/library_model.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
-import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/base_page.dart';
 import 'package:provider/provider.dart';
@@ -15,16 +15,10 @@ class LibraryPage extends StatefulWidget {
 }
 
 class _LibraryPageState extends State<LibraryPage> {
-  LibraryModel _model;
-  bool openPlaylists = true;
-
   @override
   Widget build(BuildContext context) {
     return BasePage<LibraryModel>(
-      onModelReady: (model) {
-        _model = model;
-        _model.initModel(Provider.of<User>(context));
-      },
+      onModelReady: (model) => model.initModel(Provider.of<User>(context)),
       builder: (context, model, child) => Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -69,7 +63,7 @@ class _LibraryPageState extends State<LibraryPage> {
                           color: Colors.white,
                         ),
                         onPressed: () {
-                          showAlertDialog(context);
+                          showAlertDialog(context, model);
                         },
                       ),
                     )
@@ -115,8 +109,8 @@ class _LibraryPageState extends State<LibraryPage> {
                     Navigator.pushNamed(
                       context,
                       "/playlist",
-                      arguments: _model.createMap(
-                          Provider.of<User>(context).downloadedSongsPlaylist),
+                      arguments: model.createMap(
+                          Provider.of<User>(context).downloadedSongsPlaylist, true),
                     );
                   }),
               SizedBox(
@@ -136,24 +130,23 @@ class _LibraryPageState extends State<LibraryPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                trailing: IconButton(
-                  icon: openPlaylists
-                      ? Icon(
-                          Icons.keyboard_arrow_up,
-                          color: Colors.white,
-                        )
-                      : Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.white,
-                        ),
-                  onPressed: () {
-                    setState(() {
-                      openPlaylists = !openPlaylists;
-                    });
-                  },
+                trailing: Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white,
                 ),
               ),
-              showOrHidePlaylists(),
+              model.state == PageState.Idle
+                  ? showPlaylists(model)
+                  : Expanded(
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              CustomColors.pinkColor),
+                          backgroundColor: Colors.pink[50],
+                          strokeWidth: 5.0,
+                        ),
+                      ),
+                    ),
             ],
           ),
         ),
@@ -162,7 +155,20 @@ class _LibraryPageState extends State<LibraryPage> {
   }
 
   //* widgets
-  Widget userPlaylists(Playlist playlist, BuildContext context, int index) {
+  Widget showPlaylists(LibraryModel model) {
+    return Expanded(
+      child: ListView.builder(
+        itemCount: Provider.of<User>(context).playlists.length,
+        itemBuilder: (BuildContext context, int index) {
+          return userPlaylists(Provider.of<User>(context).playlists[index],
+              context, index, model);
+        },
+      ),
+    );
+  }
+
+  Widget userPlaylists(
+      Playlist playlist, BuildContext context, int index, LibraryModel model) {
     return Padding(
       padding: const EdgeInsets.only(
         top: 10,
@@ -170,120 +176,98 @@ class _LibraryPageState extends State<LibraryPage> {
         bottom: 10,
       ),
       child: ListTile(
-          leading: playlist.songs.length > 0
-              ? drawSongImage(playlist.songs[0], index)
-              : drawSongImage(null, index),
-          title: AutoSizeText(
-            _model.cutPlaylistName(playlist) + "  (${playlist.songs.length})",
-            style: TextStyle(
-              fontSize: 17,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-            maxLines: 1,
-          ),
-          trailing: Icon(
-            Icons.keyboard_arrow_right,
+        leading: model.imageProviders[playlist.publicPlaylistPushId] != null
+            ? drawSongImage(playlist, index, model)
+            : drawDefaultPlaylist(playlist, model),
+        title: AutoSizeText(
+          model.cutPlaylistName(playlist) + "  (${playlist.songs.length})",
+          style: TextStyle(
+            fontSize: 17,
             color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
-          onTap: () {
-            Navigator.pushNamed(context, "/playlist",
-                arguments: _model.createMap(playlist));
-          }),
+          maxLines: 1,
+        ),
+        trailing: Icon(
+          Icons.keyboard_arrow_right,
+          color: Colors.white,
+        ),
+        onTap: () {
+          Navigator.pushNamed(context, "/playlist",
+              arguments: model.createMap(playlist, false));
+        },
+      ),
     );
   }
 
-  Widget showOrHidePlaylists() {
-    if (openPlaylists) {
-      return Expanded(
-        child: ListView.builder(
-          itemCount: Provider.of<User>(context).playlists.length,
-          itemBuilder: (BuildContext context, int index) {
-            return userPlaylists(
-                Provider.of<User>(context).playlists[index], context, index);
-          },
+  Widget drawSongImage(Playlist playlist, int index, LibraryModel model) {
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            CustomColors.lightGreyColor,
+            CustomColors.darkGreyColor,
+          ],
+          begin: FractionalOffset.bottomLeft,
+          stops: [0.3, 0.8],
+          end: FractionalOffset.topRight,
         ),
-      );
-    } else {
-      return Container();
-    }
+        border: Border.all(
+          color: Colors.black,
+          width: 0.1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey[850],
+            blurRadius: 0.1,
+            spreadRadius: 0.1,
+          ),
+        ],
+      ),
+      child: Image(
+        image: model.imageProviders[playlist.publicPlaylistPushId],
+        fit: BoxFit.cover,
+      ),
+    );
   }
 
-  Widget drawSongImage(Song song, int index) {
-    if (song != null) {
-      return Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              CustomColors.lightGreyColor,
-              CustomColors.darkGreyColor,
-            ],
-            begin: FractionalOffset.bottomLeft,
-            stops: [0.3, 0.8],
-            end: FractionalOffset.topRight,
-          ),
-          border: Border.all(
-            color: Colors.black,
-            width: 0.1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey[850],
-              blurRadius: 0.1,
-              spreadRadius: 0.1,
-            ),
+  Widget drawDefaultPlaylist(Playlist playlist, LibraryModel model) {
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            CustomColors.lightGreyColor,
+            CustomColors.darkGreyColor,
           ],
+          begin: FractionalOffset.bottomLeft,
+          stops: [0.3, 0.8],
+          end: FractionalOffset.topRight,
         ),
-        child: _model.imageProviders.length != 0 &&
-                _model.imageProviders[song.songId] != null
-            ? Image(
-                image: _model.imageProviders[song.songId],
-                fit: BoxFit.cover,
-              )
-            : Icon(
-                Icons.music_note,
-                color: CustomColors.pinkColor,
-                size: 30,
-              ),
-      );
-    } else {
-      return Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              CustomColors.lightGreyColor,
-              CustomColors.darkGreyColor,
-            ],
-            begin: FractionalOffset.bottomLeft,
-            stops: [0.3, 0.8],
-            end: FractionalOffset.topRight,
+        border: Border.all(
+          color: Colors.black,
+          width: 0.1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey[850],
+            blurRadius: 0.1,
+            spreadRadius: 0.1,
           ),
-          border: Border.all(
-            color: Colors.black,
-            width: 0.1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey[850],
-              blurRadius: 0.1,
-              spreadRadius: 0.1,
-            ),
-          ],
-        ),
-        child: Icon(
-          Icons.music_note,
-          color: CustomColors.pinkColor,
-          size: 30,
-        ),
-      );
-    }
+        ],
+      ),
+      child: Icon(
+        Icons.music_note,
+        color: CustomColors.pinkColor,
+        size: 30,
+      ),
+    );
   }
 
-  void showAlertDialog(BuildContext context) {
+  void showAlertDialog(BuildContext context, LibraryModel model) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -358,7 +342,7 @@ class _LibraryPageState extends State<LibraryPage> {
                         ),
                       ),
                       onTap: () async {
-                        await _model.logOut();
+                        await model.logOut();
                       },
                     ),
                   ),

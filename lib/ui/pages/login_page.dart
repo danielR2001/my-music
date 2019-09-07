@@ -13,12 +13,10 @@ class LoginPage extends StatefulWidget {
 class _State extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
   final key = GlobalKey<ScaffoldState>();
-  LoginModel _model;
 
   @override
   Widget build(BuildContext context) {
     return BasePage<LoginModel>(
-      onModelReady: (model) => _model = model,
       builder: (context, model, child) => WillPopScope(
         onWillPop: () {
           FocusScope.of(context).requestFocus(FocusNode());
@@ -64,9 +62,9 @@ class _State extends State<LoginPage> {
                           key: formKey,
                           child: Column(
                             children: <Widget>[
-                              drawEmailTextFiled(),
-                              drawPasswordTextFiled(),
-                              drawLoginButton(),
+                              drawEmailTextFiled(model),
+                              drawPasswordTextFiled(model),
+                              drawLoginButton(model),
                             ],
                           ),
                         ),
@@ -131,7 +129,7 @@ class _State extends State<LoginPage> {
     );
   }
 
-  Widget drawEmailTextFiled() {
+  Widget drawEmailTextFiled(LoginModel model) {
     return TextFormField(
       style: TextStyle(
         color: Colors.white,
@@ -157,13 +155,13 @@ class _State extends State<LoginPage> {
         ),
       ),
       keyboardType: TextInputType.emailAddress,
-      initialValue: _model.password,
+      initialValue: model.password,
       validator: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
-      onSaved: (value) => _model.setEmail = value,
+      onSaved: (value) => model.setEmail = value,
     );
   }
 
-  Widget drawPasswordTextFiled() {
+  Widget drawPasswordTextFiled(LoginModel model) {
     return TextFormField(
       obscureText: true,
       style: TextStyle(
@@ -189,19 +187,19 @@ class _State extends State<LoginPage> {
           fontWeight: FontWeight.bold,
         ),
       ),
-      initialValue: _model.email,
+      initialValue: model.email,
       validator: (value) => value.isEmpty ? 'Password can\'t be empty' : null,
-      onSaved: (value) => _model.setPassword = value,
+      onSaved: (value) => model.setPassword = value,
     );
   }
 
-  Widget drawLoginButton() {
+  Widget drawLoginButton(LoginModel model) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
       child: GestureDetector(
         onTap: () {
           FocusScope.of(context).requestFocus(FocusNode());
-          login();
+          login(model);
         },
         child: Container(
           alignment: Alignment.center,
@@ -266,15 +264,15 @@ class _State extends State<LoginPage> {
   }
 
   //* core
-  Future login() async {
+  Future login(LoginModel model) async {
     bool response;
     final form = formKey.currentState;
     if (form.validate()) {
       showLoadingBar();
       form.save();
-      FirebaseUser firebaseUser = await _model.signInWithEmailAndPassword();
+      FirebaseUser firebaseUser = await model.signInWithEmailAndPassword();
       if (firebaseUser != null) {
-        response = await _model.login(firebaseUser);
+        response = await model.login(firebaseUser);
       } else {
         response = false;
       }
@@ -297,7 +295,7 @@ class _State extends State<LoginPage> {
     }
   }
 
-  bool checkForValidEmail(String email) {
-    return _model.checkForValidEmail(email);
+  bool checkForValidEmail(String email, LoginModel model) {
+    return model.checkForValidEmail(email);
   }
 }

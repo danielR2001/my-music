@@ -15,23 +15,21 @@ enum AuthStatus {
 
 class _RootPageState extends State<RootPage> {
   AuthStatus authStatus = AuthStatus.notSignedIn;
-  RootModel _model;
 
   @override
   Widget build(BuildContext context) {
     return BasePage<RootModel>(
         onModelReady: (model) async {
-          _model = model;
-          await _model.initApp();
-          authenticateWithFirebase();
+          await model.initApp();
+          authenticateWithFirebase(model);
         },
         builder: (context, model, child) => Container());
   }
 
   //* methods
-  Future<void> authenticateWithFirebase() async {
-    FirebaseUser firebaseUser = await _model.checkIfLoggedIn();
-    if (firebaseUser != null && await _model.login(firebaseUser)) {
+  Future<void> authenticateWithFirebase(RootModel model) async {
+    FirebaseUser firebaseUser = await model.checkIfLoggedIn();
+    if (firebaseUser != null && await model.login(firebaseUser)) {
       Navigator.pushNamed(
         context,
         "/home",

@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:myapp/core/page_state/page_state.dart';
+import 'package:myapp/core/enums/page_state.dart';
 import 'package:myapp/core/services/audio_player_service.dart';
 import 'package:myapp/core/services/connectivity_service.dart';
 import 'package:myapp/core/services/local_database_service.dart';
@@ -18,7 +18,7 @@ class RootModel extends BaseModel {
 
   Future<void> initApp() async {
     await _connectivityService.initService();
-    _audioPlayerService.initAudioPlayerManager();
+    _audioPlayerService.initAudioPlayerService();
     _localDatabaseService.initDirs();
   }
 

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/core/page_state/page_state.dart';
+import 'package:myapp/core/enums/page_state.dart';
 import 'package:myapp/core/view_models/page_models/search_model.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/song.dart';
 import 'package:myapp/ui/pages/base_page.dart';
-import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
+import 'package:myapp/ui/modal_sheets/song_options_modal_buttom_sheet.dart';
+import 'package:myapp/ui/pages/home_page.dart';
 
 class SearchPage extends StatefulWidget {
   @override
@@ -12,7 +13,6 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  SearchModel _model;
   TextEditingController textEditingController = TextEditingController();
   String hintText = "Search";
   TextDirection textDirection = TextDirection.ltr;
@@ -26,12 +26,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return BasePage<SearchModel>(
-      onModelReady: (model) {
-        _model = model;
-        if (_model.lastSearch != null) {
-          _model.getSearchResults(_model.lastSearch);
-        }
-      },
+      onModelReady: (model) => model.initModel(),
       builder: (context, model, child) => Scaffold(
         body: Container(
           decoration: BoxDecoration(
@@ -53,23 +48,23 @@ class _SearchPageState extends State<SearchPage> {
                   child: Row(
                     children: <Widget>[
                       drawBackButton(),
-                      drawSearchBar(),
+                      drawSearchBar(model),
                       drawClearButton(),
                     ],
                   ),
                 ),
-                _model.state == PageState.Idle
-                    ? !_model.noResultsFound
+                model.state == PageState.Idle
+                    ? !model.noResultsFound
                         ? Expanded(
                             child: ListView.builder(
-                              itemCount: _model.searchResultsPlaylist != null
-                                  ? _model.searchResultsPlaylist.songs.length
+                              itemCount: model.searchResultsPlaylist != null
+                                  ? model.searchResultsPlaylist.songs.length
                                   : 0,
                               itemExtent: 60,
                               itemBuilder: (BuildContext context, int index) {
                                 return drawSongSearchResult(
-                                    _model.searchResultsPlaylist.songs[index],
-                                    index);
+                                    model.searchResultsPlaylist.songs[index],
+                                    index, model);
                               },
                             ),
                           )
@@ -131,7 +126,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget drawSearchBar() {
+  Widget drawSearchBar(SearchModel model) {
     return Flexible(
       child: Container(
         child: TextField(
@@ -161,12 +156,12 @@ class _SearchPageState extends State<SearchPage> {
               });
             }
             if (txt != "") {
-              await _model.getSearchResults(txt);
+              await model.getSearchResults(txt);
             }
           },
           onSubmitted: (txt) async {
             if (txt != "") {
-              await _model.getSearchResults(txt);
+              await model.getSearchResults(txt);
             }
           },
         ),
@@ -192,7 +187,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget drawSongSearchResult(Song song, int index) {
+  Widget drawSongSearchResult(Song song, int index, SearchModel model) {
     String title;
     String artist;
     if (song.title.length > 33) {
@@ -236,23 +231,23 @@ class _SearchPageState extends State<SearchPage> {
         color: Colors.white,
         iconSize: 30,
         onPressed: () {
-          showMoreOptions(song);
+          showMoreOptions(song, model);
         },
       ),
       onTap: () async {
-        await _model.play(index);
+        await model.play(index);
       },
     );
   }
 
-  void showMoreOptions(Song song) {
+  void showMoreOptions(Song song, SearchModel model) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
-      context: context,
+      context: model.tabNavigatorKey.currentContext,
       builder: (builder) {
         return SongOptionsModalSheet(
           song,
-          _model.searchResultsPlaylist,
+          model.searchResultsPlaylist,
           false,
           SongModalSheetMode.download_public_search_artist,
         );

@@ -8,8 +8,8 @@ import 'package:myapp/models/song.dart';
 import 'package:myapp/models/user.dart';
 import 'package:myapp/ui/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/base_page.dart';
-import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
-import 'package:myapp/ui/widgets/song_options_modal_buttom_sheet.dart';
+import 'package:myapp/ui/modal_sheets/playlist_options_modal_buttom_sheet.dart';
+import 'package:myapp/ui/modal_sheets/song_options_modal_buttom_sheet.dart';
 import 'dart:math';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +25,6 @@ class PlaylistPage extends StatefulWidget {
 }
 
 class _PlaylistPageState extends State<PlaylistPage> {
-  PlaylistModel _model;
   Color iconColor = Colors.white;
   ScrollController _scrollController;
   @override
@@ -38,8 +37,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
   Widget build(BuildContext context) {
     return BasePage<PlaylistModel>(
       onModelReady: (model) {
-        _model = model;
-        _model.initModel(widget.playlist);
+        model.initModel(widget.playlist);
       },
       builder: (context, model, child) => Scaffold(
         body: Container(
@@ -72,7 +70,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                         ),
                         iconSize: 30,
                         onPressed: () {
-                          showPlaylistOptions(widget.playlist);
+                          showPlaylistOptions(widget.playlist, model);
                         },
                       ),
                     ),
@@ -129,9 +127,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
                           Rect.fromLTRB(0, 0, rect.width, rect.height));
                     },
                     blendMode: BlendMode.dstIn,
-                    child: _model.imageProvider != null
+                    child: model.imageProvider != null
                         ? Image(
-                            image: _model.imageProvider,
+                            image: model.imageProvider,
                             fit: BoxFit.cover,
                           )
                         : Icon(
@@ -145,11 +143,11 @@ class _PlaylistPageState extends State<PlaylistPage> {
               SliverList(
                 delegate: SliverChildListDelegate(
                   [
-                    drawPlaylistButtons(),
+                    drawPlaylistButtons(model),
                   ],
                 ),
               ),
-              makeSliverList(widget.playlist, context)
+              makeSliverList(widget.playlist, context, model)
             ],
           ),
         ),
@@ -158,21 +156,21 @@ class _PlaylistPageState extends State<PlaylistPage> {
   }
 
   //* widgets
-  Widget makeSliverList(Playlist playlist, BuildContext context) {
+  Widget makeSliverList(Playlist playlist, BuildContext context, PlaylistModel model) {
     return SliverList(
       delegate: SliverChildListDelegate(
         List.generate(playlist.songs.length, (int index) {
           String title;
           String artist;
-          title = _model.editSongTitle(playlist.songs[index].title);
-          artist = _model.editSongArtist(playlist.songs[index].artist);
+          title = model.editSongTitle(playlist.songs[index].title);
+          artist = model.editSongArtist(playlist.songs[index].artist);
           return ListTile(
             contentPadding: EdgeInsets.only(left: 20, right: 4),
             title: Text(
               title,
               style: TextStyle(
-                color: _model.isPagePlaylistIsPlaying() &&
-                        _model.isSongPlaying(playlist.songs[index])
+                color: model.isPagePlaylistIsPlaying() &&
+                        model.isSongPlaying(playlist.songs[index])
                     ? CustomColors.pinkColor
                     : Colors.white,
                 fontSize: 14,
@@ -182,56 +180,56 @@ class _PlaylistPageState extends State<PlaylistPage> {
             subtitle: Text(
               artist,
               style: TextStyle(
-                color: _model.isPagePlaylistIsPlaying() &&
-                        _model.isSongPlaying(playlist.songs[index])
+                color: model.isPagePlaylistIsPlaying() &&
+                        model.isSongPlaying(playlist.songs[index])
                     ? CustomColors.pinkColor
                     : Colors.grey,
                 fontSize: 13,
               ),
             ),
-            trailing: _model.isSongDownloading(playlist.songs[index]) &&
+            trailing: model.isSongDownloading(playlist.songs[index]) &&
                     widget.playlistModalSheetMode !=
                         PlaylistModalSheetMode.public
                 ? Padding(
                     padding: EdgeInsets.only(right: 6),
                     child: GestureDetector(
                       child: CircularProgressIndicator(
-                        value: _model.progress(playlist.songs[index].songId) /
-                            _model.total(playlist.songs[index].songId),
+                        value: model.progress(playlist.songs[index].songId) /
+                            model.total(playlist.songs[index].songId),
                         valueColor: AlwaysStoppedAnimation<Color>(
                             CustomColors.pinkColor),
                         backgroundColor: Colors.pink[50],
                         strokeWidth: 4.0,
                       ),
                       onTap: () {
-                        _model.cancelDownLoad(playlist.songs[index]);
+                        model.cancelDownLoad(playlist.songs[index]);
                       },
                     ),
                   )
                 : IconButton(
                     icon: Icon(
                       Icons.more_vert,
-                      color: _model.isPagePlaylistIsPlaying() &&
-                              _model.isSongPlaying(playlist.songs[index])
+                      color: model.isPagePlaylistIsPlaying() &&
+                              model.isSongPlaying(playlist.songs[index])
                           ? CustomColors.pinkColor
                           : Colors.white,
                     ),
                     iconSize: 30,
                     onPressed: () {
                       setState(() {
-                        showSongOptions(playlist.songs[index], playlist);
+                        showSongOptions(playlist.songs[index], playlist, model);
                       });
                     },
                   ),
             onTap: () async {
-              if (_model.isPagePlaylistIsPlaying() &&
-                  _model.isSongPlaying(playlist.songs[index])) {
+              if (model.isPagePlaylistIsPlaying() &&
+                  model.isSongPlaying(playlist.songs[index])) {
                 Navigator.pushNamed(
                   context,
                   "/musicPlayer",
                 );
               } else {
-                await _model.play(index, PlaylistMode.loop);
+                await model.play(index, PlaylistMode.loop);
               }
             },
           );
@@ -289,23 +287,23 @@ class _PlaylistPageState extends State<PlaylistPage> {
     );
   }
 
-  Widget drawPlaylistButtons() {
+  Widget drawPlaylistButtons(PlaylistModel model) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          drawPlayAllButton(),
+          drawPlayAllButton( model),
           SizedBox(
             width: 20,
           ),
-          drawShuffleButton(),
+          drawShuffleButton( model),
         ],
       ),
     );
   }
 
-  Widget drawPlayAllButton() {
+  Widget drawPlayAllButton(PlaylistModel model) {
     return Container(
       width: 150,
       height: 45,
@@ -340,14 +338,14 @@ class _PlaylistPageState extends State<PlaylistPage> {
         elevation: 6.0,
         onPressed: () async {
           if (widget.playlist.songs.length > 0) {
-            await _model.play(0, PlaylistMode.loop);
+            await model.play(0, PlaylistMode.loop);
           }
         },
       ),
     );
   }
 
-  Widget drawShuffleButton() {
+  Widget drawShuffleButton(PlaylistModel model) {
     return Container(
       width: 150,
       height: 45,
@@ -384,7 +382,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
           if (widget.playlist.songs.length > 0) {
             var rnd = Random();
             int randomNum = rnd.nextInt(widget.playlist.songs.length);
-            _model.play(randomNum, PlaylistMode.shuffle);
+            model.play(randomNum, PlaylistMode.shuffle);
           }
         },
       ),
@@ -425,7 +423,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
   }
 
   //* methods
-  void showSongOptions(Song song, Playlist currentPlaylist) {
+  void showSongOptions(Song song, Playlist currentPlaylist, PlaylistModel model) {
     SongModalSheetMode songModalSheetMode;
     if (Provider.of<User>(context).playlists.contains(currentPlaylist)) {
       songModalSheetMode = SongModalSheetMode.regular;
@@ -434,7 +432,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
     }
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
-      context: context,
+      context: model.tabNavigatorKey.currentContext,
       builder: (builder) {
         return SongOptionsModalSheet(
           song,
@@ -446,10 +444,10 @@ class _PlaylistPageState extends State<PlaylistPage> {
     );
   }
 
-  void showPlaylistOptions(Playlist currentPlaylist) {
+  void showPlaylistOptions(Playlist currentPlaylist, PlaylistModel model) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
-      context: context,
+      context: model.tabNavigatorKey.currentContext,
       builder: (builder) {
         return PlaylistOptionsModalSheet(
             currentPlaylist, context, widget.playlistModalSheetMode);

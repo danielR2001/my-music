@@ -37,7 +37,7 @@ class Song {
     _title = values['title'];
     _artist = values['artist'];
     _songId = values['songId'];
-    _searchString = values['searchString'];
+    _playUrl = values['playUrl'];
     _imageUrl = values['imageUrl'];
     _pushId = values['pushId'];
     _dateAdded = values['dateAdded'];
@@ -48,10 +48,10 @@ class Song {
       'title': _title,
       'artist': _artist,
       'songId': _songId,
-      'searchString': _searchString,
-      'imageUrl': _imageUrl,
       'pushId': _pushId,
       'dateAdded': _dateAdded,
+      'playUrl': _playUrl,
+      'imageUrl': _imageUrl,
     };
   }
 

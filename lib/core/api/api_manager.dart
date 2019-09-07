@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:html/dom.dart' as html;
+import 'package:html_unescape/html_unescape.dart';
 import 'package:myapp/models/artist.dart';
 import 'package:myapp/models/song.dart';
 import 'package:html/parser.dart' show parse;
@@ -59,7 +60,6 @@ class ApiManager {
 
   Future<String> _getSongImageUrl(String title, String artist,
       {bool secondTry = false}) async {
-    secondTry ??= false;
     String imageUrl;
     String tempTitle = title;
     tempTitle = _editSearchParams(tempTitle, true, true);
@@ -68,8 +68,9 @@ class ApiManager {
     imageUrl = tempTitle + " " + tempArtist;
     var encoded = Uri.encodeFull(imageSearchUrl + imageUrl);
     try {
-      Response response = await Dio().get(encoded);
-      print('image search completed');
+      Response response =
+          await Dio().get(encoded, cancelToken: _songSearchCancelToken);
+      print('image search completed: $imageUrl');
 
       List<dynamic> list = jsonDecode(response.data)['data'];
       if (list.length > 0) {
@@ -305,34 +306,40 @@ class ApiManager {
     String songId;
     String searchString;
     String playUrl;
+    HtmlUnescape unescape = HtmlUnescape();
 
     searchString = item.substring(
         item.indexOf('data-audiofile="') + 'data-audiofile="'.length,
         item.indexOf('data-title='));
     searchString = searchString.replaceFirst("amp;", "");
     playUrl = await _getSongPlayUrl(searchString);
+
     artist = item.substring(
         item.indexOf('<div class="title"><a href=') +
             '<div class="title"><a href='.length,
         item.indexOf('</a></div'));
     item = item.replaceFirst('<div class="title">', "");
     artist = artist.substring(artist.indexOf('>') + 1, artist.length);
+    artist = unescape.convert(artist);
 
     songTitle = item.substring(
         item.indexOf('<div class="title">') + '<div class="title">'.length,
         item.indexOf('</div>    </div>'));
+    songTitle = unescape.convert(songTitle);
 
     songId = item.substring(
         item.indexOf('https://mp3-tut.com/musictutplay?id=') +
             'https://mp3-tut.com/musictutplay?id='.length,
         item.indexOf('&amp;hash='));
     imageUrl = await _getSongImageUrl(songTitle, artist);
+    //imageUrl = "";
     return Song(songTitle, artist, songId, playUrl, imageUrl, '');
   }
 
   Future<String> _getSongPlayUrl(String url) async {
     Response response =
         await Dio().head(url, cancelToken: _songSearchCancelToken);
+    print('song play Url search completed: $url');
     if (response.redirects.length == 2) {
       return playUrl + response.redirects[1].location.path;
     } else {

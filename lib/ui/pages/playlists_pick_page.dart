@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -22,7 +20,6 @@ class PlaylistPickPage extends StatefulWidget {
 }
 
 class _PlaylistPickPageState extends State<PlaylistPickPage> {
-  PlaylistPickModel _model;
   String _playlistName;
   bool _isPublic;
   final formKey = GlobalKey<FormState>();
@@ -31,7 +28,8 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
   @override
   Widget build(BuildContext context) {
     return BasePage<PlaylistPickModel>(
-      onModelReady: (model) => _model = model,
+      onModelReady: (model) =>
+          model.initModel(Provider.of<User>(context).playlists),
       builder: (context, model, child) => Container(
         child: Scaffold(
           key: scafKey,
@@ -59,7 +57,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                     SizedBox(
                       height: 10,
                     ),
-                    drawNewPlaylistButton(),
+                    drawNewPlaylistButton(model),
                     SizedBox(
                       height: 15,
                     ),
@@ -70,7 +68,8 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                             : 0,
                         itemBuilder: (BuildContext context, int index) {
                           return drawUserPlaylists(
-                              Provider.of<User>(context).playlists[index]);
+                              Provider.of<User>(context).playlists[index],
+                              model);
                         },
                       ),
                     ),
@@ -114,11 +113,11 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     );
   }
 
-  Widget drawUserPlaylists(Playlist playlist) {
+  Widget drawUserPlaylists(Playlist playlist, PlaylistPickModel model) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: ListTile(
-        leading: drawSongImageWidget(playlist.songs[0].imageUrl),
+        leading: drawSongImageWidget(playlist, model),
         title: Text(
           playlist.name,
           style: TextStyle(
@@ -130,12 +129,13 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         onTap: () {
           if (widget.song != null) {
             showLoadingBar(context);
-            addSongToPlaylist(playlist, widget.song, false).then((added) {
+            addSongToPlaylist(playlist, widget.song, false, model)
+                .then((added) {
               if (added) {
                 hideLoadingBar();
                 Navigator.pop(context);
                 Navigator.of(context, rootNavigator: true).pop('dialog');
-                _model.makeToast(
+                model.makeToast(
                   ToastService.songAddedToPlaylist + "${playlist.name}",
                   toastLength: Toast.LENGTH_LONG,
                   fontSize: 18,
@@ -145,11 +145,11 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
               }
             });
           } else {
-            addAllSongToPlaylist(playlist);
+            addAllSongToPlaylist(playlist, model);
             Navigator.pop(context);
             hideLoadingBar();
-            _model.makeToast(ToastService.somethingWentWrong);
-            _model.makeToast(
+            model.makeToast(ToastService.somethingWentWrong);
+            model.makeToast(
               ToastService.songAddedToPlaylist + "${playlist.name}",
               toastLength: Toast.LENGTH_LONG,
               fontSize: 18,
@@ -162,7 +162,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     );
   }
 
-  Widget drawSongImageWidget(String imageUrl) {
+  Widget drawSongImageWidget(Playlist playlist, PlaylistPickModel model) {
     return Container(
         width: 60,
         height: 60,
@@ -184,78 +184,19 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
             ),
           ],
         ),
-        child: imageUrl != null
-            ? _model.isSongLocal(imageUrl)
-                ? Image(
-                    image: FileImage(File(imageUrl)),
-                    fit: BoxFit.contain,
-                  )
-                : Image(
-                    image: NetworkImage(imageUrl),
-                    fit: BoxFit.contain,
-                  )
+        child: model.imageProviders[playlist.publicPlaylistPushId] != null
+            ? Image(
+                image: model.imageProviders[playlist.publicPlaylistPushId],
+                fit: BoxFit.contain,
+              )
             : Icon(
                 Icons.music_note,
                 color: CustomColors.pinkColor,
-                size: 120,
-              ));
+                size: 30,
+              ),);
   }
 
-  // Widget drawSongImage(Song song) {
-  //   return Container(
-  //     width: 60,
-  //     height: 60,
-  //     decoration: BoxDecoration(
-  //       color: CustomColors.lightGreyColor,
-  //       shape: BoxShape.rectangle,
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: Colors.grey[850],
-  //           blurRadius: 0.3,
-  //           spreadRadius: 0.2,
-  //         ),
-  //       ],
-  //       image: DecorationImage(
-  //         fit: BoxFit.fill,
-  //         image: NetworkImage(
-  //           song.imageUrl,
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Widget drawDefaultSongImage() {
-  // return Container(
-  //   width: 60,
-  //   height: 60,
-  //   decoration: BoxDecoration(
-  //     gradient: LinearGradient(
-  //       colors: [
-  //         CustomColors.lightGreyColor,
-  //         CustomColors.darkGreyColor,
-  //       ],
-  //       begin: FractionalOffset.bottomLeft,
-  //       stops: [0.3, 0.8],
-  //       end: FractionalOffset.topRight,
-  //     ),
-  //     boxShadow: [
-  //       BoxShadow(
-  //         color: Colors.grey[850],
-  //         blurRadius: 1.0,
-  //         spreadRadius: 0.5,
-  //       ),
-  //     ],
-  //   ),
-  //   child: Icon(
-  //     Icons.music_note,
-  //     color: CustomColors.pinkColor,
-  //     size: 40,
-  //   ),
-  // );
-  // }
-
-  Widget drawNewPlaylistButton() {
+  Widget drawNewPlaylistButton(PlaylistPickModel model) {
     return GestureDetector(
       child: Container(
         alignment: Alignment.center,
@@ -275,7 +216,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
         ),
       ),
       onTap: () {
-        showNewPlaylistDialog();
+        showNewPlaylistDialog(model);
       },
     );
   }
@@ -323,9 +264,9 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
   }
 
   //* methods
-  Future<bool> addSongToPlaylist(
-      Playlist playlist, Song song, bool addingAllSongs) async {
-    playlist = await _model.addSongToPlaylist(playlist, song);
+  Future<bool> addSongToPlaylist(Playlist playlist, Song song,
+      bool addingAllSongs, PlaylistPickModel model) async {
+    playlist = await model.addSongToPlaylist(playlist, song);
     if (playlist != null) {
       Provider.of<User>(context).updatePlaylist(playlist);
       return true;
@@ -347,21 +288,22 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     }
   }
 
-  Future<void> createNewPlatlist() async {
+  Future<void> createNewPlatlist(PlaylistPickModel model) async {
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      if (!_model.checkIfPlaylistNameValid(
+      if (model.checkIfPlaylistNameValid(
           _playlistName, Provider.of<User>(context).playlists)) {
         Navigator.of(context, rootNavigator: true).pop('dialog');
         showLoadingBar(context);
-        Playlist playlist = await _model.createNewPlatlist(
+        Playlist playlist = await model.createNewPlatlist(
             widget.song,
             widget.songs,
             _playlistName,
             Provider.of<User>(context).name,
             _isPublic);
         Provider.of<User>(context).addNewPlaylist(playlist);
+        hideLoadingBar();
       } else {
         hideLoadingBar();
         scafKey.currentState.showSnackBar(
@@ -379,7 +321,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     }
   }
 
-  void showNewPlaylistDialog() {
+  void showNewPlaylistDialog(PlaylistPickModel model) {
     _isPublic = false;
     showDialog(
       context: context,
@@ -479,7 +421,7 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
                       ),
                     ),
                     onTap: () {
-                      createNewPlatlist();
+                      createNewPlatlist(model);
                     },
                   ),
                 ],
@@ -491,7 +433,8 @@ class _PlaylistPickPageState extends State<PlaylistPickPage> {
     );
   }
 
-  Future<void> addAllSongToPlaylist(Playlist playlist) async {
-    _model.addAllSongsToPlaylist(playlist, widget.songs);
+  Future<void> addAllSongToPlaylist(
+      Playlist playlist, PlaylistPickModel model) async {
+    model.addAllSongsToPlaylist(playlist, widget.songs);
   }
 }

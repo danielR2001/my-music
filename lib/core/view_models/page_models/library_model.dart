@@ -1,5 +1,6 @@
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/core/enums/page_state.dart';
 import 'package:myapp/core/services/authentication_service.dart';
 import 'package:myapp/core/services/connectivity_service.dart';
 import 'package:myapp/core/services/image_loader_service.dart';
@@ -7,7 +8,7 @@ import 'package:myapp/core/view_models/page_models/base_model.dart';
 import 'package:myapp/locater.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/user.dart';
-import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
+import 'package:myapp/ui/modal_sheets/playlist_options_modal_buttom_sheet.dart';
 
 class LibraryModel extends BaseModel {
   final ConnectivityService _connectivityService =
@@ -27,29 +28,31 @@ class LibraryModel extends BaseModel {
 
   Map<String, ImageProvider> get imageProviders => _imageProviders;
 
-  void initModel(User user) {
+  Future<void> initModel(User user) async {
+    setState(PageState.Busy);
     _currentUser = user;
     _playlists = List.from(user.playlists);
-    loadImages();
+    await _loadImages();
     _connectivityService.connectivityStream.listen((connectivityResult) {
       if (connectivityResult == ConnectivityResult.none) {
         if (_needToReloadImages) {
-          loadImages();
+          _loadImages();
           _needToReloadImages = false;
         }
       }
     });
+    setState(PageState.Idle);
   }
 
-  Future<void> loadImages() async {
+  Future<void> _loadImages() async {
     if (!_currentUser.isOfflineMode) {
       for (Playlist playlist in _playlists) {
         if (playlist.songs.length > 0) {
-          _imageProviders[playlist.songs[0].songId] =
+          _imageProviders[playlist.publicPlaylistPushId] =
               await _imageLoaderService.loadImage(playlist.songs[0]);
           notifyListeners();
         }else{
-          _imageProviders[playlist.songs[0].songId] = null;
+          _imageProviders[playlist.publicPlaylistPushId] = null;
         }
       }
     } else {
@@ -61,10 +64,10 @@ class LibraryModel extends BaseModel {
     await _authenticationService.logout();
   }
 
-  Map createMap(Playlist playlist) {
+  Map createMap(Playlist playlist, bool isDownloadedPlaylist) {
     Map<String, dynamic> playlistValues = Map();
     playlistValues['playlist'] = playlist;
-    if (playlist == null) {
+    if (isDownloadedPlaylist) {
       playlistValues['playlistModalSheetMode'] =
           PlaylistModalSheetMode.download;
     } else {

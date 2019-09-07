@@ -15,17 +15,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  HomeModel _model;
   Expanded soundBar;
-  TabItem currentTab = TabItem.discover;
-  // Map<TabItem, GlobalKey<NavigatorState>> navigatorKeys = {
-  //   TabItem.discover: GlobalKey<NavigatorState>(),
-  //   TabItem.library: GlobalKey<NavigatorState>(),
-  // };
+  HomeModel _model;
 
   void selectTab(TabItem tabItem) {
     setState(() {
-      currentTab = tabItem;
+      _model.selectTab(tabItem);
     });
   }
 
@@ -38,21 +33,17 @@ class _HomePageState extends State<HomePage> {
       },
       builder: (context, model, child) => WillPopScope(
         onWillPop: () async {
-          // if (navigatorKeys[currentTab].currentState.canPop()) {
-          //   await navigatorKeys[currentTab].currentState.maybePop();
-          // }
-          //return Future.value(false);
+          if (model.tabNavigatorKey.currentState.canPop()) {
+            await model.tabNavigatorKey.currentState.maybePop();
+          }
+          return Future.value(false);
         },
         child: Scaffold(
-          body: currentTab == TabItem.discover
-              ? Navigator(
-                  initialRoute: "/discover",
-                  onGenerateRoute: SubRouter.generateRoute,
-                )
-              : Navigator(
-                  initialRoute: "/library",
-                  onGenerateRoute: SubRouter2.generateRoute,
-                ),
+          body: Navigator(
+            key: model.tabNavigatorKey,
+            initialRoute: "/",
+            onGenerateRoute: SubRouter.generateRoute,
+          ),
           bottomNavigationBar: Theme(
             data: Theme.of(context).copyWith(
               canvasColor: CustomColors.lightGreyColor,
@@ -65,9 +56,9 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                musicPlayerControl(),
+                musicPlayerControl(model),
                 BottomNavigation(
-                  currentTab: currentTab,
+                  currentTab: model.currentTab,
                   onSelectTab: selectTab,
                 ),
               ],
@@ -79,17 +70,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   // //* widgets
-  // Widget buildOffstageNavigator(TabItem tabItem) {
-  //   return Offstage(
-  //     offstage: currentTab != tabItem,
-  //     child: TabNavigator(
-  //       navigatorKey: navigatorKeys[tabItem],
-  //       tabItem: tabItem,
-  //     ),
-  //   );
-  // }
-
-  Widget musicPlayerControl() {
+  Widget musicPlayerControl(HomeModel _model) {
     if (_model.currentSong != null) {
       return GestureDetector(
         child: Container(

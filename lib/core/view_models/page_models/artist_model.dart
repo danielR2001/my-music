@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:myapp/core/database/local/local_database_manager.dart';
 import 'package:myapp/core/view_models/page_models/base_model.dart';
-import 'package:myapp/core/page_state/page_state.dart';
+import 'package:myapp/core/enums/page_state.dart';
 import 'package:myapp/core/services/api_service.dart';
 import 'package:myapp/core/services/audio_player_service.dart';
 import 'package:myapp/core/services/local_database_service.dart';
@@ -15,6 +15,11 @@ class ArtistModel extends BaseModel {
   final LocalDatabaseService _localDatabaseService =
       locator<LocalDatabaseService>();
   final ApiService _apiService = locator<ApiService>();
+
+    final String smallArtistImageUrl =
+      "https://ichef.bbci.co.uk/images/ic/160x160/p01bnb07.png";
+  final String bigArtistImageUrl =
+      "https://www.collegeatlas.org/wp-content/uploads/2014/06/Top-Party-Schools-main-image.jpg";
 
   StreamSubscription<Map<String, int>> _onDownloadProgresses;
 
@@ -31,6 +36,7 @@ class ArtistModel extends BaseModel {
   Artist _artist;
   Playlist _pagePlaylist;
   Song _currentSong;
+  bool _mounted;
 
   Playlist get pagePlaylist => _pagePlaylist;
 
@@ -57,8 +63,10 @@ class ArtistModel extends BaseModel {
       temp.setSongs = songs;
       _pagePlaylist = temp;
     }
-    notifyListeners();
-    setState(PageState.Idle);
+    if (!_mounted) {
+      notifyListeners();
+      setState(PageState.Idle);
+    }
   }
 
   bool isPagePlaylistIsPlaying() {
@@ -106,13 +114,17 @@ class ArtistModel extends BaseModel {
     await _localDatabaseService.cancelDownLoad(song);
   }
 
-  Future<void> initModel() async {
+  Future<void> initModel(Artist artist) async {
     _currentSong = await _audioPlayerService.getCurrentSong();
+    _mounted = false;
+    _artist = artist;
+    loadArtistPlaylist();
     initStreams();
     notifyListeners();
   }
 
   Future<void> disposeModel() async {
+    _mounted = true;
     await _onDownloadProgresses.cancel();
     await _onDownloadTotals.cancel();
     await _onDownloadStops.cancel();

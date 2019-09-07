@@ -5,6 +5,7 @@ import 'package:myapp/core/database/local/local_database_manager.dart';
 import 'package:myapp/core/services/audio_player_service.dart';
 import 'package:myapp/core/services/image_loader_service.dart';
 import 'package:myapp/core/services/local_database_service.dart';
+import 'package:myapp/core/services/tab_navigation_service.dart';
 import 'package:myapp/core/view_models/page_models/base_model.dart';
 import 'package:myapp/locater.dart';
 import 'package:myapp/models/playlist.dart';
@@ -14,7 +15,9 @@ class PlaylistModel extends BaseModel {
   final LocalDatabaseService _localDatabaseService =
       locator<LocalDatabaseService>();
   final AudioPlayerService _audioPlayerService = locator<AudioPlayerService>();
-    final ImageLoaderService _imageLoaderService = locator<ImageLoaderService>();
+  final ImageLoaderService _imageLoaderService = locator<ImageLoaderService>();
+    final TabNavigationService _tabNavigationService =
+      locator<TabNavigationService>();
 
   StreamSubscription<Map<String, int>> _onDownloadProgresses;
 
@@ -31,10 +34,14 @@ class PlaylistModel extends BaseModel {
   Song _currentSong;
   Playlist _pagePlaylist;
   ImageProvider _imageProvider;
+  bool _playing = false;
 
   ImageProvider get imageProvider => _imageProvider;
 
   Playlist get pagePlaylist => _pagePlaylist;
+
+  GlobalKey<NavigatorState> get tabNavigatorKey =>
+      _tabNavigationService.tabNavigatorKey;
 
   int progress(String songId) => _progressesMap[songId];
 
@@ -75,29 +82,33 @@ class PlaylistModel extends BaseModel {
   }
 
   bool isPagePlaylistIsPlaying() {
-    if(_audioPlayerService.currentPlaylist == null) return false;
+    if (_audioPlayerService.currentPlaylist == null) return false;
     return _pagePlaylist.pushId == _audioPlayerService.currentPlaylist.pushId;
   }
 
   Future<void> loadImage(Playlist playlist) async {
-    if(playlist.songs.length != 0 ){ 
-    _imageProvider = await _imageLoaderService.loadImage(playlist.songs[0]);
-    }else{
+    if (playlist.songs.length != 0) {
+      _imageProvider = await _imageLoaderService.loadImage(playlist.songs[0]);
+    } else {
       _imageProvider = null;
     }
     notifyListeners();
   }
 
   Future<void> play(int index, PlaylistMode mode) async {
-    await _audioPlayerService.initPlaylist(
-        _pagePlaylist, mode, index, false);
+    if (!_playing) {
+      await _audioPlayerService.initPlaylist(_pagePlaylist, mode, index, false);
+      _playing = true;
+    } else {
+      await _audioPlayerService.seekIndex(index);
+    }
   }
 
   void initStreams() {
     _playerIndexStream =
         _audioPlayerService.onPlayerIndexChangedStream().listen((index) {
       _currentSong = _audioPlayerService.currentPlaylist.songs.elementAt(index);
-      notifyListeners();;
+      notifyListeners();
     });
     _onDownloadProgresses =
         _localDatabaseService.onDownloadProgresses.listen((_progressMap) {

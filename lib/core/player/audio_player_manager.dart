@@ -19,8 +19,15 @@ class AudioPlayerManager {
         index: index,
         playerMode: PlayerMode.FOREGROUND,
         repeatMode: repeatMode,
+        respectAudioFocus: true,
         audioNotifications: audioNotifications);
   }
+
+  PlayerState get playerState => _audioPlayer.playerState;
+
+  Future<Duration> get position async => await _audioPlayer.getCurrentPosition();
+
+  Future<Duration> get duration async => await _audioPlayer.getDuration();
 
   Future<void> resume() async {
     await _audioPlayer.resume();

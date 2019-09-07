@@ -9,8 +9,9 @@ import 'package:myapp/models/song.dart';
 import 'package:myapp/core/services/toast_service.dart';
 import 'package:myapp/ui/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/base_page.dart';
-import 'package:myapp/ui/widgets/artists_pick_modal_buttom_sheet.dart';
-import 'package:myapp/ui/widgets/queue_modal_buttom_sheet.dart';
+import 'package:myapp/ui/modal_sheets/artists_pick_modal_buttom_sheet.dart';
+import 'package:myapp/ui/modal_sheets/queue_modal_buttom_sheet.dart';
+import 'package:myapp/ui/pages/home_page.dart';
 import 'package:provider/provider.dart';
 
 enum SongModalSheetMode {
@@ -31,7 +32,6 @@ class SongOptionsModalSheet extends StatefulWidget {
 }
 
 class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
-  SongOptionsModel _model;
   bool canceled = false;
   bool loadingArtists = false;
 
@@ -50,11 +50,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
       widgetsCount++;
     }
     return BasePage<SongOptionsModel>(
-      onModelReady: (model) async {
-        _model = model;
-        await _model.loadImage(widget.song);
-        await _model.checkIfSongDirExists(widget.song);
-      },
+      onModelReady: (model) => model.initModel(widget.song),
       builder: (context, model, child) => Container(
         alignment: Alignment.topCenter,
         height: 190 + 50 * widgetsCount,
@@ -69,7 +65,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(top: 5),
-              child: drawSongImageWidget(),
+              child: drawSongImageWidget(model),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
@@ -94,11 +90,11 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
                 ),
               ),
             ),
-            drawRemoveFromPlaylist(context),
-            drawDownloadSong(context),
+            drawRemoveFromPlaylist(context, model),
+            drawDownloadSong(context, model),
             drawAddToPlaylist(context),
             drawQueue(context),
-            drawViewArtist(context),
+            drawViewArtist(context, model),
           ],
         ),
       ),
@@ -135,7 +131,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
     );
   }
 
-  Widget drawSongImageWidget() {
+  Widget drawSongImageWidget(SongOptionsModel model) {
     return Container(
       width: 90,
       height: 90,
@@ -157,9 +153,9 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
           ),
         ],
       ),
-      child: _model.imageProvider != null
+      child: model.imageProvider != null
           ? Image(
-              image: _model.imageProvider,
+              image: model.imageProvider,
               fit: BoxFit.contain,
             )
           : Icon(
@@ -170,7 +166,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
     );
   }
 
-  Widget drawRemoveFromPlaylist(BuildContext context) {
+  Widget drawRemoveFromPlaylist(BuildContext context, SongOptionsModel model) {
     if (widget.songModalSheetMode == SongModalSheetMode.regular &&
         widget.playlist != null) {
       return Padding(
@@ -192,7 +188,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
               ),
             ),
             onTap: () async {
-              await _model.removeSongFromPlaylist(
+              await model.removeSongFromPlaylist(
                   Provider.of<User>(context), widget.playlist, widget.song);
               widget.playlist.removeSong(widget.song);
               Provider.of<User>(context).updatePlaylist(widget.playlist);
@@ -207,19 +203,19 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
     }
   }
 
-  Widget drawDownloadSong(BuildContext context) {
-    if (_model.songExists) {
-      if (_model.isSongDownloading(widget.song)) {
+  Widget drawDownloadSong(BuildContext context, SongOptionsModel model) {
+    if (model.songExists) {
+      if (model.isSongDownloading(widget.song)) {
         return Container();
       } else {
-        return unDownloadWidget(context);
+        return unDownloadWidget(context, model);
       }
     } else {
-      return downloadWidget(context);
+      return downloadWidget(context, model);
     }
   }
 
-  Widget downloadWidget(BuildContext context) {
+  Widget downloadWidget(BuildContext context, SongOptionsModel model) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Container(
@@ -239,8 +235,8 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             ),
           ),
           onTap: () async {
-            if (!await _model.downloadSong(widget.song)) {
-              _model.makeToast(ToastService.enableAccessToStorage);
+            if (!await model.downloadSong(widget.song)) {
+              model.makeToast(ToastService.enableAccessToStorage);
             }
             Navigator.pop(context);
           },
@@ -249,7 +245,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
     );
   }
 
-  Widget unDownloadWidget(BuildContext context) {
+  Widget unDownloadWidget(BuildContext context, SongOptionsModel model) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Container(
@@ -269,10 +265,10 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
             ),
           ),
           onTap: () async {
-            if (await _model.unDownloadSong(widget.song)) {
-              _model.makeToast(ToastService.songUndownloaded);
+            if (await model.unDownloadSong(widget.song)) {
+              model.makeToast(ToastService.songUndownloaded);
             } else {
-              _model.makeToast(ToastService.undownloadError);
+              model.makeToast(ToastService.undownloadError);
             }
             Navigator.pop(context);
           },
@@ -346,7 +342,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
     }
   }
 
-  Widget drawViewArtist(BuildContext context) {
+  Widget drawViewArtist(BuildContext context, SongOptionsModel model) {
     String text = "View artist";
     IconData iconData = MyCustomIcons.artist_icon;
     if (widget.song.artist.contains(",") ||
@@ -378,7 +374,7 @@ class _SongOptionsModalSheetState extends State<SongOptionsModalSheet> {
           onTap: () {
             canceled = false;
             showLoadingBar(context);
-            _model.buildArtistsList(getArtists()).then((artists) {
+            model.buildArtistsList(getArtists()).then((artists) {
               if (!canceled && artists.length > 0) {
                 loadingArtists = true;
                 Navigator.of(context, rootNavigator: true).pop('dialog');

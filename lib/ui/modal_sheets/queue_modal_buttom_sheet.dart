@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:myapp/core/view_models/modal_sheet_models/queue_model.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/song.dart';
-
-import '../../core/view_models/modal_sheet_models/queue_model.dart';
-import '../pages/base_page.dart';
+import 'package:myapp/ui/pages/base_page.dart';
 
 class QueueModalSheet extends StatefulWidget {
   @override
@@ -12,15 +11,11 @@ class QueueModalSheet extends StatefulWidget {
 }
 
 class _QueueModalSheetState extends State<QueueModalSheet> {
-  QueueModel _model;
   Song currentSong;
   @override
   Widget build(BuildContext context) {
     return BasePage<QueueModel>(
-      onModelReady: (model) async {
-        _model = model;
-        currentSong = await _model.getCurrentSong();
-      },
+      onModelReady: (model) async => currentSong = await model.getCurrentSong(),
       builder: (context, model, child) => Container(
         alignment: Alignment.topCenter,
         decoration: BoxDecoration(
@@ -52,10 +47,10 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
                 data: Theme.of(context)
                     .copyWith(canvasColor: CustomColors.lightGreyColor),
                 child: ReorderableListView(
-                  children: drawPlaylistQueueSongs(),
+                  children: drawPlaylistQueueSongs(model),
                   onReorder: (from, to) {
                     //setState(() {
-                    _model.onReorder(to, from);
+                    model.onReorder(to, from);
                     //});
                   },
                 ),
@@ -82,17 +77,17 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
     );
   }
 
-  List<Widget> drawPlaylistQueueSongs() {
+  List<Widget> drawPlaylistQueueSongs(QueueModel model) {
     List<Widget> songs = List();
-    for (int i = 0; i < _model.getCurrentPlaylist().songs.length; i++) {
+    for (int i = 0; i < model.getCurrentPlaylist().songs.length; i++) {
       Key key = Key("$i");
       songs.add(
-          songItem(_model.getCurrentPlaylist().songs[i], i + 1, context, key));
+          songItem(model.getCurrentPlaylist().songs[i], i + 1, context, key, model));
     }
     return songs;
   }
 
-  Widget songItem(Song song, int pos, BuildContext context, Key key) {
+  Widget songItem(Song song, int pos, BuildContext context, Key key, QueueModel model) {
     String title;
     String artist;
     if (song.title.length > 25) {
@@ -149,7 +144,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
               ),
               onPressed: () {
                 setState(() {
-                  _model.removeSongFromPlaylist(song);
+                  model.removeSongFromPlaylist(song);
                 });
               },
             )
@@ -159,7 +154,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
             ),
       onTap: () {
         //setState(() {
-        _model.seekIndex(_model.getCurrentPlaylist().songs.indexOf(song));
+        model.seekIndex(model.getCurrentPlaylist().songs.indexOf(song));
         //});
       },
     );

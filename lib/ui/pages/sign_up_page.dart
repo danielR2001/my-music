@@ -12,13 +12,11 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final formKey = GlobalKey<FormState>();
   final key = GlobalKey<ScaffoldState>();
-  SignUpModel _model;
   bool signIn = true;
 
   @override
   Widget build(BuildContext context) {
     return BasePage<SignUpModel>(
-      onModelReady: (model) => _model = model,
       builder: (context, model, child) => WillPopScope(
         onWillPop: () {
           FocusScope.of(context).requestFocus(FocusNode());
@@ -74,10 +72,10 @@ class _SignUpPageState extends State<SignUpPage> {
                                 key: formKey,
                                 child: Column(
                                   children: <Widget>[
-                                    drawEmailTextFiled(),
-                                    drawPasswordTextFiled(),
-                                    drawNameTextFiled(),
-                                    signInOrVerifyButton()
+                                    drawEmailTextFiled(model),
+                                    drawPasswordTextFiled(model),
+                                    drawNameTextFiled(model),
+                                    signInOrVerifyButton(model)
                                   ],
                                 ),
                               ),
@@ -140,7 +138,7 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  Widget drawEmailTextFiled() {
+  Widget drawEmailTextFiled(SignUpModel model) {
     return TextFormField(
       style: TextStyle(
         color: Colors.white,
@@ -166,14 +164,14 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
           fillColor: Colors.white),
       onFieldSubmitted: (value) => print(value),
-      initialValue: _model.email,
+      initialValue: model.email,
       keyboardType: TextInputType.emailAddress,
       validator: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
-      onSaved: (value) => _model.setEmail = value,
+      onSaved: (value) => model.setEmail = value,
     );
   }
 
-  Widget drawPasswordTextFiled() {
+  Widget drawPasswordTextFiled(SignUpModel model) {
     return TextFormField(
       obscureText: true,
       style: TextStyle(
@@ -199,13 +197,13 @@ class _SignUpPageState extends State<SignUpPage> {
           fontWeight: FontWeight.bold,
         ),
       ),
-      initialValue: _model.password,
+      initialValue: model.password,
       validator: (value) => value.isEmpty ? 'Password can\'t be empty' : null,
-      onSaved: (value) => _model.setPassword = value,
+      onSaved: (value) => model.setPassword = value,
     );
   }
 
-  Widget drawNameTextFiled() {
+  Widget drawNameTextFiled(SignUpModel model) {
     return TextFormField(
       style: TextStyle(
         color: Colors.white,
@@ -230,20 +228,20 @@ class _SignUpPageState extends State<SignUpPage> {
           fontWeight: FontWeight.bold,
         ),
       ),
-      initialValue: _model.userName,
+      initialValue: model.userName,
       validator: (value) => value.isEmpty ? 'User name can\'t be empty' : null,
-      onSaved: (value) => _model.setUserName = value,
+      onSaved: (value) => model.setUserName = value,
     );
   }
 
-  Widget signInOrVerifyButton() {
+  Widget signInOrVerifyButton(SignUpModel model) {
     if (signIn) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
         child: GestureDetector(
           onTap: () {
             FocusScope.of(context).requestFocus(FocusNode());
-            signInWithEmailAndPass();
+            signInWithEmailAndPass(model);
           },
           child: Container(
             alignment: Alignment.center,
@@ -268,7 +266,7 @@ class _SignUpPageState extends State<SignUpPage> {
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
         child: GestureDetector(
           onTap: () {
-            checkIfVerified();
+            checkIfVerified(model);
           },
           child: Container(
             alignment: Alignment.center,
@@ -333,13 +331,13 @@ class _SignUpPageState extends State<SignUpPage> {
     Navigator.of(context, rootNavigator: true).pop('dialog');
   }
 
-  void showAlertDialog() {
+  void showAlertDialog(SignUpModel model) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
           title: Text(
-            "Hii " + _model.userName + "!",
+            "Hii " + model.userName + "!",
             style: TextStyle(
               color: Colors.white,
               fontSize: 16,
@@ -364,19 +362,19 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   //* core
-  Future signInWithEmailAndPass() async {
+  Future signInWithEmailAndPass(SignUpModel model) async {
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      if (_model.email.length >= 6 && checkForValidEmail(_model.email)) {
+      if (model.email.length >= 6 && checkForValidEmail(model.email, model)) {
         showLoadingBar();
-        bool response = await _model.signInWithEmail();
+        bool response = await model.signInWithEmail();
         if (response) {
           hideLoadingBar();
           setState(() {
             signIn = false;
           });
-          showAlertDialog();
+          showAlertDialog(model);
         } else {
           hideLoadingBar();
           key.currentState.showSnackBar(
@@ -398,11 +396,11 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  Future<void> checkIfVerified() async {
+  Future<void> checkIfVerified(SignUpModel model) async {
     showLoadingBar();
-    bool isEmailVerified = await _model.checkIfVerified();
+    bool isEmailVerified = await model.checkIfVerified();
     if (isEmailVerified) {
-      await _model.signUp();
+      await model.signUp();
       hideLoadingBar();
 
       Navigator.pushNamed(
@@ -420,7 +418,7 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  bool checkForValidEmail(String email) {
-    return _model.checkForValidEmail(email);
+  bool checkForValidEmail(String email,SignUpModel model) {
+    return model.checkForValidEmail(email);
   }
 }

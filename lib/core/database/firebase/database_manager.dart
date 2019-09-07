@@ -216,32 +216,6 @@ class FirebaseDatabaseManager {
         .remove();
   }
 
-  Future<Playlist> _updatePublicPlaylist(String playlistPushId) async {
-    Playlist playlist;
-    Map tempMap;
-    var snapshot = await FirebaseDatabase.instance
-        .reference()
-        .child('$_publicPlaylistsDir/$playlistPushId')
-        .once();
-    Map<dynamic, dynamic> values = snapshot.value;
-    playlist = Playlist.fromJson(values);
-    playlist.setPublicPlaylistPushId = snapshot.key;
-    tempMap = values["songs"];
-    if (tempMap != null) {
-      tempMap.forEach((key, value) {
-        playlist.addNewSong(Song.fromJson(value));
-      });
-    }
-    List<Song> sortedPlaylist = List();
-
-    sortedPlaylist = playlist.songs;
-    sortedPlaylist.sort((a, b) => a.title.compareTo(b.title));
-
-    playlist.setSongs = sortedPlaylist;
-    playlist.setSortedType = SortType.title;
-    return playlist;
-  }
-
   List<Playlist> _buildPlaylists(Map playlistMap) {
     List<Playlist> playlists = List();
     Playlist tempPlaylist;
@@ -268,26 +242,5 @@ class FirebaseDatabaseManager {
       },
     );
     return playlists;
-  }
-
-  Stream<Event> onChildChanged() {
-    return FirebaseDatabase.instance
-        .reference()
-        .child(_publicPlaylistsDir)
-        .onChildChanged;
-  }
-
-  Stream<Event> onChildRemoved() {
-    return FirebaseDatabase.instance
-        .reference()
-        .child(_publicPlaylistsDir)
-        .onChildRemoved;
-  }
-
-    Stream<Event> onChildAdded() {
-    return FirebaseDatabase.instance
-        .reference()
-        .child(_publicPlaylistsDir)
-        .onChildAdded;
   }
 }

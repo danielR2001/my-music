@@ -8,7 +8,7 @@ import 'package:myapp/core/services/toast_service.dart';
 import 'package:myapp/ui/custom_classes/custom_icons.dart';
 import 'package:myapp/ui/pages/base_page.dart';
 import 'package:myapp/ui/pages/playlists_pick_page.dart';
-import 'package:myapp/ui/widgets/sort_modal_buttom_sheet.dart';
+import 'package:myapp/ui/modal_sheets/sort_modal_buttom_sheet.dart';
 import 'package:provider/provider.dart';
 
 enum PlaylistModalSheetMode {
@@ -30,7 +30,6 @@ class PlaylistOptionsModalSheet extends StatefulWidget {
 }
 
 class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
-  PlaylistOptionsModel _model;
   String _playlistNewName;
   double widgetsCount = 7;
   final formKey = GlobalKey<FormState>();
@@ -47,7 +46,6 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
   @override
   Widget build(BuildContext context) {
     return BasePage<PlaylistOptionsModel>(
-      onModelReady: (model) => _model = model,
       builder: (context, model, child) => Container(
         alignment: Alignment.topCenter,
         height: 53 * widgetsCount,
@@ -60,20 +58,20 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         ),
         child: Column(
           children: <Widget>[
-            drawDownloadAll(),
-            drawUnDownloadAll(),
+            drawDownloadAll(model),
+            drawUnDownloadAll(model),
             drawAddAllToPlayList(),
-            drawRenamePlaylist(),
+            drawRenamePlaylist(model),
             drawSort(),
-            drawPlaylistPrivacy(),
-            drawDelete(),
+            drawPlaylistPrivacy(model),
+            drawDelete(model),
           ],
         ),
       ),
     );
   }
 
-  Widget drawDownloadAll() {
+  Widget drawDownloadAll(PlaylistOptionsModel model) {
     if (widget.playlistMode == PlaylistModalSheetMode.regular ||
         widget.playlistMode == PlaylistModalSheetMode.public) {
       return ListTile(
@@ -90,9 +88,9 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () {
-          _model.downloadAll(widget.playlist.songs);
+          model.downloadAll(widget.playlist.songs);
           Navigator.pop(context);
-          _model.makeToast(ToastService.startedDownloadAllSongs);
+          model.makeToast(ToastService.startedDownloadAllSongs);
         },
       );
     } else {
@@ -131,7 +129,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     }
   }
 
-  Widget drawUnDownloadAll() {
+  Widget drawUnDownloadAll(PlaylistOptionsModel model) {
     if (widget.playlistMode == PlaylistModalSheetMode.regular ||
         widget.playlistMode == PlaylistModalSheetMode.download) {
       return ListTile(
@@ -148,12 +146,12 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () {
-          if (_model.getCurrentDownloading().length == 0) {
-            _model.unDownloadAll(widget.playlist);
+          if (model.getCurrentDownloading().length == 0) {
+            model.unDownloadAll(widget.playlist);
             Navigator.pop(context);
-            _model.makeToast(ToastService.undownloadAllSongs);
+            model.makeToast(ToastService.undownloadAllSongs);
           } else {
-            _model.makeToast(ToastService.undownloadAllError);
+            model.makeToast(ToastService.undownloadAllError);
           }
         },
       );
@@ -162,7 +160,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     }
   }
 
-  Widget drawRenamePlaylist() {
+  Widget drawRenamePlaylist(PlaylistOptionsModel model) {
     if (widget.playlistMode == PlaylistModalSheetMode.regular) {
       return ListTile(
         contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
@@ -178,7 +176,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () {
-          showRenamePlaylistDialog(context);
+          showRenamePlaylistDialog(context, model);
         },
       );
     } else {
@@ -206,7 +204,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     );
   }
 
-  Widget drawPlaylistPrivacy() {
+  Widget drawPlaylistPrivacy(PlaylistOptionsModel model) {
     if (widget.playlistMode == PlaylistModalSheetMode.regular) {
       return ListTile(
         contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
@@ -225,7 +223,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
           setState(() {
             widget.playlist.setIsPublic = !widget.playlist.isPublic;
           });
-          final Playlist temp = await _model.changePlaylistPrivacy(widget.playlist);
+          final Playlist temp = await model.changePlaylistPrivacy(widget.playlist);
           Provider.of<User>(context).updatePlaylist(temp);
         },
       );
@@ -234,7 +232,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     }
   }
 
-  Widget drawDelete() {
+  Widget drawDelete(PlaylistOptionsModel model) {
     if (widget.playlistMode == PlaylistModalSheetMode.regular) {
       return ListTile(
         contentPadding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
@@ -250,7 +248,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
         ),
         onTap: () {
-          showAlertDialog(context);
+          showAlertDialog(context, model);
         },
       );
     } else {
@@ -272,7 +270,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     );
   }
 
-  void showRenamePlaylistDialog(BuildContext context) {
+  void showRenamePlaylistDialog(BuildContext context, PlaylistOptionsModel model) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -291,7 +289,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
               child: Column(
                 children: <Widget>[
                   drawNewNameTextField(),
-                  drawRenameButton(),
+                  drawRenameButton(model),
                 ],
               ),
             ),
@@ -334,7 +332,7 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
     );
   }
 
-  Widget drawRenameButton() {
+  Widget drawRenameButton(PlaylistOptionsModel model) {
     return GestureDetector(
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -358,23 +356,23 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
         ),
       ),
       onTap: () {
-        changePlaylistName(context);
+        changePlaylistName(context, model);
       },
     );
   }
 
   //* methods
-  Future<void> changePlaylistName(BuildContext context) async {
+  Future<void> changePlaylistName(BuildContext context, PlaylistOptionsModel model) async {
     final form = formKey.currentState;
     if (form.validate()) {
       form.save();
-      final Playlist temp = await _model.changePlaylistName(widget.playlist, _playlistNewName);
+      final Playlist temp = await model.changePlaylistName(widget.playlist, _playlistNewName);
       Provider.of<User>(context).updatePlaylist(temp);
       Navigator.of(context, rootNavigator: true).pop('dialog');
     }
   }
 
-  void showAlertDialog(BuildContext context) {
+  void showAlertDialog(BuildContext context, PlaylistOptionsModel model) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -452,12 +450,12 @@ class _PlaylistOptionsModalSheetState extends State<PlaylistOptionsModalSheet> {
                         ),
                       ),
                       onTap: () {
-                        _model.removePlaylist(widget.playlist);
+                        model.removePlaylist(widget.playlist);
                         Provider.of<User>(context).removePlaylist(widget.playlist); //! TODO maybe wrong
                         Navigator.of(context, rootNavigator: true)
                             .pop('dialog');
-                        Navigator.of(context, rootNavigator: true)
-                            .pop('dialog');
+                        // Navigator.of(context, rootNavigator: true)
+                        //     .pop('dialog');
                         Navigator.of(widget.playlistPageContext).pop();
                       },
                     ),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/core/enums/sort_type.dart';
+import 'package:myapp/core/view_models/modal_sheet_models/sort_model.dart';
 import 'package:myapp/ui/custom_classes/custom_colors.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
-import '../../core/view_models/modal_sheet_models/sort_model.dart';
 import '../pages/base_page.dart';
 
 class SortModalSheet extends StatefulWidget {
@@ -16,15 +16,11 @@ class SortModalSheet extends StatefulWidget {
 }
 
 class _SortModalSheetState extends State<SortModalSheet> {
-  SortModel _model;
 
   @override
   Widget build(BuildContext context) {
     return BasePage<SortModel>(
-      onModelReady: (model) {
-        _model = model;
-        _model.setPagePlaylist = Playlist.fromPlaylist(widget.playlist);
-      },
+      onModelReady: (model) => model.setPagePlaylist = Playlist.fromPlaylist(widget.playlist),
       builder: (context, model, child) => Container(
         alignment: Alignment.topCenter,
         decoration: BoxDecoration(
@@ -50,9 +46,9 @@ class _SortModalSheetState extends State<SortModalSheet> {
                 ),
               ),
             ),
-            drawSortByTitle(),
-            drawSortByArtist(),
-            widget.regularSort ? drawSortByRecentlyAdded() : Container(),
+            drawSortByTitle(model),
+            drawSortByArtist(model),
+            widget.regularSort ? drawSortByRecentlyAdded(model) : Container(),
           ],
         ),
       ),
@@ -60,11 +56,11 @@ class _SortModalSheetState extends State<SortModalSheet> {
   }
 
   //* widgets
-  Widget drawSortBy() {
+  Widget drawSortBy(SortModel model) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: ListTile(
-        selected: _model.pagePlaylist.sortType == SortType.title,
+        selected: model.pagePlaylist.sortType == SortType.title,
         title: Text(
           "Sort by:",
           style: TextStyle(
@@ -77,14 +73,14 @@ class _SortModalSheetState extends State<SortModalSheet> {
     );
   }
 
-  Widget drawSortByTitle() {
+  Widget drawSortByTitle(SortModel model) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: ListTileTheme(
         selectedColor: CustomColors.pinkColor,
         textColor: Colors.white,
         child: ListTile(
-          selected: _model.pagePlaylist.sortType == SortType.title,
+          selected: model.pagePlaylist.sortType == SortType.title,
           title: Text(
             "Title",
             style: TextStyle(
@@ -93,8 +89,8 @@ class _SortModalSheetState extends State<SortModalSheet> {
             ),
           ),
           onTap: () {
-            if (_model.pagePlaylist.sortType != SortType.title) {
-              _model.sortPlaylist(SortType.title);
+            if (model.pagePlaylist.sortType != SortType.title) {
+              model.sortPlaylist(SortType.title);
             }
           },
         ),
@@ -102,14 +98,14 @@ class _SortModalSheetState extends State<SortModalSheet> {
     );
   }
 
-  Widget drawSortByArtist() {
+  Widget drawSortByArtist(SortModel model) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: ListTileTheme(
         selectedColor: CustomColors.pinkColor,
         textColor: Colors.white,
         child: ListTile(
-          selected: _model.pagePlaylist.sortType == SortType.artist,
+          selected: model.pagePlaylist.sortType == SortType.artist,
           title: Text(
             "Artist",
             style: TextStyle(
@@ -118,8 +114,8 @@ class _SortModalSheetState extends State<SortModalSheet> {
             ),
           ),
           onTap: () {
-            if (_model.pagePlaylist.sortType != SortType.artist) {
-              _model.sortPlaylist(SortType.artist);
+            if (model.pagePlaylist.sortType != SortType.artist) {
+              model.sortPlaylist(SortType.artist);
             }
           },
         ),
@@ -127,14 +123,14 @@ class _SortModalSheetState extends State<SortModalSheet> {
     );
   }
 
-  Widget drawSortByRecentlyAdded() {
+  Widget drawSortByRecentlyAdded(SortModel model) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: ListTileTheme(
         selectedColor: CustomColors.pinkColor,
         textColor: Colors.white,
         child: ListTile(
-          selected: _model.pagePlaylist.sortType == SortType.recentlyAdded,
+          selected: model.pagePlaylist.sortType == SortType.recentlyAdded,
           title: Text(
             "Recently added",
             style: TextStyle(
@@ -143,8 +139,8 @@ class _SortModalSheetState extends State<SortModalSheet> {
             ),
           ),
           onTap: () {
-            if (_model.pagePlaylist.sortType != SortType.recentlyAdded) {
-              _model.sortPlaylist(SortType.recentlyAdded);
+            if (model.pagePlaylist.sortType != SortType.recentlyAdded) {
+              model.sortPlaylist(SortType.recentlyAdded);
             }
           },
         ),
@@ -153,16 +149,16 @@ class _SortModalSheetState extends State<SortModalSheet> {
   }
 
   //* methods
-  List<Song> sortList(SortType sortType) {
+  List<Song> sortList(SortType sortType, SortModel model) {
     List<Song> sortedPlaylist = List();
     if (sortType == SortType.recentlyAdded) {
-      sortedPlaylist = _model.pagePlaylist.songs;
+      sortedPlaylist = model.pagePlaylist.songs;
       sortedPlaylist.sort((a, b) => a.dateAdded.compareTo(b.dateAdded));
     } else if (sortType == SortType.title) {
-      sortedPlaylist = _model.pagePlaylist.songs;
+      sortedPlaylist = model.pagePlaylist.songs;
       sortedPlaylist.sort((a, b) => a.title.compareTo(b.title));
     } else if (sortType == SortType.artist) {
-      sortedPlaylist = _model.pagePlaylist.songs;
+      sortedPlaylist = model.pagePlaylist.songs;
       sortedPlaylist.sort((a, b) => a.artist.compareTo(b.artist));
     }
     return sortedPlaylist;

@@ -14,8 +14,9 @@ import 'package:myapp/ui/pages/root_page.dart';
 import 'package:myapp/ui/pages/search_page.dart';
 import 'package:myapp/ui/pages/sign_up_page.dart';
 import 'package:myapp/ui/pages/welcome_page.dart';
-import 'package:myapp/ui/widgets/playlist_options_modal_buttom_sheet.dart';
+import 'package:myapp/ui/modal_sheets/playlist_options_modal_buttom_sheet.dart';
 
+import 'decorations/page_slide.dart';
 import 'pages/playlists_pick_page.dart';
 
 class Router {
@@ -23,27 +24,19 @@ class Router {
     final args = settings.arguments;
     switch (settings.name) {
       case "/":
-        return MaterialPageRoute(builder: (_) => RootPage());
+        return MyCustomRoute(builder: (_) => RootPage());
       case "/welcome":
-        return MaterialPageRoute(builder: (_) => WelcomePage());
+        return MyCustomRoute(builder: (_) => WelcomePage());
       case "/login":
-        return MaterialPageRoute(builder: (_) => LoginPage());
+        return MyCustomRoute(builder: (_) => LoginPage());
       case "/signup":
-        return MaterialPageRoute(builder: (_) => SignUpPage());
+        return MyCustomRoute(builder: (_) => SignUpPage());
       case "/home":
-        return MaterialPageRoute(builder: (_) => HomePage());
+        return MyCustomRoute(builder: (_) => HomePage());
       case "/musicPlayer":
-        return MaterialPageRoute(builder: (_) => MusicPlayerPage());
-      case "/artist":
-        return MaterialPageRoute(builder: (_) {
-          Artist artist;
-          if (args is Map) {
-            artist = args['artist'];
-          }
-          return ArtistPage(artist);
-        });
+        return MyCustomRoute(builder: (_) => MusicPlayerPage());
       case "/playlistPickPage":
-        return MaterialPageRoute(builder: (_) {
+        return MyCustomRoute(builder: (_) {
           Song song;
           List<Song> songs;
           if (args is Map) {
@@ -56,7 +49,7 @@ class Router {
           );
         });
       default:
-        return MaterialPageRoute(
+        return MyCustomRoute(
           builder: (_) => Scaffold(
             body: Center(
               child: Text("No route defined for ${settings.name}"),
@@ -71,43 +64,14 @@ class SubRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final args = settings.arguments;
     switch (settings.name) {
-      case "/discover":
-        return MaterialPageRoute(builder: (_) => DiscoverPage());
-      case "/search":
-        return MaterialPageRoute(builder: (_) => SearchPage());
-      case "/playlist":
-        return MaterialPageRoute(builder: (_) {
-          Playlist playlist;
-          PlaylistModalSheetMode playlistModalSheetMode;
-          if (args is Map) {
-            playlist = args['playlist'];
-            playlistModalSheetMode = args['playlistModalSheetMode'];
-          }
-          return PlaylistPage(
-            playlist: playlist,
-            playlistModalSheetMode: playlistModalSheetMode,
-          );
-        });
-      default:
-        return MaterialPageRoute(
-          builder: (_) => Scaffold(
-            body: Center(
-              child: Text("No route defined for ${settings.name}"),
-            ),
-          ),
-        );
-    }
-  }
-}
-
-class SubRouter2 {
-  static Route<dynamic> generateRoute(RouteSettings settings) {
-    final args = settings.arguments;
-    switch (settings.name) {
+      case "/": //discover
+        return MyCustomRoute(builder: (_) => DiscoverPage());
       case "/library":
-        return MaterialPageRoute(builder: (_) => LibraryPage());
+        return MyCustomRoute(builder: (_) => LibraryPage());
+      case "/search":
+        return MyCustomRoute(builder: (_) => SearchPage());
       case "/playlist":
-        return MaterialPageRoute(builder: (_) {
+        return MyCustomRoute(builder: (_) {
           Playlist playlist;
           PlaylistModalSheetMode playlistModalSheetMode;
           if (args is Map) {
@@ -119,8 +83,16 @@ class SubRouter2 {
             playlistModalSheetMode: playlistModalSheetMode,
           );
         });
+      case "/artist":
+        return MyCustomRoute(builder: (_) {
+          Artist artist;
+          if (args is Map) {
+            artist = args['artist'];
+          }
+          return ArtistPage(artist);
+        });
       default:
-        return MaterialPageRoute(
+        return MyCustomRoute(
           builder: (_) => Scaffold(
             body: Center(
               child: Text("No route defined for ${settings.name}"),

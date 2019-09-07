@@ -23,6 +23,7 @@ class SongOptionsModel extends BaseModel {
   final ToastService _toastManager = locator<ToastService>();
 
   ImageProvider _imageProvider;
+  bool _mounted;
 
   bool _songExists = false;
 
@@ -30,17 +31,32 @@ class SongOptionsModel extends BaseModel {
 
   bool get songExists => _songExists;
 
-  Future<void> checkIfSongDirExists(Song song) async{
+  Future initModel(Song song) async {
+    _mounted = false;
+    await loadImage(song);
+    await checkIfSongDirExists(song);
+  }
+
+  void disposeModel() {
+    _mounted = true;
+  }
+
+  Future<void> checkIfSongDirExists(Song song) async {
     _songExists = await _localDatabaseService.checkIfSongFileExists(song);
-    notifyListeners();
+    if (!_mounted) {
+      notifyListeners();
+    }
   }
 
   Future<void> loadImage(Song song) async {
     _imageProvider = await _imageLoaderService.loadImage(song);
-    notifyListeners();
+    if (!_mounted) {
+      notifyListeners();
+    }
   }
 
-  Future<Playlist> removeSongFromPlaylist(User user, Playlist playlist, Song song) async {
+  Future<Playlist> removeSongFromPlaylist(
+      User user, Playlist playlist, Song song) async {
     //! TODO remove live from pagePlaylist
     await _firebaseDatabaseService.removeSongFromPlaylist(user, playlist, song);
     playlist.removeSong(song);
@@ -48,11 +64,11 @@ class SongOptionsModel extends BaseModel {
   }
 
   Future<bool> downloadSong(Song song) async {
-     return await _localDatabaseService.downloadSong(song);
-
+    return await _localDatabaseService.downloadSong(song);
   }
+
   Future<bool> unDownloadSong(Song song) async {
-      return await _localDatabaseService.deleteSongDirectory(song);
+    return await _localDatabaseService.deleteSongDirectory(song);
   }
 
   Future<List<Artist>> buildArtistsList(List<String> artistsList) async {

@@ -42,7 +42,7 @@ packages:
       name: connectivity
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.3+4"
+    version: "0.4.3+7"
   convert:
     dependency: transitive
     description:
@@ -121,10 +121,12 @@ packages:
   flutter_exoplayer:
     dependency: "direct main"
     description:
-      name: flutter_exoplayer
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.3"
+      path: "."
+      ref: HEAD
+      resolved-ref: "49dfc929bb82e6ae122b17eecc4e760bdca1b413"
+      url: "https://github.com/danielR2001/flutter_exoplayer.git"
+    source: git
+    version: "0.3.5"
   flutter_statusbarcolor:
     dependency: "direct main"
     description:
@@ -158,6 +160,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.14.0+2"
+  html_unescape:
+    dependency: "direct main"
+    description:
+      name: html_unescape
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1+3"
   marquee_widget:
     dependency: "direct main"
     description:

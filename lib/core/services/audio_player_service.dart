@@ -16,14 +16,13 @@ enum PlaylistMode {
 
 class AudioPlayerService {
   final AudioPlayerManager _audioPlayerManager = locator<AudioPlayerManager>();
-    final LocalDatabaseService _localDatabaseService = locator<LocalDatabaseService>();
-  final ApiService _apiService = locator<ApiService>();
+  final LocalDatabaseService _localDatabaseService =
+      locator<LocalDatabaseService>();
 
   Playlist _currentPlaylist;
   Playlist _shuffledPlaylist;
   Playlist _loopPlaylist;
 
-  PlayerState _playerState;
   PlaylistMode _playlistMode;
 
   Playlist get currentPlaylist => _currentPlaylist;
@@ -32,9 +31,14 @@ class AudioPlayerService {
 
   Playlist get loopPlaylist => _loopPlaylist;
 
-  PlayerState get playerState => _playerState;
+  PlayerState get playerState => _audioPlayerManager.playerState;
 
-  PlaylistMode get playlistMode => _playlistMode; //! TODO add repeat mode change!
+  Future<Duration> get position async => await _audioPlayerManager.position;
+  
+  Future<Duration> get duration async => await _audioPlayerManager.duration;
+
+  PlaylistMode get playlistMode =>
+      _playlistMode; //! TODO add repeat mode change!
 
   set setLoopPlaylist(Playlist playlist) => _loopPlaylist = playlist;
 
@@ -65,19 +69,24 @@ class AudioPlayerService {
     List<AudioNotification> audioNotifications = List();
 
     releasePlaylist();
-    for(Song song in playlist.songs){
+    for (Song song in playlist.songs) {
       bool isLocal = await _localDatabaseService.checkIfSongFileExists(song);
       String imageUrl;
-      if(song.imageUrl != null) {
+      if (song.imageUrl != null) {
         imageUrl = song.imageUrl;
-      }else{
+      } else {
         imageUrl = _localDatabaseService.getDefaultImageUrl();
       }
-      audioNotifications.add(AudioNotification(smallIconFileName: "app_logo_no_background", title: song.title, subTitle: song.artist, largeIconUrl: imageUrl, isLocal: isLocal));
+      audioNotifications.add(AudioNotification(
+          smallIconFileName: "app_logo_no_background",
+          title: song.title,
+          subTitle: song.artist,
+          largeIconUrl: imageUrl,
+          isLocal: isLocal));
     }
     _loopPlaylist = Playlist.fromPlaylist(playlist);
     setPlaylistMode(mode);
-    currentPlaylist.songs.forEach((song){
+    currentPlaylist.songs.forEach((song) {
       urls.add(song.playUrl);
     });
     await _playPlaylist(urls, audioNotifications, index, repeatMode);
@@ -124,7 +133,7 @@ class AudioPlayerService {
   }
 
   Future<Song> getCurrentSong() async {
-    if(_currentPlaylist == null) return null;
+    if (_currentPlaylist == null) return null;
     return _currentPlaylist.songs
         .elementAt(await _audioPlayerManager.getCurrentIndex());
   }
@@ -178,9 +187,5 @@ class AudioPlayerService {
 
   Future<void> dispose() async {
     await _audioPlayerManager.dispose();
-  }
-
-  void initAudioPlayerManager() {
-    _audioPlayerManager.initAudioPlayerManager();
   }
 }
