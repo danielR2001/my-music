@@ -20,7 +20,7 @@ class QueueModel extends BaseModel {
         currentPlaylist.songs[from];
     currentPlaylist.songs[from] = temp;
 
-    _audioPlayerService.setCurrentPlaylist =  .setSongs = currentPlaylist.songs;
+    _audioPlayerService.currentPlaylist.setSongs = currentPlaylist.songs;
     notifyListeners();
   }
 
