@@ -10,12 +10,12 @@ class AudioPlayerManager {
     // _audioPlayer.logEnabled = true;
   }
 
-  Future<void> play(
+  Future<Result> play(
       List<String> urls,
       List<AudioNotification> audioNotifications,
       int index,
       bool repeatMode) async {
-    await _audioPlayer.playAll(urls,
+    return await _audioPlayer.playAll(urls,
         index: index,
         playerMode: PlayerMode.FOREGROUND,
         repeatMode: repeatMode,
@@ -29,36 +29,36 @@ class AudioPlayerManager {
 
   Future<Duration> get duration async => await _audioPlayer.getDuration();
 
-  Future<void> resume() async {
-    await _audioPlayer.resume();
+  Future<Result> resume() async {
+    return await _audioPlayer.resume();
   }
 
-  Future<void> pause() async {
-    await _audioPlayer.pause();
+  Future<Result> pause() async {
+    return await _audioPlayer.pause();
   }
 
-  Future<void> stop() async {
-    await _audioPlayer.stop();
+  Future<Result> stop() async {
+    return await _audioPlayer.stop();
   }
 
-  Future<void> release() async {
-    await _audioPlayer.release();
+  Future<Result> release() async {
+    return await _audioPlayer.release();
   }
 
-  Future<void> seekPosition(Duration duration) async {
-    await _audioPlayer.seekPosition(duration);
+  Future<Result> seekPosition(Duration duration) async {
+    return await _audioPlayer.seekPosition(duration);
   }
 
-  Future<void> seekIndex(int index) async {
-    await _audioPlayer.seekIndex(index);
+  Future<Result> seekIndex(int index) async {
+    return await _audioPlayer.seekIndex(index);
   }
 
-  Future<void> previous() async {
-    await _audioPlayer.previous();
+  Future<Result> previous() async {
+    return await _audioPlayer.previous();
   }
 
-  Future<void> next() async {
-    await _audioPlayer.next();
+  Future<Result> next() async {
+    return await _audioPlayer.next();
   }
 
   Future<int> getCurrentIndex() async {

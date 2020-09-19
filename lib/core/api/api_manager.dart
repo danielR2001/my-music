@@ -323,8 +323,8 @@ class ApiManager {
     artist = unescape.convert(artist);
 
     songTitle = item.substring(
-        item.indexOf('<div class="title">') + '<div class="title">'.length,
-        item.indexOf('</div>    </div>'));
+        item.indexOf('<div class="special-title">') + '<div class="special-title">'.length,
+        item.indexOf('</div>    </div></div><div class="audio-duration">'));
     songTitle = unescape.convert(songTitle);
 
     songId = item.substring(

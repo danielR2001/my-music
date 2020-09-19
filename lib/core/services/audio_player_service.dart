@@ -5,6 +5,7 @@ import 'package:flutter_exoplayer/audioplayer.dart';
 import 'package:myapp/core/player/audio_player_manager.dart';
 import 'package:myapp/core/services/api_service.dart';
 import 'package:myapp/core/services/local_database_service.dart';
+import 'package:myapp/core/services/toast_service.dart';
 import 'package:myapp/locater.dart';
 import 'package:myapp/models/playlist.dart';
 import 'package:myapp/models/song.dart';
@@ -18,6 +19,7 @@ class AudioPlayerService {
   final AudioPlayerManager _audioPlayerManager = locator<AudioPlayerManager>();
   final LocalDatabaseService _localDatabaseService =
       locator<LocalDatabaseService>();
+  final ToastService _toastService = locator<ToastService>();
 
   Playlist _currentPlaylist;
   Playlist _shuffledPlaylist;
@@ -34,7 +36,7 @@ class AudioPlayerService {
   PlayerState get playerState => _audioPlayerManager.playerState;
 
   Future<Duration> get position async => await _audioPlayerManager.position;
-  
+
   Future<Duration> get duration async => await _audioPlayerManager.duration;
 
   PlaylistMode get playlistMode =>
@@ -97,39 +99,76 @@ class AudioPlayerService {
       List<AudioNotification> audioNotifications,
       int index,
       bool repeatMode) async {
-    await _audioPlayerManager.play(urls, audioNotifications, index, repeatMode);
+    Result result = await _audioPlayerManager.play(
+        urls, audioNotifications, index, repeatMode);
+    _toastService.makeToast(
+        text: "playPlaylist" + (result == Result.ERROR
+            ? "ERROR"
+            : result == Result.FAIL ? "FAIL" : "SUCCESS"));
   }
 
   Future<void> resume() async {
-    await _audioPlayerManager.resume();
+    Result result = await _audioPlayerManager.resume();
+    _toastService.makeToast(
+        text: "resume" + (result == Result.ERROR
+            ? "ERROR"
+            : result == Result.FAIL ? "FAIL" : "SUCCESS"));
   }
 
   Future<void> pause() async {
-    await _audioPlayerManager.pause();
+    Result result = await _audioPlayerManager.pause();
+    _toastService.makeToast(
+        text: "pause" + (result == Result.ERROR
+            ? "ERROR"
+            : result == Result.FAIL ? "FAIL" : "SUCCESS"));
   }
 
   Future<void> stopPlaylist() async {
-    await _audioPlayerManager.stop();
+    Result result = await _audioPlayerManager.stop();
+    _toastService.makeToast(
+        text: "stopPlaylist" + (result == Result.ERROR
+            ? "ERROR"
+            : result == Result.FAIL ? "FAIL" : "SUCCESS"));
   }
 
   Future<void> releasePlaylist() async {
-    await _audioPlayerManager.release();
+    Result result = await _audioPlayerManager.release();
+    _toastService.makeToast(
+        text: "releasePlaylist" + (result == Result.ERROR
+            ? "ERROR"
+            : result == Result.FAIL ? "FAIL" : "SUCCESS"));
   }
 
   Future<void> seekPosition(Duration duration) async {
-    await _audioPlayerManager.seekPosition(duration);
+    Result result = await _audioPlayerManager.seekPosition(duration);
+    _toastService.makeToast(
+        text: "seekPosition" + (result == Result.ERROR
+            ? "ERROR"
+            : result == Result.FAIL ? "FAIL" : "SUCCESS"));
   }
 
   Future<void> seekIndex(int index) async {
-    await _audioPlayerManager.seekIndex(index);
+    Result result = await _audioPlayerManager.seekIndex(index);
+    _toastService.makeToast(
+        text: "seekIndex" + (result == Result.ERROR
+            ? "ERROR"
+            : result == Result.FAIL ? "FAIL" : "SUCCESS"));
   }
 
   Future<void> playPreviousSong() async {
-    await _audioPlayerManager.previous();
+    Result result = await _audioPlayerManager.previous();
+    _toastService.makeToast(
+        text: "playPreviousSong" + (result == Result.ERROR
+            ? "ERROR"
+            : result == Result.FAIL ? "FAIL" : "SUCCESS"));
   }
 
   Future<void> playNextSong() async {
-    await _audioPlayerManager.next();
+    Result result = await _audioPlayerManager.next();
+    _toastService.makeToast(
+        text: "playNextSong" + (result == Result.ERROR
+            ? "ERROR"
+            : result == Result.FAIL ? "FAIL" : "SUCCESS"));
   }
 
   Future<Song> getCurrentSong() async {

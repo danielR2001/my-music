@@ -9,6 +9,11 @@ class Song {
   String _lyrics;
   String _playUrl;
 
+
+  Song.empty(){
+
+  }
+
   Song(String title, String artist, String songId, String playUrl,
       String imageUrl, String pushId,
       {int dateAdded}) {

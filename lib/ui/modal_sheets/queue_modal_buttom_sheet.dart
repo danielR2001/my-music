@@ -11,11 +11,14 @@ class QueueModalSheet extends StatefulWidget {
 }
 
 class _QueueModalSheetState extends State<QueueModalSheet> {
-  Song currentSong;
+
   @override
   Widget build(BuildContext context) {
     return BasePage<QueueModel>(
-      onModelReady: (model) async => currentSong = await model.getCurrentSong(),
+      onModelReady: (model) async {
+        await model.getCurrentSong();
+        model.getCurrentPlaylist();
+      },
       builder: (context, model, child) => Container(
         alignment: Alignment.topCenter,
         decoration: BoxDecoration(
@@ -49,9 +52,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
                 child: ReorderableListView(
                   children: drawPlaylistQueueSongs(model),
                   onReorder: (from, to) {
-                    //setState(() {
                     model.onReorder(to, from);
-                    //});
                   },
                 ),
               ),
@@ -79,15 +80,17 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
 
   List<Widget> drawPlaylistQueueSongs(QueueModel model) {
     List<Widget> songs = List();
-    for (int i = 0; i < model.getCurrentPlaylist().songs.length; i++) {
+    if(model.currentPlaylist == null) return songs;
+    for (int i = 0; i < model.currentPlaylist.songs.length; i++) {
       Key key = Key("$i");
-      songs.add(
-          songItem(model.getCurrentPlaylist().songs[i], i + 1, context, key, model));
+      songs.add(songItem(
+          model.currentPlaylist.songs[i], i + 1, context, key, model));
     }
     return songs;
   }
 
-  Widget songItem(Song song, int pos, BuildContext context, Key key, QueueModel model) {
+  Widget songItem(
+      Song song, int pos, BuildContext context, Key key, QueueModel model) {
     String title;
     String artist;
     if (song.title.length > 25) {
@@ -120,7 +123,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
       title: Text(
         title,
         style: TextStyle(
-          color: currentSong.songId == song.songId
+          color: model.currentSong.songId == song.songId
               ? CustomColors.pinkColor
               : Colors.white,
           fontSize: 14,
@@ -130,22 +133,20 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
       subtitle: Text(
         artist,
         style: TextStyle(
-          color: currentSong.songId == song.songId
+          color: model.currentSong.songId == song.songId
               ? CustomColors.pinkColor
               : Colors.grey,
           fontSize: 12,
         ),
       ),
-      trailing: currentSong.songId != song.songId
+      trailing: model.currentSong.songId != song.songId
           ? IconButton(
               icon: Icon(
                 Icons.clear,
                 color: Colors.white,
               ),
               onPressed: () {
-                setState(() {
                   model.removeSongFromPlaylist(song);
-                });
               },
             )
           : Container(
@@ -153,9 +154,7 @@ class _QueueModalSheetState extends State<QueueModalSheet> {
               height: 0,
             ),
       onTap: () {
-        //setState(() {
-        model.seekIndex(model.getCurrentPlaylist().songs.indexOf(song));
-        //});
+        model.seekIndex(model.currentPlaylist.songs.indexOf(song));
       },
     );
   }

@@ -78,6 +78,7 @@ class PlaylistModel extends BaseModel {
   }
 
   bool isSongPlaying(Song song) {
+    if(_currentSong == null) return false;
     return _currentSong.songId == song.songId;
   }
 
